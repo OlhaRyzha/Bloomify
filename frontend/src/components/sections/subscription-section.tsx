@@ -119,7 +119,7 @@ export default function SubscriptionSection() {
                   'relative overflow-hidden transition-all duration-300 hover:shadow-elevated',
                   plan.popular
                     ? 'bg-primary text-primary-foreground ring-2 ring-gold'
-                    : 'bg-card hover:bg-card/80',
+                    : 'bg-card hover:bg-card/80'
                 )}>
                 {plan.popular && (
                   <div className='absolute right-0 top-0 rounded-bl-xl bg-gold px-4 py-1 text-xs font-semibold text-forest'>
@@ -135,14 +135,14 @@ export default function SubscriptionSection() {
                           'flex h-12 w-12 items-center justify-center rounded-xl',
                           plan.popular
                             ? 'bg-primary-foreground/20'
-                            : 'bg-primary/10',
+                            : 'bg-primary/10'
                         )}>
                         <plan.icon
                           className={cn(
                             'h-6 w-6',
                             plan.popular
                               ? 'text-primary-foreground'
-                              : 'text-primary',
+                              : 'text-primary'
                           )}
                         />
                       </div>
@@ -153,7 +153,7 @@ export default function SubscriptionSection() {
                             'font-display text-xl font-bold',
                             plan.popular
                               ? 'text-primary-foreground'
-                              : 'text-foreground',
+                              : 'text-foreground'
                           )}>
                           {plan.name}
                         </h3>
@@ -162,7 +162,7 @@ export default function SubscriptionSection() {
                             'text-sm',
                             plan.popular
                               ? 'text-primary-foreground/80'
-                              : 'text-muted-foreground',
+                              : 'text-muted-foreground'
                           )}>
                           {plan.description}
                         </p>
@@ -175,7 +175,7 @@ export default function SubscriptionSection() {
                           'font-display text-3xl font-bold',
                           plan.popular
                             ? 'text-primary-foreground'
-                            : 'text-primary',
+                            : 'text-primary'
                         )}>
                         {plan.price}₴
                       </span>
@@ -184,7 +184,7 @@ export default function SubscriptionSection() {
                           'block text-sm',
                           plan.popular
                             ? 'text-primary-foreground/80'
-                            : 'text-muted-foreground',
+                            : 'text-muted-foreground'
                         )}>
                         /{plan.period}
                       </span>
@@ -201,7 +201,7 @@ export default function SubscriptionSection() {
                           'inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs',
                           plan.popular
                             ? 'bg-primary-foreground/20 text-primary-foreground'
-                            : 'bg-muted text-muted-foreground',
+                            : 'bg-muted text-muted-foreground'
                         )}>
                         <Check className='h-3 w-3' />
                         {feature}
@@ -214,7 +214,7 @@ export default function SubscriptionSection() {
                           'px-2 py-1 text-xs',
                           plan.popular
                             ? 'text-primary-foreground/80'
-                            : 'text-muted-foreground',
+                            : 'text-muted-foreground'
                         )}>
                         +{plan.features.length - 3} ще
                       </span>
@@ -222,7 +222,10 @@ export default function SubscriptionSection() {
                   </div>
 
                   <Button
-                    className='w-full'
+                    className={cn(
+                      'w-full',
+                      plan.popular && 'bg-gold text-forest font-semibold'
+                    )}
                     variant={plan.popular ? 'default' : 'default'}>
                     Оформити підписку
                   </Button>

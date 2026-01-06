@@ -1,26 +1,21 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ShoppingBag, User } from 'lucide-react';
 import { Button } from '../ui/button';
-
-type NavLink = { href: string; label: string };
+import { mainNavigationLinks } from '@/constants/navigation.constants';
+import { useHydrated } from '@/hooks/use-hydrated';
+import { useCartStore } from '@/features/cart/cart.store';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-
-  const navLinks: NavLink[] = useMemo(
-    () => [
-      { href: '/#catalog', label: 'Каталог' },
-      { href: '/#subscription', label: 'Підписка' },
-      { href: '/#about', label: 'Про нас' },
-      { href: '/#contact', label: 'Контакти' },
-    ],
-    []
+  const isHydrated = useHydrated();
+  const cartCount = useCartStore((state) =>
+    state.items.reduce((total, item) => total + item.quantity, 0)
   );
 
   return (
@@ -40,7 +35,7 @@ export default function Header() {
           </Link>
 
           <nav className='hidden items-center gap-8 md:flex'>
-            {navLinks.map((link) => (
+            {mainNavigationLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -72,7 +67,7 @@ export default function Header() {
               <Link href='/cart'>
                 <ShoppingBag className='h-5 w-5' />
                 <span className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground'>
-                  0
+                  {isHydrated ? cartCount : 0}
                 </span>
               </Link>
             </Button>
@@ -101,7 +96,7 @@ export default function Header() {
               exit={{ opacity: 0, height: 0 }}
               className='border-t border-border py-4 md:hidden'>
               <div className='flex flex-col gap-4'>
-                {navLinks.map((link) => (
+                {mainNavigationLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}

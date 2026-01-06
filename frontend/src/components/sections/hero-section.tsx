@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import heroImage from '@/assets/hero-flowers.jpg';
 import { Button } from '../ui/button';
+import { FREE_DELIVERY_MESSAGE } from '@/constants/delivery.constants';
 
 export default function HeroSection() {
   return (
@@ -27,7 +28,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 backdrop-blur-sm'>
-              <Sparkles className='h-4 w-4 text-gold' />
+              <Sparkles className='h-4 w-4 text-yellow-600' />
               <span className='text-sm font-medium text-secondary-foreground'>
                 Щомісячна підписка на квіти
               </span>
@@ -109,7 +110,7 @@ export default function HeroSection() {
                 <div className='flex items-center gap-2'>
                   <span className='text-lg'>🚚</span>
                   <span className='text-sm font-semibold text-white'>
-                    Безкоштовна доставка від 1500 ₴
+                    {FREE_DELIVERY_MESSAGE}
                   </span>
                 </div>
               </div>

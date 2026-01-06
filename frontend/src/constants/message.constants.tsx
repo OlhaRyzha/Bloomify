@@ -1,6 +1,14 @@
 export const validationMessages = {
-  requiredField: (fiealName: string = 'This field') =>
-    `${fiealName} is required.`,
+  requiredField: (fieldName: string = 'Це поле') =>
+    `${fieldName} є обов'язковим.`,
+  invalidEmail: 'Вкажіть коректну електронну адресу.',
+  invalidImageUrl: 'Вкажіть коректне посилання на зображення.',
+  passwordMin: (minSize: number) =>
+    `Пароль має містити щонайменше ${minSize} символів.`,
+  passwordRules: 'Пароль має містити принаймні одну літеру та цифру.',
+  passwordMismatch: 'Паролі не збігаються.',
+  nameMin: (minSize: number) =>
+    `Ім'я має містити щонайменше ${minSize} символи.`,
   lengthMax: (maxSize: string) =>
     `The selected file must be smaller than ${maxSize}.`,
   invalidScheme: 'Only HTTP and HTTPS links are supported.',

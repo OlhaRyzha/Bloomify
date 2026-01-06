@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Header from '@/components/layout/header';
-import HeroSection from '@/components/sections/hero-section';
-import CatalogSection from '@/components/sections/catalog-section';
-import SubscriptionSection from '@/components/sections/subscription-section';
-import FeaturesSection from '@/components/sections/features-section';
 import Footer from '@/components/layout/footer';
+import AppProviders from '@/components/providers/app-providers';
+import { ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: 'Bloomify',
@@ -15,22 +13,19 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
-    <html lang='en'>
-      <body>
-        <div className='flex min-h-screen flex-col bg-background'>
-          <Header />
-          <main className='flex-1'>
-            <HeroSection />
-            <CatalogSection />
-            <SubscriptionSection />
-            <FeaturesSection />
-          </main>
-          <Footer />
-        </div>
-      </body>
-    </html>
+    <AppProviders>
+      <html lang='en'>
+        <body>
+          <div className='flex min-h-screen flex-col bg-background'>
+            <Header />
+            <main className='flex-1'>{children}</main>
+            <Footer />
+          </div>
+        </body>
+      </html>
+    </AppProviders>
   );
 }

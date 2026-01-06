@@ -20,6 +20,12 @@ const config: Config = {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        gold: 'hsl(var(--gold))',
+        forest: 'hsl(var(--forest))',
+        blush: 'hsl(var(--blush))',
+        sage: 'hsl(var(--sage))',
+        'gradient-card-start': 'hsl(var(--gradient-card-start))',
+        'gradient-card-end': 'hsl(var(--gradient-card-end))',
 
         primary: {
           DEFAULT: 'hsl(var(--primary))',

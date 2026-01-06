@@ -259,3 +259,61 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+.loader-circle {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+}
+
+.loader-circle::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: hsl(354, 55%, 66%);
+  animation: bloom-scale 1.8s infinite ease-in-out;
+}
+
+.loader-circle-1 {
+  transform: rotate(0deg);
+}
+.loader-circle-2 {
+  transform: rotate(45deg);
+}
+.loader-circle-3 {
+  transform: rotate(90deg);
+}
+.loader-circle-4 {
+  transform: rotate(135deg);
+}
+.loader-circle-5 {
+  transform: rotate(180deg);
+}
+.loader-circle-6 {
+  transform: rotate(225deg);
+}
+.loader-circle-7 {
+  transform: rotate(270deg);
+}
+.loader-circle-8 {
+  transform: rotate(315deg);
+}
+
+@keyframes bloom-scale {
+  0% {
+    height: 16px;
+    opacity: 0.4;
+  }
+  100% {
+    height: 56px;
+    opacity: 1;
+    box-shadow: 0 6px 18px hsl(var(--gold) / 0.4);
+  }
+}

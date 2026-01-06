@@ -1,41 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart } from 'lucide-react';
-import bouquetRoses from '@/assets/bouquet-roses.jpg';
-import bouquetPeony from '@/assets/bouquet-peony.jpg';
-import bouquetWild from '@/assets/bouquet-wild.jpg';
+import { useMemo } from 'react';
+import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
+import CatalogCard from '@/features/catalog/catalog-card';
+import { mapProductToCatalogItem } from '@/features/catalog/catalog-mappers';
 import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
-
-const products = [
-  {
-    id: '1',
-    name: 'Романтичні троянди',
-    description: 'Ніжний букет з рожевих та білих троянд',
-    price: 1850,
-    image: bouquetRoses,
-    tag: 'Бестселер',
-  },
-  {
-    id: '2',
-    name: 'Лавандова елегантність',
-    description: 'Білі півонії з гілочками лаванди',
-    price: 2200,
-    image: bouquetPeony,
-    tag: 'Новинка',
-  },
-  {
-    id: '3',
-    name: 'Сонячний настрій',
-    description: 'Соняшники та польові квіти',
-    price: 1650,
-    image: bouquetWild,
-    tag: 'Популярне',
-  },
-];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -55,6 +26,13 @@ const itemVariants = {
 };
 
 export default function CatalogSection() {
+  const { data } = useGetProducts();
+
+  const products = useMemo(
+    () => (data ?? []).slice(0, 3).map(mapProductToCatalogItem),
+    [data]
+  );
+
   return (
     <section
       id='catalog'
@@ -88,47 +66,7 @@ export default function CatalogSection() {
             <motion.div
               key={product.id}
               variants={itemVariants}>
-              <Card className='group overflow-hidden border-0 bg-gradient-card shadow-card transition-all duration-500 hover:shadow-elevated'>
-                <div className='relative aspect-square overflow-hidden'>
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className='object-cover transition-transform duration-700 group-hover:scale-105'
-                  />
-
-                  <span className='absolute left-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground'>
-                    {product.tag}
-                  </span>
-
-                  <button
-                    type='button'
-                    className='absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/80 opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-blush group-hover:opacity-100'
-                    aria-label='Add to wishlist'>
-                    <Heart className='h-5 w-5 text-foreground' />
-                  </button>
-                </div>
-
-                <CardContent className='p-6'>
-                  <h3 className='font-display mb-2 text-xl font-semibold'>
-                    {product.name}
-                  </h3>
-                  <p className='mb-4 text-sm text-muted-foreground'>
-                    {product.description}
-                  </p>
-
-                  <div className='flex items-center justify-between'>
-                    <span className='font-display text-2xl font-bold text-primary'>
-                      {product.price} ₴
-                    </span>
-
-                    <Button size='sm'>
-                      <ShoppingBag className='mr-1 h-4 w-4' />
-                      До кошика
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <CatalogCard item={product} />
             </motion.div>
           ))}
         </motion.div>

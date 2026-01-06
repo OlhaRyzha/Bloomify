@@ -2,9 +2,10 @@
 
 import { motion } from 'framer-motion';
 import { Truck, Shield, Clock, Leaf } from 'lucide-react';
+import { ElementType } from 'react';
 
 type Feature = {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   description: string;
 };

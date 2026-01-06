@@ -1,6 +1,3 @@
-import { BASE_URL } from '@/components/config/env';
-import { isAbsoluteUrl } from '@/utils/guards/isAbsoluteUrl';
-import { getHost } from '@/utils/url/getHost';
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -8,7 +5,10 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { ALLOWED_EXTERNAL_HOSTS } from '@/constants/network.constants';
-import { createAxiosConfig } from '@/services';
+import { createAxiosConfig } from './axios.config';
+import { BASE_URL } from '@/components/config/env';
+import { isAbsoluteUrl } from '@/utils/guards/is-absolute-url';
+import { getHost } from '@/utils/url/get-host';
 
 export class ApiClient {
   private axiosBase: AxiosInstance;

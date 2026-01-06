@@ -2,9 +2,15 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Camera, Users, Send, Phone, Mail, MapPin } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  footerContactItems,
+  mainNavigationLinks,
+  footerServiceLinks,
+  footerSocialLinks,
+} from '@/constants/navigation.constants';
 
 export default function Footer() {
   return (
@@ -37,6 +43,7 @@ export default function Footer() {
                 className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
               />
               <Button
+                className='h-10 px-6 py-2 bg-gold'
                 type='submit'
                 size='icon'
                 aria-label='Subscribe'>
@@ -61,43 +68,24 @@ export default function Footer() {
             </p>
 
             <div className='mt-6 flex gap-3'>
-              <a
-                href='https://instagram.com'
-                target='_blank'
-                rel='noreferrer'
-                className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20'
-                aria-label='Instagram'>
-                <Camera className='h-5 w-5' />
-              </a>
-              <a
-                href='https://facebook.com'
-                target='_blank'
-                rel='noreferrer'
-                className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20'
-                aria-label='Facebook'>
-                <Users className='h-5 w-5' />
-              </a>
-              <a
-                href='https://t.me'
-                target='_blank'
-                rel='noreferrer'
-                className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20'
-                aria-label='Telegram'>
-                <Send className='h-5 w-5' />
-              </a>
+              {footerSocialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target='_blank'
+                  rel='noreferrer'
+                  className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20'
+                  aria-label={item.label}>
+                  <item.icon className='h-5 w-5' />
+                </a>
+              ))}
             </div>
           </div>
 
           <div>
             <h4 className='text-lg font-semibold'>Навігація</h4>
             <ul className='mt-4 space-y-2 text-sm'>
-              {[
-                { label: 'Каталог', href: '/catalog' },
-                { label: 'Підписка', href: '/#subscription' },
-                { label: 'Про нас', href: '/#about' },
-                { label: 'Блог', href: '/blog' },
-                { label: 'FAQ', href: '/faq' },
-              ].map((item) => (
+              {mainNavigationLinks.map((item) => (
                 <li key={item.label}>
                   <Link
                     href={item.href}
@@ -112,18 +100,12 @@ export default function Footer() {
           <div>
             <h4 className='text-lg font-semibold'>Послуги</h4>
             <ul className='mt-4 space-y-2 text-sm'>
-              {[
-                'Весільна флористика',
-                'Корпоративні замовлення',
-                'Оформлення свят',
-                'Подарункові кошики',
-                'Доставка квітів',
-              ].map((service) => (
-                <li key={service}>
+              {footerServiceLinks.map((service) => (
+                <li key={service.label}>
                   <Link
-                    href='/#services'
+                    href={service.href}
                     className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-                    {service}
+                    {service.label}
                   </Link>
                 </li>
               ))}
@@ -133,28 +115,17 @@ export default function Footer() {
           <div>
             <h4 className='text-lg font-semibold'>Контакти</h4>
             <ul className='mt-4 space-y-3 text-sm'>
-              <li className='flex items-center gap-3'>
-                <Phone className='h-4 w-4 text-primary-foreground/80' />
-                <a
-                  href='tel:+380991234567'
-                  className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-                  +38 (099) 123-45-67
-                </a>
-              </li>
-              <li className='flex items-center gap-3'>
-                <Mail className='h-4 w-4 text-primary-foreground/80' />
-                <a
-                  href='mailto:hello@bloomify.ua'
-                  className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-                  hello@bloomify.ua
-                </a>
-              </li>
-              <li className='flex items-start gap-3'>
-                <MapPin className='mt-0.5 h-4 w-4 text-primary-foreground/80' />
-                <span className='text-primary-foreground/80'>
-                  м. Київ, вул. Хрещатик, 1
-                </span>
-              </li>
+              {footerContactItems.map((item) => (
+                <li
+                  key={item.id}
+                  className='flex items-start gap-3'>
+                  <item.icon
+                    className='mt-0.5 h-4 w-4 text-gold'
+                    aria-hidden
+                  />
+                  {item.content}
+                </li>
+              ))}
             </ul>
           </div>
         </div>
