@@ -1,0 +1,52 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: black (backend)
+        files: ^backend/.*\.py$
+        args: ["--config", ".black"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.1
+    hooks:
+      - id: ruff
+        name: ruff (backend)
+        files: ^backend/.*\.py$
+        args: ["--fix", "--config", "ruff.toml"]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        name: mypy (backend)
+        files: ^backend/.*\.py$
+        entry: bash -c 'PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings mypy --config-file mypy.ini "$@"' --
+        additional_dependencies:
+          - django-stubs
+          - djangorestframework-stubs
+          - django
+          - djangorestframework
+          - djangorestframework-simplejwt
+          - django-cors-headers
+          - django-crispy-forms
+          - django-unfold
+          - pydantic-settings
+          - psycopg[binary]
+          - types-redis
+
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: eslint (frontend)
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(js|jsx|ts|tsx)$
+
+      - id: frontend-typecheck
+        name: typecheck (frontend)
+        entry: bash -c 'cd frontend && npm run typecheck'
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx)$
