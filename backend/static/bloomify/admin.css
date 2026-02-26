@@ -1,0 +1,715 @@
+
+:root {
+  --bloomify-shadow: 0 10px 30px -15px rgba(216, 119, 129, 0.25);
+  --bloomify-shadow-strong: 0 20px 45px -20px rgba(216, 119, 129, 0.35);
+  --bloomify-border: rgba(216, 119, 129, 0.18);
+  --bloomify-hero: linear-gradient(135deg, #f7e4ea 0%, #fbf3f3 50%, #f6e6ec 100%);
+  --bloomify-card: linear-gradient(180deg, #fff9fb 0%, #f7e5ea 100%);
+  --bloomify-accent: #d87781;
+  --bloomify-primary: #d87781;
+  --bloomify-primary-strong: #d05864;
+  --bloomify-primary-soft: #f3b9c1;
+  --bloomify-primary-soft-hover: #f0aab4;
+  --bloomify-primary-text: #4a1f25;
+}
+
+body {
+  background: var(--bloomify-hero);
+}
+
+.unfold-sidebar {
+  background: linear-gradient(180deg, #fdf1f6, #ffffff);
+  border-right: 1px solid var(--bloomify-border);
+}
+
+.unfold-card,
+.unfold-panel,
+.unfold-box {
+  background: var(--bloomify-card);
+  box-shadow: var(--bloomify-shadow);
+  border: 1px solid var(--bloomify-border);
+  border-radius: 18px;
+}
+
+.unfold-button--primary {
+  box-shadow: 0 12px 26px -14px rgba(216, 119, 129, 0.35);
+  background-image: linear-gradient(135deg, var(--bloomify-primary-strong) 0%, var(--bloomify-primary) 100%);
+  color: #ffffff;
+}
+
+.unfold-button--primary:hover,
+.unfold-button--primary:focus {
+  background-image: linear-gradient(135deg, #ba2632 0%, var(--bloomify-primary-strong) 100%);
+  color: #ffffff;
+}
+
+.bloomify-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--bloomify-form-border);
+  box-shadow: 0 8px 18px -14px rgba(15, 23, 42, 0.4);
+}
+
+.bloomify-preview {
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid var(--bloomify-form-border);
+  box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.5);
+}
+
+.column-row_actions {
+  width: 72px;
+}
+
+.bloomify-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.bloomify-row-action {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--bloomify-form-border);
+  background: var(--bloomify-form-field);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.bloomify-row-action img {
+  width: 14px;
+  height: 14px;
+  opacity: 0.6;
+  filter: grayscale(1) brightness(0.6);
+}
+
+.bloomify-row-action:hover,
+.bloomify-row-action:focus {
+  background: rgba(216, 119, 129, 0.18);
+  border-color: rgba(216, 119, 129, 0.45);
+}
+
+.bloomify-row-action:hover img,
+.bloomify-row-action:focus img {
+  opacity: 0.85;
+  filter: grayscale(0.3) brightness(0.8);
+}
+
+.bloomify-row-action--danger:hover,
+.bloomify-row-action--danger:focus {
+  background: rgba(186, 38, 50, 0.18);
+  border-color: rgba(186, 38, 50, 0.45);
+}
+
+.bg-primary-600,
+.submit-row .bg-primary-600 {
+  background-image: linear-gradient(135deg, var(--bloomify-primary-strong) 0%, var(--bloomify-primary) 100%) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.hover\\:bg-primary-700:hover,
+.submit-row .hover\\:bg-primary-700:hover {
+  background-image: linear-gradient(135deg, #ba2632 0%, var(--bloomify-primary-strong) 100%) !important;
+  color: #ffffff !important;
+}
+
+.submit-row input.default,
+.submit-row input[type="submit"].default,
+.submit-row a.default,
+.submit-row .default {
+  background-image: linear-gradient(135deg, var(--bloomify-primary-strong) 0%, var(--bloomify-primary) 100%) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 22px -16px rgba(216, 119, 129, 0.45);
+}
+
+.submit-row input.default:hover,
+.submit-row input[type="submit"].default:hover,
+.submit-row a.default:hover,
+.submit-row .default:hover {
+  background-image: linear-gradient(135deg, #ba2632 0%, var(--bloomify-primary-strong) 100%) !important;
+}
+
+.changelist-form .actions {
+  position: sticky !important;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  margin: 0 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(216, 119, 129, 0.35) !important;
+  background: linear-gradient(135deg, rgba(216, 119, 129, 0.16), rgba(186, 38, 50, 0.34)) !important;
+  box-shadow: 0 18px 36px -24px rgba(186, 38, 50, 0.65) !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  backdrop-filter: blur(8px);
+  z-index: 30;
+}
+
+html[data-theme="light"] .changelist-form .actions,
+body:not(.theme-dark) .changelist-form .actions {
+  background: linear-gradient(135deg, rgba(216, 119, 129, 0.16), rgba(186, 38, 50, 0.22)) !important;
+  color: #3e1a1f;
+  box-shadow: 0 12px 28px -20px rgba(216, 119, 129, 0.55) !important;
+}
+
+.changelist-form .actions label {
+  font-weight: 700;
+  color: inherit;
+}
+
+.changelist-form .actions select {
+  min-width: 180px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: inherit !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.changelist-form .actions select option {
+  color: #1f2937;
+}
+
+.changelist-form .actions .button,
+.changelist-form .actions input[type=\"submit\"] {
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--bloomify-primary-strong), var(--bloomify-primary)) !important;
+  box-shadow: 0 10px 22px -16px rgba(216, 119, 129, 0.5) !important;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.changelist-form .actions .button:hover,
+.changelist-form .actions input[type=\"submit\"]:hover {
+  background: linear-gradient(135deg, #ba2632, var(--bloomify-primary-strong)) !important;
+}
+
+.changelist-form .actions .action-counter {
+  margin-left: auto;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 8px 12px;
+  border-radius: 12px;
+  letter-spacing: 0.02em;
+}
+
+:root {
+  --bloomify-form-surface: #ffffff;
+  --bloomify-form-field: #f8f5f7;
+  --bloomify-form-border: rgba(216, 119, 129, 0.2);
+  --bloomify-form-text: #1f2a25;
+  --bloomify-form-muted: #5b6b63;
+  --bloomify-form-focus: rgba(216, 119, 129, 0.28);
+  --bloomify-form-focus-bg: #ffffff;
+  --bloomify-form-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bloomify-form-surface: #0f172a;
+    --bloomify-form-field: rgba(15, 23, 42, 0.75);
+    --bloomify-form-border: rgba(216, 119, 129, 0.28);
+    --bloomify-form-text: #e2e8f0;
+    --bloomify-form-muted: #94a3b8;
+    --bloomify-form-focus: rgba(216, 119, 129, 0.35);
+    --bloomify-form-focus-bg: rgba(15, 23, 42, 0.9);
+    --bloomify-form-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.75);
+  }
+}
+
+html[data-theme="dark"],
+html.dark,
+body.theme-dark {
+  --bloomify-form-surface: #0f172a;
+  --bloomify-form-field: rgba(15, 23, 42, 0.75);
+  --bloomify-form-border: rgba(216, 119, 129, 0.28);
+  --bloomify-form-text: #e2e8f0;
+  --bloomify-form-muted: #94a3b8;
+  --bloomify-form-focus: rgba(216, 119, 129, 0.35);
+  --bloomify-form-focus-bg: rgba(15, 23, 42, 0.9);
+  --bloomify-form-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.75);
+}
+
+.unfold-form fieldset,
+.unfold-card fieldset,
+.unfold-panel fieldset,
+fieldset.module {
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 18px;
+  padding: 14px;
+  background: var(--bloomify-form-surface);
+  box-shadow: var(--bloomify-form-shadow);
+}
+
+.unfold-form legend,
+fieldset.module legend,
+.unfold-form h2,
+.unfold-form h3 {
+  color: var(--bloomify-form-text);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.unfold-form .form-row,
+fieldset.module .form-row,
+.unfold-panel .form-row {
+  margin-bottom: 18px;
+}
+
+.unfold-form label,
+fieldset.module label,
+.unfold-panel label {
+  color: var(--bloomify-form-text);
+  font-weight: 600;
+}
+
+.unfold-form .help,
+.unfold-form .helptext,
+.unfold-form .description,
+fieldset.module .help,
+fieldset.module .helptext,
+.unfold-panel .help,
+.unfold-panel .helptext {
+  color: var(--bloomify-form-muted);
+  font-size: 0.82rem;
+}
+
+.unfold-form input[type="text"],
+.unfold-form input[type="email"],
+.unfold-form input[type="url"],
+.unfold-form input[type="password"],
+.unfold-form input[type="number"],
+.unfold-form input[type="search"],
+.unfold-form input[type="tel"],
+.unfold-form input[type="date"],
+.unfold-form input[type="datetime-local"],
+.unfold-form input[type="time"],
+.unfold-form select,
+.unfold-form textarea,
+fieldset.module input[type="text"],
+fieldset.module input[type="email"],
+fieldset.module input[type="url"],
+fieldset.module input[type="password"],
+fieldset.module input[type="number"],
+fieldset.module input[type="search"],
+fieldset.module input[type="tel"],
+fieldset.module input[type="date"],
+fieldset.module input[type="datetime-local"],
+fieldset.module input[type="time"],
+fieldset.module select,
+fieldset.module textarea,
+.unfold-panel input[type="text"],
+.unfold-panel input[type="email"],
+.unfold-panel input[type="url"],
+.unfold-panel input[type="password"],
+.unfold-panel input[type="number"],
+.unfold-panel input[type="search"],
+.unfold-panel input[type="tel"],
+.unfold-panel input[type="date"],
+.unfold-panel input[type="datetime-local"],
+.unfold-panel input[type="time"],
+.unfold-panel select,
+.unfold-panel textarea {
+  background: var(--bloomify-form-field);
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--bloomify-form-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.unfold-form textarea,
+fieldset.module textarea,
+.unfold-panel textarea {
+  min-height: 30px;
+  resize: vertical;
+}
+
+.unfold-form input:focus,
+.unfold-form select:focus,
+.unfold-form textarea:focus,
+fieldset.module input:focus,
+fieldset.module select:focus,
+fieldset.module textarea:focus,
+.unfold-panel input:focus,
+.unfold-panel select:focus,
+.unfold-panel textarea:focus {
+  outline: none;
+  border-color: rgba(216, 119, 129, 0.75);
+  box-shadow: 0 0 0 4px var(--bloomify-form-focus);
+  background: var(--bloomify-form-focus-bg);
+}
+
+.unfold-form input[readonly],
+.unfold-form textarea[readonly],
+.unfold-form select[readonly],
+.unfold-form input:disabled,
+.unfold-form textarea:disabled,
+.unfold-form select:disabled,
+fieldset.module input:disabled,
+fieldset.module textarea:disabled,
+fieldset.module select:disabled,
+.unfold-panel input:disabled,
+.unfold-panel textarea:disabled,
+.unfold-panel select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.unfold-form input[type="checkbox"],
+.unfold-form input[type="radio"],
+fieldset.module input[type="checkbox"],
+fieldset.module input[type="radio"],
+.unfold-panel input[type="checkbox"],
+.unfold-panel input[type="radio"] {
+  accent-color: #d87781;
+  margin-right: 6px;
+}
+
+.unfold-form .selector,
+fieldset.module .selector,
+.unfold-panel .selector {
+  background: var(--bloomify-form-surface);
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.module .aligned,
+.unfold-main .aligned,
+.change-form .aligned,
+.aligned {
+  background: var(--bloomify-form-surface) !important;
+  border: 1px solid var(--bloomify-form-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--bloomify-form-shadow) !important;
+  padding: 6px 0 !important;
+}
+
+.aligned .field-line,
+.unfold-main .field-line,
+.change-form .field-line {
+  gap: 8px;
+}
+
+.aligned .form-row,
+.change-form .form-row,
+#content .form-row,
+.unfold-main .form-row {
+  padding: 8px 14px;
+}
+
+.aligned .form-row label,
+.change-form .form-row label,
+#content .form-row label,
+.unfold-main .form-row label {
+  float: none;
+  width: auto;
+  display: block;
+  font-size: 0.85rem;
+  color: var(--bloomify-form-text);
+}
+
+.aligned .form-row .fieldBox,
+.change-form .form-row .fieldBox,
+#content .form-row .fieldBox,
+.unfold-main .form-row .fieldBox {
+  float: none;
+  padding-left: 0;
+  width: 100%;
+}
+
+.aligned .form-row input.vTextField,
+.aligned .form-row input.vURLField,
+.aligned .form-row input.vIntegerField,
+.aligned .form-row input.vFloatField,
+.aligned .form-row textarea.vLargeTextField,
+.aligned .form-row textarea,
+.aligned .form-row select,
+.aligned .form-row input[type="text"],
+.aligned .form-row input[type="email"],
+.aligned .form-row input[type="url"],
+.aligned .form-row input[type="password"],
+.aligned .form-row input[type="number"],
+.aligned .form-row input[type="search"],
+.aligned .form-row input[type="tel"],
+.aligned .form-row input[type="date"],
+.aligned .form-row input[type="datetime-local"],
+.aligned .form-row input[type="time"],
+.change-form .form-row input.vTextField,
+.change-form .form-row input.vURLField,
+.change-form .form-row input.vIntegerField,
+.change-form .form-row input.vFloatField,
+.change-form .form-row textarea.vLargeTextField,
+.change-form .form-row textarea,
+.change-form .form-row select,
+.change-form .form-row input[type="text"],
+.change-form .form-row input[type="email"],
+.change-form .form-row input[type="url"],
+.change-form .form-row input[type="password"],
+.change-form .form-row input[type="number"],
+.change-form .form-row input[type="search"],
+.change-form .form-row input[type="tel"],
+.change-form .form-row input[type="date"],
+.change-form .form-row input[type="datetime-local"],
+.change-form .form-row input[type="time"],
+#content .form-row input.vTextField,
+#content .form-row input.vURLField,
+#content .form-row input.vIntegerField,
+#content .form-row input.vFloatField,
+#content .form-row textarea.vLargeTextField,
+#content .form-row textarea,
+#content .form-row select,
+#content .form-row input[type="text"],
+#content .form-row input[type="email"],
+#content .form-row input[type="url"],
+#content .form-row input[type="password"],
+#content .form-row input[type="number"],
+#content .form-row input[type="search"],
+#content .form-row input[type="tel"],
+#content .form-row input[type="date"],
+#content .form-row input[type="datetime-local"],
+#content .form-row input[type="time"],
+.unfold-main .form-row input.vTextField,
+.unfold-main .form-row input.vURLField,
+.unfold-main .form-row input.vIntegerField,
+.unfold-main .form-row input.vFloatField,
+.unfold-main .form-row textarea.vLargeTextField,
+.unfold-main .form-row textarea,
+.unfold-main .form-row select,
+.unfold-main .form-row input[type="text"],
+.unfold-main .form-row input[type="email"],
+.unfold-main .form-row input[type="url"],
+.unfold-main .form-row input[type="password"],
+.unfold-main .form-row input[type="number"],
+.unfold-main .form-row input[type="search"],
+.unfold-main .form-row input[type="tel"],
+.unfold-main .form-row input[type="date"],
+.unfold-main .form-row input[type="datetime-local"],
+.unfold-main .form-row input[type="time"] {
+  background: var(--bloomify-form-field) !important;
+  border: 1px solid var(--bloomify-form-border) !important;
+  border-radius: 10px !important;
+  padding: 8px 32px 8px 10px !important;
+  color: var(--bloomify-form-text) !important;
+  font-size: 0.92rem;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.aligned .form-row input:focus,
+.aligned .form-row select:focus,
+.aligned .form-row textarea:focus,
+.change-form .form-row input:focus,
+.change-form .form-row select:focus,
+.change-form .form-row textarea:focus,
+#content .form-row input:focus,
+#content .form-row select:focus,
+#content .form-row textarea:focus,
+.unfold-main .form-row input:focus,
+.unfold-main .form-row select:focus,
+.unfold-main .form-row textarea:focus {
+  outline: none !important;
+  border-color: rgba(216, 119, 129, 0.75) !important;
+  box-shadow: 0 0 0 4px var(--bloomify-form-focus) !important;
+  background: var(--bloomify-form-focus-bg) !important;
+}
+
+.changelist-actions-wrapper {
+  position: sticky;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding: 0 10px 6px;
+}
+
+.changelist-actions-wrapper .group.primary {
+  background: linear-gradient(135deg, rgba(216, 119, 129, 0.18), rgba(186, 38, 50, 0.28)) !important;
+  border: 1px solid rgba(216, 119, 129, 0.32) !important;
+  box-shadow: 0 18px 36px -24px rgba(186, 38, 50, 0.65) !important;
+  border-radius: 14px;
+  padding: 10px 12px;
+  color: #fff;
+  backdrop-filter: blur(8px);
+}
+
+html[data-theme="light"] .changelist-actions-wrapper .group.primary,
+body:not(.theme-dark) .changelist-actions-wrapper .group.primary {
+  background: linear-gradient(135deg, rgba(216, 119, 129, 0.16), rgba(186, 38, 50, 0.22)) !important;
+  color: #3e1a1f;
+}
+
+.changelist-actions-wrapper .group.primary label {
+  font-weight: 700;
+  color: inherit;
+}
+
+.changelist-actions-wrapper .group.primary select {
+  min-width: 180px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: inherit !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.changelist-actions-wrapper .group.primary select option {
+  color: #1f2937;
+}
+
+.changelist-actions-wrapper .group.primary button[type="submit"] {
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--bloomify-primary-strong), var(--bloomify-primary)) !important;
+  box-shadow: 0 10px 22px -16px rgba(216, 119, 129, 0.5) !important;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.changelist-actions-wrapper .group.primary button[type="submit"]:hover {
+  background: linear-gradient(135deg, #ba2632, var(--bloomify-primary-strong)) !important;
+}
+
+.aligned .related-widget-wrapper,
+.change-form .related-widget-wrapper,
+.unfold-main .related-widget-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.aligned .related-widget-wrapper .select2-container,
+.change-form .related-widget-wrapper .select2-container,
+.unfold-main .related-widget-wrapper .select2-container {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+
+.aligned .related-widget-wrapper select,
+.change-form .related-widget-wrapper select,
+.unfold-main .related-widget-wrapper select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.aligned .select2-container--admin-autocomplete .select2-selection,
+.change-form .select2-container--admin-autocomplete .select2-selection,
+.unfold-main .select2-container--admin-autocomplete .select2-selection {
+  background: var(--bloomify-form-field) !important;
+  border: 1px solid var(--bloomify-form-border) !important;
+  border-radius: 10px !important;
+  min-height: 36px;
+  padding: 4px 8px;
+  color: var(--bloomify-form-text) !important;
+}
+
+.aligned .select2-container--admin-autocomplete .select2-selection__rendered,
+.change-form .select2-container--admin-autocomplete .select2-selection__rendered,
+.unfold-main .select2-container--admin-autocomplete .select2-selection__rendered {
+  color: var(--bloomify-form-text) !important;
+  line-height: 22px;
+}
+
+.aligned .related-widget-wrapper-link,
+.change-form .related-widget-wrapper-link,
+.unfold-main .related-widget-wrapper-link {
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 10px;
+  padding: 6px;
+  background: var(--bloomify-form-field);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aligned .related-widget-wrapper-link img,
+.change-form .related-widget-wrapper-link img,
+.unfold-main .related-widget-wrapper-link img {
+  opacity: 0.6;
+  filter: grayscale(1) brightness(0.6);
+}
+
+.aligned .related-widget-wrapper-link:hover img,
+.change-form .related-widget-wrapper-link:hover img,
+.unfold-main .related-widget-wrapper-link:hover img {
+  opacity: 0.85;
+  filter: grayscale(0.3) brightness(0.8);
+}
+
+.aligned .form-row .help,
+.aligned .form-row .helptext,
+.change-form .form-row .help,
+.change-form .form-row .helptext,
+#content .form-row .help,
+#content .form-row .helptext,
+.unfold-main .form-row .help,
+.unfold-main .form-row .helptext {
+  margin-top: 6px;
+  color: var(--bloomify-form-muted);
+  font-size: 0.82rem;
+}
+.related-widget-wrapper-link.add-related,
+.related-widget-wrapper-link.change-related,
+.related-widget-wrapper-link.delete-related,
+.related-widget-wrapper-link.view-related,
+.aligned .related-widget-wrapper-link,
+.change-form .related-widget-wrapper-link,
+.unfold-main .related-widget-wrapper-link {
+  background: var(--bloomify-form-field) !important;
+  border: 1px solid var(--bloomify-form-border) !important;
+  border-radius: 10px;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+}
+
+.related-widget-wrapper-link.add-related img,
+.related-widget-wrapper-link.change-related img,
+.related-widget-wrapper-link.delete-related img,
+.related-widget-wrapper-link.view-related img,
+.aligned .related-widget-wrapper-link img,
+.change-form .related-widget-wrapper-link img,
+.unfold-main .related-widget-wrapper-link img {
+  opacity: 0.5;
+  filter: grayscale(1) brightness(0.55);
+  width: 14px;
+  height: 14px;
+}
+
+.related-widget-wrapper-link.add-related:hover img,
+.related-widget-wrapper-link.change-related:hover img,
+.related-widget-wrapper-link.delete-related:hover img,
+.related-widget-wrapper-link.view-related:hover img,
+.aligned .related-widget-wrapper-link:hover img,
+.change-form .related-widget-wrapper-link:hover img,
+.unfold-main .related-widget-wrapper-link:hover img {
+  opacity: 0.75;
+  filter: grayscale(0.4) brightness(0.8);
+}

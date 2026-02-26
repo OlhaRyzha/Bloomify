@@ -7,28 +7,14 @@ import {
   type Products,
 } from '@/schemas/products.shemas';
 import { API_ROUTES } from '@/constants/api.constant';
-import { catalogItems } from '@/features/catalog/catalog-items';
-import type { CatalogItem } from '@/types/catalog';
-import { isString } from '@/utils/guards/is-string';
-
-const mapCatalogItemToProduct = (item: CatalogItem): ProductItem => ({
-  id: item.id,
-  name: item.name,
-  description: item.description,
-  price: item.price,
-  imageUrl: isString(item.image) ? item.image : item.image.src,
-  tag: item.tag,
-});
-
-const mockProducts = catalogItems.map(mapCatalogItemToProduct);
 
 const ProductsService = {
   getProducts: (): Promise<Products> =>
-    safeFetch(Promise.resolve(mockProducts), catalogSchema),
+    safeFetch(apiClient.get<Products>(API_ROUTES.PRODUCTS), catalogSchema),
 
   getProductById: (id: string): Promise<ProductItem> =>
     safeFetch(
-      Promise.resolve(mockProducts.find((item) => item.id === id)),
+      apiClient.get<ProductItem>(`${API_ROUTES.PRODUCTS}/${id}`),
       catalogItemSchema
     ),
 

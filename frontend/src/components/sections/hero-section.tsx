@@ -106,7 +106,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
               className='absolute -bottom-6 right-4 lg:right-8'>
-              <div className='rounded-full border border-sage/30 bg-gradient-to-r from-sage/90 to-[#6b7760]/70 px-5 py-3 shadow-lg backdrop-blur-sm'>
+              <div className='rounded-full  bg-gradient-to-r from-blush/60 to-[#6b7760]/70 px-5 py-3 shadow-lg backdrop-blur-sm'>
                 <div className='flex items-center gap-2'>
                   <span className='text-lg'>🚚</span>
                   <span className='text-sm font-semibold text-white'>

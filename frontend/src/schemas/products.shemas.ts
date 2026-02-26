@@ -13,6 +13,7 @@ export const catalogItemSchema = z.object({
   imageUrl: z
     .string()
     .optional()
+    .nullable()
     .refine(
       (value) =>
         !value ||

@@ -8,13 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import InfoCard from '@/components/ui/info-card';
 import { useHydrated } from '@/hooks/use-hydrated';
-import { catalogItems } from '@/features/catalog/catalog-items';
 import type { CatalogItem } from '@/types/catalog';
+import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   FREE_DELIVERY_MESSAGE,
   FREE_DELIVERY_THRESHOLD,
 } from '@/constants/delivery.constants';
+import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
 import { useCartStore } from './cart.store';
+import CartItemSkeleton from './cart-item-skeleton';
 
 type CartItemWithDetails = CatalogItem & { quantity: number };
 
@@ -29,6 +32,8 @@ export default function CartFeature() {
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const clearCart = useCartStore((state) => state.clearCart);
+  const { data: catalogItems = [], isLoading: isCatalogLoading } =
+    useGetProducts();
 
   const cartItems = useMemo<CartItemWithDetails[]>(() => {
     if (!isHydrated) {
@@ -37,7 +42,7 @@ export default function CartFeature() {
 
     return items
       .map((item) => {
-        const catalogItem = catalogItems.find(
+        const catalogItem = catalogItems?.find(
           (catalogEntry) => catalogEntry.id === item.id
         );
         if (!catalogItem) {
@@ -46,7 +51,7 @@ export default function CartFeature() {
         return { ...catalogItem, quantity: item.quantity };
       })
       .filter((item): item is CartItemWithDetails => Boolean(item));
-  }, [items, isHydrated]);
+  }, [items, isHydrated, catalogItems]);
 
   const subtotal = useMemo(
     () =>
@@ -64,6 +69,65 @@ export default function CartFeature() {
 
   if (!isHydrated) {
     return null;
+  }
+
+  if (isCatalogLoading) {
+    const placeholders = Math.max(items.length || 0, 2);
+
+    return (
+      <div className='grid gap-10 lg:grid-cols-[1.6fr_0.9fr]'>
+        <div className='space-y-6'>
+          <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-muted/60 px-6 py-4 text-sm text-muted-foreground'>
+            <Skeleton className='h-4 w-32' />
+            <Skeleton className='h-9 w-32 rounded-full' />
+          </div>
+
+          {Array.from({ length: placeholders }).map((_, idx) => (
+            <CartItemSkeleton key={`cart-skeleton-${idx}`} />
+          ))}
+
+          <div className='rounded-2xl bg-muted/50 px-6 py-4 text-sm text-muted-foreground'>
+            <Skeleton className='h-4 w-48' />
+          </div>
+        </div>
+
+        <aside className='space-y-6'>
+          <div className='rounded-3xl bg-gradient-card p-6 shadow-card space-y-4'>
+            <Skeleton className='h-7 w-40' />
+            <div className='space-y-3 pt-2'>
+              <div className='flex items-center justify-between'>
+                <Skeleton className='h-4 w-28' />
+                <Skeleton className='h-4 w-20' />
+              </div>
+              <div className='flex items-center justify-between'>
+                <Skeleton className='h-4 w-24' />
+                <Skeleton className='h-4 w-24' />
+              </div>
+            </div>
+            <div className='border-t border-border pt-4'>
+              <Skeleton className='h-6 w-28' />
+            </div>
+            <Skeleton className='h-11 w-full rounded-lg' />
+            <Skeleton className='h-11 w-full rounded-lg' />
+          </div>
+
+          <div className='rounded-3xl bg-muted/60 p-5 space-y-4'>
+            <Skeleton className='h-4 w-40' />
+            <div className='flex flex-col gap-3 sm:flex-row'>
+              <Skeleton className='h-11 w-full rounded-lg' />
+              <Skeleton className='h-11 w-full rounded-lg' />
+            </div>
+            <Skeleton className='h-3 w-56' />
+          </div>
+
+          <div className='grid gap-3'>
+            <Skeleton className='h-20 w-full rounded-2xl' />
+            <Skeleton className='h-20 w-full rounded-2xl' />
+            <Skeleton className='h-20 w-full rounded-2xl' />
+          </div>
+        </aside>
+      </div>
+    );
   }
 
   if (cartItems.length === 0) {
@@ -108,9 +172,10 @@ export default function CartFeature() {
             className='flex flex-col gap-5 rounded-3xl bg-gradient-card p-5 shadow-card md:flex-row md:items-center'>
             <div className='relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-muted md:h-28 md:w-28'>
               <Image
-                src={item.image}
+                src={getCatalogItemImage(item)}
                 alt={item.name}
                 fill
+                sizes='(max-width: 768px) 100vw, 7rem'
                 className='object-cover'
               />
             </div>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Bloomify flower icon">
+  <defs>
+    <linearGradient id="petal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d05864"/>
+      <stop offset="1" stop-color="#d87781"/>
+    </linearGradient>
+  </defs>
+
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 14c7 0 12 5 12 11s-5 13-12 18c-7-5-12-12-12-18s5-11 12-11Z"
+          stroke="url(#petal)" stroke-width="3"/>
+    <path d="M22 26c3-6 7-8 10-8s7 2 10 8"
+          stroke="url(#petal)" stroke-width="3" opacity="0.9"/>
+    <path d="M32 43v9" stroke="#cb4856" stroke-width="3"/>
+    <path d="M32 48c-3-2-6-2-8-1" stroke="#cb4856" stroke-width="3" opacity="0.9"/>
+  </g>
+</svg>
