@@ -2,10 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
 import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
-import CatalogCard from '@/features/catalog/catalog-card';
-import { mapProductToCatalogItem } from '@/features/catalog/catalog-mappers';
+import CatalogGrid from '@/features/catalog/catalog-grid';
 import { Button } from '../ui/button';
 
 const containerVariants = {
@@ -26,12 +24,7 @@ const itemVariants = {
 };
 
 export default function CatalogSection() {
-  const { data } = useGetProducts();
-
-  const products = useMemo(
-    () => (data ?? []).slice(0, 3).map(mapProductToCatalogItem),
-    [data]
-  );
+  const { data, isLoading } = useGetProducts();
 
   return (
     <section
@@ -62,13 +55,16 @@ export default function CatalogSection() {
           whileInView='visible'
           viewport={{ once: true }}
           className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
-          {products.map((product) => (
-            <motion.div
-              key={product.id}
-              variants={itemVariants}>
-              <CatalogCard item={product} />
-            </motion.div>
-          ))}
+          <motion.div
+            variants={itemVariants}
+            className='col-span-3'>
+            <CatalogGrid
+              items={(data ?? []).slice(0, 3)}
+              loading={isLoading}
+              pageSize={3}
+              hideControls
+            />
+          </motion.div>
         </motion.div>
 
         <motion.div

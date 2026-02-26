@@ -13,6 +13,13 @@ import { generatePageNumbers } from '@/utils/pagination/generate-page-numbers';
 import { ReactNode, useMemo, useState } from 'react';
 import { isFunction } from '@/utils/guards/is-function';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 type PaginationContainerProps<T> = {
   items: T[];
@@ -22,6 +29,16 @@ type PaginationContainerProps<T> = {
   page?: number;
   onPageChange?: (page: number) => void;
   hideControls?: boolean;
+  scrollToTopOnChange?: boolean;
+  controlsRightContent?: ReactNode;
+  controlsLeftContent?: ReactNode;
+  showPageSizeControl?: boolean;
+  pageSizeOptions?: number[];
+  onPageSizeChange?: (value: number) => void;
+  showItemsCount?: boolean;
+  itemsCount?: number;
+  itemsCountPrefix?: string;
+  itemsCountSuffix?: string;
 };
 
 export function PaginationContainer<T>({
@@ -32,6 +49,16 @@ export function PaginationContainer<T>({
   page: controlledPage,
   onPageChange,
   hideControls,
+  scrollToTopOnChange,
+  controlsRightContent,
+  controlsLeftContent,
+  showPageSizeControl,
+  pageSizeOptions,
+  onPageSizeChange,
+  showItemsCount,
+  itemsCount,
+  itemsCountPrefix = 'Items',
+  itemsCountSuffix = 'total',
 }: PaginationContainerProps<T>) {
   const isControlled = controlledPage && isFunction(onPageChange);
   const [uncontrolledPage, setUncontrolledPage] = useState(1);
@@ -52,6 +79,10 @@ export function PaginationContainer<T>({
     } else {
       setUncontrolledPage(next);
     }
+
+    if (scrollToTopOnChange && typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const pages = generatePageNumbers(totalPages, page);
@@ -60,53 +91,89 @@ export function PaginationContainer<T>({
     <div className={cn('w-full', className)}>
       {renderPage(pageItems, page)}
       {!hideControls && totalPages > 1 && (
-        <Pagination className='mt-3'>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href='#'
-                onClick={(e) => {
-                  e.preventDefault();
-                  goTo(page - 1);
-                }}
-                className={cn(page === 1 && 'pointer-events-none opacity-50')}
-              />
-            </PaginationItem>
+        <div className='mt-10 flex items-center justify-between'>
+          {showItemsCount ? (
+            <p className='font-semibold text-sm text-muted-foreground text-nowrap '>
+              {itemsCountPrefix} <b> {itemsCount ?? items.length}</b>{' '}
+              {itemsCountSuffix}
+            </p>
+          ) : (
+            controlsLeftContent
+          )}
 
-            {pages.map((p, idx) =>
-              typeof p === 'string' ? (
-                <PaginationItem key={`ellipsis-${idx}`}>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              ) : (
-                <PaginationItem key={p}>
-                  <PaginationLink
-                    href='#'
-                    isActive={p === page}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      goTo(p);
-                    }}>
-                    {p}
-                  </PaginationLink>
-                </PaginationItem>
-              )
-            )}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    goTo(page - 1);
+                  }}
+                  className={cn(page === 1 && 'pointer-events-none opacity-50')}
+                />
+              </PaginationItem>
 
-            <PaginationItem>
-              <PaginationNext
-                href='#'
-                onClick={(e) => {
-                  e.preventDefault();
-                  goTo(page + 1);
-                }}
-                className={cn(
-                  page === totalPages && 'pointer-events-none opacity-50'
-                )}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+              {pages.map((p, idx) =>
+                typeof p === 'string' ? (
+                  <PaginationItem key={`ellipsis-${idx}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      href='#'
+                      isActive={p === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        goTo(p);
+                      }}>
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    goTo(page + 1);
+                  }}
+                  className={cn(
+                    page === totalPages && 'pointer-events-none opacity-50'
+                  )}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+          <div className=''>
+            {showPageSizeControl && pageSizeOptions?.length ? (
+              <Select
+                value={String(pageSize)}
+                onValueChange={(value) => {
+                  onPageSizeChange?.(Number(value));
+                }}>
+                <SelectTrigger
+                  chevronDownIconClassName='stroke-white'
+                  className='h-10 min-w-[60px] justify-between rounded-md border border-border bg-primary px-2 text-sm font-semibold text-white shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20'>
+                  <SelectValue placeholder={`${pageSize} / page`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {pageSizeOptions.map((option) => (
+                    <SelectItem
+                      key={option}
+                      value={String(option)}>
+                      {option} / page
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
+            {controlsRightContent}
+          </div>
+        </div>
       )}
     </div>
   );

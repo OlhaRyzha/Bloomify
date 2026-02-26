@@ -74,7 +74,7 @@ const fieldsByMode: Record<AuthMode, FieldConfig[]> = {
       name: 'name',
       label: "Ім'я та прізвище",
       type: 'text',
-      placeholder: 'Олена Гончар',
+      placeholder: 'Ольга Рижа',
       autoComplete: 'name',
       icon: User,
     },
@@ -199,7 +199,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                         aria-describedby={
                           isInvalid ? `${field.name}-error` : undefined
                         }
-                        className='h-11 bg-background/70 pl-10'
+                        className='h-11 bg-background/70 pl-10 mt-0.5'
                       />
                     </div>
                     {field.helper && !isInvalid && (

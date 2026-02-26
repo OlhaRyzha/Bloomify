@@ -1,20 +1,36 @@
+'use client';
+
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { catalogItems } from '@/features/catalog/catalog-items';
 import ProductFeature from '@/features/product/product';
+import { useGetProductById } from '@/hooks/tan-stack-query/products/use-products';
+import { useParamId } from '@/hooks/use-id';
+import { withSkeleton } from '@/components/hoc/with-skeleton';
+import ProductSkeleton from '@/features/product/product-skeleton';
 
-type CatalogPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+const ProductWithSkeleton = withSkeleton(ProductFeature, {
+  skeleton: <ProductSkeleton />,
+});
 
-export default async function CatalogItemPage({ params }: CatalogPageProps) {
-  const { id } = await params;
-  const product = catalogItems.find((item) => item.id === id);
+export default function CatalogItemPage() {
+  const { id } = useParamId();
+  const { data: product, isLoading } = useGetProductById(id);
 
-  if (!product) notFound();
+  if (!product && !isLoading) {
+    return (
+      <section className='bg-background pb-16 pt-28'>
+        <div className='mx-auto max-w-6xl px-4'>
+          <p className='text-sm text-muted-foreground'>Букет не знайдено.</p>
+          <Button
+            asChild
+            variant='ghost'
+            className='mt-4'>
+            <Link href='/catalog'>До каталогу</Link>
+          </Button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className='bg-background pb-16 pt-28'>
@@ -26,11 +42,14 @@ export default async function CatalogItemPage({ params }: CatalogPageProps) {
             <Link href='/catalog'>До каталогу</Link>
           </Button>
           <span className='text-sm text-muted-foreground'>
-            Артикул: {product.id.padStart(3, '0')}
+            Артикул: {product?.id.padStart(3, '0')}
           </span>
         </div>
 
-        <ProductFeature product={product} />
+        <ProductWithSkeleton
+          loading={isLoading}
+          product={product!}
+        />
       </div>
     </section>
   );

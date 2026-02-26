@@ -1,9 +1,16 @@
 import type { ReactNode } from 'react';
 import Image, { type StaticImageData } from 'next/image';
 import type { LucideIcon } from 'lucide-react';
-import { Calendar, Gift, Heart, ShieldCheck, Sparkles, Truck } from 'lucide-react';
-import bouquetPeony from '@/assets/bouquet-peony.jpg';
-import bouquetRoses from '@/assets/bouquet-roses.jpg';
+import {
+  Calendar,
+  Gift,
+  Heart,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+} from 'lucide-react';
+import heroImage from '@/assets/hero-flowers.jpg';
+import subscriptionImage from '@/assets/subscription-box.jpg';
 
 const authContent = {
   login: {
@@ -11,7 +18,8 @@ const authContent = {
     title: 'Повернімося до ваших улюблених букетів',
     description:
       'Увійдіть, щоб швидко оформлювати замовлення, керувати підпискою та зберігати вподобані композиції.',
-    image: bouquetRoses,
+    aspect: 'aspect-[5/3]',
+    image: heroImage,
     imageAlt: 'Рожеві троянди в стильному букеті Bloomify',
     badge: {
       label: 'Ваші підбірки',
@@ -40,7 +48,8 @@ const authContent = {
     title: 'Нова квіткова історія починається тут',
     description:
       'Зареєструйтесь, щоб отримати бонус на перше замовлення, збирати улюблені букети та відстежувати доставку.',
-    image: bouquetPeony,
+    image: subscriptionImage,
+    aspect: 'aspect-[4/3]',
     imageAlt: 'Ніжні півонії у святковому букеті Bloomify',
     badge: {
       label: 'Подарунок',
@@ -83,10 +92,11 @@ type AuthContent = {
   label: string;
   title: string;
   description: string;
+  aspect: string;
   image: StaticImageData;
   imageAlt: string;
   badge: { label: string; value: string };
-  highlights: Highlight[];
+  highlights: readonly Highlight[];
 };
 
 export default function AuthShell({ variant, children }: AuthShellProps) {
@@ -137,11 +147,12 @@ export default function AuthShell({ variant, children }: AuthShellProps) {
               className='relative opacity-0 animate-fade-up'
               style={{ animationDelay: '0.2s' }}>
               <div className='absolute -left-6 -top-6 h-24 w-24 rounded-full bg-gold/30 blur-2xl' />
-              <div className='relative overflow-hidden rounded-3xl bg-gradient-card p-3 shadow-card'>
+              <div
+                className={`relative ${content.aspect} overflow-hidden rounded-3xl bg-gradient-card p-3 shadow-card`}>
                 <Image
                   src={content.image}
                   alt={content.imageAlt}
-                  className='h-64 w-full rounded-2xl object-cover'
+                  className='rounded-2xl'
                 />
               </div>
               <div className='absolute -bottom-6 right-6 rounded-2xl bg-primary px-4 py-3 text-primary-foreground shadow-card'>

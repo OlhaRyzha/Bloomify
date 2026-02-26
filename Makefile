@@ -1,0 +1,65 @@
+
+BACKEND_DIR=backend
+FRONTEND_DIR=frontend
+
+# ---------- Frontend ----------
+
+frontend-install:
+	cd $(FRONTEND_DIR) && npm install
+
+start:
+	cd $(FRONTEND_DIR) && npm run dev
+
+frontend-build:
+	cd $(FRONTEND_DIR) && npm run build
+
+frontend-lint:
+	cd $(FRONTEND_DIR) && npm run lint
+
+
+# ---------- Backend ----------
+
+install:
+	cd $(BACKEND_DIR) && uv sync
+
+upgrade:
+	cd $(BACKEND_DIR) && uv sync --upgrade
+
+run:
+	cd $(BACKEND_DIR) && uv run python manage.py runserver
+
+migrate:
+	cd $(BACKEND_DIR) && uv run python manage.py migrate
+
+makemigrations:
+	cd $(BACKEND_DIR) && uv run python manage.py makemigrations
+
+
+createsuperuser:
+	cd $(BACKEND_DIR) && uv run python manage.py createsuperuser
+
+format:
+	cd $(BACKEND_DIR) && uv run ruff check . --fix
+	cd $(BACKEND_DIR) && uv run black .
+
+lint:
+	cd $(BACKEND_DIR) && uv run ruff check .
+	cd $(BACKEND_DIR) && uv run mypy .
+
+
+check: format lint
+
+# ---------- pre-commit ----------
+
+pre-commit-install:
+	uv run pre-commit install
+
+
+pre-commit:
+	uv run pre-commit run --all-files
+
+
+clean:
+	rm -rf $(BACKEND_DIR)/.mypy_cache
+	rm -rf $(BACKEND_DIR)/.ruff_cache
+	rm -rf .pre-commit-cache

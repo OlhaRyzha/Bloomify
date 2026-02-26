@@ -3,6 +3,7 @@ import {
   useQueryClient,
   type QueryKey,
 } from '@tanstack/react-query';
+import { Draft, produce } from 'immer';
 import { ApiError } from '@/utils/api/api-error';
 import { useToast } from '@/hooks/use-toast';
 import type { IdType } from '@/types/ids';
@@ -102,6 +103,29 @@ const defaultOptimisticUpdate = <
   return items;
 };
 
+const applyOptimisticUpdate = <
+  TItem,
+  TVariables extends MutationVariables<TItem>,
+>(
+  items: TItem[],
+  variables: TVariables,
+  action: MutationAction,
+  getItemId: (item: TItem) => IdType | undefined,
+  optimisticUpdate: OptimisticUpdateFn<TItem, TVariables>
+) =>
+  produce(items, (draft: Draft<TItem[]>) => {
+    const nextState = optimisticUpdate(
+      draft as unknown as TItem[],
+      variables,
+      action,
+      getItemId
+    );
+
+    if (nextState && nextState !== draft) {
+      return nextState as Draft<TItem[]>;
+    }
+  });
+
 const buildSuccessMessage = (
   action: MutationAction,
   entity?: string,
@@ -148,12 +172,13 @@ export function useMutateItemWithOptimisticUpdate<
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey });
 
-      const previousData = queryClient.getQueryData<TItem[]>(queryKey);
-      const updatedData = optimisticUpdate(
-        previousData ?? [],
+      const previousData = queryClient.getQueryData<TItem[]>(queryKey) ?? [];
+      const updatedData = applyOptimisticUpdate(
+        previousData,
         variables,
         action,
-        getItemId
+        getItemId,
+        optimisticUpdate
       );
 
       queryClient.setQueryData(queryKey, updatedData);
