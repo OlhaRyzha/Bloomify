@@ -7,6 +7,9 @@ FRONTEND_DIR=frontend
 frontend-install:
 	cd $(FRONTEND_DIR) && npm install
 
+frontend-ci-install:
+	cd $(FRONTEND_DIR) && npm ci
+
 start:
 	cd $(FRONTEND_DIR) && npm run dev
 
@@ -15,6 +18,12 @@ frontend-build:
 
 frontend-lint:
 	cd $(FRONTEND_DIR) && npm run lint
+
+frontend-typecheck:
+	cd $(FRONTEND_DIR) && npm run typecheck
+
+frontend-test:
+	cd $(FRONTEND_DIR) && npm run test --if-present
 
 
 # ---------- Backend ----------
