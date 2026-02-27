@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "parler",
     "rest_framework",
     "corsheaders",
     "shop.apps.ShopConfig",
@@ -224,6 +225,18 @@ LANGUAGES = [
 ]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
+
+PARLER_LANGUAGES = {
+    None: (
+        {"code": "uk"},
+        {"code": "en"},
+        {"code": "pl"},
+    ),
+    "default": {
+        "fallbacks": ["uk"],
+        "hide_untranslated": False,
+    },
+}
 
 TIME_ZONE = "UTC"
 

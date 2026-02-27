@@ -3,25 +3,29 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from parler.models import TranslatableModel, TranslatedFields
 
 
-class Product(models.Model):
-    name = models.CharField(_("Name"), max_length=200)
-    description = models.TextField(_("Description"), blank=True)
+class Product(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(_("Name"), max_length=200),
+        description=models.TextField(_("Description"), blank=True),
+        tag=models.CharField(_("Tag"), max_length=50, blank=True),
+    )
+
     price = models.DecimalField(_("Price"), max_digits=10, decimal_places=2)
     image = models.ImageField(_("Image"), upload_to="products/", blank=True, null=True)
-    tag = models.CharField(_("Tag"), max_length=50, blank=True)
     is_active = models.BooleanField(_("Active"), default=True)
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated"), auto_now=True)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["translations__name"]
         verbose_name = _("Bouquet")
         verbose_name_plural = _("Bouquets")
 
     def __str__(self) -> str:
-        return self.name
+        return self.safe_translation_getter("name", any_language=True) or f"Product {self.pk}"
 
 
 class SubscriptionPlan(models.Model):
