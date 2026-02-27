@@ -214,5 +214,8 @@
   "controls_tagLabel": "Tag",
   "controls_tagPlaceholder": "Wybierz tag",
   "controls_tagAll": "Wszystkie tagi",
-  "footer_address": "Kijów, ul. Chreszczatyk 1"
+  "footer_address": "Kijów, ul. Chreszczatyk 1",
+  "favorites_page_label": "Twoje ulubione",
+  "favorites_page_title": "Ulubione",
+  "favorites_page_description": "Tutaj zebraliśmy bukiety, które skradły Twoje serce. Zachowuj inspiracje i wybierz idealny moment na zamówienie."
 }

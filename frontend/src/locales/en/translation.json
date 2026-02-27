@@ -214,5 +214,8 @@
   "controls_tagLabel": "Tag",
   "controls_tagPlaceholder": "Select tag",
   "controls_tagAll": "All tags",
-  "footer_address": "Kyiv, Khreshchatyk St, 1"
+  "footer_address": "Kyiv, Khreshchatyk St, 1",
+  "favorites_page_label": "Your favorites",
+  "favorites_page_title": "Favorites",
+  "favorites_page_description": "Here are bouquets that touched your heart. Save inspiration and choose the perfect moment to place your order."
 }

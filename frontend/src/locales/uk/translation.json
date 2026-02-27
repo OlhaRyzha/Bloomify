@@ -214,5 +214,8 @@
   "controls_tagLabel": "Тег",
   "controls_tagPlaceholder": "Оберіть тег",
   "controls_tagAll": "Усі теги",
-  "footer_address": "м. Київ, вул. Хрещатик, 1"
+  "footer_address": "м. Київ, вул. Хрещатик, 1",
+  "favorites_page_label": "Ваші вподобання",
+  "favorites_page_title": "Вибране",
+  "favorites_page_description": "Тут зібрані букети, які торкнулися вашого серця. Зберігайте натхнення та обирайте ідеальний момент для замовлення."
 }
