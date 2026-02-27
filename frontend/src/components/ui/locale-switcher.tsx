@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Globe } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -38,9 +38,7 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
           className='h-9 rounded-full border-border/70 bg-card px-3 text-xs font-semibold text-foreground shadow-soft hover:bg-muted/60'
           aria-label={t('locale_switcherAria')}>
           <div className='flex items-center gap-2'>
-            <span className='inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10'>
-              <Globe className='h-3.5 w-3.5 text-primary' />
-            </span>
+            <Globe className='h-3.5 w-3.5 text-primary' />
             <span className='tracking-[0.08em]'>{localeShortLabels[locale]}</span>
           </div>
           <SelectValue className='sr-only' />
@@ -56,12 +54,9 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
               value={loc}>
               <div className='flex w-full items-center justify-between gap-3'>
                 <span>{localeLabels[loc]}</span>
-                <div className='flex items-center gap-2'>
-                  <span className='text-[11px] font-semibold uppercase text-muted-foreground'>
-                    {localeShortLabels[loc]}
-                  </span>
-                  {locale === loc && <Check className='h-3.5 w-3.5 text-primary' />}
-                </div>
+                <span className='text-[11px] font-semibold uppercase text-muted-foreground'>
+                  {localeShortLabels[loc]}
+                </span>
               </div>
             </SelectItem>
           ))}
