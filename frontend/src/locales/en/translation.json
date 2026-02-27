@@ -32,36 +32,6 @@
   "sections_subscription_popularBadge": "Popular",
   "sections_subscription_cta": "Start subscription",
   "sections_subscription_moreLabel": "+{{count}} more",
-  "sections_subscription_plans_base_name": "Base",
-  "sections_subscription_plans_base_description": "Perfect for beginners",
-  "sections_subscription_plans_base_period": "month",
-  "sections_subscription_plans_base_features": [
-    "1 bouquet per month",
-    "Seasonal flowers",
-    "Free delivery",
-    "Greeting card included"
-  ],
-  "sections_subscription_plans_premium_name": "Premium",
-  "sections_subscription_plans_premium_description": "Most loved choice",
-  "sections_subscription_plans_premium_period": "month",
-  "sections_subscription_plans_premium_features": [
-    "2 bouquets per month",
-    "Premium flower varieties",
-    "Priority delivery",
-    "Personal florist",
-    "Exclusive compositions"
-  ],
-  "sections_subscription_plans_luxe_name": "Luxe",
-  "sections_subscription_plans_luxe_description": "For true connoisseurs",
-  "sections_subscription_plans_luxe_period": "month",
-  "sections_subscription_plans_luxe_features": [
-    "4 bouquets per month",
-    "Rare blossoms",
-    "Same-day delivery",
-    "VIP support 24/7",
-    "Holiday gifts",
-    "Wedding discounts"
-  ],
   "sections_features_label": "Why choose us",
   "sections_features_title": "Your trust is our priority",
   "sections_features_items": [
@@ -204,5 +174,35 @@
   "delivery_freeDeliveryMessage": "Free delivery from {{threshold}}",
   "common_free": "Free",
   "common_bouquet": "bouquet",
-  "cart_sum": "Amount"
+  "cart_sum": "Amount",
+  "plan_base_name": "Base",
+  "plan_base_description": "Perfect for beginners",
+  "plan_base_period": "month",
+  "plan_base_features": [
+    "1 bouquet per month",
+    "Seasonal flowers",
+    "Free delivery",
+    "Greeting card included"
+  ],
+  "plan_premium_name": "Premium",
+  "plan_premium_description": "Most loved choice",
+  "plan_premium_period": "month",
+  "plan_premium_features": [
+    "2 bouquets per month",
+    "Premium flower varieties",
+    "Priority delivery",
+    "Personal florist",
+    "Exclusive compositions"
+  ],
+  "plan_luxe_name": "Luxe",
+  "plan_luxe_description": "For true connoisseurs",
+  "plan_luxe_period": "month",
+  "plan_luxe_features": [
+    "4 bouquets per month",
+    "Rare blossoms",
+    "Same-day delivery",
+    "VIP support 24/7",
+    "Holiday gifts",
+    "Wedding discounts"
+  ]
 }

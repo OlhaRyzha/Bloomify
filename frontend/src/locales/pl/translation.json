@@ -32,36 +32,6 @@
   "sections_subscription_popularBadge": "Popularny",
   "sections_subscription_cta": "Zamów subskrypcję",
   "sections_subscription_moreLabel": "+{{count}} więcej",
-  "sections_subscription_plans_base_name": "Podstawowy",
-  "sections_subscription_plans_base_description": "Idealny dla początkujących",
-  "sections_subscription_plans_base_period": "miesiąc",
-  "sections_subscription_plans_base_features": [
-    "1 bukiet w miesiącu",
-    "Sezonowe kwiaty",
-    "Darmowa dostawa",
-    "Kartka z życzeniami"
-  ],
-  "sections_subscription_plans_premium_name": "Premium",
-  "sections_subscription_plans_premium_description": "Najczęściej wybierany",
-  "sections_subscription_plans_premium_period": "miesiąc",
-  "sections_subscription_plans_premium_features": [
-    "2 bukiety w miesiącu",
-    "Premium gatunki kwiatów",
-    "Priorytetowa dostawa",
-    "Osobisty florysta",
-    "Ekskluzywne kompozycje"
-  ],
-  "sections_subscription_plans_luxe_name": "Luxe",
-  "sections_subscription_plans_luxe_description": "Dla prawdziwych koneserów",
-  "sections_subscription_plans_luxe_period": "miesiąc",
-  "sections_subscription_plans_luxe_features": [
-    "4 bukiety w miesiącu",
-    "Rzadkie odmiany kwiatów",
-    "Dostawa tego samego dnia",
-    "VIP wsparcie 24/7",
-    "Prezenty na święta",
-    "Zniżki na wesela"
-  ],
   "sections_features_label": "Dlaczego nas wybierają",
   "sections_features_title": "Twoje zaufanie jest dla nas priorytetem",
   "sections_features_items": [
@@ -204,5 +174,35 @@
   "delivery_freeDeliveryMessage": "Darmowa dostawa od {{threshold}}",
   "common_free": "Bezpłatnie",
   "common_bouquet": "bukiet",
-  "cart_sum": "Kwota"
+  "cart_sum": "Kwota",
+  "plan_base_name": "Podstawowy",
+  "plan_base_description": "Idealny dla początkujących",
+  "plan_base_period": "miesiąc",
+  "plan_base_features": [
+    "1 bukiet w miesiącu",
+    "Sezonowe kwiaty",
+    "Darmowa dostawa",
+    "Kartka z życzeniami"
+  ],
+  "plan_premium_name": "Premium",
+  "plan_premium_description": "Najczęściej wybierany",
+  "plan_premium_period": "miesiąc",
+  "plan_premium_features": [
+    "2 bukiety w miesiącu",
+    "Premium gatunki kwiatów",
+    "Priorytetowa dostawa",
+    "Osobisty florysta",
+    "Ekskluzywne kompozycje"
+  ],
+  "plan_luxe_name": "Luxe",
+  "plan_luxe_description": "Dla prawdziwych koneserów",
+  "plan_luxe_period": "miesiąc",
+  "plan_luxe_features": [
+    "4 bukiety w miesiącu",
+    "Rzadkie odmiany kwiatów",
+    "Dostawa tego samego dnia",
+    "VIP wsparcie 24/7",
+    "Prezenty na święta",
+    "Zniżki na wesela"
+  ]
 }

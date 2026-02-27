@@ -32,36 +32,6 @@
   "sections_subscription_popularBadge": "Популярний",
   "sections_subscription_cta": "Оформити підписку",
   "sections_subscription_moreLabel": "+{{count}} ще",
-  "sections_subscription_plans_base_name": "Базовий",
-  "sections_subscription_plans_base_description": "Ідеально для початківців",
-  "sections_subscription_plans_base_period": "місяць",
-  "sections_subscription_plans_base_features": [
-    "1 букет на місяць",
-    "Сезонні квіти",
-    "Безкоштовна доставка",
-    "Картка з побажаннями"
-  ],
-  "sections_subscription_plans_premium_name": "Преміум",
-  "sections_subscription_plans_premium_description": "Найпопулярніший вибір",
-  "sections_subscription_plans_premium_period": "місяць",
-  "sections_subscription_plans_premium_features": [
-    "2 букети на місяць",
-    "Преміум сорти квітів",
-    "Пріоритетна доставка",
-    "Персональний флорист",
-    "Ексклюзивні композиції"
-  ],
-  "sections_subscription_plans_luxe_name": "Люкс",
-  "sections_subscription_plans_luxe_description": "Для справжніх цінителів",
-  "sections_subscription_plans_luxe_period": "місяць",
-  "sections_subscription_plans_luxe_features": [
-    "4 букети на місяць",
-    "Рідкісні сорти квітів",
-    "Доставка в день замовлення",
-    "VIP підтримка 24/7",
-    "Подарунки до свят",
-    "Знижки на весілля"
-  ],
   "sections_features_label": "Чому обирають нас",
   "sections_features_title": "Ваша довіра — наш пріоритет",
   "sections_features_items": [
@@ -204,5 +174,35 @@
   "delivery_freeDeliveryMessage": "Безкоштовна доставка від {{threshold}}",
   "common_free": "Безкоштовно",
   "common_bouquet": "букет",
-  "cart_sum": "Сума"
+  "cart_sum": "Сума",
+  "plan_base_name": "Базовий",
+  "plan_base_description": "Ідеально для початківців",
+  "plan_base_period": "місяць",
+  "plan_base_features": [
+    "1 букет на місяць",
+    "Сезонні квіти",
+    "Безкоштовна доставка",
+    "Картка з побажаннями"
+  ],
+  "plan_premium_name": "Преміум",
+  "plan_premium_description": "Найпопулярніший вибір",
+  "plan_premium_period": "місяць",
+  "plan_premium_features": [
+    "2 букети на місяць",
+    "Преміум сорти квітів",
+    "Пріоритетна доставка",
+    "Персональний флорист",
+    "Ексклюзивні композиції"
+  ],
+  "plan_luxe_name": "Люкс",
+  "plan_luxe_description": "Для справжніх цінителів",
+  "plan_luxe_period": "місяць",
+  "plan_luxe_features": [
+    "4 букети на місяць",
+    "Рідкісні сорти квітів",
+    "Доставка в день замовлення",
+    "VIP підтримка 24/7",
+    "Подарунки до свят",
+    "Знижки на весілля"
+  ]
 }

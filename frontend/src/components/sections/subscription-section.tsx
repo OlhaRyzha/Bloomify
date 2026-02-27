@@ -34,7 +34,7 @@ const planConfig: Array<{
 export default function SubscriptionSection() {
   const { t } = useTranslation();
   const plans: Plan[] = planConfig.map((config) => {
-    const base = `sections_subscription_plans_${config.key}`;
+    const base = `plan_${config.key}`;
     return {
       name: t(`${base}_name`),
       description: t(`${base}_description`),
