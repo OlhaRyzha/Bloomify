@@ -1,0 +1,142 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Bloomify\n"
+"POT-Creation-Date: 2026-02-27 17:40+0200\n"
+"PO-Revision-Date: 2026-02-27 17:40+0200\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Store"
+msgstr "Sklep"
+
+msgid "Bouquet"
+msgstr "Bukiet"
+
+msgid "Bouquets"
+msgstr "Bukiety"
+
+msgid "Order"
+msgstr "Zamówienie"
+
+msgid "Orders"
+msgstr "Zamówienia"
+
+msgid "Subscription"
+msgstr "Subskrypcja"
+
+msgid "Subscriptions"
+msgstr "Subskrypcje"
+
+msgid "Subscription plan"
+msgstr "Plan subskrypcji"
+
+msgid "Subscription plans"
+msgstr "Plany subskrypcji"
+
+msgid "Name"
+msgstr "Nazwa"
+
+msgid "Description"
+msgstr "Opis"
+
+msgid "Price"
+msgstr "Cena"
+
+msgid "Image"
+msgstr "Obraz"
+
+msgid "Tag"
+msgstr "Tag"
+
+msgid "Active"
+msgstr "Aktywny"
+
+msgid "Created"
+msgstr "Utworzono"
+
+msgid "Updated"
+msgstr "Zaktualizowano"
+
+msgid "Interval"
+msgstr "Interwał"
+
+msgid "Weekly"
+msgstr "Co tydzień"
+
+msgid "Monthly"
+msgstr "Co miesiąc"
+
+msgid "Quarterly"
+msgstr "Kwartalnie"
+
+msgid "User"
+msgstr "Użytkownik"
+
+msgid "Plan"
+msgstr "Plan"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Start date"
+msgstr "Data rozpoczęcia"
+
+msgid "End date"
+msgstr "Data zakończenia"
+
+msgid "Pending payment"
+msgstr "Oczekuje na płatność"
+
+msgid "Paid"
+msgstr "Opłacone"
+
+msgid "Fulfilled"
+msgstr "Zrealizowane"
+
+msgid "Canceled"
+msgstr "Anulowane"
+
+msgid "Paused"
+msgstr "Wstrzymane"
+
+msgid "Quantity"
+msgstr "Ilość"
+
+msgid "Order №%(id)s"
+msgstr "Zamówienie nr %(id)s"
+
+msgid "Preview"
+msgstr "Podgląd"
+
+msgid "Image is not uploaded yet."
+msgstr "Obraz nie został jeszcze przesłany."
+
+msgid "Actions"
+msgstr "Akcje"
+
+msgid "Edit"
+msgstr "Edytuj"
+
+msgid "Delete"
+msgstr "Usuń"
+
+msgid "Total price"
+msgstr "Cena całkowita"
+
+msgid "Bloomify admin panel"
+msgstr "Panel administracyjny Bloomify"
+
+msgid "Flower shop • subscriptions • orders"
+msgstr "Sklep z kwiatami • subskrypcje • zamówienia"
+
+msgid "Ukrainian"
+msgstr "Ukraiński"
+
+msgid "English"
+msgstr "Angielski"
+
+msgid "Polish"
+msgstr "Polski"

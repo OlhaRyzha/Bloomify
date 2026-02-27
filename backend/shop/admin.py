@@ -4,6 +4,7 @@ from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from .models import Order, Product, Subscription, SubscriptionPlan
 
@@ -43,7 +44,7 @@ class ProductAdmin(admin.ModelAdmin):
         ),
     )
 
-    @admin.display(description="Зображення")
+    @admin.display(description=_("Image"))
     def image_thumb(self, obj: Product) -> str:
         if not obj.image:
             return "—"
@@ -53,32 +54,36 @@ class ProductAdmin(admin.ModelAdmin):
             obj.name,
         )
 
-    @admin.display(description="Попередній перегляд")
+    @admin.display(description=_("Preview"))
     def image_preview(self, obj: Product) -> str:
         if not obj.image:
-            return "Зображення ще не завантажено."
+            return _("Image is not uploaded yet.")
         return format_html(
             '<img class="bloomify-preview" src="{}" alt="{}">',
             obj.image.url,
             obj.name,
         )
 
-    @admin.display(description="Дії")
+    @admin.display(description=_("Actions"))
     def row_actions(self, obj: Product) -> str:
         change_url = reverse("admin:shop_product_change", args=[obj.pk])
         delete_url = reverse("admin:shop_product_delete", args=[obj.pk])
         return format_html(
             '<div class="bloomify-row-actions">'
-            '<a class="bloomify-row-action" href="{}" aria-label="Редагувати" title="Редагувати">'
+            '<a class="bloomify-row-action" href="{}" aria-label="{}" title="{}">'
             '<img src="{}" alt="">'
             "</a>"
-            '<a class="bloomify-row-action bloomify-row-action--danger" href="{}" aria-label="Видалити" title="Видалити">'
+            '<a class="bloomify-row-action bloomify-row-action--danger" href="{}" aria-label="{}" title="{}">'
             '<img src="{}" alt="">'
             "</a>"
             "</div>",
             change_url,
+            _("Edit"),
+            _("Edit"),
             static("admin/img/icon-changelink.svg"),
             delete_url,
+            _("Delete"),
+            _("Delete"),
             static("admin/img/icon-deletelink.svg"),
         )
 
@@ -116,6 +121,6 @@ class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ("user", "product")
     ordering = ("-created_at",)
 
-    @admin.display(description="Загальна ціна")
+    @admin.display(description=_("Total price"))
     def total_price_display(self, obj: Order) -> str:
         return str(obj.total_price)

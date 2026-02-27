@@ -69,6 +69,7 @@ UNFOLD = {
     "LANGUAGE_FLAGS": {
         "uk": "🇺🇦",
         "en": "🇬🇧",
+        "pl": "🇵🇱",
     },
     "SITE_URL": "http://localhost:3000",
     "SITE_ICON": {
@@ -219,6 +220,7 @@ LANGUAGE_CODE = "uk"
 LANGUAGES = [
     ("uk", _("Ukrainian")),
     ("en", _("English")),
+    ("pl", _("Polish")),
 ]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
