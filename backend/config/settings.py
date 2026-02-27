@@ -110,35 +110,35 @@ UNFOLD = {
         "show_all_applications": False,
         "navigation": [
             {
-                "title": _("Store"),
+                "title": lambda request: _("Store"),
                 "items": [
                     {
-                        "title": _("Bouquets"),
+                        "title": lambda request: _("Bouquets"),
                         "icon": "local_florist",
                         "link": "/admin/shop/product/",
                     },
                     {
-                        "title": _("Orders"),
+                        "title": lambda request: _("Orders"),
                         "icon": "receipt_long",
                         "link": "/admin/shop/order/",
                     },
                     {
-                        "title": _("Subscription plans"),
+                        "title": lambda request: _("Subscription plans"),
                         "icon": "workspace_premium",
                         "link": "/admin/shop/subscriptionplan/",
                     },
                     {
-                        "title": _("Subscriptions"),
+                        "title": lambda request: _("Subscriptions"),
                         "icon": "autorenew",
                         "link": "/admin/shop/subscription/",
                     },
                 ],
             },
             {
-                "title": _("Users"),
+                "title": lambda request: _("Users"),
                 "items": [
                     {
-                        "title": _("Users"),
+                        "title": lambda request: _("Users"),
                         "icon": "group",
                         "link": "/admin/auth/user/",
                     },
