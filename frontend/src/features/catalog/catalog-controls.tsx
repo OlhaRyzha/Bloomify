@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { SortOption } from './catalog.types';
+import useTranslations from '@/hooks/use-translations';
 
 type CatalogControlsProps = {
   searchInput: string;
@@ -30,11 +31,13 @@ export function CatalogControls({
   onTagFilterChange,
   availableTags,
 }: CatalogControlsProps) {
+  const strings = useTranslations();
+  const controls = strings.controls;
   return (
     <div className='mb-2 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-card px-5 py-4 shadow-card'>
       <Input
         type='search'
-        placeholder='Пошук букету'
+        placeholder={controls.searchPlaceholder}
         className='h-10 w-52'
         prefix={<Search className='h-4 w-4 text-muted-foreground' />}
         value={searchInput}
@@ -42,35 +45,35 @@ export function CatalogControls({
       />
       <div className='flex items-center gap-2'>
         <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
-          <ArrowUpDown className='h-4 w-4 text-muted-foreground' />
-          <span className='text-muted-foreground'>Сортування</span>
-          <Select
-            value={sort}
-            onValueChange={(value) => onSortChange(value as SortOption)}>
-            <SelectTrigger className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-              <SelectValue placeholder='Сортування' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='default'>Без</SelectItem>
-              <SelectItem value='price-asc'>Ціна ↑</SelectItem>
-              <SelectItem value='price-desc'>Ціна ↓</SelectItem>
-              <SelectItem value='name-asc'>Назва A→Я</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <ArrowUpDown className='h-4 w-4 text-muted-foreground' />
+            <span className='text-muted-foreground'>{controls.sortLabel}</span>
+            <Select
+              value={sort}
+              onValueChange={(value) => onSortChange(value as SortOption)}>
+                <SelectTrigger className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
+                  <SelectValue placeholder={controls.sortLabel} />
+                </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='default'>{controls.sortOptions.default}</SelectItem>
+                <SelectItem value='price-asc'>{controls.sortOptions.priceAsc}</SelectItem>
+                <SelectItem value='price-desc'>{controls.sortOptions.priceDesc}</SelectItem>
+                <SelectItem value='name-asc'>{controls.sortOptions.nameAsc}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
         {availableTags.length > 0 && (
           <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3  text-sm font-medium text-foreground shadow-sm'>
             <SlidersHorizontal className='h-4 w-4 text-muted-foreground' />
-            <span className='text-muted-foreground'>Тег</span>
+            <span className='text-muted-foreground'>{controls.tagLabel}</span>
             <Select
               value={tagFilter}
               onValueChange={onTagFilterChange}>
               <SelectTrigger className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-                <SelectValue placeholder='Тег' />
+                <SelectValue placeholder={controls.tagPlaceholder} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>Всі</SelectItem>
+                <SelectItem value='all'>{controls.tagAll}</SelectItem>
                 {availableTags.map((tag) => (
                   <SelectItem
                     key={tag}

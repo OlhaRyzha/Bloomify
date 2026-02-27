@@ -3,39 +3,13 @@
 import { motion } from 'framer-motion';
 import { Truck, Shield, Clock, Leaf } from 'lucide-react';
 import { ElementType } from 'react';
+import useTranslations from '@/hooks/use-translations';
 
 type Feature = {
   icon: ElementType;
   title: string;
   description: string;
 };
-
-const features: Feature[] = [
-  {
-    icon: Truck,
-    title: 'Швидка доставка',
-    description:
-      'Доставляємо по всій Україні за 1–3 дні. Термінова доставка по Києву — до 3 годин.',
-  },
-  {
-    icon: Shield,
-    title: 'Гарантія свіжості',
-    description:
-      'Квіти зберігаються мінімум 7 днів. Якщо ні — замінимо безкоштовно.',
-  },
-  {
-    icon: Clock,
-    title: 'Зручне замовлення',
-    description:
-      'Оформіть замовлення за 2 хвилини. Підтримка працює цілодобово.',
-  },
-  {
-    icon: Leaf,
-    title: 'Екологічність',
-    description:
-      'Співпрацюємо з локальними фермами. Використовуємо біорозкладну упаковку.',
-  },
-];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -55,6 +29,20 @@ const itemVariants = {
 };
 
 export default function FeaturesSection() {
+  const strings = useTranslations();
+  const featureCopy = strings.sections.features;
+  const iconRegistry: Record<string, ElementType> = {
+    fastDelivery: Truck,
+    freshGuarantee: Shield,
+    easyOrdering: Clock,
+    ecoFriendly: Leaf,
+  };
+  const features: Feature[] = featureCopy.items.map((item: { id: string; title: string; description: string }) => ({
+    icon: iconRegistry[item.id] ?? Truck,
+    title: item.title,
+    description: item.description,
+  }));
+
   return (
     <section className='bg-muted/30 py-24'>
       <div className='mx-auto max-w-6xl px-4'>
@@ -65,10 +53,10 @@ export default function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            Чому обирають нас
+            {featureCopy.label}
           </span>
           <h2 className='font-display text-4xl font-bold md:text-5xl'>
-            Ваша довіра — наш пріоритет
+            {featureCopy.title}
           </h2>
         </motion.div>
 

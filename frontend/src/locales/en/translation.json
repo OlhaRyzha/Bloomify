@@ -1,0 +1,255 @@
+{
+  "common": {
+    "brand": "Bloomify"
+  },
+  "locale": {
+    "switcherLabel": "Language",
+    "switcherAria": "Choose a language"
+  },
+  "navigation": {
+    "main": {
+      "catalog": "Catalog",
+      "favorites": "Favorites",
+      "subscription": "Subscription",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "services": {
+      "wedding": "Wedding floristry",
+      "corporate": "Corporate orders",
+      "events": "Event styling",
+      "gifts": "Gift baskets",
+      "delivery": "Flower delivery"
+    }
+  },
+  "hero": {
+    "badge": "Monthly flower subscription",
+    "titleLine1": "Nature’s beauty",
+    "titleLine2": "in every bouquet",
+    "description": "Exclusive floral compositions with delivery across Ukraine. Subscribe and receive fresh bouquets every month.",
+    "primaryCta": "Browse bouquets",
+    "secondaryCta": "Learn about the subscription",
+    "stats": {
+      "satisfiedCustomers": "Satisfied customers",
+      "flowerVarieties": "Flower varieties",
+      "support": "Support"
+    },
+    "imageAlt": "Luxurious bouquet of pink roses and white peonies"
+  },
+  "sections": {
+    "catalog": {
+      "label": "Florist picks",
+      "title": "Bouquet catalog",
+      "description": "Choose refined floral compositions for any occasion — from tender gestures to luxurious gifts. Each bouquet is curated with love, seasonal blooms, and impeccable taste.",
+      "button": "Browse full catalog"
+    },
+    "subscription": {
+      "label": "Subscription",
+      "title": "Flowers every month",
+      "description": "Subscribe and receive fresh bouquets delivered to your door. Brighten your routine with seasonal arrangements.",
+      "popularBadge": "Popular",
+      "cta": "Start subscription",
+      "moreLabel": "+{{count}} more",
+      "plans": {
+        "base": {
+          "name": "Base",
+          "description": "Perfect for beginners",
+          "period": "month",
+          "features": [
+            "1 bouquet per month",
+            "Seasonal flowers",
+            "Free delivery",
+            "Greeting card included"
+          ]
+        },
+        "premium": {
+          "name": "Premium",
+          "description": "Most loved choice",
+          "period": "month",
+          "features": [
+            "2 bouquets per month",
+            "Premium flower varieties",
+            "Priority delivery",
+            "Personal florist",
+            "Exclusive compositions"
+          ]
+        },
+        "luxe": {
+          "name": "Luxe",
+          "description": "For true connoisseurs",
+          "period": "month",
+          "features": [
+            "4 bouquets per month",
+            "Rare blossoms",
+            "Same-day delivery",
+            "VIP support 24/7",
+            "Holiday gifts",
+            "Wedding discounts"
+          ]
+        }
+      }
+    },
+    "features": {
+      "label": "Why choose us",
+      "title": "Your trust is our priority",
+      "items": [
+        {
+          "id": "fastDelivery",
+          "title": "Speedy delivery",
+          "description": "We deliver across Ukraine within 1–3 days. Rush delivery in Kyiv arrives within 3 hours."
+        },
+        {
+          "id": "freshGuarantee",
+          "title": "Freshness guarantee",
+          "description": "Flowers stay fresh for at least 7 days. If not — we replace them for free."
+        },
+        {
+          "id": "easyOrdering",
+          "title": "Effortless ordering",
+          "description": "Place an order in under 2 minutes. Support is available around the clock."
+        },
+        {
+          "id": "ecoFriendly",
+          "title": "Eco-friendly",
+          "description": "We partner with local farms and use biodegradable packaging."
+        }
+      ]
+    },
+    "favorites": {
+      "emptyTitle": "No favorite bouquets yet",
+      "emptyDescription": "Save the compositions that touched your heart. Keep the inspiration and pick the perfect moment to order.",
+      "emptyCta": "Go to catalog"
+    }
+  },
+  "catalog": {
+    "itemsCountPrefix": "Found",
+    "itemsCountSuffix": "bouquets"
+  },
+  "cart": {
+    "emptyTitle": "Your cart is still empty",
+    "emptyDescription": "Pick a bouquet from the catalog and we will handle the delivery.",
+    "emptyCta": "Visit the catalog",
+    "itemCount": "In cart {{count}} bouquets",
+    "clearCart": "Clear cart",
+    "note": "Add a note for the card or set an exact delivery time during checkout.",
+    "summaryTitle": "Order summary",
+    "bouquetCost": "Bouquet cost",
+    "delivery": "Delivery",
+    "total": "Total",
+    "checkoutButton": "Checkout",
+    "continueShopping": "Continue shopping",
+    "promo": {
+      "title": "Promo code or gift card",
+      "placeholder": "Enter code",
+      "button": "Apply",
+      "message": "{{freeDelivery}}."
+    },
+    "infoCards": {
+      "delivery": {
+        "title": "Delivery",
+        "description": "Courier delivers at a convenient time. In Kyiv — from 2 hours."
+      },
+      "packaging": {
+        "title": "Packaging",
+        "description": "Elegant wrapping and a note are already included in the price."
+      },
+      "support": {
+        "title": "Support",
+        "description": "We will pick the perfect bouquet for your occasion — message us in chat."
+      }
+    }
+  },
+  "product": {
+    "article": "SKU",
+    "infoCards": {
+      "delivery": {
+        "title": "Delivery",
+        "description": "Free delivery in Kyiv from 1500 ₴, nationwide — 1–2 days."
+      },
+      "composition": {
+        "title": "Composition",
+        "description": "Seasonal flowers hand-selected by our florists."
+      }
+    }
+  },
+  "auth": {
+    "shell": {
+      "login": {
+        "label": "Account",
+        "title": "Let’s revisit your favorite bouquets",
+        "description": "Sign in to place orders faster, manage your subscription, and keep favorites close.",
+        "imageAlt": "Pink roses in a stylish Bloomify bouquet",
+        "badgeLabel": "Collections",
+        "badgeValue": "Floral stories",
+        "highlights": [
+          { "title": "Order history", "description": "All your purchases in one place." },
+          { "title": "Saved favorites", "description": "Quick access to beloved bouquets." },
+          { "title": "Secure payments", "description": "Protected profile and notifications." }
+        ]
+      },
+      "register": {
+        "label": "Create account",
+        "title": "A new floral story starts here",
+        "description": "Sign up to get a welcome bonus, collect favorite bouquets, and track deliveries.",
+        "imageAlt": "Delicate peonies in a festive Bloomify bouquet",
+        "badgeLabel": "Gift",
+        "badgeValue": "10% off",
+        "highlights": [
+          { "title": "Bonuses & gifts", "description": "Special offers for new customers." },
+          { "title": "Subscription to launches", "description": "Be the first to hear about seasonal collections." },
+          { "title": "Delivery tracking", "description": "Real-time bouquet status." }
+        ]
+      }
+    },
+    "form": {
+      "login": {
+        "title": "Log in",
+        "subtitle": "Great to see you back at Bloomify.",
+        "submitLabel": "Log in",
+        "googleLabel": "Continue with Google",
+        "switchText": "No account yet?",
+        "switchLinkLabel": "Register",
+        "switchHref": "/register"
+      },
+      "register": {
+        "title": "Create account",
+        "subtitle": "A few steps and your favorite bouquets are closer.",
+        "submitLabel": "Register",
+        "googleLabel": "Register with Google",
+        "switchText": "Already have an account?",
+        "switchLinkLabel": "Log in",
+        "switchHref": "/login"
+      },
+      "fields": {
+        "name": { "label": "Full name", "placeholder": "Olha Ryzh", "helper": "" },
+        "email": { "label": "Email", "placeholder": "name@bloomify.ua" },
+        "password": { "label": "Password", "placeholder": "At least 8 characters", "helper": "At least 8 characters, one letter and one number." },
+        "confirmPassword": { "label": "Confirm password", "placeholder": "Repeat password" }
+      },
+      "terms": { "text": "By clicking \"Register\" you agree to the", "termsLabel": "terms", "privacyLabel": "privacy policy" }
+    }
+  },
+  "footer": {
+    "newsletterTitle": "Stay in the loop",
+    "newsletterDescription": "Receive exclusive offers and discounts first.",
+    "emailPlaceholder": "Your email",
+    "subscribeLabel": "Subscribe",
+    "navTitle": "Navigation",
+    "servicesTitle": "Services",
+    "contactsTitle": "Contacts",
+    "tagline": "Exclusive floral compositions for the special moments in your life.",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "rights": "© {{year}} Bloomify. All rights reserved."
+  },
+  "notFound": {
+    "status": "Error 404",
+    "title": "Page not found",
+    "description": "It seems this page is gone or the address is incorrect.",
+    "homeCta": "Go home",
+    "catalogCta": "Visit the catalog"
+  },
+  "delivery": {
+    "freeDeliveryMessage": "Free delivery from {{threshold}}"
+  }
+}

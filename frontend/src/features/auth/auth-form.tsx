@@ -16,29 +16,9 @@ import {
 } from '@/components/ui/card';
 import { loginSchema, registerSchema } from '@/schemas/auth.schemas';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
+import useTranslations from '@/hooks/use-translations';
 
-const formCopy = {
-  login: {
-    title: 'Увійти',
-    subtitle: 'Раді бачити вас знову у Bloomify.',
-    submitLabel: 'Увійти',
-    googleLabel: 'Увійти з Google',
-    switchText: 'Ще немає акаунта?',
-    switchLinkLabel: 'Зареєструватися',
-    switchHref: '/register',
-  },
-  register: {
-    title: 'Створити акаунт',
-    subtitle: 'Кілька кроків — і улюблені букети вже поруч.',
-    submitLabel: 'Зареєструватися',
-    googleLabel: 'Зареєструватися з Google',
-    switchText: 'Вже маєте акаунт?',
-    switchLinkLabel: 'Увійти',
-    switchHref: '/login',
-  },
-} as const;
-
-type AuthMode = keyof typeof formCopy;
+type AuthMode = 'login' | 'register';
 
 type FieldConfig = {
   name: string;
@@ -48,62 +28,6 @@ type FieldConfig = {
   autoComplete?: string;
   helper?: string;
   icon: LucideIcon;
-};
-
-const fieldsByMode: Record<AuthMode, FieldConfig[]> = {
-  login: [
-    {
-      name: 'email',
-      label: 'Email',
-      type: 'email',
-      placeholder: 'name@bloomify.ua',
-      autoComplete: 'email',
-      icon: Mail,
-    },
-    {
-      name: 'password',
-      label: 'Пароль',
-      type: 'password',
-      placeholder: '••••••••',
-      autoComplete: 'current-password',
-      icon: Lock,
-    },
-  ],
-  register: [
-    {
-      name: 'name',
-      label: "Ім'я та прізвище",
-      type: 'text',
-      placeholder: 'Ольга Рижа',
-      autoComplete: 'name',
-      icon: User,
-    },
-    {
-      name: 'email',
-      label: 'Email',
-      type: 'email',
-      placeholder: 'name@bloomify.ua',
-      autoComplete: 'email',
-      icon: Mail,
-    },
-    {
-      name: 'password',
-      label: 'Пароль',
-      type: 'password',
-      placeholder: 'Мінімум 8 символів',
-      autoComplete: 'new-password',
-      helper: 'Мінімум 8 символів, літера та цифра.',
-      icon: Lock,
-    },
-    {
-      name: 'confirmPassword',
-      label: 'Підтвердіть пароль',
-      type: 'password',
-      placeholder: 'Повторіть пароль',
-      autoComplete: 'new-password',
-      icon: Lock,
-    },
-  ],
 };
 
 const initialValuesByMode: Record<AuthMode, Record<string, string>> = {
@@ -120,8 +44,56 @@ const initialValuesByMode: Record<AuthMode, Record<string, string>> = {
 };
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
-  const copy = formCopy[mode];
-  const fields = fieldsByMode[mode];
+  const strings = useTranslations();
+  const copy = strings.auth.form[mode];
+  const fieldTranslations = strings.auth.form.fields;
+
+  const fieldConfig: Record<string, FieldConfig> = {
+    name: {
+      name: 'name',
+      label: fieldTranslations.name.label,
+      type: 'text',
+      placeholder: fieldTranslations.name.placeholder,
+      autoComplete: 'name',
+      helper: fieldTranslations.name.helper || undefined,
+      icon: User,
+    },
+    email: {
+      name: 'email',
+      label: fieldTranslations.email.label,
+      type: 'email',
+      placeholder: fieldTranslations.email.placeholder,
+      autoComplete: 'email',
+      icon: Mail,
+    },
+    password: {
+      name: 'password',
+      label: fieldTranslations.password.label,
+      type: 'password',
+      placeholder: fieldTranslations.password.placeholder,
+      autoComplete: mode === 'login' ? 'current-password' : 'new-password',
+      helper: fieldTranslations.password.helper || undefined,
+      icon: Lock,
+    },
+    confirmPassword: {
+      name: 'confirmPassword',
+      label: fieldTranslations.confirmPassword.label,
+      type: 'password',
+      placeholder: fieldTranslations.confirmPassword.placeholder,
+      autoComplete: 'new-password',
+      icon: Lock,
+    },
+  };
+
+  const fields: FieldConfig[] =
+    mode === 'login'
+      ? [fieldConfig.email, fieldConfig.password]
+      : [
+          fieldConfig.name,
+          fieldConfig.email,
+          fieldConfig.password,
+          fieldConfig.confirmPassword,
+        ];
   const schema = mode === 'login' ? loginSchema : registerSchema;
 
   return (
@@ -228,17 +200,17 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
 
               {mode === 'register' && (
                 <p className='text-xs text-muted-foreground'>
-                  Натискаючи &quot;Зареєструватися&quot;, ви погоджуєтесь з
+                  {copy.terms.text}
                   <Link
                     href='/terms'
                     className='text-primary underline-offset-4 hover:underline'>
-                    умовами
+                    {copy.terms.termsLabel}
                   </Link>
                   та
                   <Link
                     href='/privacy'
                     className='text-primary underline-offset-4 hover:underline'>
-                    політикою конфіденційності
+                    {copy.terms.privacyLabel}
                   </Link>
                   .
                 </p>

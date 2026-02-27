@@ -3,6 +3,7 @@ import AddToCartButton from '@/components/ui/add-to-cart-button';
 import InfoCard from '@/components/ui/info-card';
 import type { CatalogItem } from '@/types/catalog';
 import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
+import useTranslations from '@/hooks/use-translations';
 
 type ProductFeatureProps = {
   product: CatalogItem;
@@ -10,6 +11,8 @@ type ProductFeatureProps = {
 
 export default function ProductFeature({ product }: ProductFeatureProps) {
   const imageSrc = getCatalogItemImage(product);
+  const strings = useTranslations();
+  const productCopy = strings.product;
 
   return (
     <div className='grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start'>
@@ -47,11 +50,11 @@ export default function ProductFeature({ product }: ProductFeatureProps) {
         </div>
 
         <div className='mt-8 grid gap-4 md:grid-cols-2'>
-          <InfoCard title='Доставка'>
-            Безкоштовна доставка по Києву від 1500 ₴, по Україні — 1-2 дні.
+          <InfoCard title={productCopy.infoCards.delivery.title}>
+            {productCopy.infoCards.delivery.description}
           </InfoCard>
-          <InfoCard title='Склад'>
-            Сезонні квіти, підібрані вручну нашими флористами.
+          <InfoCard title={productCopy.infoCards.composition.title}>
+            {productCopy.infoCards.composition.description}
           </InfoCard>
         </div>
       </div>
