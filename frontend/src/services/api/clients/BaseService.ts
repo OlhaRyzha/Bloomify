@@ -51,11 +51,34 @@ export class ApiClient {
     );
   }
 
+  private getCurrentLocale(): string | null {
+    if (typeof window === 'undefined') return null;
+
+    const fromStorage = window.localStorage.getItem('bloomify_locale');
+    if (fromStorage) return fromStorage;
+
+    const fromHtml = document.documentElement.lang;
+    return fromHtml || null;
+  }
+
   private handleBaseRequest(
     config: InternalAxiosRequestConfig
   ): InternalAxiosRequestConfig {
     // const token = getAuthTokenSomehow();
     // if (token) config.headers.setAuthorization(`Bearer ${token}`);
+
+    const url = config.url ?? '';
+    if (url.startsWith('/api/')) return config;
+
+    const locale = this.getCurrentLocale();
+    if (!locale) return config;
+
+    const params = new URLSearchParams(config.params as Record<string, string> | undefined);
+    if (!params.has('lang')) {
+      params.set('lang', locale);
+      config.params = Object.fromEntries(params.entries());
+    }
+
     return config;
   }
 

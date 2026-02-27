@@ -22,7 +22,7 @@ export const useGetProducts = (options?: GetProductsOptions) => {
 
   return useQuery<Products, ApiError>({
     queryKey: [...PRODUCTS_QUERY_KEY, locale],
-    queryFn: () => ProductsService.getProducts(locale),
+    queryFn: () => ProductsService.getProducts(),
     ...options,
   });
 };
@@ -32,7 +32,7 @@ export const useGetProductById = (id: string) => {
 
   return useQuery<ProductItem>({
     queryKey: [...PRODUCT_QUERY_KEY, id, locale],
-    queryFn: () => ProductsService.getProductById(id, locale),
+    queryFn: () => ProductsService.getProductById(id),
     enabled: Boolean(id),
   });
 };

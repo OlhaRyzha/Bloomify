@@ -9,19 +9,12 @@ import {
 import { API_ROUTES } from '@/constants/api.constant';
 
 const ProductsService = {
-  getProducts: (lang?: string): Promise<Products> =>
-    safeFetch(
-      apiClient.get<Products>(API_ROUTES.PRODUCTS, {
-        params: lang ? { lang } : undefined,
-      }),
-      catalogSchema
-    ),
+  getProducts: (): Promise<Products> =>
+    safeFetch(apiClient.get<Products>(API_ROUTES.PRODUCTS), catalogSchema),
 
-  getProductById: (id: string, lang?: string): Promise<ProductItem> =>
+  getProductById: (id: string): Promise<ProductItem> =>
     safeFetch(
-      apiClient.get<ProductItem>(`${API_ROUTES.PRODUCTS}/${id}`, {
-        params: lang ? { lang } : undefined,
-      }),
+      apiClient.get<ProductItem>(`${API_ROUTES.PRODUCTS}/${id}`),
       catalogItemSchema
     ),
 
