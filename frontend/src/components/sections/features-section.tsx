@@ -28,23 +28,20 @@ const itemVariants = {
   },
 };
 
+const featureConfig: Array<{ key: string; icon: ElementType }> = [
+  { key: 'feature_fast_delivery', icon: Truck },
+  { key: 'feature_fresh_guarantee', icon: Shield },
+  { key: 'feature_easy_ordering', icon: Clock },
+  { key: 'feature_eco_friendly', icon: Leaf },
+];
+
 export default function FeaturesSection() {
   const { t } = useTranslation();
-  const iconRegistry: Record<string, ElementType> = {
-    fastDelivery: Truck,
-    freshGuarantee: Shield,
-    easyOrdering: Clock,
-    ecoFriendly: Leaf,
-  };
-  const featureItems = t('sections_features_items', { returnObjects: true }) as unknown as Array<{
-    id: string;
-    title: string;
-    description: string;
-  }>;
-  const features: Feature[] = featureItems.map((item) => ({
-    icon: iconRegistry[item.id] ?? Truck,
-    title: item.title,
-    description: item.description,
+
+  const features: Feature[] = featureConfig.map((item) => ({
+    icon: item.icon,
+    title: t(`${item.key}_title`),
+    description: t(`${item.key}_description`),
   }));
 
   return (

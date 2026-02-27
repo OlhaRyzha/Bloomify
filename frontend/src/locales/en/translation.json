@@ -143,7 +143,7 @@
   "auth_form_register_switchLinkLabel": "Log in",
   "auth_form_register_switchHref": "/login",
   "auth_form_fields_name_label": "Full name",
-  "auth_form_fields_name_placeholder": "Olha Ryzh",
+  "auth_form_fields_name_placeholder": "Olha Ryzha",
   "auth_form_fields_name_helper": "",
   "auth_form_fields_email_label": "Email",
   "auth_form_fields_email_placeholder": "name@bloomify.ua",
@@ -217,5 +217,13 @@
   "footer_address": "Kyiv, Khreshchatyk St, 1",
   "favorites_page_label": "Your favorites",
   "favorites_page_title": "Favorites",
-  "favorites_page_description": "Here are bouquets that touched your heart. Save inspiration and choose the perfect moment to place your order."
+  "favorites_page_description": "Here are bouquets that touched your heart. Save inspiration and choose the perfect moment to place your order.",
+  "feature_fast_delivery_title": "Speedy delivery",
+  "feature_fast_delivery_description": "We deliver across Ukraine within 1–3 days. Rush delivery in Kyiv arrives within 3 hours.",
+  "feature_fresh_guarantee_title": "Freshness guarantee",
+  "feature_fresh_guarantee_description": "Flowers stay fresh for at least 7 days. If not — we replace them for free.",
+  "feature_easy_ordering_title": "Effortless ordering",
+  "feature_easy_ordering_description": "Place an order in under 2 minutes. Support is available around the clock.",
+  "feature_eco_friendly_title": "Eco-friendly",
+  "feature_eco_friendly_description": "We partner with local farms and use biodegradable packaging."
 }
