@@ -6,26 +6,10 @@ import { ElementType } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
 
 type Feature = {
+  key: string;
   icon: ElementType;
   title: string;
   description: string;
-};
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
 };
 
 const featureConfig: Array<{ key: string; icon: ElementType }> = [
@@ -39,6 +23,7 @@ export default function FeaturesSection() {
   const { t } = useTranslation();
 
   const features: Feature[] = featureConfig.map((item) => ({
+    key: item.key,
     icon: item.icon,
     title: t(`${item.key}_title`),
     description: t(`${item.key}_description`),
@@ -61,16 +46,10 @@ export default function FeaturesSection() {
           </h2>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial='hidden'
-          whileInView='visible'
-          viewport={{ once: true }}
-          className='grid gap-8 md:grid-cols-2 lg:grid-cols-4'>
+        <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-4'>
           {features.map((feature) => (
-            <motion.div
-              key={feature.title}
-              variants={itemVariants}
+            <div
+              key={feature.key}
               className='group text-center'>
               <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-cta shadow-card transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-elevated'>
                 <feature.icon className='h-10 w-10 text-primary-foreground' />
@@ -82,9 +61,9 @@ export default function FeaturesSection() {
               <p className='text-sm leading-relaxed text-muted-foreground'>
                 {feature.description}
               </p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
