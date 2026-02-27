@@ -6,7 +6,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select';
 import {
   supportedLocales,
@@ -41,7 +40,6 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
             <Globe className='h-3.5 w-3.5 text-primary' />
             <span className='tracking-[0.08em]'>{localeShortLabels[locale]}</span>
           </div>
-          <SelectValue className='sr-only' />
         </SelectTrigger>
 
         <SelectContent
