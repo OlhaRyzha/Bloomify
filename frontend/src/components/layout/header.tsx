@@ -45,7 +45,7 @@ export default function Header() {
           <nav className='hidden items-center gap-8 md:flex'>
             {navigationLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.key}
                 href={link.href}
                 className='text-sm font-medium text-muted-foreground transition-colors hover:text-primary'>
                 {link.label}
@@ -110,7 +110,7 @@ export default function Header() {
               <div className='flex flex-col gap-4'>
                 {navigationLinks.map((link) => (
                   <Link
-                    key={link.href}
+                    key={link.key}
                     href={link.href}
                     className='text-base font-medium text-foreground transition-colors hover:text-primary'
                     onClick={() => setIsMenuOpen(false)}>

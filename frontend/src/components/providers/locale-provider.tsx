@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, type ReactNode, useContext, useMemo, useState } from 'react';
-import { defaultLocale, supportedLocales, translations, type Locale } from '@/locales/translations';
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { defaultLocale, translations, type Locale } from '@/locales/translations';
+import { ensureLocale } from '@/utils/i18n';
 
 const LOCALE_STORAGE_KEY = 'bloomify_locale';
 const LOCALE_COOKIE_KEY = 'bloomify_locale';
@@ -16,42 +17,30 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 type LocaleProviderProps = {
   children: ReactNode;
+  initialLocale?: string;
 };
 
-function resolveInitialLocale(): Locale {
-  if (typeof window === 'undefined') return defaultLocale;
+export function LocaleProvider({ children, initialLocale }: LocaleProviderProps) {
+  const resolvedInitialLocale = ensureLocale(initialLocale);
+  const [locale, setLocaleState] = useState<Locale>(resolvedInitialLocale);
 
-  const savedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY) as Locale | null;
-  if (savedLocale && supportedLocales.includes(savedLocale)) {
-    return savedLocale;
-  }
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-  const navigatorLocale = window.navigator.language?.split('-')[0];
-  if (navigatorLocale && supportedLocales.includes(navigatorLocale as Locale)) {
-    return navigatorLocale as Locale;
-  }
-
-  return defaultLocale;
-}
-
-export function LocaleProvider({ children }: LocaleProviderProps) {
-  const [locale, setLocaleState] = useState<Locale>(resolveInitialLocale);
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+    document.documentElement.lang = locale;
+    document.cookie = `${LOCALE_COOKIE_KEY}=${locale}; path=/; max-age=31536000; samesite=lax`;
+  }, [locale]);
 
   const setLocale = (nextLocale: Locale) => {
     setLocaleState(nextLocale);
-
-    if (typeof window === 'undefined') return;
-
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
-    document.documentElement.lang = nextLocale;
-    document.cookie = `${LOCALE_COOKIE_KEY}=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
   };
 
   const contextValue = useMemo(
     () => ({
       locale,
       setLocale,
-      dictionary: translations[locale],
+      dictionary: translations[locale] ?? translations[defaultLocale],
     }),
     [locale]
   );

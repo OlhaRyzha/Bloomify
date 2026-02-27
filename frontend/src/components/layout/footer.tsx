@@ -100,7 +100,7 @@ export default function Footer() {
             <h4 className='text-lg font-semibold'>{t('footer_navTitle')}</h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {navLinks.map((item) => (
-                <li key={item.href}>
+                <li key={item.key}>
                   <Link
                     href={item.href}
                     className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
@@ -115,7 +115,7 @@ export default function Footer() {
             <h4 className='text-lg font-semibold'>{t('footer_servicesTitle')}</h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {serviceLinks.map((service) => (
-                <li key={service.href}>
+                <li key={service.key}>
                   <Link
                     href={service.href}
                     className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
