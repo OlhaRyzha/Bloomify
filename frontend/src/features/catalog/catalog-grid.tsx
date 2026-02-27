@@ -8,7 +8,7 @@ import CatalogCard from './catalog-card';
 import CatalogCardSkeleton from './catalog-card-skeleton';
 import { CatalogControls } from './catalog-controls';
 import { useCatalogGridState } from './use-catalog-grid-state';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 
 const CatalogCardWithSkeleton = withSkeleton(CatalogCard, {
   skeleton: <CatalogCardSkeleton />,
@@ -31,8 +31,7 @@ export default function CatalogGrid({
   hideControls,
   perPageOptions = [6, 9, 12],
 }: CatalogGridProps) {
-  const strings = useTranslations();
-  const catalogStrings = strings.catalog;
+  const { t } = useTranslation();
   const { data: catalogItems = [], isLoading: isCatalogLoading } =
     useGetProducts();
   const loading = loadingProp ?? isCatalogLoading;
@@ -84,8 +83,8 @@ export default function CatalogGrid({
           onPageSizeChange={updatePerPage}
           showItemsCount={!hideControls}
           itemsCount={filteredItems.length}
-          itemsCountPrefix={catalogStrings.itemsCountPrefix}
-          itemsCountSuffix={catalogStrings.itemsCountSuffix}
+          itemsCountPrefix={t('catalog.itemsCountPrefix')}
+          itemsCountSuffix={t('catalog.itemsCountSuffix')}
         renderPage={(pageItems) => (
           <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
             {pageItems.map((product) => (

@@ -9,18 +9,17 @@ import { Button } from '../ui/button';
 import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { formatCurrency, formatTemplate } from '@/utils/i18n';
 import { useLocale } from '@/components/providers/locale-provider';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function HeroSection() {
-  const strings = useTranslations();
-  const hero = strings.hero;
+  const { t } = useTranslation();
   const stats = [
-    { value: '5000+', label: hero.stats.satisfiedCustomers },
-    { value: '50+', label: hero.stats.flowerVarieties },
-    { value: '24/7', label: hero.stats.support },
+    { value: '5000+', label: t('hero.stats.satisfiedCustomers') },
+    { value: '50+', label: t('hero.stats.flowerVarieties') },
+    { value: '24/7', label: t('hero.stats.support') },
   ];
   const { locale } = useLocale();
-  const freeDeliveryMessage = formatTemplate(strings.delivery.freeDeliveryMessage, {
+  const freeDeliveryMessage = formatTemplate(t('delivery.freeDeliveryMessage'), {
     threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
   });
 
@@ -45,18 +44,18 @@ export default function HeroSection() {
               className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 backdrop-blur-sm'>
               <Sparkles className='h-4 w-4 text-yellow-600' />
               <span className='text-sm font-medium text-secondary-foreground'>
-                {hero.badge}
+                {t('hero.badge')}
               </span>
             </motion.div>
 
             <h1 className='font-display mb-6 text-5xl font-bold leading-tight text-foreground md:text-6xl lg:text-7xl'>
-              {hero.titleLine1}
+              {t('hero.titleLine1')}
               <br />
-              <span className='text-primary'>{hero.titleLine2}</span>
+              <span className='text-primary'>{t('hero.titleLine2')}</span>
             </h1>
 
             <p className='mx-auto mb-8 max-w-xl text-lg text-muted-foreground lg:mx-0'>
-              {hero.description}
+              {t('hero.description')}
             </p>
 
             <div className='flex flex-col justify-center gap-4 sm:flex-row lg:justify-start'>
@@ -64,7 +63,7 @@ export default function HeroSection() {
                 asChild
                 size='lg'>
                 <Link href='/catalog'>
-                  {hero.primaryCta}
+                  {t('hero.primaryCta')}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
@@ -73,7 +72,7 @@ export default function HeroSection() {
                 asChild
                 variant='secondary'
                 size='lg'>
-                <Link href='/#subscription'>{hero.secondaryCta}</Link>
+                <Link href='/#subscription'>{t('hero.secondaryCta')}</Link>
               </Button>
             </div>
 
@@ -105,7 +104,7 @@ export default function HeroSection() {
 
               <Image
                 src={heroImage}
-                alt={hero.imageAlt}
+                alt={t('hero.imageAlt')}
                 priority
                 className='relative mx-auto w-full max-w-lg rounded-3xl shadow-elevated animate-float'
               />

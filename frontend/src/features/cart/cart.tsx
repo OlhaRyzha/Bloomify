@@ -16,7 +16,7 @@ import { formatCurrency, formatTemplate } from '@/utils/i18n';
 import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
 import { useCartStore } from './cart.store';
 import CartItemSkeleton from './cart-item-skeleton';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 import { useLocale } from '@/components/providers/locale-provider';
 
 type CartItemWithDetails = CatalogItem & { quantity: number };
@@ -29,11 +29,9 @@ export default function CartFeature() {
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const clearCart = useCartStore((state) => state.clearCart);
-  const strings = useTranslations();
+  const { t } = useTranslation();
   const { locale } = useLocale();
-  const cartCopy = strings.cart;
-  const deliveryCopy = strings.delivery;
-  const freeDeliveryMessage = formatTemplate(deliveryCopy.freeDeliveryMessage, {
+  const freeDeliveryMessage = formatTemplate(t('delivery.freeDeliveryMessage'), {
     threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
   });
   const { data: catalogItems = [], isLoading: isCatalogLoading } =
@@ -138,15 +136,15 @@ export default function CartFeature() {
     return (
       <div className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
         <h2 className='font-display mb-3 text-2xl font-bold'>
-          {cartCopy.emptyTitle}
+          {t('cart.emptyTitle')}
         </h2>
         <p className='mb-6 text-sm text-muted-foreground'>
-          {cartCopy.emptyDescription}
+          {t('cart.emptyDescription')}
         </p>
         <Button
           asChild
           size='lg'>
-          <Link href='/catalog'>{cartCopy.emptyCta}</Link>
+          <Link href='/catalog'>{t('cart.emptyCta')}</Link>
         </Button>
       </div>
     );
@@ -157,13 +155,13 @@ export default function CartFeature() {
       <div className='space-y-6'>
         <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-muted/60 px-6 py-4 text-sm text-muted-foreground'>
           <p>
-            {formatTemplate(cartCopy.itemCount, { count: itemCount })}
+            {formatTemplate(t('cart.itemCount'), { count: itemCount })}
           </p>
           <Button
             variant='ghost'
             size='sm'
             onClick={clearCart}>
-            {cartCopy.clearCart}
+            {t('cart.clearCart')}
           </Button>
         </div>
 
@@ -216,13 +214,13 @@ export default function CartFeature() {
             <div className='flex items-center justify-between gap-4 md:flex-col md:items-end'>
               <div className='text-right'>
                 <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
-                  Сума
+                  {t('cart.sum')}
                 </p>
                 <p className='font-display text-2xl text-primary'>
                   {formatCurrency(item.price * item.quantity, locale)}
                 </p>
                 <p className='text-xs text-muted-foreground'>
-                  {formatCurrency(item.price, locale)} / букет
+                  {formatCurrency(item.price, locale)} / {t('common.bouquet')}
                 </p>
               </div>
               <Button
@@ -237,35 +235,35 @@ export default function CartFeature() {
         ))}
 
         <div className='rounded-2xl bg-muted/50 px-6 py-4 text-sm text-muted-foreground'>
-          {cartCopy.note}
+          {t('cart.note')}
         </div>
       </div>
 
       <aside className='space-y-6'>
         <div className='rounded-3xl bg-gradient-card p-6 shadow-card'>
           <h3 className='font-display text-2xl font-semibold'>
-            {cartCopy.summaryTitle}
+            {t('cart.summaryTitle')}
           </h3>
 
           <div className='mt-6 space-y-4 text-sm text-muted-foreground'>
             <div className='flex items-center justify-between'>
-              <span>{cartCopy.bouquetCost}</span>
+              <span>{t('cart.bouquetCost')}</span>
               <span className='font-semibold text-foreground'>
                 {formatCurrency(subtotal, locale)}
               </span>
             </div>
             <div className='flex items-center justify-between'>
-              <span>{cartCopy.delivery}</span>
+              <span>{t('cart.delivery')}</span>
               <span className='font-semibold text-foreground'>
                 {deliveryCost === 0
-                  ? 'Безкоштовно'
+                  ? t('common.free')
                   : formatCurrency(deliveryCost, locale)}
               </span>
             </div>
           </div>
 
           <div className='mt-6 flex items-center justify-between border-t border-border pt-4'>
-            <span className='text-base font-semibold'>{cartCopy.total}</span>
+            <span className='text-base font-semibold'>{t('cart.total')}</span>
             <span className='font-display text-2xl font-semibold text-primary'>
               {formatCurrency(total, locale)}
             </span>
@@ -274,13 +272,13 @@ export default function CartFeature() {
           <Button
             className='mt-6 w-full'
             size='lg'>
-            {cartCopy.checkoutButton}
+            {t('cart.checkoutButton')}
           </Button>
           <Button
             asChild
             variant='outline'
             className='mt-3 w-full'>
-            <Link href='/catalog'>{cartCopy.continueShopping}</Link>
+            <Link href='/catalog'>{t('cart.continueShopping')}</Link>
           </Button>
         </div>
 
@@ -289,35 +287,35 @@ export default function CartFeature() {
           className='rounded-3xl bg-muted/60 p-5'>
           <div className='flex items-center gap-2 text-sm font-semibold text-primary'>
             <TicketPercent className='h-4 w-4' />
-            {cartCopy.promo.title}
+            {t('cart.promo.title')}
           </div>
           <div className='mt-4 flex flex-col gap-3 sm:flex-row'>
             <Input
-              placeholder={cartCopy.promo.placeholder}
+              placeholder={t('cart.promo.placeholder')}
               className='bg-background'
             />
             <Button
               type='submit'
               variant='secondary'>
-              {cartCopy.promo.button}
+              {t('cart.promo.button')}
             </Button>
           </div>
           <p className='mt-3 text-xs text-muted-foreground'>
-            {formatTemplate(cartCopy.promo.message, {
+            {formatTemplate(t('cart.promo.message'), {
               freeDelivery: freeDeliveryMessage,
             })}
           </p>
         </form>
 
         <div className='grid gap-3'>
-          <InfoCard title={cartCopy.infoCards.delivery.title}>
-            {cartCopy.infoCards.delivery.description}
+          <InfoCard title={t('cart.infoCards.delivery.title')}>
+            {t('cart.infoCards.delivery.description')}
           </InfoCard>
-          <InfoCard title={cartCopy.infoCards.packaging.title}>
-            {cartCopy.infoCards.packaging.description}
+          <InfoCard title={t('cart.infoCards.packaging.title')}>
+            {t('cart.infoCards.packaging.description')}
           </InfoCard>
-          <InfoCard title={cartCopy.infoCards.support.title}>
-            {cartCopy.infoCards.support.description}
+          <InfoCard title={t('cart.infoCards.support.title')}>
+            {t('cart.infoCards.support.description')}
           </InfoCard>
         </div>
       </aside>

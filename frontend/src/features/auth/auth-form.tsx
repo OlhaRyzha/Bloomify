@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/card';
 import { loginSchema, registerSchema } from '@/schemas/auth.schemas';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 
 type AuthMode = 'login' | 'register';
 
@@ -44,42 +44,40 @@ const initialValuesByMode: Record<AuthMode, Record<string, string>> = {
 };
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
-  const strings = useTranslations();
-  const copy = strings.auth.form[mode];
-  const fieldTranslations = strings.auth.form.fields;
+  const { t } = useTranslation();
 
   const fieldConfig: Record<string, FieldConfig> = {
     name: {
       name: 'name',
-      label: fieldTranslations.name.label,
+      label: t('auth.form.fields.name.label'),
       type: 'text',
-      placeholder: fieldTranslations.name.placeholder,
+      placeholder: t('auth.form.fields.name.placeholder'),
       autoComplete: 'name',
-      helper: fieldTranslations.name.helper || undefined,
+      helper: t('auth.form.fields.name.helper') || undefined,
       icon: User,
     },
     email: {
       name: 'email',
-      label: fieldTranslations.email.label,
+      label: t('auth.form.fields.email.label'),
       type: 'email',
-      placeholder: fieldTranslations.email.placeholder,
+      placeholder: t('auth.form.fields.email.placeholder'),
       autoComplete: 'email',
       icon: Mail,
     },
     password: {
       name: 'password',
-      label: fieldTranslations.password.label,
+      label: t('auth.form.fields.password.label'),
       type: 'password',
-      placeholder: fieldTranslations.password.placeholder,
+      placeholder: t('auth.form.fields.password.placeholder'),
       autoComplete: mode === 'login' ? 'current-password' : 'new-password',
-      helper: fieldTranslations.password.helper || undefined,
+      helper: t('auth.form.fields.password.helper') || undefined,
       icon: Lock,
     },
     confirmPassword: {
       name: 'confirmPassword',
-      label: fieldTranslations.confirmPassword.label,
+      label: t('auth.form.fields.confirmPassword.label'),
       type: 'password',
-      placeholder: fieldTranslations.confirmPassword.placeholder,
+      placeholder: t('auth.form.fields.confirmPassword.placeholder'),
       autoComplete: 'new-password',
       icon: Lock,
     },
@@ -101,8 +99,8 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
       className='w-full border border-border/70 bg-card/80 shadow-card backdrop-blur opacity-0 animate-scale-in'
       style={{ animationDelay: '0.1s' }}>
       <CardHeader className='pb-4'>
-        <CardTitle className='font-display text-3xl'>{copy.title}</CardTitle>
-        <CardDescription className='text-base'>{copy.subtitle}</CardDescription>
+        <CardTitle className='font-display text-3xl'>{t(`auth.form.${mode}.title`)}</CardTitle>
+        <CardDescription className='text-base'>{t(`auth.form.${mode}.subtitle`)}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -128,7 +126,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 <span className='flex h-8 w-8 items-center justify-center rounded-full bg-muted'>
                   <Chrome className='h-4 w-4 text-primary' />
                 </span>
-                {copy.googleLabel}
+                {t(`auth.form.${mode}.googleLabel`)}
               </Button>
 
               <div className='flex items-center gap-3 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
@@ -195,33 +193,33 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 size='lg'
                 className='mt-2 w-full'
                 disabled={isSubmitting}>
-                {copy.submitLabel}
+                {t(`auth.form.${mode}.submitLabel`)}
               </Button>
 
               {mode === 'register' && (
                 <p className='text-xs text-muted-foreground'>
-                  {copy.terms.text}
+                  {t('auth.form.terms.text')}
                   <Link
                     href='/terms'
                     className='text-primary underline-offset-4 hover:underline'>
-                    {copy.terms.termsLabel}
+                    {t('auth.form.terms.termsLabel')}
                   </Link>
                   та
                   <Link
                     href='/privacy'
                     className='text-primary underline-offset-4 hover:underline'>
-                    {copy.terms.privacyLabel}
+                    {t('auth.form.terms.privacyLabel')}
                   </Link>
                   .
                 </p>
               )}
 
               <p className='text-sm text-muted-foreground'>
-                {copy.switchText}{' '}
+                {t(`auth.form.${mode}.switchText`)}{' '}
                 <Link
-                  href={copy.switchHref}
+                  href={t(`auth.form.${mode}.switchHref`)}
                   className='font-semibold text-primary underline-offset-4 hover:underline'>
-                  {copy.switchLinkLabel}
+                  {t(`auth.form.${mode}.switchLinkLabel`)}
                 </Link>
               </p>
             </Form>

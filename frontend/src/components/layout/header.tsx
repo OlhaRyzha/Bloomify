@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ShoppingBag, User } from 'lucide-react';
 import { Button } from '../ui/button';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 import LocaleSwitcher from '../ui/locale-switcher';
 import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
 import { useHydrated } from '@/hooks/use-hydrated';
@@ -19,11 +19,11 @@ export default function Header() {
   const cartCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0)
   );
-  const strings = useTranslations();
+  const { t } = useTranslation();
 
   const navigationLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
-    label: strings.navigation.main[link.key],
+    label: t(`navigation.main.${link.key}`),
   }));
 
   return (
@@ -38,7 +38,7 @@ export default function Header() {
               href='/'
               className='flex items-center gap-2'>
               <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
-                {strings.common.brand}
+                {t('common.brand')}
               </span>
             </Link>
 
@@ -125,7 +125,7 @@ export default function Header() {
                     href={pathname === '/login' ? '/profile' : '/login'}
                     onClick={() => setIsMenuOpen(false)}>
                     <User className='mr-2 h-4 w-4' />
-                    Увійти
+                    {t('auth.form.login.submitLabel')}
                   </Link>
                 </Button>
               </div>

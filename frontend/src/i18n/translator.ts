@@ -2,7 +2,7 @@ import { defaultLocale, translations, type Locale } from '@/locales/translations
 import { ensureLocale } from '@/utils/i18n';
 
 type Primitive = string | number | boolean | null | undefined;
-type Vars = Record<string, Primitive>;
+type Vars = Record<string, Primitive> & { returnObjects?: boolean };
 
 function getByPath(source: unknown, path: string): unknown {
   return path.split('.').reduce<unknown>((acc, key) => {
@@ -27,16 +27,20 @@ export function createTranslator(localeInput?: string) {
   const t = (key: string, vars?: Vars): string => {
     const value = getByPath(dictionary, key) ?? getByPath(translations[defaultLocale], key);
 
-    if (Array.isArray(value)) {
-      return value.join(', ');
-    }
-
     if (typeof value === 'string') {
       return interpolate(value, vars);
     }
 
     if (value == null) {
       return key;
+    }
+
+    if (vars?.returnObjects) {
+      return value as unknown as string;
+    }
+
+    if (Array.isArray(value)) {
+      return value.join(', ');
     }
 
     return String(value);

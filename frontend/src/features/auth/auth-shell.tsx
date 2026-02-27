@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import heroImage from '@/assets/hero-flowers.jpg';
 import subscriptionImage from '@/assets/subscription-box.jpg';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 
 const authAssets = {
   login: {
@@ -34,8 +34,7 @@ type AuthShellProps = {
 };
 
 export default function AuthShell({ variant, children }: AuthShellProps) {
-  const strings = useTranslations();
-  const content = strings.auth.shell[variant];
+  const { t } = useTranslation();
   const assets = authAssets[variant];
 
   return (
@@ -49,20 +48,20 @@ export default function AuthShell({ variant, children }: AuthShellProps) {
         <div className='grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]'>
           <div className='order-2 space-y-8 lg:order-1'>
             <span className='inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
-              {content.label}
+              {t(`auth.shell.${variant}.label`)}
             </span>
 
             <div className='space-y-4'>
               <h1 className='font-display text-4xl font-bold md:text-5xl'>
-                {content.title}
+                {t(`auth.shell.${variant}.title`)}
               </h1>
               <p className='text-base text-muted-foreground md:text-lg'>
-                {content.description}
+                {t(`auth.shell.${variant}.description`)}
               </p>
             </div>
 
             <div className='grid gap-4 sm:grid-cols-2'>
-              {content.highlights.map((item: { title: string; description: string }, index: number) => {
+              {(t(`auth.shell.${variant}.highlights`, { returnObjects: true }) as unknown as Array<{ title: string; description: string }>).map((item, index: number) => {
                 const Icon = assets.icons[index];
                 return (
                   <div
@@ -90,16 +89,16 @@ export default function AuthShell({ variant, children }: AuthShellProps) {
                 className={`relative ${assets.aspect} overflow-hidden rounded-3xl bg-gradient-card p-3 shadow-card`}>
                 <Image
                   src={assets.image}
-                  alt={content.imageAlt}
+                  alt={t(`auth.shell.${variant}.imageAlt`)}
                   className='rounded-2xl'
                 />
               </div>
               <div className='absolute -bottom-6 right-6 rounded-2xl bg-primary px-4 py-3 text-primary-foreground shadow-card'>
                 <p className='text-[0.6rem] uppercase tracking-[0.3em] text-primary-foreground/70'>
-                  {content.badgeLabel}
+                  {t(`auth.shell.${variant}.badgeLabel`)}
                 </p>
                 <p className='font-display text-lg font-semibold'>
-                  {content.badgeValue}
+                  {t(`auth.shell.${variant}.badgeValue`)}
                 </p>
               </div>
             </div>

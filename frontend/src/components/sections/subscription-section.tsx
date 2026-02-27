@@ -7,7 +7,7 @@ import subscriptionImage from '@/assets/subscription-box.jpg';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 import { formatTemplate } from '@/utils/i18n';
 
 type Plan = {
@@ -32,17 +32,16 @@ const planConfig: Array<{
 ];
 
 export default function SubscriptionSection() {
-  const strings = useTranslations();
-  const subscription = strings.sections.subscription;
+  const { t } = useTranslation();
   const plans: Plan[] = planConfig.map((config) => {
-    const translation = subscription.plans[config.key];
+    const base = `sections.subscription.plans.${config.key}`;
     return {
-      name: translation.name,
-      description: translation.description,
-      period: translation.period,
+      name: t(`${base}.name`),
+      description: t(`${base}.description`),
+      period: t(`${base}.period`),
       price: config.price,
       icon: config.icon,
-      features: translation.features,
+      features: t(`${base}.features`, { returnObjects: true }) as unknown as string[],
       popular: config.popular,
     };
   });
@@ -58,13 +57,13 @@ export default function SubscriptionSection() {
             transition={{ duration: 0.6 }}
             className='mb-16 text-center'>
             <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-              {subscription.label}
+              {t('sections.subscription.label')}
             </span>
             <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-              {subscription.title}
+              {t('sections.subscription.title')}
             </h2>
             <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
-              {subscription.description}
+              {t('sections.subscription.description')}
             </p>
           </motion.div>
 
@@ -101,7 +100,7 @@ export default function SubscriptionSection() {
                 )}>
                 {plan.popular && (
                   <div className='absolute right-0 top-0 rounded-bl-xl bg-gold px-4 py-1 text-xs font-semibold text-forest'>
-                    {subscription.popularBadge}
+                    {t('sections.subscription.popularBadge')}
                   </div>
                 )}
 
@@ -194,7 +193,7 @@ export default function SubscriptionSection() {
                             ? 'text-primary-foreground/80'
                             : 'text-muted-foreground'
                         )}>
-                        {formatTemplate(subscription.moreLabel, {
+                        {formatTemplate(t('sections.subscription.moreLabel'), {
                           count: plan.features.length - 3,
                         })}
                       </span>
@@ -207,7 +206,7 @@ export default function SubscriptionSection() {
                       plan.popular && 'bg-gold text-forest font-semibold'
                     )}
                     variant='default'>
-                    {subscription.cta}
+                    {t('sections.subscription.cta')}
                   </Button>
                 </CardContent>
               </Card>

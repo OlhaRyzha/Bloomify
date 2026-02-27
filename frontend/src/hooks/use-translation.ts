@@ -3,7 +3,7 @@
 import { useLocale } from '@/components/providers/locale-provider';
 
 type Primitive = string | number | boolean | null | undefined;
-type Vars = Record<string, Primitive>;
+type Vars = Record<string, Primitive> & { returnObjects?: boolean };
 
 function getByPath(source: unknown, path: string): unknown {
   return path.split('.').reduce<unknown>((acc, key) => {
@@ -33,6 +33,10 @@ export function useTranslation() {
 
     if (value == null) {
       return key;
+    }
+
+    if (vars?.returnObjects) {
+      return value as unknown as string;
     }
 
     if (Array.isArray(value)) {

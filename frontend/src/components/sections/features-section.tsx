@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Truck, Shield, Clock, Leaf } from 'lucide-react';
 import { ElementType } from 'react';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 
 type Feature = {
   icon: ElementType;
@@ -29,15 +29,19 @@ const itemVariants = {
 };
 
 export default function FeaturesSection() {
-  const strings = useTranslations();
-  const featureCopy = strings.sections.features;
+  const { t } = useTranslation();
   const iconRegistry: Record<string, ElementType> = {
     fastDelivery: Truck,
     freshGuarantee: Shield,
     easyOrdering: Clock,
     ecoFriendly: Leaf,
   };
-  const features: Feature[] = featureCopy.items.map((item: { id: string; title: string; description: string }) => ({
+  const featureItems = t('sections.features.items', { returnObjects: true }) as unknown as Array<{
+    id: string;
+    title: string;
+    description: string;
+  }>;
+  const features: Feature[] = featureItems.map((item) => ({
     icon: iconRegistry[item.id] ?? Truck,
     title: item.title,
     description: item.description,
@@ -53,10 +57,10 @@ export default function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            {featureCopy.label}
+            {t('sections.features.label')}
           </span>
           <h2 className='font-display text-4xl font-bold md:text-5xl'>
-            {featureCopy.title}
+            {t('sections.features.title')}
           </h2>
         </motion.div>
 

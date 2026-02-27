@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
 import CatalogGrid from '@/features/catalog/catalog-grid';
 import { Button } from '../ui/button';
-import useTranslations from '@/hooks/use-translations';
+import { useTranslation } from '@/hooks/use-translation';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,8 +26,7 @@ const itemVariants = {
 
 export default function CatalogSection() {
   const { data, isLoading } = useGetProducts();
-  const strings = useTranslations();
-  const catalogStrings = strings.sections.catalog;
+  const { t } = useTranslation();
 
   return (
     <section
@@ -41,13 +40,13 @@ export default function CatalogSection() {
           transition={{ duration: 0.6 }}
           className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            {catalogStrings.label}
+            {t('sections.catalog.label')}
           </span>
           <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-            {catalogStrings.title}
+            {t('sections.catalog.title')}
           </h2>
           <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
-            {catalogStrings.description}
+            {t('sections.catalog.description')}
           </p>
         </motion.div>
 
@@ -79,7 +78,7 @@ export default function CatalogSection() {
             asChild
             size='lg'
             variant='secondary'>
-            <Link href='/catalog'>{catalogStrings.button}</Link>
+            <Link href='/catalog'>{t('sections.catalog.button')}</Link>
           </Button>
         </motion.div>
       </div>
