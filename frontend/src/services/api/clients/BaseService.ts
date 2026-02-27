@@ -61,9 +61,9 @@ export class ApiClient {
     return fromHtml || null;
   }
 
-  private handleBaseRequest(
+  private handleBaseRequest = (
     config: InternalAxiosRequestConfig
-  ): InternalAxiosRequestConfig {
+  ): InternalAxiosRequestConfig => {
     // const token = getAuthTokenSomehow();
     // if (token) config.headers.setAuthorization(`Bearer ${token}`);
 
