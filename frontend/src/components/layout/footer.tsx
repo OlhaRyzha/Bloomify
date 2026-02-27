@@ -2,12 +2,13 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatTemplate } from '@/utils/i18n';
 import {
+  FOOTER_CONTACT_ITEMS,
   NAVIGATION_LINKS,
   SERVICE_LINKS,
   footerSocialLinks,
@@ -26,47 +27,6 @@ export default function Footer() {
   const rightsMessage = formatTemplate(t('footer_rights'), {
     year: new Date().getFullYear(),
   });
-  const addressText = t('footer_address');
-  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}`;
-  const footerContactItems = [
-    {
-      id: 'phone',
-      icon: Phone,
-      content: (
-        <a
-          href='tel:+380991234567'
-          className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-          +38 (099) 123-45-67
-        </a>
-      ),
-    },
-    {
-      id: 'email',
-      icon: Mail,
-      content: (
-        <a
-          href='mailto:hello@bloomify.ua'
-          className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-          hello@bloomify.ua
-        </a>
-      ),
-    },
-    {
-      id: 'address',
-      icon: MapPin,
-      content: (
-        <address className='not-italic text-primary-foreground/80'>
-          <a
-            href={mapUrl}
-            target='_blank'
-            rel='noreferrer'
-            className='transition-colors hover:text-primary-foreground'>
-            {addressText}
-          </a>
-        </address>
-      ),
-    },
-  ];
 
   return (
     <footer
@@ -169,17 +129,40 @@ export default function Footer() {
           <div>
             <h4 className='text-lg font-semibold'>{t('footer_contactsTitle')}</h4>
             <ul className='mt-4 space-y-3 text-sm'>
-              {footerContactItems.map((item) => (
-                <li
-                  key={item.id}
-                  className='flex items-start gap-3'>
-                  <item.icon
-                    className='mt-0.5 h-4 w-4 text-gold'
-                    aria-hidden
-                  />
-                  {item.content}
-                </li>
-              ))}
+              {FOOTER_CONTACT_ITEMS.map((item) => {
+                const text = item.labelKey ? t(item.labelKey) : item.staticText ?? '';
+                const href = item.id === 'address'
+                  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`
+                  : item.href;
+
+                return (
+                  <li
+                    key={item.id}
+                    className='flex items-start gap-3'>
+                    <item.icon
+                      className='mt-0.5 h-4 w-4 text-gold'
+                      aria-hidden
+                    />
+                    {item.id === 'address' ? (
+                      <address className='not-italic text-primary-foreground/80'>
+                        <a
+                          href={href}
+                          target='_blank'
+                          rel='noreferrer'
+                          className='transition-colors hover:text-primary-foreground'>
+                          {text}
+                        </a>
+                      </address>
+                    ) : (
+                      <a
+                        href={href}
+                        className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
+                        {text}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

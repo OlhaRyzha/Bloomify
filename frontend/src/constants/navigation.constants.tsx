@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Facebook, Instagram, Mail, MapPin, Phone, Send } from 'lucide-react';
 
@@ -22,54 +21,34 @@ export const SERVICE_LINKS: { key: ServiceKey; href: string }[] = [
   { key: 'delivery', href: '/#services' },
 ];
 
-const kyivAddress = 'м. Київ, вул. Хрещатик, 1';
-const kyivMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  kyivAddress
-)}`;
-
-type FooterContactItem = {
-  id: string;
+export type FooterContactItem = {
+  id: 'phone' | 'email' | 'address';
   icon: LucideIcon;
-  content: ReactNode;
+  href: string;
+  external?: boolean;
+  labelKey?: string;
+  staticText?: string;
 };
 
-export const footerContactItems: FooterContactItem[] = [
+export const FOOTER_CONTACT_ITEMS: FooterContactItem[] = [
   {
     id: 'phone',
     icon: Phone,
-    content: (
-      <a
-        href='tel:+380991234567'
-        className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-        +38 (099) 123-45-67
-      </a>
-    ),
+    href: 'tel:+380991234567',
+    staticText: '+38 (099) 123-45-67',
   },
   {
     id: 'email',
     icon: Mail,
-    content: (
-      <a
-        href='mailto:hello@bloomify.ua'
-        className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-        hello@bloomify.ua
-      </a>
-    ),
+    href: 'mailto:hello@bloomify.ua',
+    staticText: 'hello@bloomify.ua',
   },
   {
     id: 'address',
     icon: MapPin,
-    content: (
-      <address className='not-italic text-primary-foreground/80'>
-        <a
-          href={kyivMapUrl}
-          target='_blank'
-          rel='noreferrer'
-          className='transition-colors hover:text-primary-foreground'>
-          {kyivAddress}
-        </a>
-      </address>
-    ),
+    href: 'https://www.google.com/maps/search/?api=1&query=Kyiv',
+    external: true,
+    labelKey: 'footer_address',
   },
 ];
 
