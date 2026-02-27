@@ -1,255 +1,208 @@
 {
-  "common": {
-    "brand": "Bloomify"
-  },
-  "locale": {
-    "switcherLabel": "Мова",
-    "switcherAria": "Вибрати мову"
-  },
-  "navigation": {
-    "main": {
-      "catalog": "Каталог",
-      "favorites": "Вибране",
-      "subscription": "Підписка",
-      "about": "Про нас",
-      "contact": "Контакти"
+  "common.brand": "Bloomify",
+  "locale.switcherLabel": "Мова",
+  "locale.switcherAria": "Вибрати мову",
+  "navigation.main.catalog": "Каталог",
+  "navigation.main.favorites": "Вибране",
+  "navigation.main.subscription": "Підписка",
+  "navigation.main.about": "Про нас",
+  "navigation.main.contact": "Контакти",
+  "navigation.services.wedding": "Весільна флористика",
+  "navigation.services.corporate": "Корпоративні замовлення",
+  "navigation.services.events": "Оформлення свят",
+  "navigation.services.gifts": "Подарункові кошики",
+  "navigation.services.delivery": "Доставка квітів",
+  "hero.badge": "Щомісячна підписка на квіти",
+  "hero.titleLine1": "Краса природи",
+  "hero.titleLine2": "у кожному букеті",
+  "hero.description": "Ексклюзивні флористичні композиції з доставкою по всій Україні. Оформіть підписку та отримуйте свіжі букети щомісяця.",
+  "hero.primaryCta": "Обрати букет",
+  "hero.secondaryCta": "Дізнатися про підписку",
+  "hero.stats.satisfiedCustomers": "Задоволених клієнтів",
+  "hero.stats.flowerVarieties": "Видів квітів",
+  "hero.stats.support": "Підтримка",
+  "hero.imageAlt": "Розкішний букет з рожевих троянд та білих півоній",
+  "sections.catalog.label": "Вибір флористів",
+  "sections.catalog.title": "Каталог букетів",
+  "sections.catalog.description": "Обирайте витончені флористичні композиції для будь-якої нагоди — від ніжних знаків уваги до розкішних подарунків. Кожен букет створений з любов’ю, сезонних квітів та бездоганного смаку наших флористів.",
+  "sections.catalog.button": "Переглянути весь каталог",
+  "sections.subscription.label": "Підписка",
+  "sections.subscription.title": "Квіти щомісяця",
+  "sections.subscription.description": "Оформіть підписку та отримуйте свіжі букети прямо до дверей. Зробіть своє життя яскравішим!",
+  "sections.subscription.popularBadge": "Популярний",
+  "sections.subscription.cta": "Оформити підписку",
+  "sections.subscription.moreLabel": "+{{count}} ще",
+  "sections.subscription.plans.base.name": "Базовий",
+  "sections.subscription.plans.base.description": "Ідеально для початківців",
+  "sections.subscription.plans.base.period": "місяць",
+  "sections.subscription.plans.base.features": [
+    "1 букет на місяць",
+    "Сезонні квіти",
+    "Безкоштовна доставка",
+    "Картка з побажаннями"
+  ],
+  "sections.subscription.plans.premium.name": "Преміум",
+  "sections.subscription.plans.premium.description": "Найпопулярніший вибір",
+  "sections.subscription.plans.premium.period": "місяць",
+  "sections.subscription.plans.premium.features": [
+    "2 букети на місяць",
+    "Преміум сорти квітів",
+    "Пріоритетна доставка",
+    "Персональний флорист",
+    "Ексклюзивні композиції"
+  ],
+  "sections.subscription.plans.luxe.name": "Люкс",
+  "sections.subscription.plans.luxe.description": "Для справжніх цінителів",
+  "sections.subscription.plans.luxe.period": "місяць",
+  "sections.subscription.plans.luxe.features": [
+    "4 букети на місяць",
+    "Рідкісні сорти квітів",
+    "Доставка в день замовлення",
+    "VIP підтримка 24/7",
+    "Подарунки до свят",
+    "Знижки на весілля"
+  ],
+  "sections.features.label": "Чому обирають нас",
+  "sections.features.title": "Ваша довіра — наш пріоритет",
+  "sections.features.items": [
+    {
+      "id": "fastDelivery",
+      "title": "Швидка доставка",
+      "description": "Доставляємо по всій Україні за 1–3 дні. Термінова доставка по Києву — до 3 годин."
     },
-    "services": {
-      "wedding": "Весільна флористика",
-      "corporate": "Корпоративні замовлення",
-      "events": "Оформлення свят",
-      "gifts": "Подарункові кошики",
-      "delivery": "Доставка квітів"
+    {
+      "id": "freshGuarantee",
+      "title": "Гарантія свіжості",
+      "description": "Квіти зберігаються мінімум 7 днів. Якщо ні — замінимо безкоштовно."
+    },
+    {
+      "id": "easyOrdering",
+      "title": "Зручне замовлення",
+      "description": "Оформіть замовлення за 2 хвилини. Підтримка працює цілодобово."
+    },
+    {
+      "id": "ecoFriendly",
+      "title": "Екологічність",
+      "description": "Співпрацюємо з локальними фермами. Використовуємо біорозкладну упаковку."
     }
-  },
-  "hero": {
-    "badge": "Щомісячна підписка на квіти",
-    "titleLine1": "Краса природи",
-    "titleLine2": "у кожному букеті",
-    "description": "Ексклюзивні флористичні композиції з доставкою по всій Україні. Оформіть підписку та отримуйте свіжі букети щомісяця.",
-    "primaryCta": "Обрати букет",
-    "secondaryCta": "Дізнатися про підписку",
-    "stats": {
-      "satisfiedCustomers": "Задоволених клієнтів",
-      "flowerVarieties": "Видів квітів",
-      "support": "Підтримка"
+  ],
+  "sections.favorites.emptyTitle": "У вас ще немає вибраних букетів",
+  "sections.favorites.emptyDescription": "Тут зібрані букети, які торкнулися вашого серця. Зберігайте натхнення та обирайте ідеальний момент для замовлення.",
+  "sections.favorites.emptyCta": "Перейти до каталогу",
+  "catalog.itemsCountPrefix": "Знайдено",
+  "catalog.itemsCountSuffix": "букетів",
+  "cart.emptyTitle": "Ваш кошик поки що порожній",
+  "cart.emptyDescription": "Оберіть букет у каталозі, а ми подбаємо про бездоганну доставку.",
+  "cart.emptyCta": "Перейти до каталогу",
+  "cart.itemCount": "У кошику {{count}} букети",
+  "cart.clearCart": "Очистити кошик",
+  "cart.note": "Додайте побажання до листівки або точний час доставки під час оформлення.",
+  "cart.summaryTitle": "Підсумок замовлення",
+  "cart.bouquetCost": "Вартість букетів",
+  "cart.delivery": "Доставка",
+  "cart.total": "Разом",
+  "cart.checkoutButton": "Оформити замовлення",
+  "cart.continueShopping": "Продовжити покупки",
+  "cart.promo.title": "Промокод або сертифікат",
+  "cart.promo.placeholder": "Введіть код",
+  "cart.promo.button": "Застосувати",
+  "cart.promo.message": "{{freeDelivery}}.",
+  "cart.infoCards.delivery.title": "Доставка",
+  "cart.infoCards.delivery.description": "Кур’єр доставить букет у зручний час. По Києву — від 2 годин.",
+  "cart.infoCards.packaging.title": "Пакування",
+  "cart.infoCards.packaging.description": "Естетична упаковка та листівка вже включені у вартість.",
+  "cart.infoCards.support.title": "Підтримка",
+  "cart.infoCards.support.description": "Підберемо ідеальний букет для події — напишіть нам у чат.",
+  "product.article": "Артикул",
+  "product.infoCards.delivery.title": "Доставка",
+  "product.infoCards.delivery.description": "Безкоштовна доставка по Києву від 1500 ₴, по Україні — 1–2 дні.",
+  "product.infoCards.composition.title": "Склад",
+  "product.infoCards.composition.description": "Сезонні квіти, підібрані вручну нашими флористами.",
+  "auth.shell.login.label": "Особистий кабінет",
+  "auth.shell.login.title": "Повернімося до ваших улюблених букетів",
+  "auth.shell.login.description": "Увійдіть, щоб швидко оформлювати замовлення, керувати підпискою та зберігати вподобані композиції.",
+  "auth.shell.login.imageAlt": "Рожеві троянди в стильному букеті Bloomify",
+  "auth.shell.login.badgeLabel": "Ваші підбірки",
+  "auth.shell.login.badgeValue": "Квіткові історії",
+  "auth.shell.login.highlights": [
+    {
+      "title": "Історія замовлень",
+      "description": "Вся ваша історія покупок в одному місці."
     },
-    "imageAlt": "Розкішний букет з рожевих троянд та білих півоній"
-  },
-  "sections": {
-    "catalog": {
-      "label": "Вибір флористів",
-      "title": "Каталог букетів",
-      "description": "Обирайте витончені флористичні композиції для будь-якої нагоди — від ніжних знаків уваги до розкішних подарунків. Кожен букет створений з любов’ю, сезонних квітів та бездоганного смаку наших флористів.",
-      "button": "Переглянути весь каталог"
+    {
+      "title": "Збережені вподобання",
+      "description": "Швидкий доступ до улюблених букетів."
     },
-    "subscription": {
-      "label": "Підписка",
-      "title": "Квіти щомісяця",
-      "description": "Оформіть підписку та отримуйте свіжі букети прямо до дверей. Зробіть своє життя яскравішим!",
-      "popularBadge": "Популярний",
-      "cta": "Оформити підписку",
-      "moreLabel": "+{{count}} ще",
-      "plans": {
-        "base": {
-          "name": "Базовий",
-          "description": "Ідеально для початківців",
-          "period": "місяць",
-          "features": [
-            "1 букет на місяць",
-            "Сезонні квіти",
-            "Безкоштовна доставка",
-            "Картка з побажаннями"
-          ]
-        },
-        "premium": {
-          "name": "Преміум",
-          "description": "Найпопулярніший вибір",
-          "period": "місяць",
-          "features": [
-            "2 букети на місяць",
-            "Преміум сорти квітів",
-            "Пріоритетна доставка",
-            "Персональний флорист",
-            "Ексклюзивні композиції"
-          ]
-        },
-        "luxe": {
-          "name": "Люкс",
-          "description": "Для справжніх цінителів",
-          "period": "місяць",
-          "features": [
-            "4 букети на місяць",
-            "Рідкісні сорти квітів",
-            "Доставка в день замовлення",
-            "VIP підтримка 24/7",
-            "Подарунки до свят",
-            "Знижки на весілля"
-          ]
-        }
-      }
-    },
-    "features": {
-      "label": "Чому обирають нас",
-      "title": "Ваша довіра — наш пріоритет",
-      "items": [
-        {
-          "id": "fastDelivery",
-          "title": "Швидка доставка",
-          "description": "Доставляємо по всій Україні за 1–3 дні. Термінова доставка по Києву — до 3 годин."
-        },
-        {
-          "id": "freshGuarantee",
-          "title": "Гарантія свіжості",
-          "description": "Квіти зберігаються мінімум 7 днів. Якщо ні — замінимо безкоштовно."
-        },
-        {
-          "id": "easyOrdering",
-          "title": "Зручне замовлення",
-          "description": "Оформіть замовлення за 2 хвилини. Підтримка працює цілодобово."
-        },
-        {
-          "id": "ecoFriendly",
-          "title": "Екологічність",
-          "description": "Співпрацюємо з локальними фермами. Використовуємо біорозкладну упаковку."
-        }
-      ]
-    },
-    "favorites": {
-      "emptyTitle": "У вас ще немає вибраних букетів",
-      "emptyDescription": "Тут зібрані букети, які торкнулися вашого серця. Зберігайте натхнення та обирайте ідеальний момент для замовлення.",
-      "emptyCta": "Перейти до каталогу"
+    {
+      "title": "Безпечні платежі",
+      "description": "Захищений профіль та сповіщення."
     }
-  },
-  "catalog": {
-    "itemsCountPrefix": "Знайдено",
-    "itemsCountSuffix": "букетів"
-  },
-  "cart": {
-    "emptyTitle": "Ваш кошик поки що порожній",
-    "emptyDescription": "Оберіть букет у каталозі, а ми подбаємо про бездоганну доставку.",
-    "emptyCta": "Перейти до каталогу",
-    "itemCount": "У кошику {{count}} букети",
-    "clearCart": "Очистити кошик",
-    "note": "Додайте побажання до листівки або точний час доставки під час оформлення.",
-    "summaryTitle": "Підсумок замовлення",
-    "bouquetCost": "Вартість букетів",
-    "delivery": "Доставка",
-    "total": "Разом",
-    "checkoutButton": "Оформити замовлення",
-    "continueShopping": "Продовжити покупки",
-    "promo": {
-      "title": "Промокод або сертифікат",
-      "placeholder": "Введіть код",
-      "button": "Застосувати",
-      "message": "{{freeDelivery}}."
+  ],
+  "auth.shell.register.label": "Створити акаунт",
+  "auth.shell.register.title": "Нова квіткова історія починається тут",
+  "auth.shell.register.description": "Зареєструйтесь, щоб отримати бонус на перше замовлення, збирати улюблені букети та відстежувати доставку.",
+  "auth.shell.register.imageAlt": "Ніжні півонії у святковому букеті Bloomify",
+  "auth.shell.register.badgeLabel": "Подарунок",
+  "auth.shell.register.badgeValue": "Знижка -10%",
+  "auth.shell.register.highlights": [
+    {
+      "title": "Бонуси та подарунки",
+      "description": "Спеціальні пропозиції для нових клієнтів."
     },
-    "infoCards": {
-      "delivery": {
-        "title": "Доставка",
-        "description": "Кур’єр доставить букет у зручний час. По Києву — від 2 годин."
-      },
-      "packaging": {
-        "title": "Пакування",
-        "description": "Естетична упаковка та листівка вже включені у вартість."
-      },
-      "support": {
-        "title": "Підтримка",
-        "description": "Підберемо ідеальний букет для події — напишіть нам у чат."
-      }
-    }
-  },
-  "product": {
-    "article": "Артикул",
-    "infoCards": {
-      "delivery": {
-        "title": "Доставка",
-        "description": "Безкоштовна доставка по Києву від 1500 ₴, по Україні — 1–2 дні."
-      },
-      "composition": {
-        "title": "Склад",
-        "description": "Сезонні квіти, підібрані вручну нашими флористами."
-      }
-    }
-  },
-  "auth": {
-    "shell": {
-      "login": {
-        "label": "Особистий кабінет",
-        "title": "Повернімося до ваших улюблених букетів",
-        "description": "Увійдіть, щоб швидко оформлювати замовлення, керувати підпискою та зберігати вподобані композиції.",
-        "imageAlt": "Рожеві троянди в стильному букеті Bloomify",
-        "badgeLabel": "Ваші підбірки",
-        "badgeValue": "Квіткові історії",
-        "highlights": [
-          { "title": "Історія замовлень", "description": "Вся ваша історія покупок в одному місці." },
-          { "title": "Збережені вподобання", "description": "Швидкий доступ до улюблених букетів." },
-          { "title": "Безпечні платежі", "description": "Захищений профіль та сповіщення." }
-        ]
-      },
-      "register": {
-        "label": "Створити акаунт",
-        "title": "Нова квіткова історія починається тут",
-        "description": "Зареєструйтесь, щоб отримати бонус на перше замовлення, збирати улюблені букети та відстежувати доставку.",
-        "imageAlt": "Ніжні півонії у святковому букеті Bloomify",
-        "badgeLabel": "Подарунок",
-        "badgeValue": "Знижка -10%",
-        "highlights": [
-          { "title": "Бонуси та подарунки", "description": "Спеціальні пропозиції для нових клієнтів." },
-          { "title": "Підписка на новинки", "description": "Дізнавайтесь першими про сезонні колекції." },
-          { "title": "Відстеження доставки", "description": "Статус букетів в реальному часі." }
-        ]
-      }
+    {
+      "title": "Підписка на новинки",
+      "description": "Дізнавайтесь першими про сезонні колекції."
     },
-    "form": {
-      "login": {
-        "title": "Увійти",
-        "subtitle": "Раді бачити вас знову у Bloomify.",
-        "submitLabel": "Увійти",
-        "googleLabel": "Увійти з Google",
-        "switchText": "Ще немає акаунта?",
-        "switchLinkLabel": "Зареєструватися",
-        "switchHref": "/register"
-      },
-      "register": {
-        "title": "Створити акаунт",
-        "subtitle": "Кілька кроків — і улюблені букети вже поруч.",
-        "submitLabel": "Зареєструватися",
-        "googleLabel": "Зареєструватися з Google",
-        "switchText": "Вже маєте акаунт?",
-        "switchLinkLabel": "Увійти",
-        "switchHref": "/login"
-      },
-      "fields": {
-        "name": { "label": "Ім'я та прізвище", "placeholder": "Ольга Рижа", "helper": "" },
-        "email": { "label": "Email", "placeholder": "name@bloomify.ua" },
-        "password": { "label": "Пароль", "placeholder": "Мінімум 8 символів", "helper": "Мінімум 8 символів, літера та цифра." },
-        "confirmPassword": { "label": "Підтвердіть пароль", "placeholder": "Повторіть пароль" }
-      },
-      "terms": { "text": "Натискаючи \"Зареєструватися\", ви погоджуєтесь з", "termsLabel": "умовами", "privacyLabel": "політикою конфіденційності" }
+    {
+      "title": "Відстеження доставки",
+      "description": "Статус букетів в реальному часі."
     }
-  },
-  "footer": {
-    "newsletterTitle": "Підпишіться на новини",
-    "newsletterDescription": "Отримуйте ексклюзивні пропозиції та знижки першими",
-    "emailPlaceholder": "Ваш email",
-    "subscribeLabel": "Підписатися",
-    "navTitle": "Навігація",
-    "servicesTitle": "Послуги",
-    "contactsTitle": "Контакти",
-    "tagline": "Ексклюзивні флористичні композиції для особливих моментів вашого життя.",
-    "privacy": "Політика конфіденційності",
-    "terms": "Умови використання",
-    "rights": "© {{year}} Bloomify. Всі права захищені."
-  },
-  "notFound": {
-    "status": "Помилка 404",
-    "title": "Сторінку не знайдено",
-    "description": "Схоже, що цієї сторінки більше немає або адреса введена некоректно.",
-    "homeCta": "На головну",
-    "catalogCta": "Перейти в каталог"
-  },
-  "delivery": {
-    "freeDeliveryMessage": "Безкоштовна доставка від {{threshold}}"
-  }
+  ],
+  "auth.form.login.title": "Увійти",
+  "auth.form.login.subtitle": "Раді бачити вас знову у Bloomify.",
+  "auth.form.login.submitLabel": "Увійти",
+  "auth.form.login.googleLabel": "Увійти з Google",
+  "auth.form.login.switchText": "Ще немає акаунта?",
+  "auth.form.login.switchLinkLabel": "Зареєструватися",
+  "auth.form.login.switchHref": "/register",
+  "auth.form.register.title": "Створити акаунт",
+  "auth.form.register.subtitle": "Кілька кроків — і улюблені букети вже поруч.",
+  "auth.form.register.submitLabel": "Зареєструватися",
+  "auth.form.register.googleLabel": "Зареєструватися з Google",
+  "auth.form.register.switchText": "Вже маєте акаунт?",
+  "auth.form.register.switchLinkLabel": "Увійти",
+  "auth.form.register.switchHref": "/login",
+  "auth.form.fields.name.label": "Ім'я та прізвище",
+  "auth.form.fields.name.placeholder": "Ольга Рижа",
+  "auth.form.fields.name.helper": "",
+  "auth.form.fields.email.label": "Email",
+  "auth.form.fields.email.placeholder": "name@bloomify.ua",
+  "auth.form.fields.password.label": "Пароль",
+  "auth.form.fields.password.placeholder": "Мінімум 8 символів",
+  "auth.form.fields.password.helper": "Мінімум 8 символів, літера та цифра.",
+  "auth.form.fields.confirmPassword.label": "Підтвердіть пароль",
+  "auth.form.fields.confirmPassword.placeholder": "Повторіть пароль",
+  "auth.form.terms.text": "Натискаючи \"Зареєструватися\", ви погоджуєтесь з",
+  "auth.form.terms.termsLabel": "умовами",
+  "auth.form.terms.privacyLabel": "політикою конфіденційності",
+  "footer.newsletterTitle": "Підпишіться на новини",
+  "footer.newsletterDescription": "Отримуйте ексклюзивні пропозиції та знижки першими",
+  "footer.emailPlaceholder": "Ваш email",
+  "footer.subscribeLabel": "Підписатися",
+  "footer.navTitle": "Навігація",
+  "footer.servicesTitle": "Послуги",
+  "footer.contactsTitle": "Контакти",
+  "footer.tagline": "Ексклюзивні флористичні композиції для особливих моментів вашого життя.",
+  "footer.privacy": "Політика конфіденційності",
+  "footer.terms": "Умови використання",
+  "footer.rights": "© {{year}} Bloomify. Всі права захищені.",
+  "notFound.status": "Помилка 404",
+  "notFound.title": "Сторінку не знайдено",
+  "notFound.description": "Схоже, що цієї сторінки більше немає або адреса введена некоректно.",
+  "notFound.homeCta": "На головну",
+  "notFound.catalogCta": "Перейти в каталог",
+  "delivery.freeDeliveryMessage": "Безкоштовна доставка від {{threshold}}",
+  "common.free": "Безкоштовно",
+  "common.bouquet": "букет",
+  "cart.sum": "Сума"
 }

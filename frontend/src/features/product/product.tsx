@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import AddToCartButton from '@/components/ui/add-to-cart-button';
 import InfoCard from '@/components/ui/info-card';
