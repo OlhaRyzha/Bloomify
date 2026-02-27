@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Send } from 'lucide-react';
+import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
@@ -10,7 +10,6 @@ import { formatTemplate } from '@/utils/i18n';
 import {
   NAVIGATION_LINKS,
   SERVICE_LINKS,
-  footerContactItems,
   footerSocialLinks,
 } from '@/constants/navigation.constants';
 
@@ -27,6 +26,47 @@ export default function Footer() {
   const rightsMessage = formatTemplate(t('footer_rights'), {
     year: new Date().getFullYear(),
   });
+  const addressText = t('footer_address');
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}`;
+  const footerContactItems = [
+    {
+      id: 'phone',
+      icon: Phone,
+      content: (
+        <a
+          href='tel:+380991234567'
+          className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
+          +38 (099) 123-45-67
+        </a>
+      ),
+    },
+    {
+      id: 'email',
+      icon: Mail,
+      content: (
+        <a
+          href='mailto:hello@bloomify.ua'
+          className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
+          hello@bloomify.ua
+        </a>
+      ),
+    },
+    {
+      id: 'address',
+      icon: MapPin,
+      content: (
+        <address className='not-italic text-primary-foreground/80'>
+          <a
+            href={mapUrl}
+            target='_blank'
+            rel='noreferrer'
+            className='transition-colors hover:text-primary-foreground'>
+            {addressText}
+          </a>
+        </address>
+      ),
+    },
+  ];
 
   return (
     <footer

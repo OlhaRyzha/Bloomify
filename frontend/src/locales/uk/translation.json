@@ -213,5 +213,6 @@
   "controls_sortOptions_nameAsc": "Назва: А-Я",
   "controls_tagLabel": "Тег",
   "controls_tagPlaceholder": "Оберіть тег",
-  "controls_tagAll": "Усі теги"
+  "controls_tagAll": "Усі теги",
+  "footer_address": "м. Київ, вул. Хрещатик, 1"
 }

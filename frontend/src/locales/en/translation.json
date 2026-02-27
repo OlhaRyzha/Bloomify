@@ -213,5 +213,6 @@
   "controls_sortOptions_nameAsc": "Name: A–Z",
   "controls_tagLabel": "Tag",
   "controls_tagPlaceholder": "Select tag",
-  "controls_tagAll": "All tags"
+  "controls_tagAll": "All tags",
+  "footer_address": "Kyiv, Khreshchatyk St, 1"
 }
