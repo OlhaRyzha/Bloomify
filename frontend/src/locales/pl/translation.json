@@ -225,5 +225,8 @@
   "feature_easy_ordering_title": "Wygodne zamówienia",
   "feature_easy_ordering_description": "Złóż zamówienie w 2 minuty. Wsparcie działa całą dobę.",
   "feature_eco_friendly_title": "Ekologia",
-  "feature_eco_friendly_description": "Współpracujemy z lokalnymi gospodarstwami i stosujemy biodegradowalne opakowania."
+  "feature_eco_friendly_description": "Współpracujemy z lokalnymi gospodarstwami i stosujemy biodegradowalne opakowania.",
+  "cart_page_label": "Twoje zamówienie",
+  "cart_page_title": "Koszyk",
+  "cart_page_description": "Sprawdź szczegóły zamówienia, dostosuj liczbę bukietów i dokończ składanie zamówienia z dostawą."
 }

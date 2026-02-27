@@ -225,5 +225,8 @@
   "feature_easy_ordering_title": "Effortless ordering",
   "feature_easy_ordering_description": "Place an order in under 2 minutes. Support is available around the clock.",
   "feature_eco_friendly_title": "Eco-friendly",
-  "feature_eco_friendly_description": "We partner with local farms and use biodegradable packaging."
+  "feature_eco_friendly_description": "We partner with local farms and use biodegradable packaging.",
+  "cart_page_label": "Your order",
+  "cart_page_title": "Cart",
+  "cart_page_description": "Review your order details, adjust bouquet quantities, and complete delivery checkout."
 }

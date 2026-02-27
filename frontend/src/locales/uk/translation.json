@@ -225,5 +225,8 @@
   "feature_easy_ordering_title": "Зручне замовлення",
   "feature_easy_ordering_description": "Оформіть замовлення за 2 хвилини. Підтримка працює цілодобово.",
   "feature_eco_friendly_title": "Екологічність",
-  "feature_eco_friendly_description": "Співпрацюємо з локальними фермами. Використовуємо біорозкладну упаковку."
+  "feature_eco_friendly_description": "Співпрацюємо з локальними фермами. Використовуємо біорозкладну упаковку.",
+  "cart_page_label": "Ваше замовлення",
+  "cart_page_title": "Кошик",
+  "cart_page_description": "Перевірте деталі замовлення, відрегулюйте кількість букетів та оформіть доставку."
 }
