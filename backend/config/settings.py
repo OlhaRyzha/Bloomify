@@ -65,6 +65,11 @@ UNFOLD = {
     "SITE_TITLE": _("Bloomify admin panel"),
     "SITE_HEADER": "Bloomify",
     "SITE_SUBHEADER": _("Flower shop • subscriptions • orders"),
+    "SHOW_LANGUAGES": True,
+    "LANGUAGE_FLAGS": {
+        "uk": "🇺🇦",
+        "en": "🇬🇧",
+    },
     "SITE_URL": "http://localhost:3000",
     "SITE_ICON": {
         "light": "/static/bloomify/admin-icon.svg",
