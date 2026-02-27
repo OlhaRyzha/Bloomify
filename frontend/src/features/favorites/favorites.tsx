@@ -31,15 +31,15 @@ export default function FavoritesFeature() {
     return (
       <div className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
         <h2 className='font-display mb-3 text-2xl font-bold'>
-          {t('sections.favorites.emptyTitle')}
+          {t('sections_favorites_emptyTitle')}
         </h2>
         <p className='mb-6 text-sm text-muted-foreground'>
-          {t('sections.favorites.emptyDescription')}
+          {t('sections_favorites_emptyDescription')}
         </p>
         <Button
           asChild
           size='lg'>
-          <Link href='/catalog'>{t('sections.favorites.emptyCta')}</Link>
+          <Link href='/catalog'>{t('sections_favorites_emptyCta')}</Link>
         </Button>
       </div>
     );

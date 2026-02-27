@@ -83,8 +83,8 @@ export default function CatalogGrid({
           onPageSizeChange={updatePerPage}
           showItemsCount={!hideControls}
           itemsCount={filteredItems.length}
-          itemsCountPrefix={t('catalog.itemsCountPrefix')}
-          itemsCountSuffix={t('catalog.itemsCountSuffix')}
+          itemsCountPrefix={t('catalog_itemsCountPrefix')}
+          itemsCountSuffix={t('catalog_itemsCountSuffix')}
         renderPage={(pageItems) => (
           <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
             {pageItems.map((product) => (

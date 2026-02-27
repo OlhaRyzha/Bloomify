@@ -50,20 +50,20 @@ export default function AuthShell({ variant, children }: AuthShellProps) {
         <div className='grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]'>
           <div className='order-2 space-y-8 lg:order-1'>
             <span className='inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
-              {t(`auth.shell.${variant}.label`)}
+              {t(`auth_shell_${variant}_label`)}
             </span>
 
             <div className='space-y-4'>
               <h1 className='font-display text-4xl font-bold md:text-5xl'>
-                {t(`auth.shell.${variant}.title`)}
+                {t(`auth_shell_${variant}_title`)}
               </h1>
               <p className='text-base text-muted-foreground md:text-lg'>
-                {t(`auth.shell.${variant}.description`)}
+                {t(`auth_shell_${variant}_description`)}
               </p>
             </div>
 
             <div className='grid gap-4 sm:grid-cols-2'>
-              {(t(`auth.shell.${variant}.highlights`, { returnObjects: true }) as unknown as Array<{ title: string; description: string }>).map((item, index: number) => {
+              {(t(`auth_shell_${variant}_highlights`, { returnObjects: true }) as unknown as Array<{ title: string; description: string }>).map((item, index: number) => {
                 const Icon = assets.icons[index];
                 return (
                   <div
@@ -91,16 +91,16 @@ export default function AuthShell({ variant, children }: AuthShellProps) {
                 className={`relative ${assets.aspect} overflow-hidden rounded-3xl bg-gradient-card p-3 shadow-card`}>
                 <Image
                   src={assets.image}
-                  alt={t(`auth.shell.${variant}.imageAlt`)}
+                  alt={t(`auth_shell_${variant}_imageAlt`)}
                   className='rounded-2xl'
                 />
               </div>
               <div className='absolute -bottom-6 right-6 rounded-2xl bg-primary px-4 py-3 text-primary-foreground shadow-card'>
                 <p className='text-[0.6rem] uppercase tracking-[0.3em] text-primary-foreground/70'>
-                  {t(`auth.shell.${variant}.badgeLabel`)}
+                  {t(`auth_shell_${variant}_badgeLabel`)}
                 </p>
                 <p className='font-display text-lg font-semibold'>
-                  {t(`auth.shell.${variant}.badgeValue`)}
+                  {t(`auth_shell_${variant}_badgeValue`)}
                 </p>
               </div>
             </div>

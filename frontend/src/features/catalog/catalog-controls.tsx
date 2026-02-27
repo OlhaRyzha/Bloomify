@@ -36,7 +36,7 @@ export function CatalogControls({
     <div className='mb-2 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-card px-5 py-4 shadow-card'>
       <Input
         type='search'
-        placeholder={t('controls.searchPlaceholder')}
+        placeholder={t('controls_searchPlaceholder')}
         className='h-10 w-52'
         prefix={<Search className='h-4 w-4 text-muted-foreground' />}
         value={searchInput}
@@ -45,18 +45,18 @@ export function CatalogControls({
       <div className='flex items-center gap-2'>
         <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
             <ArrowUpDown className='h-4 w-4 text-muted-foreground' />
-            <span className='text-muted-foreground'>{t('controls.sortLabel')}</span>
+            <span className='text-muted-foreground'>{t('controls_sortLabel')}</span>
             <Select
               value={sort}
               onValueChange={(value) => onSortChange(value as SortOption)}>
                 <SelectTrigger className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-                  <SelectValue placeholder={t('controls.sortLabel')} />
+                  <SelectValue placeholder={t('controls_sortLabel')} />
                 </SelectTrigger>
               <SelectContent>
-                <SelectItem value='default'>{t('controls.sortOptions.default')}</SelectItem>
-                <SelectItem value='price-asc'>{t('controls.sortOptions.priceAsc')}</SelectItem>
-                <SelectItem value='price-desc'>{t('controls.sortOptions.priceDesc')}</SelectItem>
-                <SelectItem value='name-asc'>{t('controls.sortOptions.nameAsc')}</SelectItem>
+                <SelectItem value='default'>{t('controls_sortOptions_default')}</SelectItem>
+                <SelectItem value='price-asc'>{t('controls_sortOptions_priceAsc')}</SelectItem>
+                <SelectItem value='price-desc'>{t('controls_sortOptions_priceDesc')}</SelectItem>
+                <SelectItem value='name-asc'>{t('controls_sortOptions_nameAsc')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -64,15 +64,15 @@ export function CatalogControls({
         {availableTags.length > 0 && (
           <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3  text-sm font-medium text-foreground shadow-sm'>
             <SlidersHorizontal className='h-4 w-4 text-muted-foreground' />
-            <span className='text-muted-foreground'>{t('controls.tagLabel')}</span>
+            <span className='text-muted-foreground'>{t('controls_tagLabel')}</span>
             <Select
               value={tagFilter}
               onValueChange={onTagFilterChange}>
               <SelectTrigger className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-                <SelectValue placeholder={t('controls.tagPlaceholder')} />
+                <SelectValue placeholder={t('controls_tagPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>{t('controls.tagAll')}</SelectItem>
+                <SelectItem value='all'>{t('controls_tagAll')}</SelectItem>
                 {availableTags.map((tag) => (
                   <SelectItem
                     key={tag}

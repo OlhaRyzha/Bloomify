@@ -49,35 +49,35 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
   const fieldConfig: Record<string, FieldConfig> = {
     name: {
       name: 'name',
-      label: t('auth.form.fields.name.label'),
+      label: t('auth_form_fields_name_label'),
       type: 'text',
-      placeholder: t('auth.form.fields.name.placeholder'),
+      placeholder: t('auth_form_fields_name_placeholder'),
       autoComplete: 'name',
-      helper: t('auth.form.fields.name.helper') || undefined,
+      helper: t('auth_form_fields_name_helper') || undefined,
       icon: User,
     },
     email: {
       name: 'email',
-      label: t('auth.form.fields.email.label'),
+      label: t('auth_form_fields_email_label'),
       type: 'email',
-      placeholder: t('auth.form.fields.email.placeholder'),
+      placeholder: t('auth_form_fields_email_placeholder'),
       autoComplete: 'email',
       icon: Mail,
     },
     password: {
       name: 'password',
-      label: t('auth.form.fields.password.label'),
+      label: t('auth_form_fields_password_label'),
       type: 'password',
-      placeholder: t('auth.form.fields.password.placeholder'),
+      placeholder: t('auth_form_fields_password_placeholder'),
       autoComplete: mode === 'login' ? 'current-password' : 'new-password',
-      helper: t('auth.form.fields.password.helper') || undefined,
+      helper: t('auth_form_fields_password_helper') || undefined,
       icon: Lock,
     },
     confirmPassword: {
       name: 'confirmPassword',
-      label: t('auth.form.fields.confirmPassword.label'),
+      label: t('auth_form_fields_confirmPassword_label'),
       type: 'password',
-      placeholder: t('auth.form.fields.confirmPassword.placeholder'),
+      placeholder: t('auth_form_fields_confirmPassword_placeholder'),
       autoComplete: 'new-password',
       icon: Lock,
     },
@@ -99,8 +99,8 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
       className='w-full border border-border/70 bg-card/80 shadow-card backdrop-blur opacity-0 animate-scale-in'
       style={{ animationDelay: '0.1s' }}>
       <CardHeader className='pb-4'>
-        <CardTitle className='font-display text-3xl'>{t(`auth.form.${mode}.title`)}</CardTitle>
-        <CardDescription className='text-base'>{t(`auth.form.${mode}.subtitle`)}</CardDescription>
+        <CardTitle className='font-display text-3xl'>{t(`auth_form_${mode}_title`)}</CardTitle>
+        <CardDescription className='text-base'>{t(`auth_form_${mode}_subtitle`)}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -126,7 +126,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 <span className='flex h-8 w-8 items-center justify-center rounded-full bg-muted'>
                   <Chrome className='h-4 w-4 text-primary' />
                 </span>
-                {t(`auth.form.${mode}.googleLabel`)}
+                {t(`auth_form_${mode}_googleLabel`)}
               </Button>
 
               <div className='flex items-center gap-3 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
@@ -193,33 +193,33 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 size='lg'
                 className='mt-2 w-full'
                 disabled={isSubmitting}>
-                {t(`auth.form.${mode}.submitLabel`)}
+                {t(`auth_form_${mode}_submitLabel`)}
               </Button>
 
               {mode === 'register' && (
                 <p className='text-xs text-muted-foreground'>
-                  {t('auth.form.terms.text')}
+                  {t('auth_form_terms_text')}
                   <Link
                     href='/terms'
                     className='text-primary underline-offset-4 hover:underline'>
-                    {t('auth.form.terms.termsLabel')}
+                    {t('auth_form_terms_termsLabel')}
                   </Link>
                   та
                   <Link
                     href='/privacy'
                     className='text-primary underline-offset-4 hover:underline'>
-                    {t('auth.form.terms.privacyLabel')}
+                    {t('auth_form_terms_privacyLabel')}
                   </Link>
                   .
                 </p>
               )}
 
               <p className='text-sm text-muted-foreground'>
-                {t(`auth.form.${mode}.switchText`)}{' '}
+                {t(`auth_form_${mode}_switchText`)}{' '}
                 <Link
-                  href={t(`auth.form.${mode}.switchHref`)}
+                  href={t(`auth_form_${mode}_switchHref`)}
                   className='font-semibold text-primary underline-offset-4 hover:underline'>
-                  {t(`auth.form.${mode}.switchLinkLabel`)}
+                  {t(`auth_form_${mode}_switchLinkLabel`)}
                 </Link>
               </p>
             </Form>

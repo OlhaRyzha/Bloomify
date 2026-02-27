@@ -36,7 +36,7 @@ export default function FeaturesSection() {
     easyOrdering: Clock,
     ecoFriendly: Leaf,
   };
-  const featureItems = t('sections.features.items', { returnObjects: true }) as unknown as Array<{
+  const featureItems = t('sections_features_items', { returnObjects: true }) as unknown as Array<{
     id: string;
     title: string;
     description: string;
@@ -57,10 +57,10 @@ export default function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            {t('sections.features.label')}
+            {t('sections_features_label')}
           </span>
           <h2 className='font-display text-4xl font-bold md:text-5xl'>
-            {t('sections.features.title')}
+            {t('sections_features_title')}
           </h2>
         </motion.div>
 

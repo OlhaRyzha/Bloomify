@@ -18,13 +18,13 @@ export default function Footer() {
   const { t } = useTranslation();
   const navLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
-    label: t(`navigation.main.${link.key}`),
+    label: t(`navigation_main_${link.key}`),
   }));
   const serviceLinks = SERVICE_LINKS.map((link) => ({
     ...link,
-    label: t(`navigation.services.${link.key}`),
+    label: t(`navigation_services_${link.key}`),
   }));
-  const rightsMessage = formatTemplate(t('footer.rights'), {
+  const rightsMessage = formatTemplate(t('footer_rights'), {
     year: new Date().getFullYear(),
   });
 
@@ -42,10 +42,10 @@ export default function Footer() {
             className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
             <div>
               <h3 className='text-2xl font-bold md:text-3xl'>
-                {t('footer.newsletterTitle')}
+                {t('footer_newsletterTitle')}
               </h3>
               <p className='mt-2 text-primary-foreground/80'>
-                {t('footer.newsletterDescription')}
+                {t('footer_newsletterDescription')}
               </p>
             </div>
 
@@ -54,14 +54,14 @@ export default function Footer() {
               className='flex w-full gap-3 lg:w-auto'>
               <Input
                 type='email'
-                placeholder={t('footer.emailPlaceholder')}
+                placeholder={t('footer_emailPlaceholder')}
                 className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
               />
               <Button
                 className='h-10 px-6 py-2 bg-gold'
                 type='submit'
                 size='icon'
-                aria-label={t('footer.subscribeLabel')}>
+                aria-label={t('footer_subscribeLabel')}>
                 <Send className='h-4 w-4' />
               </Button>
             </form>
@@ -75,10 +75,10 @@ export default function Footer() {
             <Link
               href='/'
               className='text-3xl font-bold'>
-              {t('common.brand')}
+              {t('common_brand')}
             </Link>
             <p className='mt-4 text-sm text-primary-foreground/80'>
-              {t('footer.tagline')}
+              {t('footer_tagline')}
             </p>
 
             <div className='mt-6 flex gap-3'>
@@ -97,7 +97,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className='text-lg font-semibold'>{t('footer.navTitle')}</h4>
+            <h4 className='text-lg font-semibold'>{t('footer_navTitle')}</h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {navLinks.map((item) => (
                 <li key={item.href}>
@@ -112,7 +112,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className='text-lg font-semibold'>{t('footer.servicesTitle')}</h4>
+            <h4 className='text-lg font-semibold'>{t('footer_servicesTitle')}</h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {serviceLinks.map((service) => (
                 <li key={service.href}>
@@ -127,7 +127,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className='text-lg font-semibold'>{t('footer.contactsTitle')}</h4>
+            <h4 className='text-lg font-semibold'>{t('footer_contactsTitle')}</h4>
             <ul className='mt-4 space-y-3 text-sm'>
               {footerContactItems.map((item) => (
                 <li
@@ -152,12 +152,12 @@ export default function Footer() {
             <Link
               href='/privacy'
               className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
-              {t('footer.privacy')}
+              {t('footer_privacy')}
             </Link>
             <Link
               href='/terms'
               className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
-              {t('footer.terms')}
+              {t('footer_terms')}
             </Link>
           </div>
         </div>

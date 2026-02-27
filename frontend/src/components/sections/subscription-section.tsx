@@ -34,14 +34,14 @@ const planConfig: Array<{
 export default function SubscriptionSection() {
   const { t } = useTranslation();
   const plans: Plan[] = planConfig.map((config) => {
-    const base = `sections.subscription.plans.${config.key}`;
+    const base = `sections_subscription_plans_${config.key}`;
     return {
-      name: t(`${base}.name`),
-      description: t(`${base}.description`),
-      period: t(`${base}.period`),
+      name: t(`${base}_name`),
+      description: t(`${base}_description`),
+      period: t(`${base}_period`),
       price: config.price,
       icon: config.icon,
-      features: t(`${base}.features`, { returnObjects: true }) as unknown as string[],
+      features: t(`${base}_features`, { returnObjects: true }) as unknown as string[],
       popular: config.popular,
     };
   });
@@ -57,13 +57,13 @@ export default function SubscriptionSection() {
             transition={{ duration: 0.6 }}
             className='mb-16 text-center'>
             <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-              {t('sections.subscription.label')}
+              {t('sections_subscription_label')}
             </span>
             <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-              {t('sections.subscription.title')}
+              {t('sections_subscription_title')}
             </h2>
             <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
-              {t('sections.subscription.description')}
+              {t('sections_subscription_description')}
             </p>
           </motion.div>
 
@@ -100,7 +100,7 @@ export default function SubscriptionSection() {
                 )}>
                 {plan.popular && (
                   <div className='absolute right-0 top-0 rounded-bl-xl bg-gold px-4 py-1 text-xs font-semibold text-forest'>
-                    {t('sections.subscription.popularBadge')}
+                    {t('sections_subscription_popularBadge')}
                   </div>
                 )}
 
@@ -193,7 +193,7 @@ export default function SubscriptionSection() {
                             ? 'text-primary-foreground/80'
                             : 'text-muted-foreground'
                         )}>
-                        {formatTemplate(t('sections.subscription.moreLabel'), {
+                        {formatTemplate(t('sections_subscription_moreLabel'), {
                           count: plan.features.length - 3,
                         })}
                       </span>
@@ -206,7 +206,7 @@ export default function SubscriptionSection() {
                       plan.popular && 'bg-gold text-forest font-semibold'
                     )}
                     variant='default'>
-                    {t('sections.subscription.cta')}
+                    {t('sections_subscription_cta')}
                   </Button>
                 </CardContent>
               </Card>

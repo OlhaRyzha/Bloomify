@@ -10,7 +10,7 @@ function getByPath(source: unknown, path: string): unknown {
   const record = source as Record<string, unknown>;
   if (path in record) return record[path];
 
-  return path.split('.').reduce<unknown>((acc, key) => {
+  return path.split('_').reduce<unknown>((acc, key) => {
     if (acc && typeof acc === 'object' && key in (acc as Record<string, unknown>)) {
       return (acc as Record<string, unknown>)[key];
     }

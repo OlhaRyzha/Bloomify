@@ -40,13 +40,13 @@ export default function CatalogSection() {
           transition={{ duration: 0.6 }}
           className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            {t('sections.catalog.label')}
+            {t('sections_catalog_label')}
           </span>
           <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-            {t('sections.catalog.title')}
+            {t('sections_catalog_title')}
           </h2>
           <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
-            {t('sections.catalog.description')}
+            {t('sections_catalog_description')}
           </p>
         </motion.div>
 
@@ -78,7 +78,7 @@ export default function CatalogSection() {
             asChild
             size='lg'
             variant='secondary'>
-            <Link href='/catalog'>{t('sections.catalog.button')}</Link>
+            <Link href='/catalog'>{t('sections_catalog_button')}</Link>
           </Button>
         </motion.div>
       </div>

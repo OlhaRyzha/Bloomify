@@ -51,11 +51,11 @@ export default function ProductFeature({ product }: ProductFeatureProps) {
         </div>
 
         <div className='mt-8 grid gap-4 md:grid-cols-2'>
-          <InfoCard title={t('product.infoCards.delivery.title')}>
-            {t('product.infoCards.delivery.description')}
+          <InfoCard title={t('product_infoCards_delivery_title')}>
+            {t('product_infoCards_delivery_description')}
           </InfoCard>
-          <InfoCard title={t('product.infoCards.composition.title')}>
-            {t('product.infoCards.composition.description')}
+          <InfoCard title={t('product_infoCards_composition_title')}>
+            {t('product_infoCards_composition_description')}
           </InfoCard>
         </div>
       </div>

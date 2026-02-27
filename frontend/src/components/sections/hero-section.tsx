@@ -14,12 +14,12 @@ import { useTranslation } from '@/hooks/use-translation';
 export default function HeroSection() {
   const { t } = useTranslation();
   const stats = [
-    { value: '5000+', label: t('hero.stats.satisfiedCustomers') },
-    { value: '50+', label: t('hero.stats.flowerVarieties') },
-    { value: '24/7', label: t('hero.stats.support') },
+    { value: '5000+', label: t('hero_stats_satisfiedCustomers') },
+    { value: '50+', label: t('hero_stats_flowerVarieties') },
+    { value: '24/7', label: t('hero_stats_support') },
   ];
   const { locale } = useLocale();
-  const freeDeliveryMessage = formatTemplate(t('delivery.freeDeliveryMessage'), {
+  const freeDeliveryMessage = formatTemplate(t('delivery_freeDeliveryMessage'), {
     threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
   });
 
@@ -44,18 +44,18 @@ export default function HeroSection() {
               className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 backdrop-blur-sm'>
               <Sparkles className='h-4 w-4 text-yellow-600' />
               <span className='text-sm font-medium text-secondary-foreground'>
-                {t('hero.badge')}
+                {t('hero_badge')}
               </span>
             </motion.div>
 
             <h1 className='font-display mb-6 text-5xl font-bold leading-tight text-foreground md:text-6xl lg:text-7xl'>
-              {t('hero.titleLine1')}
+              {t('hero_titleLine1')}
               <br />
-              <span className='text-primary'>{t('hero.titleLine2')}</span>
+              <span className='text-primary'>{t('hero_titleLine2')}</span>
             </h1>
 
             <p className='mx-auto mb-8 max-w-xl text-lg text-muted-foreground lg:mx-0'>
-              {t('hero.description')}
+              {t('hero_description')}
             </p>
 
             <div className='flex flex-col justify-center gap-4 sm:flex-row lg:justify-start'>
@@ -63,7 +63,7 @@ export default function HeroSection() {
                 asChild
                 size='lg'>
                 <Link href='/catalog'>
-                  {t('hero.primaryCta')}
+                  {t('hero_primaryCta')}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
@@ -72,7 +72,7 @@ export default function HeroSection() {
                 asChild
                 variant='secondary'
                 size='lg'>
-                <Link href='/#subscription'>{t('hero.secondaryCta')}</Link>
+                <Link href='/#subscription'>{t('hero_secondaryCta')}</Link>
               </Button>
             </div>
 
@@ -104,7 +104,7 @@ export default function HeroSection() {
 
               <Image
                 src={heroImage}
-                alt={t('hero.imageAlt')}
+                alt={t('hero_imageAlt')}
                 priority
                 className='relative mx-auto w-full max-w-lg rounded-3xl shadow-elevated animate-float'
               />

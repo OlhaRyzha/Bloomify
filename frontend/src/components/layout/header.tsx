@@ -23,7 +23,7 @@ export default function Header() {
 
   const navigationLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
-    label: t(`navigation.main.${link.key}`),
+    label: t(`navigation_main_${link.key}`),
   }));
 
   return (
@@ -38,7 +38,7 @@ export default function Header() {
               href='/'
               className='flex items-center gap-2'>
               <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
-                {t('common.brand')}
+                {t('common_brand')}
               </span>
             </Link>
 
@@ -125,7 +125,7 @@ export default function Header() {
                     href={pathname === '/login' ? '/profile' : '/login'}
                     onClick={() => setIsMenuOpen(false)}>
                     <User className='mr-2 h-4 w-4' />
-                    {t('auth.form.login.submitLabel')}
+                    {t('auth_form_login_submitLabel')}
                   </Link>
                 </Button>
               </div>

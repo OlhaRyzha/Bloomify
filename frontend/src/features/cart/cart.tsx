@@ -31,7 +31,7 @@ export default function CartFeature() {
   const clearCart = useCartStore((state) => state.clearCart);
   const { t } = useTranslation();
   const { locale } = useLocale();
-  const freeDeliveryMessage = formatTemplate(t('delivery.freeDeliveryMessage'), {
+  const freeDeliveryMessage = formatTemplate(t('delivery_freeDeliveryMessage'), {
     threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
   });
   const { data: catalogItems = [], isLoading: isCatalogLoading } =
@@ -136,15 +136,15 @@ export default function CartFeature() {
     return (
       <div className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
         <h2 className='font-display mb-3 text-2xl font-bold'>
-          {t('cart.emptyTitle')}
+          {t('cart_emptyTitle')}
         </h2>
         <p className='mb-6 text-sm text-muted-foreground'>
-          {t('cart.emptyDescription')}
+          {t('cart_emptyDescription')}
         </p>
         <Button
           asChild
           size='lg'>
-          <Link href='/catalog'>{t('cart.emptyCta')}</Link>
+          <Link href='/catalog'>{t('cart_emptyCta')}</Link>
         </Button>
       </div>
     );
@@ -155,13 +155,13 @@ export default function CartFeature() {
       <div className='space-y-6'>
         <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-muted/60 px-6 py-4 text-sm text-muted-foreground'>
           <p>
-            {formatTemplate(t('cart.itemCount'), { count: itemCount })}
+            {formatTemplate(t('cart_itemCount'), { count: itemCount })}
           </p>
           <Button
             variant='ghost'
             size='sm'
             onClick={clearCart}>
-            {t('cart.clearCart')}
+            {t('cart_clearCart')}
           </Button>
         </div>
 
@@ -214,13 +214,13 @@ export default function CartFeature() {
             <div className='flex items-center justify-between gap-4 md:flex-col md:items-end'>
               <div className='text-right'>
                 <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
-                  {t('cart.sum')}
+                  {t('cart_sum')}
                 </p>
                 <p className='font-display text-2xl text-primary'>
                   {formatCurrency(item.price * item.quantity, locale)}
                 </p>
                 <p className='text-xs text-muted-foreground'>
-                  {formatCurrency(item.price, locale)} / {t('common.bouquet')}
+                  {formatCurrency(item.price, locale)} / {t('common_bouquet')}
                 </p>
               </div>
               <Button
@@ -235,35 +235,35 @@ export default function CartFeature() {
         ))}
 
         <div className='rounded-2xl bg-muted/50 px-6 py-4 text-sm text-muted-foreground'>
-          {t('cart.note')}
+          {t('cart_note')}
         </div>
       </div>
 
       <aside className='space-y-6'>
         <div className='rounded-3xl bg-gradient-card p-6 shadow-card'>
           <h3 className='font-display text-2xl font-semibold'>
-            {t('cart.summaryTitle')}
+            {t('cart_summaryTitle')}
           </h3>
 
           <div className='mt-6 space-y-4 text-sm text-muted-foreground'>
             <div className='flex items-center justify-between'>
-              <span>{t('cart.bouquetCost')}</span>
+              <span>{t('cart_bouquetCost')}</span>
               <span className='font-semibold text-foreground'>
                 {formatCurrency(subtotal, locale)}
               </span>
             </div>
             <div className='flex items-center justify-between'>
-              <span>{t('cart.delivery')}</span>
+              <span>{t('cart_delivery')}</span>
               <span className='font-semibold text-foreground'>
                 {deliveryCost === 0
-                  ? t('common.free')
+                  ? t('common_free')
                   : formatCurrency(deliveryCost, locale)}
               </span>
             </div>
           </div>
 
           <div className='mt-6 flex items-center justify-between border-t border-border pt-4'>
-            <span className='text-base font-semibold'>{t('cart.total')}</span>
+            <span className='text-base font-semibold'>{t('cart_total')}</span>
             <span className='font-display text-2xl font-semibold text-primary'>
               {formatCurrency(total, locale)}
             </span>
@@ -272,13 +272,13 @@ export default function CartFeature() {
           <Button
             className='mt-6 w-full'
             size='lg'>
-            {t('cart.checkoutButton')}
+            {t('cart_checkoutButton')}
           </Button>
           <Button
             asChild
             variant='outline'
             className='mt-3 w-full'>
-            <Link href='/catalog'>{t('cart.continueShopping')}</Link>
+            <Link href='/catalog'>{t('cart_continueShopping')}</Link>
           </Button>
         </div>
 
@@ -287,35 +287,35 @@ export default function CartFeature() {
           className='rounded-3xl bg-muted/60 p-5'>
           <div className='flex items-center gap-2 text-sm font-semibold text-primary'>
             <TicketPercent className='h-4 w-4' />
-            {t('cart.promo.title')}
+            {t('cart_promo_title')}
           </div>
           <div className='mt-4 flex flex-col gap-3 sm:flex-row'>
             <Input
-              placeholder={t('cart.promo.placeholder')}
+              placeholder={t('cart_promo_placeholder')}
               className='bg-background'
             />
             <Button
               type='submit'
               variant='secondary'>
-              {t('cart.promo.button')}
+              {t('cart_promo_button')}
             </Button>
           </div>
           <p className='mt-3 text-xs text-muted-foreground'>
-            {formatTemplate(t('cart.promo.message'), {
+            {formatTemplate(t('cart_promo_message'), {
               freeDelivery: freeDeliveryMessage,
             })}
           </p>
         </form>
 
         <div className='grid gap-3'>
-          <InfoCard title={t('cart.infoCards.delivery.title')}>
-            {t('cart.infoCards.delivery.description')}
+          <InfoCard title={t('cart_infoCards_delivery_title')}>
+            {t('cart_infoCards_delivery_description')}
           </InfoCard>
-          <InfoCard title={t('cart.infoCards.packaging.title')}>
-            {t('cart.infoCards.packaging.description')}
+          <InfoCard title={t('cart_infoCards_packaging_title')}>
+            {t('cart_infoCards_packaging_description')}
           </InfoCard>
-          <InfoCard title={t('cart.infoCards.support.title')}>
-            {t('cart.infoCards.support.description')}
+          <InfoCard title={t('cart_infoCards_support_title')}>
+            {t('cart_infoCards_support_description')}
           </InfoCard>
         </div>
       </aside>
