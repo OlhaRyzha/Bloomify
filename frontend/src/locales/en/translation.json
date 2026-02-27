@@ -204,5 +204,14 @@
     "VIP support 24/7",
     "Holiday gifts",
     "Wedding discounts"
-  ]
+  ],
+  "controls_searchPlaceholder": "Search bouquets",
+  "controls_sortLabel": "Sort",
+  "controls_sortOptions_default": "Default",
+  "controls_sortOptions_priceAsc": "Price: low to high",
+  "controls_sortOptions_priceDesc": "Price: high to low",
+  "controls_sortOptions_nameAsc": "Name: A–Z",
+  "controls_tagLabel": "Tag",
+  "controls_tagPlaceholder": "Select tag",
+  "controls_tagAll": "All tags"
 }

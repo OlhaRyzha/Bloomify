@@ -204,5 +204,14 @@
     "VIP підтримка 24/7",
     "Подарунки до свят",
     "Знижки на весілля"
-  ]
+  ],
+  "controls_searchPlaceholder": "Пошук букетів",
+  "controls_sortLabel": "Сортування",
+  "controls_sortOptions_default": "За замовчуванням",
+  "controls_sortOptions_priceAsc": "Ціна: від дешевих",
+  "controls_sortOptions_priceDesc": "Ціна: від дорогих",
+  "controls_sortOptions_nameAsc": "Назва: А-Я",
+  "controls_tagLabel": "Тег",
+  "controls_tagPlaceholder": "Оберіть тег",
+  "controls_tagAll": "Усі теги"
 }

@@ -204,5 +204,14 @@
     "VIP wsparcie 24/7",
     "Prezenty na święta",
     "Zniżki na wesela"
-  ]
+  ],
+  "controls_searchPlaceholder": "Szukaj bukietów",
+  "controls_sortLabel": "Sortowanie",
+  "controls_sortOptions_default": "Domyślnie",
+  "controls_sortOptions_priceAsc": "Cena: od najniższej",
+  "controls_sortOptions_priceDesc": "Cena: od najwyższej",
+  "controls_sortOptions_nameAsc": "Nazwa: A–Z",
+  "controls_tagLabel": "Tag",
+  "controls_tagPlaceholder": "Wybierz tag",
+  "controls_tagAll": "Wszystkie tagi"
 }
