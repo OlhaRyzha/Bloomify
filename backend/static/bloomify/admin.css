@@ -1,16 +1,26 @@
 
 :root {
+  /* Global tokens + light-mode defaults; keep everything in one :root for clarity. */
   --bloomify-shadow: 0 10px 30px -15px rgba(216, 119, 129, 0.25);
   --bloomify-shadow-strong: 0 20px 45px -20px rgba(216, 119, 129, 0.35);
   --bloomify-border: rgba(216, 119, 129, 0.18);
   --bloomify-hero: linear-gradient(135deg, #f7e4ea 0%, #fbf3f3 50%, #f6e6ec 100%);
   --bloomify-card: linear-gradient(180deg, #fff9fb 0%, #f7e5ea 100%);
-  --bloomify-accent: #d87781;
   --bloomify-primary: #d87781;
   --bloomify-primary-strong: #d05864;
   --bloomify-primary-soft: #f3b9c1;
   --bloomify-primary-soft-hover: #f0aab4;
   --bloomify-primary-text: #4a1f25;
+  --bloomify-row-action-bg: #ffffff;
+  --bloomify-row-action-border: rgba(216, 119, 129, 0.25);
+  --bloomify-form-surface: #ffffff;
+  --bloomify-form-field: #f8f5f7;
+  --bloomify-form-border: rgba(216, 119, 129, 0.2);
+  --bloomify-form-text: #1f2a25;
+  --bloomify-form-muted: #5b6b63;
+  --bloomify-form-focus: rgba(216, 119, 129, 0.28);
+  --bloomify-form-focus-bg: #ffffff;
+  --bloomify-form-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.5);
 }
 
 body {
@@ -77,8 +87,8 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  border: 1px solid var(--bloomify-form-border);
-  background: var(--bloomify-form-field);
+  border: 1px solid var(--bloomify-row-action-border);
+  background: var(--bloomify-row-action-bg);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -211,33 +221,8 @@ body:not(.theme-dark) .changelist-form .actions {
   letter-spacing: 0.02em;
 }
 
-:root {
-  --bloomify-form-surface: #ffffff;
-  --bloomify-form-field: #f8f5f7;
-  --bloomify-form-border: rgba(216, 119, 129, 0.2);
-  --bloomify-form-text: #1f2a25;
-  --bloomify-form-muted: #5b6b63;
-  --bloomify-form-focus: rgba(216, 119, 129, 0.28);
-  --bloomify-form-focus-bg: #ffffff;
-  --bloomify-form-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.5);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bloomify-form-surface: #0f172a;
-    --bloomify-form-field: rgba(15, 23, 42, 0.75);
-    --bloomify-form-border: rgba(216, 119, 129, 0.28);
-    --bloomify-form-text: #e2e8f0;
-    --bloomify-form-muted: #94a3b8;
-    --bloomify-form-focus: rgba(216, 119, 129, 0.35);
-    --bloomify-form-focus-bg: rgba(15, 23, 42, 0.9);
-    --bloomify-form-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.75);
-  }
-}
-
-html[data-theme="dark"],
-html.dark,
-body.theme-dark {
+/* When the admin switches to dark mode we rely on the html/body attributes. */
+:is(html.dark, body.theme-dark, :root[data-theme="dark"]) {
   --bloomify-form-surface: #0f172a;
   --bloomify-form-field: rgba(15, 23, 42, 0.75);
   --bloomify-form-border: rgba(216, 119, 129, 0.28);
@@ -246,6 +231,8 @@ body.theme-dark {
   --bloomify-form-focus: rgba(216, 119, 129, 0.35);
   --bloomify-form-focus-bg: rgba(15, 23, 42, 0.9);
   --bloomify-form-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.75);
+  --bloomify-row-action-bg: rgba(15, 23, 42, 0.65);
+  --bloomify-row-action-border: rgba(255, 255, 255, 0.24);
 }
 
 .unfold-form fieldset,
@@ -712,4 +699,14 @@ body:not(.theme-dark) .changelist-actions-wrapper .group.primary {
 .unfold-main .related-widget-wrapper-link:hover img {
   opacity: 0.75;
   filter: grayscale(0.4) brightness(0.8);
+}
+
+.parler-language-tabs span.current {
+    border-color: var(--bloomify-primary)!important;
+    background-color: var(--bloomify-primary)!important;
+    color: #fff;
+}
+.parler-language-tabs {
+    border-bottom: 2px solid var(--bloomify-primary)!important;
+
 }
