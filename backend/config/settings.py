@@ -81,7 +81,7 @@ UNFOLD = {
         "light": "/static/bloomify/admin-logo.svg",
         "dark": "/static/bloomify/admin-logo.svg",
     },
-    "FAVICONS": [
+    "SITE_FAVICONS": [
         {
             "rel": "icon",
             "sizes": "32x32",
@@ -105,7 +105,7 @@ UNFOLD = {
             "950": "56 16 20",
         },
     },
-    "SCRIPTS": [],
+    "SCRIPTS": ["/static/bloomify/admin.js"],
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": False,
