@@ -1,35 +1,271 @@
 (() => {
   const root = document.documentElement;
+
   const syncTheme = () => {
     const body = document.body;
-    if (!body) {
-      return false;
-    }
+    if (!body) return false;
     const isDark = root.classList.contains("dark");
     root.dataset.theme = isDark ? "dark" : "light";
     body.classList.toggle("theme-dark", isDark);
     return true;
   };
 
-  const initObserver = () => {
-    if (!window.MutationObserver) {
+  const patchSearchClear = () => {
+    const form = document.querySelector("#changelist-search");
+    const input = form?.querySelector("input[name='q']");
+    if (!form || !input) return;
+
+    input.type = "text";
+    const shortcut = form.querySelector("kbd");
+    if (shortcut) shortcut.style.display = "none";
+
+    const wrapper = input.closest(".relative") || input.parentElement;
+    if (!wrapper) return;
+
+    if (!wrapper.querySelector(".bloomify-search-clear-btn")) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "bloomify-search-clear-btn";
+      btn.setAttribute("aria-label", "Очистити пошук");
+      btn.innerHTML = "&times;";
+      btn.addEventListener("click", () => {
+        input.value = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.focus();
+        form.requestSubmit();
+      });
+      wrapper.appendChild(btn);
+    }
+
+    const btn = wrapper.querySelector(".bloomify-search-clear-btn");
+    const toggle = () => {
+      if (btn) btn.style.display = input.value?.trim() ? "inline-flex" : "none";
+    };
+
+    if (!input.dataset.bloomifySearchBound) {
+      let debounceTimer;
+      input.addEventListener("input", () => {
+        toggle();
+        window.clearTimeout(debounceTimer);
+        debounceTimer = window.setTimeout(() => form.requestSubmit(), 350);
+      });
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          input.value = "";
+          toggle();
+          window.clearTimeout(debounceTimer);
+          form.requestSubmit();
+        }
+      });
+      input.dataset.bloomifySearchBound = "1";
+    }
+
+    toggle();
+  };
+
+  const updatePaginationSelectedCounter = (count) => {
+    const paginationBar =
+      document.querySelector(".lg\\:scrollable-top") ||
+      document.querySelector("[class*='scrollable-top']") ||
+      document.querySelector(".paginator")?.closest("div") ||
+      document.querySelector("footer .px-4");
+
+    if (!paginationBar) return;
+
+    let textNode = paginationBar.querySelector(".bloomify-selected-counter");
+    if (!textNode) {
+      textNode = document.createElement("span");
+      textNode.className = "bloomify-selected-counter";
+      paginationBar.appendChild(textNode);
+    }
+
+    if (count <= 0) {
+      textNode.textContent = "";
       return;
     }
-    const observer = new MutationObserver((mutations) => {
-      if (mutations.some((mutation) => mutation.attributeName === "class")) {
-        syncTheme();
+
+    const nativeCounterText = document
+      .querySelector("#changelist-form .actions .action-counter")
+      ?.textContent?.trim();
+
+    if (nativeCounterText && /\d/.test(nativeCounterText)) {
+      textNode.textContent = nativeCounterText.replace(/\d+/, String(count));
+    } else {
+      textNode.textContent = `Selected: ${count}`;
+    }
+  };
+
+  const patchBulkActionsTopbar = () => {
+    const toolbar = document.querySelector("#toolbar");
+    const changelistForm = document.querySelector("#changelist-form");
+    const originalActions = document.querySelector("#changelist-form .actions");
+    const originalSelect = originalActions?.querySelector("select[name='action']");
+    if (!toolbar || !changelistForm || !originalActions || !originalSelect) return;
+
+    const storageKey = `bloomify:selected:${location.pathname}`;
+
+    const readStored = () => {
+      try {
+        const raw = sessionStorage.getItem(storageKey);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? new Set(parsed.map(String)) : new Set();
+      } catch {
+        return new Set();
       }
+    };
+
+    const writeStored = (set) => {
+      sessionStorage.setItem(storageKey, JSON.stringify(Array.from(set)));
+    };
+
+    const clearStored = () => {
+      sessionStorage.removeItem(storageKey);
+    };
+
+    const resetSelectionState = () => {
+      changelistForm
+        .querySelectorAll("input.action-select[type='checkbox'], input[name='_selected_action'][type='checkbox']")
+        .forEach((cb) => {
+          cb.checked = false;
+        });
+      const masterCheckbox = changelistForm.querySelector("#action-toggle");
+      if (masterCheckbox) masterCheckbox.checked = false;
+      originalSelect.value = "";
+      const customSelect = toolbar.querySelector(".bloomify-bulk-select");
+      if (customSelect) customSelect.value = "";
+      clearStored();
+    };
+
+    const navEntry = performance.getEntriesByType?.("navigation")?.[0];
+    const isHardReload = navEntry?.type === "reload";
+    if (isHardReload) {
+      resetSelectionState();
+    }
+
+    originalActions.classList.add("bloomify-bulk-native-hidden");
+
+    let customWrap = toolbar.querySelector(".bloomify-bulk-topbar");
+    if (!customWrap) {
+      customWrap = document.createElement("div");
+      customWrap.className = "bloomify-bulk-topbar";
+
+      const customSelect = document.createElement("select");
+      customSelect.className = "bloomify-bulk-select";
+
+      const originalLabel = originalActions.querySelector("label");
+      const labelTextNode = Array.from(originalLabel?.childNodes || []).find(
+        (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
+      );
+      const originalLabelText = labelTextNode?.textContent?.trim() || "Actions";
+
+      customSelect.setAttribute("aria-label", originalLabelText);
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = originalLabelText;
+      customSelect.appendChild(placeholder);
+
+      const originalDeleteOption = Array.from(originalSelect.options).find(
+        (opt) => opt.value === "delete_selected"
+      );
+
+      if (originalDeleteOption) {
+        const deleteOption = document.createElement("option");
+        deleteOption.value = originalDeleteOption.value;
+        deleteOption.textContent = originalDeleteOption.textContent || originalDeleteOption.innerText;
+        customSelect.appendChild(deleteOption);
+      }
+
+      customSelect.addEventListener("change", () => {
+        if (!customSelect.value) return;
+        originalSelect.value = customSelect.value;
+        clearStored();
+        changelistForm.requestSubmit();
+      });
+
+      customWrap.appendChild(customSelect);
+      toolbar.appendChild(customWrap);
+    }
+
+    const rowCheckboxes = () =>
+      Array.from(
+        changelistForm.querySelectorAll("tbody input.action-select[type='checkbox'], tbody input[name='_selected_action'][type='checkbox']")
+      );
+
+    const applyStoredToCurrentPage = () => {
+      const selected = readStored();
+      rowCheckboxes().forEach((cb) => {
+        cb.checked = selected.has(String(cb.value));
+      });
+    };
+
+    const syncStoredFromCurrentPage = () => {
+      const selected = readStored();
+      rowCheckboxes().forEach((cb) => {
+        const id = String(cb.value);
+        if (cb.checked) selected.add(id);
+        else selected.delete(id);
+      });
+      writeStored(selected);
+      return selected.size;
+    };
+
+    const refresh = () => {
+      const checkedCount = readStored().size;
+      const hasChecked = checkedCount > 0;
+      customWrap.style.display = hasChecked ? "inline-flex" : "none";
+      if (!hasChecked) {
+        const customSelect = customWrap.querySelector(".bloomify-bulk-select");
+        if (customSelect) customSelect.value = "";
+        originalSelect.value = "";
+      }
+      updatePaginationSelectedCounter(checkedCount);
+    };
+
+    applyStoredToCurrentPage();
+
+    if (!changelistForm.dataset.bloomifyBulkBound) {
+      changelistForm.addEventListener("change", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement) || target.type !== "checkbox") return;
+
+        if (target.id === "action-toggle") {
+          // wait until Django toggles row checkboxes
+          requestAnimationFrame(() => {
+            syncStoredFromCurrentPage();
+            refresh();
+          });
+          return;
+        }
+
+        syncStoredFromCurrentPage();
+        refresh();
+      });
+
+      window.addEventListener("pageshow", () => {
+        applyStoredToCurrentPage();
+        refresh();
+      });
+
+      changelistForm.dataset.bloomifyBulkBound = "1";
+    }
+
+    refresh();
+  };
+
+  const initObserver = () => {
+    if (!window.MutationObserver) return;
+    const observer = new MutationObserver((mutations) => {
+      if (mutations.some((m) => m.attributeName === "class")) syncTheme();
     });
     observer.observe(root, { attributes: true, attributeFilter: ["class"] });
   };
 
   const start = () => {
-    if (syncTheme()) {
-      initObserver();
-    } else {
-      // body not ready yet — try again at next tick.
-      requestAnimationFrame(start);
-    }
+    if (!syncTheme()) return requestAnimationFrame(start);
+    patchSearchClear();
+    patchBulkActionsTopbar();
+    initObserver();
   };
 
   if (document.readyState === "loading") {

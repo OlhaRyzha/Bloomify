@@ -133,6 +133,11 @@ UNFOLD = {
                         "icon": "autorenew",
                         "link": "/admin/shop/subscription/",
                     },
+                    {
+                        "title": _("Website languages"),
+                        "icon": "language",
+                        "link": "/admin/shop/sitelanguagesettings/",
+                    },
                 ],
             },
             {
@@ -142,6 +147,11 @@ UNFOLD = {
                         "title": _("Users"),
                         "icon": "group",
                         "link": "/admin/auth/user/",
+                    },
+                    {
+                        "title": _("Roles"),
+                        "icon": "admin_panel_settings",
+                        "link": "/admin/auth/group/",
                     },
                 ],
             },

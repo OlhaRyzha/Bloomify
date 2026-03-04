@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
+from django.db.models import BooleanField, DateTimeField, DecimalField
 from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
 
@@ -13,11 +14,13 @@ class Product(TranslatableModel):
         tag=models.CharField(_("Tag"), max_length=50, blank=True),
     )
 
-    price = models.DecimalField(_("Price"), max_digits=10, decimal_places=2)
+    price: DecimalField = models.DecimalField(
+        _("Price"), max_digits=10, decimal_places=2
+    )
     image = models.ImageField(_("Image"), upload_to="products/", blank=True, null=True)
-    is_active = models.BooleanField(_("Active"), default=True)
-    created_at = models.DateTimeField(_("Created"), auto_now_add=True)
-    updated_at = models.DateTimeField(_("Updated"), auto_now=True)
+    is_active: BooleanField = models.BooleanField(_("Active"), default=True)
+    created_at: DateTimeField = models.DateTimeField(_("Created"), auto_now_add=True)
+    updated_at: DateTimeField = models.DateTimeField(_("Updated"), auto_now=True)
 
     class Meta:
         ordering = ["translations__name"]
@@ -25,7 +28,10 @@ class Product(TranslatableModel):
         verbose_name_plural = _("Bouquets")
 
     def __str__(self) -> str:
-        return self.safe_translation_getter("name", any_language=True) or f"Product {self.pk}"
+        return (
+            self.safe_translation_getter("name", any_language=True)
+            or f"Product {self.pk}"
+        )
 
 
 class SubscriptionPlan(models.Model):
@@ -71,7 +77,9 @@ class Subscription(models.Model):
         related_name="subscriptions",
         verbose_name=_("Plan"),
     )
-    status = models.CharField(_("Status"), max_length=20, choices=STATUS_CHOICES, default="active")
+    status = models.CharField(
+        _("Status"), max_length=20, choices=STATUS_CHOICES, default="active"
+    )
     start_date = models.DateField(_("Start date"))
     end_date = models.DateField(_("End date"), blank=True, null=True)
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
@@ -83,6 +91,31 @@ class Subscription(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} - {self.plan}"
+
+
+class SiteLanguageSettings(models.Model):
+    enable_uk = models.BooleanField(_("Enable Ukrainian"), default=True)
+    enable_en = models.BooleanField(_("Enable English"), default=True)
+    enable_pl = models.BooleanField(_("Enable Polish"), default=True)
+    updated_at = models.DateTimeField(_("Updated"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Site language settings")
+        verbose_name_plural = _("Site language settings")
+
+    def __str__(self) -> str:
+        return str(_("Site languages"))
+
+    @property
+    def enabled_locales(self) -> list[str]:
+        locales: list[str] = []
+        if self.enable_uk:
+            locales.append("uk")
+        if self.enable_en:
+            locales.append("en")
+        if self.enable_pl:
+            locales.append("pl")
+        return locales or ["uk"]
 
 
 class Order(models.Model):
@@ -108,7 +141,9 @@ class Order(models.Model):
         verbose_name=_("Bouquet"),
     )
     quantity = models.PositiveIntegerField(_("Quantity"), default=1)
-    status = models.CharField(_("Status"), max_length=20, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(
+        _("Status"), max_length=20, choices=STATUS_CHOICES, default="pending"
+    )
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated"), auto_now=True)
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { Globe } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import {
 import { useLocale } from '@/components/providers/locale-provider';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
+import { BASE_URL } from '@/components/config/env';
 
 type LocaleSwitcherProps = {
   className?: string;
@@ -24,13 +26,49 @@ type LocaleSwitcherProps = {
 export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
   const { locale, setLocale } = useLocale();
   const { t } = useTranslation();
+  const [enabledLocales, setEnabledLocales] = useState<Locale[]>(supportedLocales);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(`${BASE_URL}/site/languages`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.enabledLocales || !Array.isArray(data.enabledLocales)) return;
+
+        const locales = data.enabledLocales.filter((loc: string) =>
+          supportedLocales.includes(loc as Locale)
+        ) as Locale[];
+
+        if (locales.length > 0) {
+          setEnabledLocales(locales);
+        }
+      })
+      .catch(() => {
+        // keep defaults if API is unavailable
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const currentLocale = useMemo(() => {
+    return enabledLocales.includes(locale) ? locale : enabledLocales[0] || locale;
+  }, [enabledLocales, locale]);
+
+  useEffect(() => {
+    if (currentLocale !== locale) {
+      setLocale(currentLocale);
+    }
+  }, [currentLocale, locale, setLocale]);
 
   return (
     <div className={cn('inline-flex', className)}>
       <span className='sr-only'>{t('locale_switcherLabel')}</span>
 
       <Select
-        value={locale}
+        value={currentLocale}
         onValueChange={(value) => setLocale(value as Locale)}>
         <SelectTrigger
           size='sm'
@@ -38,7 +76,7 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
           aria-label={t('locale_switcherAria')}>
           <div className='flex items-center gap-2'>
             <Globe className='h-3.5 w-3.5 text-primary' />
-            <span className='tracking-[0.08em]'>{localeShortLabels[locale]}</span>
+            <span className='tracking-[0.08em]'>{localeShortLabels[currentLocale]}</span>
           </div>
         </SelectTrigger>
 
@@ -46,7 +84,7 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
           align='end'
           position='popper'
           className='min-w-40'>
-          {supportedLocales.map((loc) => (
+          {enabledLocales.map((loc) => (
             <SelectItem
               key={loc}
               value={loc}>

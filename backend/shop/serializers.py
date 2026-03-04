@@ -1,7 +1,18 @@
 from django.utils.translation import get_language
 from rest_framework import serializers
 
-from shop.models import Product
+from shop.models import Product, SiteLanguageSettings
+
+
+class SiteLanguageSettingsSerializer(serializers.ModelSerializer):
+    enabledLocales = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SiteLanguageSettings
+        fields = ("enabledLocales",)
+
+    def get_enabledLocales(self, obj: SiteLanguageSettings) -> list[str]:
+        return obj.enabled_locales
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -23,7 +34,12 @@ class ProductSerializer(serializers.ModelSerializer):
         return get_language()
 
     def get_name(self, obj: Product) -> str:
-        return obj.safe_translation_getter("name", language_code=self._language(), any_language=True) or ""
+        return (
+            obj.safe_translation_getter(
+                "name", language_code=self._language(), any_language=True
+            )
+            or ""
+        )
 
     def get_description(self, obj: Product) -> str:
         return (
@@ -34,7 +50,12 @@ class ProductSerializer(serializers.ModelSerializer):
         )
 
     def get_tag(self, obj: Product) -> str:
-        return obj.safe_translation_getter("tag", language_code=self._language(), any_language=True) or ""
+        return (
+            obj.safe_translation_getter(
+                "tag", language_code=self._language(), any_language=True
+            )
+            or ""
+        )
 
     def get_imageUrl(self, obj: Product) -> str | None:
         if not obj.image:
