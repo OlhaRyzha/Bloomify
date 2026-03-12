@@ -1,7 +1,11 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from shop.views import ProductDetailView, ProductListCreateView, SiteLanguagesView
+from shop.views import (
+    ProductDetailView,
+    ProductListCreateView,
+    SiteLanguagesView,
+)
 
 urlpatterns = [
     path("products", ProductListCreateView.as_view(), name="products"),

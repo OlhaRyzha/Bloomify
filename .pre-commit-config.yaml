@@ -32,6 +32,7 @@ repos:
           - django-crispy-forms
           - django-unfold
           - django-parler
+          - drf-spectacular
           - pydantic-settings
           - psycopg[binary]
           - types-redis

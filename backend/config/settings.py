@@ -26,6 +26,8 @@ class EnvironmentSettings(BaseSettings):
 env = EnvironmentSettings.model_validate({})
 
 SECRET_KEY = env.DJANGO_SECRET_KEY
+JWT_SECRET_KEY = SECRET_KEY
+JWT_ALGORITHM = "HS256"
 
 DEBUG = env.DJANGO_DEBUG
 
@@ -33,7 +35,9 @@ ALLOWED_HOSTS = [
     item.strip() for item in env.DJANGO_ALLOWED_HOSTS.split(",") if item.strip()
 ]
 
-DOCS_PATH: str | None = None
+DOCS_PATH: str | None = "docs/"
+REDOC_PATH: str | None = "redoc/"
+SCHEMA_PATH: str | None = "schema/"
 
 CORS_ALLOWED_ORIGINS = [
     item.strip() for item in env.DJANGO_CORS_ALLOWED_ORIGINS.split(",") if item.strip()
@@ -57,6 +61,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "parler",
     "rest_framework",
+    "drf_spectacular",
     "corsheaders",
     "shop.apps.ShopConfig",
     "django.contrib.staticfiles",
@@ -223,6 +228,13 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Bloomify API",
+    "DESCRIPTION": "API documentation for Bloomify backend",
+    "VERSION": "1.0.0",
 }
 
 
