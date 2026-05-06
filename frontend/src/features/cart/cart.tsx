@@ -155,7 +155,7 @@ export default function CartFeature() {
       <div className='space-y-6'>
         <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-muted/60 px-6 py-4 text-sm text-muted-foreground'>
           <p>
-            {formatTemplate(t('cart_itemCount'), { count: itemCount })}
+            {t('cart_itemCount', { count: itemCount })}
           </p>
           <Button
             variant='ghost'
