@@ -10,25 +10,32 @@ import {
   MUTATION_ACTIONS,
   useMutateItemWithOptimisticUpdate,
 } from '../use-mutate-item-with-optimistic-update';
+import { useLocale } from '@/components/providers/locale-provider';
 
 type GetProductsOptions = Omit<
   UseQueryOptions<Products, ApiError>,
   'queryKey' | 'queryFn'
 >;
 
-export const useGetProducts = (options?: GetProductsOptions) =>
-  useQuery<Products, ApiError>({
-    queryKey: PRODUCTS_QUERY_KEY,
+export const useGetProducts = (options?: GetProductsOptions) => {
+  const { locale } = useLocale();
+
+  return useQuery<Products, ApiError>({
+    queryKey: [...PRODUCTS_QUERY_KEY, locale],
     queryFn: () => ProductsService.getProducts(),
     ...options,
   });
+};
 
-export const useGetProductById = (id: string) =>
-  useQuery<ProductItem>({
-    queryKey: [...PRODUCT_QUERY_KEY, id],
+export const useGetProductById = (id: string) => {
+  const { locale } = useLocale();
+
+  return useQuery<ProductItem>({
+    queryKey: [...PRODUCT_QUERY_KEY, id, locale],
     queryFn: () => ProductsService.getProductById(id),
     enabled: Boolean(id),
   });
+};
 
 export const useCreateProduct = () =>
   useMutateItemWithOptimisticUpdate<ProductItem, { item: ProductItem }>({

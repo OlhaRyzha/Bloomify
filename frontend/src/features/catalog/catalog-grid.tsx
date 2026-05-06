@@ -1,4 +1,5 @@
 'use client';
+
 import { PaginationContainer } from '@/components/pagination/pagination';
 import type { CatalogItem } from '@/types/catalog';
 import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
@@ -7,6 +8,7 @@ import CatalogCard from './catalog-card';
 import CatalogCardSkeleton from './catalog-card-skeleton';
 import { CatalogControls } from './catalog-controls';
 import { useCatalogGridState } from './use-catalog-grid-state';
+import { useTranslation } from '@/hooks/use-translation';
 
 const CatalogCardWithSkeleton = withSkeleton(CatalogCard, {
   skeleton: <CatalogCardSkeleton />,
@@ -29,6 +31,7 @@ export default function CatalogGrid({
   hideControls,
   perPageOptions = [6, 9, 12],
 }: CatalogGridProps) {
+  const { t } = useTranslation();
   const { data: catalogItems = [], isLoading: isCatalogLoading } =
     useGetProducts();
   const loading = loadingProp ?? isCatalogLoading;
@@ -68,20 +71,20 @@ export default function CatalogGrid({
         />
       )}
 
-      <PaginationContainer
-        items={itemsForRender}
-        pageSize={perPage}
-        page={page}
-        onPageChange={setPage}
-        hideControls={hideControls}
-        scrollToTopOnChange
-        showPageSizeControl={!hideControls}
-        pageSizeOptions={perPageOptions}
-        onPageSizeChange={updatePerPage}
-        showItemsCount={!hideControls}
-        itemsCount={filteredItems.length}
-        itemsCountPrefix='Знайдено'
-        itemsCountSuffix='букетів'
+        <PaginationContainer
+          items={itemsForRender}
+          pageSize={perPage}
+          page={page}
+          onPageChange={setPage}
+          hideControls={hideControls}
+          scrollToTopOnChange
+          showPageSizeControl={!hideControls}
+          pageSizeOptions={perPageOptions}
+          onPageSizeChange={updatePerPage}
+          showItemsCount={!hideControls}
+          itemsCount={filteredItems.length}
+          itemsCountPrefix={t('catalog_itemsCountPrefix')}
+          itemsCountSuffix={t('catalog_itemsCountSuffix')}
         renderPage={(pageItems) => (
           <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
             {pageItems.map((product) => (

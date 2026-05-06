@@ -6,7 +6,9 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ShoppingBag, User } from 'lucide-react';
 import { Button } from '../ui/button';
-import { mainNavigationLinks } from '@/constants/navigation.constants';
+import { useTranslation } from '@/hooks/use-translation';
+import LocaleSwitcher from '../ui/locale-switcher';
+import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { useCartStore } from '@/features/cart/cart.store';
 
@@ -17,6 +19,12 @@ export default function Header() {
   const cartCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0)
   );
+  const { t } = useTranslation();
+
+  const navigationLinks = NAVIGATION_LINKS.map((link) => ({
+    ...link,
+    label: t(`navigation_main_${link.key}`),
+  }));
 
   return (
     <motion.header
@@ -26,18 +34,18 @@ export default function Header() {
       className='fixed inset-x-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md'>
       <div className='mx-auto max-w-6xl px-4'>
         <div className='flex h-20 items-center justify-between'>
-          <Link
-            href='/'
-            className='flex items-center gap-2'>
-            <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
-              Bloomify
-            </span>
-          </Link>
+            <Link
+              href='/'
+              className='flex items-center gap-2'>
+              <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
+                {t('common_brand')}
+              </span>
+            </Link>
 
           <nav className='hidden items-center gap-8 md:flex'>
-            {mainNavigationLinks.map((link) => (
+            {navigationLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.key}
                 href={link.href}
                 className='text-sm font-medium text-muted-foreground transition-colors hover:text-primary'>
                 {link.label}
@@ -46,6 +54,10 @@ export default function Header() {
           </nav>
 
           <div className='flex items-center gap-3'>
+            <div className='hidden items-center gap-2 text-xs text-muted-foreground md:flex'>
+              <LocaleSwitcher />
+            </div>
+
             <Button
               asChild
               variant='ghost'
@@ -96,9 +108,9 @@ export default function Header() {
               exit={{ opacity: 0, height: 0 }}
               className='border-t border-border py-4 md:hidden'>
               <div className='flex flex-col gap-4'>
-                {mainNavigationLinks.map((link) => (
+                {navigationLinks.map((link) => (
                   <Link
-                    key={link.href}
+                    key={link.key}
                     href={link.href}
                     className='text-base font-medium text-foreground transition-colors hover:text-primary'
                     onClick={() => setIsMenuOpen(false)}>
@@ -113,9 +125,12 @@ export default function Header() {
                     href={pathname === '/login' ? '/profile' : '/login'}
                     onClick={() => setIsMenuOpen(false)}>
                     <User className='mr-2 h-4 w-4' />
-                    Увійти
+                    {t('auth_form_login_submitLabel')}
                   </Link>
                 </Button>
+              </div>
+              <div className='mt-4 flex items-center justify-center'>
+                <LocaleSwitcher />
               </div>
             </motion.nav>
           )}

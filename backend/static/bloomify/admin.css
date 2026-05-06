@@ -1,16 +1,26 @@
 
 :root {
+  /* Global tokens + light-mode defaults; keep everything in one :root for clarity. */
   --bloomify-shadow: 0 10px 30px -15px rgba(216, 119, 129, 0.25);
   --bloomify-shadow-strong: 0 20px 45px -20px rgba(216, 119, 129, 0.35);
   --bloomify-border: rgba(216, 119, 129, 0.18);
   --bloomify-hero: linear-gradient(135deg, #f7e4ea 0%, #fbf3f3 50%, #f6e6ec 100%);
   --bloomify-card: linear-gradient(180deg, #fff9fb 0%, #f7e5ea 100%);
-  --bloomify-accent: #d87781;
   --bloomify-primary: #d87781;
   --bloomify-primary-strong: #d05864;
   --bloomify-primary-soft: #f3b9c1;
   --bloomify-primary-soft-hover: #f0aab4;
   --bloomify-primary-text: #4a1f25;
+  --bloomify-row-action-bg: #ffffff;
+  --bloomify-row-action-border: rgba(216, 119, 129, 0.25);
+  --bloomify-form-surface: #ffffff;
+  --bloomify-form-field: #f8f5f7;
+  --bloomify-form-border: rgba(216, 119, 129, 0.2);
+  --bloomify-form-text: #1f2a25;
+  --bloomify-form-muted: #5b6b63;
+  --bloomify-form-focus: rgba(216, 119, 129, 0.28);
+  --bloomify-form-focus-bg: #ffffff;
+  --bloomify-form-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.5);
 }
 
 body {
@@ -77,8 +87,8 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  border: 1px solid var(--bloomify-form-border);
-  background: var(--bloomify-form-field);
+  border: 1px solid var(--bloomify-row-action-border);
+  background: var(--bloomify-row-action-bg);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -211,33 +221,8 @@ body:not(.theme-dark) .changelist-form .actions {
   letter-spacing: 0.02em;
 }
 
-:root {
-  --bloomify-form-surface: #ffffff;
-  --bloomify-form-field: #f8f5f7;
-  --bloomify-form-border: rgba(216, 119, 129, 0.2);
-  --bloomify-form-text: #1f2a25;
-  --bloomify-form-muted: #5b6b63;
-  --bloomify-form-focus: rgba(216, 119, 129, 0.28);
-  --bloomify-form-focus-bg: #ffffff;
-  --bloomify-form-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.5);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bloomify-form-surface: #0f172a;
-    --bloomify-form-field: rgba(15, 23, 42, 0.75);
-    --bloomify-form-border: rgba(216, 119, 129, 0.28);
-    --bloomify-form-text: #e2e8f0;
-    --bloomify-form-muted: #94a3b8;
-    --bloomify-form-focus: rgba(216, 119, 129, 0.35);
-    --bloomify-form-focus-bg: rgba(15, 23, 42, 0.9);
-    --bloomify-form-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.75);
-  }
-}
-
-html[data-theme="dark"],
-html.dark,
-body.theme-dark {
+/* When the admin switches to dark mode we rely on the html/body attributes. */
+:is(html.dark, body.theme-dark, :root[data-theme="dark"]) {
   --bloomify-form-surface: #0f172a;
   --bloomify-form-field: rgba(15, 23, 42, 0.75);
   --bloomify-form-border: rgba(216, 119, 129, 0.28);
@@ -246,6 +231,8 @@ body.theme-dark {
   --bloomify-form-focus: rgba(216, 119, 129, 0.35);
   --bloomify-form-focus-bg: rgba(15, 23, 42, 0.9);
   --bloomify-form-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.75);
+  --bloomify-row-action-bg: rgba(15, 23, 42, 0.65);
+  --bloomify-row-action-border: rgba(255, 255, 255, 0.24);
 }
 
 .unfold-form fieldset,
@@ -712,4 +699,390 @@ body:not(.theme-dark) .changelist-actions-wrapper .group.primary {
 .unfold-main .related-widget-wrapper-link:hover img {
   opacity: 0.75;
   filter: grayscale(0.4) brightness(0.8);
+}
+
+.parler-language-tabs span.current {
+    border-color: var(--bloomify-primary)!important;
+    background-color: var(--bloomify-primary)!important;
+    color: #fff;
+}
+.parler-language-tabs {
+    border-bottom: 2px solid var(--bloomify-primary)!important;
+
+}
+
+/* Search input clear button */
+input[name='q'] {
+  padding-right: 32px !important;
+}
+
+.bloomify-search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(216, 119, 129, 0.18);
+  color: #8a3340;
+  font-size: 14px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+html.dark .bloomify-search-clear,
+html[data-theme='dark'] .bloomify-search-clear,
+body.theme-dark .bloomify-search-clear {
+  background: rgba(148, 163, 184, 0.22);
+  color: #e2e8f0;
+}
+
+/* Changelist search: use clear (x) instead of slash shortcut */
+#changelist-search input[name='q'] {
+  padding-right: 2rem !important;
+}
+
+#changelist-search kbd {
+  display: none !important;
+}
+
+#changelist-search input[name='q']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(216, 119, 129, 0.22);
+  cursor: pointer;
+  position: relative;
+}
+
+html.dark #changelist-search input[name='q']::-webkit-search-cancel-button,
+html[data-theme='dark'] #changelist-search input[name='q']::-webkit-search-cancel-button,
+body.theme-dark #changelist-search input[name='q']::-webkit-search-cancel-button {
+  background: rgba(148, 163, 184, 0.28);
+}
+
+/* Changelist search: custom clear button + stable focus */
+#changelist-search .relative {
+  position: relative;
+}
+
+#changelist-search input[name='q'] {
+  padding-right: 2.25rem !important;
+  background: transparent !important;
+}
+
+#changelist-search input[name='q']:focus,
+#changelist-search input[name='q']:focus-visible {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#changelist-search kbd {
+  display: none !important;
+}
+
+#changelist-search .bloomify-search-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  color: #8a3340;
+  background: rgba(216, 119, 129, 0.2);
+}
+
+#changelist-search .bloomify-search-clear-btn:hover {
+  background: rgba(216, 119, 129, 0.3);
+}
+
+html.dark #changelist-search .bloomify-search-clear-btn,
+html[data-theme='dark'] #changelist-search .bloomify-search-clear-btn,
+body.theme-dark #changelist-search .bloomify-search-clear-btn {
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.28);
+}
+
+/* disable native webkit clear icon if browser injects it */
+#changelist-search input[name='q']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+/* Changelist search final polish: no white active fill, plain X (no circle) */
+#changelist-search input[name='q'],
+#changelist-search input[name='q']:focus,
+#changelist-search input[name='q']:focus-visible,
+#changelist-search input[name='q']:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+#changelist-search .bloomify-search-clear-btn {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  width: 16px;
+  height: 16px;
+  right: 10px;
+  color: #6b7280;
+  font-size: 18px;
+  line-height: 16px;
+  padding: 0;
+}
+
+#changelist-search .bloomify-search-clear-btn:hover,
+#changelist-search .bloomify-search-clear-btn:focus {
+  background: transparent !important;
+  color: #374151;
+  box-shadow: none !important;
+}
+
+html.dark #changelist-search .bloomify-search-clear-btn,
+html[data-theme='dark'] #changelist-search .bloomify-search-clear-btn,
+body.theme-dark #changelist-search .bloomify-search-clear-btn {
+  color: #cbd5e1 !important;
+}
+
+html.dark #changelist-search .bloomify-search-clear-btn:hover,
+html[data-theme='dark'] #changelist-search .bloomify-search-clear-btn:hover,
+body.theme-dark #changelist-search .bloomify-search-clear-btn:hover {
+  color: #f1f5f9 !important;
+}
+
+/* Bulk actions: inline next to toolbar/filters (not sticky bottom popup) */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#changelist-form .actions.bloomify-bulk-inline {
+  position: static !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: inherit !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto !important;
+  z-index: auto !important;
+}
+
+#changelist-form .actions.bloomify-bulk-inline label {
+  display: none !important;
+}
+
+#changelist-form .actions.bloomify-bulk-inline select[name='action'] {
+  min-width: 190px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--bloomify-form-border) !important;
+  background: var(--bloomify-form-field) !important;
+  color: var(--bloomify-form-text) !important;
+  padding: 0 10px;
+}
+
+#changelist-form .actions.bloomify-bulk-inline .bloomify-bulk-apply-hidden {
+  display: none !important;
+}
+
+#changelist-form .actions.bloomify-bulk-inline .bloomify-bulk-counter {
+  margin-left: 0 !important;
+  padding: 0 8px !important;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  background: rgba(216, 119, 129, 0.12) !important;
+  color: var(--bloomify-form-text) !important;
+}
+
+/* hide old sticky bar visuals if still present in markup */
+.changelist-form .actions {
+  bottom: auto !important;
+}
+
+/* Bulk actions refined: white select button style, inline before Filters */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#changelist-form .actions.bloomify-bulk-inline {
+  display: none;
+  position: static !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  align-items: center;
+  gap: 8px;
+}
+
+#changelist-form .actions.bloomify-bulk-inline select[name='action'] {
+  min-width: 180px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+html.dark #changelist-form .actions.bloomify-bulk-inline select[name='action'],
+html[data-theme='dark'] #changelist-form .actions.bloomify-bulk-inline select[name='action'],
+body.theme-dark #changelist-form .actions.bloomify-bulk-inline select[name='action'] {
+  border-color: rgb(51 65 85) !important;
+  background: rgb(15 23 42) !important;
+  color: rgb(241 245 249) !important;
+}
+
+#changelist-form .actions.bloomify-bulk-inline .bloomify-bulk-apply-hidden,
+#changelist-form .actions.bloomify-bulk-inline .action-counter,
+#changelist-form .actions.bloomify-bulk-inline label {
+  display: none !important;
+}
+
+/* Bulk selection helper ('Select all N') — neutral style, no pink */
+#changelist-form .actions.bloomify-bulk-inline .all,
+#changelist-form .actions.bloomify-bulk-inline .question,
+#changelist-form .actions.bloomify-bulk-inline .clear {
+  background: transparent !important;
+  color: inherit !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* If no row selected, keep helper hidden too */
+#changelist-form .actions.bloomify-bulk-inline[style*='display: none'] .all,
+#changelist-form .actions.bloomify-bulk-inline[style*='display: none'] .question,
+#changelist-form .actions.bloomify-bulk-inline[style*='display: none'] .clear {
+  display: none !important;
+}
+
+/* Hard-disable native bottom bulk bar to avoid pink leftovers */
+#changelist-actions-wrapper,
+#changelist-form .actions.bloomify-bulk-native-hidden {
+  display: none !important;
+}
+
+/* Custom topbar bulk select (before Filters) */
+.bloomify-bulk-topbar {
+  display: none;
+  align-items: center;
+}
+
+.bloomify-bulk-select {
+  height: 38px;
+  min-width: 190px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+html.dark .bloomify-bulk-select,
+html[data-theme='dark'] .bloomify-bulk-select,
+body.theme-dark .bloomify-bulk-select {
+  border-color: rgb(51 65 85);
+  background: rgb(15 23 42);
+  color: rgb(241 245 249);
+}
+
+/* Push bulk select to the far right end of toolbar */
+.bloomify-bulk-topbar {
+  margin-left: auto;
+}
+
+/* Bulk select compact width */
+.bloomify-bulk-select {
+  min-width: 132px !important;
+  width: 132px !important;
+}
+
+/* Bulk select extra compact */
+.bloomify-bulk-select {
+  min-width: 108px !important;
+  width: 108px !important;
+}
+
+/* Bulk select position + safe arrow spacing */
+.bloomify-bulk-topbar {
+  margin-left: auto;
+  margin-right: 12px;
+}
+
+.bloomify-bulk-select {
+  min-width: 120px !important;
+  width: 120px !important;
+  text-overflow: ellipsis;
+  background-position: right 10px center;
+}
+
+/* Selected count near pagination (right side) */
+.bloomify-selected-counter {
+  margin-left: auto;
+  display: none;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--bloomify-form-border);
+  background: var(--bloomify-form-field);
+  color: var(--bloomify-form-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ensure selected counter sticks to right in pagination bar */
+.bloomify-selected-counter {
+  float: right;
+}
+
+/* Selected count near pagination: plain text only */
+.bloomify-selected-counter {
+  margin-left: auto;
+  display: inline;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  color: var(--bloomify-form-text) !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Keep pagination summary + selected counter on one line */
+.bloomify-selected-counter {
+  white-space: nowrap;
 }

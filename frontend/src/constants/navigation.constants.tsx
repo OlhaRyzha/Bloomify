@@ -1,79 +1,62 @@
-import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Facebook, Instagram, Mail, MapPin, Phone, Send } from 'lucide-react';
 
-type NavLink = { href: string; label: string };
+export type NavigationKey = 'catalog' | 'favorites' | 'subscription' | 'about' | 'contact';
+
+export const NAVIGATION_LINKS: { key: NavigationKey; href: string }[] = [
+  { key: 'catalog', href: '/catalog' },
+  { key: 'favorites', href: '/favorites' },
+  { key: 'subscription', href: '/#subscription' },
+  { key: 'about', href: '/#about' },
+  { key: 'contact', href: '/#contact' },
+];
+
+export type ServiceKey = 'wedding' | 'corporate' | 'events' | 'gifts' | 'delivery';
+
+export const SERVICE_LINKS: { key: ServiceKey; href: string }[] = [
+  { key: 'wedding', href: '/#services' },
+  { key: 'corporate', href: '/#services' },
+  { key: 'events', href: '/#services' },
+  { key: 'gifts', href: '/#services' },
+  { key: 'delivery', href: '/#services' },
+];
+
+export type FooterContactItem = {
+  id: 'phone' | 'email' | 'address';
+  icon: LucideIcon;
+  href: string;
+  external?: boolean;
+  labelKey?: string;
+  staticText?: string;
+};
+
+export const FOOTER_CONTACT_ITEMS: FooterContactItem[] = [
+  {
+    id: 'phone',
+    icon: Phone,
+    href: 'tel:+380991234567',
+    staticText: '+38 (099) 123-45-67',
+  },
+  {
+    id: 'email',
+    icon: Mail,
+    href: 'mailto:hello@bloomify.ua',
+    staticText: 'hello@bloomify.ua',
+  },
+  {
+    id: 'address',
+    icon: MapPin,
+    href: 'https://www.google.com/maps/search/?api=1&query=Kyiv',
+    external: true,
+    labelKey: 'footer_address',
+  },
+];
+
 type SocialLink = {
   href: string;
   label: string;
   icon: LucideIcon;
 };
-type FooterContactItem = {
-  id: string;
-  icon: LucideIcon;
-  content: ReactNode;
-};
-
-export const mainNavigationLinks: NavLink[] = [
-  { label: 'Каталог', href: '/catalog' },
-  { label: 'Вибране', href: '/favorites' },
-  { label: 'Підписка', href: '/#subscription' },
-  { label: 'Про нас', href: '/#about' },
-  { label: 'Контакти', href: '/#contact' },
-];
-
-export const footerServiceLinks: NavLink[] = [
-  { label: 'Весільна флористика', href: '/#services' },
-  { label: 'Корпоративні замовлення', href: '/#services' },
-  { label: 'Оформлення свят', href: '/#services' },
-  { label: 'Подарункові кошики', href: '/#services' },
-  { label: 'Доставка квітів', href: '/#services' },
-];
-
-const kyivAddress = 'м. Київ, вул. Хрещатик, 1';
-const kyivMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  kyivAddress
-)}`;
-
-export const footerContactItems: FooterContactItem[] = [
-  {
-    id: 'phone',
-    icon: Phone,
-    content: (
-      <a
-        href='tel:+380991234567'
-        className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-        +38 (099) 123-45-67
-      </a>
-    ),
-  },
-  {
-    id: 'email',
-    icon: Mail,
-    content: (
-      <a
-        href='mailto:hello@bloomify.ua'
-        className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
-        hello@bloomify.ua
-      </a>
-    ),
-  },
-  {
-    id: 'address',
-    icon: MapPin,
-    content: (
-      <address className='not-italic text-primary-foreground/80'>
-        <a
-          href={kyivMapUrl}
-          target='_blank'
-          rel='noreferrer'
-          className='transition-colors hover:text-primary-foreground'>
-          {kyivAddress}
-        </a>
-      </address>
-    ),
-  },
-];
 
 export const footerSocialLinks: SocialLink[] = [
   {

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from django.utils.translation import gettext_lazy as _
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +26,8 @@ class EnvironmentSettings(BaseSettings):
 env = EnvironmentSettings.model_validate({})
 
 SECRET_KEY = env.DJANGO_SECRET_KEY
+JWT_SECRET_KEY = SECRET_KEY
+JWT_ALGORITHM = "HS256"
 
 DEBUG = env.DJANGO_DEBUG
 
@@ -32,7 +35,9 @@ ALLOWED_HOSTS = [
     item.strip() for item in env.DJANGO_ALLOWED_HOSTS.split(",") if item.strip()
 ]
 
-DOCS_PATH: str | None = None
+DOCS_PATH: str | None = "docs/"
+REDOC_PATH: str | None = "redoc/"
+SCHEMA_PATH: str | None = "schema/"
 
 CORS_ALLOWED_ORIGINS = [
     item.strip() for item in env.DJANGO_CORS_ALLOWED_ORIGINS.split(",") if item.strip()
@@ -54,16 +59,24 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "parler",
     "rest_framework",
+    "drf_spectacular",
     "corsheaders",
     "shop.apps.ShopConfig",
     "django.contrib.staticfiles",
 ]
 
 UNFOLD = {
-    "SITE_TITLE": "Адмін-панель Bloomify",
+    "SITE_TITLE": _("Bloomify admin panel"),
     "SITE_HEADER": "Bloomify",
-    "SITE_SUBHEADER": "Квітковий магазин • підписки • замовлення",
+    "SITE_SUBHEADER": _("Flower shop • subscriptions • orders"),
+    "SHOW_LANGUAGES": True,
+    "LANGUAGE_FLAGS": {
+        "uk": "🇺🇦",
+        "en": "🇬🇧",
+        "pl": "🇵🇱",
+    },
     "SITE_URL": "http://localhost:3000",
     "SITE_ICON": {
         "light": "/static/bloomify/admin-icon.svg",
@@ -73,7 +86,7 @@ UNFOLD = {
         "light": "/static/bloomify/admin-logo.svg",
         "dark": "/static/bloomify/admin-logo.svg",
     },
-    "FAVICONS": [
+    "SITE_FAVICONS": [
         {
             "rel": "icon",
             "sizes": "32x32",
@@ -97,43 +110,53 @@ UNFOLD = {
             "950": "56 16 20",
         },
     },
-    "SCRIPTS": [],
+    "SCRIPTS": ["/static/bloomify/admin.js"],
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": False,
         "navigation": [
             {
-                "title": "Магазин",
+                "title": _("Store"),
                 "items": [
                     {
-                        "title": "Букети",
+                        "title": _("Bouquets"),
                         "icon": "local_florist",
                         "link": "/admin/shop/product/",
                     },
                     {
-                        "title": "Замовлення",
+                        "title": _("Orders"),
                         "icon": "receipt_long",
                         "link": "/admin/shop/order/",
                     },
                     {
-                        "title": "Плани підписки",
+                        "title": _("Subscription plans"),
                         "icon": "workspace_premium",
                         "link": "/admin/shop/subscriptionplan/",
                     },
                     {
-                        "title": "Підписки",
+                        "title": _("Subscriptions"),
                         "icon": "autorenew",
                         "link": "/admin/shop/subscription/",
+                    },
+                    {
+                        "title": _("Website languages"),
+                        "icon": "language",
+                        "link": "/admin/shop/sitelanguagesettings/",
                     },
                 ],
             },
             {
-                "title": "Користувачі",
+                "title": _("Users"),
                 "items": [
                     {
-                        "title": "Користувачі",
+                        "title": _("Users"),
                         "icon": "group",
                         "link": "/admin/auth/user/",
+                    },
+                    {
+                        "title": _("Roles"),
+                        "icon": "admin_panel_settings",
+                        "link": "/admin/auth/group/",
                     },
                 ],
             },
@@ -159,7 +182,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -205,17 +228,37 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Bloomify API",
+    "DESCRIPTION": "API documentation for Bloomify backend",
+    "VERSION": "1.0.0",
 }
 
 
 LANGUAGE_CODE = "uk"
 
 LANGUAGES = [
-    ("uk", "Українська"),
-    ("en", "English"),
+    ("uk", _("Ukrainian")),
+    ("en", _("English")),
+    ("pl", _("Polish")),
 ]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
+
+PARLER_LANGUAGES = {
+    None: (
+        {"code": "uk"},
+        {"code": "en"},
+        {"code": "pl"},
+    ),
+    "default": {
+        "fallbacks": ["uk"],
+        "hide_untranslated": False,
+    },
+}
 
 TIME_ZONE = "UTC"
 

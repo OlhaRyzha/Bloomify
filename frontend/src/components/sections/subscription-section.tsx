@@ -7,6 +7,8 @@ import subscriptionImage from '@/assets/subscription-box.jpg';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
+import { useTranslation } from '@/hooks/use-translation';
+import { formatTemplate } from '@/utils/i18n';
 
 type Plan = {
   name: string;
@@ -18,77 +20,52 @@ type Plan = {
   popular: boolean;
 };
 
-const plans: Plan[] = [
-  {
-    name: 'Базовий',
-    price: 999,
-    period: 'місяць',
-    icon: Gift,
-    description: 'Ідеально для початківців',
-    features: [
-      '1 букет на місяць',
-      'Сезонні квіти',
-      'Безкоштовна доставка',
-      'Картка з побажаннями',
-    ],
-    popular: false,
-  },
-  {
-    name: 'Преміум',
-    price: 1799,
-    period: 'місяць',
-    icon: Sparkles,
-    description: 'Найпопулярніший вибір',
-    features: [
-      '2 букети на місяць',
-      'Преміум сорти квітів',
-      'Пріоритетна доставка',
-      'Персональний флорист',
-      'Ексклюзивні композиції',
-    ],
-    popular: true,
-  },
-  {
-    name: 'Люкс',
-    price: 2999,
-    period: 'місяць',
-    icon: Crown,
-    description: 'Для справжніх цінителів',
-    features: [
-      '4 букети на місяць',
-      'Рідкісні сорти квітів',
-      'Доставка в день замовлення',
-      'VIP підтримка 24/7',
-      'Подарунки до свят',
-      'Знижки на весілля',
-    ],
-    popular: false,
-  },
+const planConfig: Array<{
+  key: 'base' | 'premium' | 'luxe';
+  price: number;
+  icon: React.ElementType;
+  popular: boolean;
+}> = [
+  { key: 'base', price: 999, icon: Gift, popular: false },
+  { key: 'premium', price: 1799, icon: Sparkles, popular: true },
+  { key: 'luxe', price: 2999, icon: Crown, popular: false },
 ];
 
 export default function SubscriptionSection() {
+  const { t } = useTranslation();
+  const plans: Plan[] = planConfig.map((config) => {
+    const base = `plan_${config.key}`;
+    return {
+      name: t(`${base}_name`),
+      description: t(`${base}_description`),
+      period: t(`${base}_period`),
+      price: config.price,
+      icon: config.icon,
+      features: t(`${base}_features`, { returnObjects: true }) as unknown as string[],
+      popular: config.popular,
+    };
+  });
   return (
     <section
       id='subscription'
       className='bg-gradient-hero py-24'>
-      <div className='mx-auto max-w-6xl px-4'>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className='mb-16 text-center'>
-          <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            Підписка
-          </span>
-          <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-            Квіти щомісяця
-          </h2>
-          <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
-            Оформіть підписку та отримуйте свіжі букети прямо до дверей. Зробіть
-            своє життя яскравішим!
-          </p>
-        </motion.div>
+        <div className='mx-auto max-w-6xl px-4'>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className='mb-16 text-center'>
+            <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
+              {t('sections_subscription_label')}
+            </span>
+            <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
+              {t('sections_subscription_title')}
+            </h2>
+            <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
+              {t('sections_subscription_description')}
+            </p>
+          </motion.div>
 
         <div className='grid items-center gap-12 lg:grid-cols-2'>
           <motion.div
@@ -123,7 +100,7 @@ export default function SubscriptionSection() {
                 )}>
                 {plan.popular && (
                   <div className='absolute right-0 top-0 rounded-bl-xl bg-gold px-4 py-1 text-xs font-semibold text-forest'>
-                    Популярний
+                    {t('sections_subscription_popularBadge')}
                   </div>
                 )}
 
@@ -216,7 +193,9 @@ export default function SubscriptionSection() {
                             ? 'text-primary-foreground/80'
                             : 'text-muted-foreground'
                         )}>
-                        +{plan.features.length - 3} ще
+                        {formatTemplate(t('sections_subscription_moreLabel'), {
+                          count: plan.features.length - 3,
+                        })}
                       </span>
                     )}
                   </div>
@@ -226,8 +205,8 @@ export default function SubscriptionSection() {
                       'w-full',
                       plan.popular && 'bg-gold text-forest font-semibold'
                     )}
-                    variant={plan.popular ? 'default' : 'default'}>
-                    Оформити підписку
+                    variant='default'>
+                    {t('sections_subscription_cta')}
                   </Button>
                 </CardContent>
               </Card>

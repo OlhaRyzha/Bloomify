@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
 import CatalogGrid from '@/features/catalog/catalog-grid';
 import { Button } from '../ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -25,6 +26,7 @@ const itemVariants = {
 
 export default function CatalogSection() {
   const { data, isLoading } = useGetProducts();
+  const { t } = useTranslation();
 
   return (
     <section
@@ -38,14 +40,13 @@ export default function CatalogSection() {
           transition={{ duration: 0.6 }}
           className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            Наша колекція
+            {t('sections_catalog_label')}
           </span>
           <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-            Популярні букети
+            {t('sections_catalog_title')}
           </h2>
           <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
-            Кожен букет створений з любов&apos;ю та увагою до деталей нашими
-            досвідченими флористами
+            {t('sections_catalog_description')}
           </p>
         </motion.div>
 
@@ -77,7 +78,7 @@ export default function CatalogSection() {
             asChild
             size='lg'
             variant='secondary'>
-            <Link href='/catalog'>Переглянути весь каталог</Link>
+            <Link href='/catalog'>{t('sections_catalog_button')}</Link>
           </Button>
         </motion.div>
       </div>

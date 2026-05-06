@@ -16,29 +16,9 @@ import {
 } from '@/components/ui/card';
 import { loginSchema, registerSchema } from '@/schemas/auth.schemas';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
+import { useTranslation } from '@/hooks/use-translation';
 
-const formCopy = {
-  login: {
-    title: 'Увійти',
-    subtitle: 'Раді бачити вас знову у Bloomify.',
-    submitLabel: 'Увійти',
-    googleLabel: 'Увійти з Google',
-    switchText: 'Ще немає акаунта?',
-    switchLinkLabel: 'Зареєструватися',
-    switchHref: '/register',
-  },
-  register: {
-    title: 'Створити акаунт',
-    subtitle: 'Кілька кроків — і улюблені букети вже поруч.',
-    submitLabel: 'Зареєструватися',
-    googleLabel: 'Зареєструватися з Google',
-    switchText: 'Вже маєте акаунт?',
-    switchLinkLabel: 'Увійти',
-    switchHref: '/login',
-  },
-} as const;
-
-type AuthMode = keyof typeof formCopy;
+type AuthMode = 'login' | 'register';
 
 type FieldConfig = {
   name: string;
@@ -48,62 +28,6 @@ type FieldConfig = {
   autoComplete?: string;
   helper?: string;
   icon: LucideIcon;
-};
-
-const fieldsByMode: Record<AuthMode, FieldConfig[]> = {
-  login: [
-    {
-      name: 'email',
-      label: 'Email',
-      type: 'email',
-      placeholder: 'name@bloomify.ua',
-      autoComplete: 'email',
-      icon: Mail,
-    },
-    {
-      name: 'password',
-      label: 'Пароль',
-      type: 'password',
-      placeholder: '••••••••',
-      autoComplete: 'current-password',
-      icon: Lock,
-    },
-  ],
-  register: [
-    {
-      name: 'name',
-      label: "Ім'я та прізвище",
-      type: 'text',
-      placeholder: 'Ольга Рижа',
-      autoComplete: 'name',
-      icon: User,
-    },
-    {
-      name: 'email',
-      label: 'Email',
-      type: 'email',
-      placeholder: 'name@bloomify.ua',
-      autoComplete: 'email',
-      icon: Mail,
-    },
-    {
-      name: 'password',
-      label: 'Пароль',
-      type: 'password',
-      placeholder: 'Мінімум 8 символів',
-      autoComplete: 'new-password',
-      helper: 'Мінімум 8 символів, літера та цифра.',
-      icon: Lock,
-    },
-    {
-      name: 'confirmPassword',
-      label: 'Підтвердіть пароль',
-      type: 'password',
-      placeholder: 'Повторіть пароль',
-      autoComplete: 'new-password',
-      icon: Lock,
-    },
-  ],
 };
 
 const initialValuesByMode: Record<AuthMode, Record<string, string>> = {
@@ -120,8 +44,54 @@ const initialValuesByMode: Record<AuthMode, Record<string, string>> = {
 };
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
-  const copy = formCopy[mode];
-  const fields = fieldsByMode[mode];
+  const { t } = useTranslation();
+
+  const fieldConfig: Record<string, FieldConfig> = {
+    name: {
+      name: 'name',
+      label: t('auth_form_fields_name_label'),
+      type: 'text',
+      placeholder: t('auth_form_fields_name_placeholder'),
+      autoComplete: 'name',
+      helper: t('auth_form_fields_name_helper') || undefined,
+      icon: User,
+    },
+    email: {
+      name: 'email',
+      label: t('auth_form_fields_email_label'),
+      type: 'email',
+      placeholder: t('auth_form_fields_email_placeholder'),
+      autoComplete: 'email',
+      icon: Mail,
+    },
+    password: {
+      name: 'password',
+      label: t('auth_form_fields_password_label'),
+      type: 'password',
+      placeholder: t('auth_form_fields_password_placeholder'),
+      autoComplete: mode === 'login' ? 'current-password' : 'new-password',
+      helper: t('auth_form_fields_password_helper') || undefined,
+      icon: Lock,
+    },
+    confirmPassword: {
+      name: 'confirmPassword',
+      label: t('auth_form_fields_confirmPassword_label'),
+      type: 'password',
+      placeholder: t('auth_form_fields_confirmPassword_placeholder'),
+      autoComplete: 'new-password',
+      icon: Lock,
+    },
+  };
+
+  const fields: FieldConfig[] =
+    mode === 'login'
+      ? [fieldConfig.email, fieldConfig.password]
+      : [
+          fieldConfig.name,
+          fieldConfig.email,
+          fieldConfig.password,
+          fieldConfig.confirmPassword,
+        ];
   const schema = mode === 'login' ? loginSchema : registerSchema;
 
   return (
@@ -129,8 +99,8 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
       className='w-full border border-border/70 bg-card/80 shadow-card backdrop-blur opacity-0 animate-scale-in'
       style={{ animationDelay: '0.1s' }}>
       <CardHeader className='pb-4'>
-        <CardTitle className='font-display text-3xl'>{copy.title}</CardTitle>
-        <CardDescription className='text-base'>{copy.subtitle}</CardDescription>
+        <CardTitle className='font-display text-3xl'>{t(`auth_form_${mode}_title`)}</CardTitle>
+        <CardDescription className='text-base'>{t(`auth_form_${mode}_subtitle`)}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -156,7 +126,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 <span className='flex h-8 w-8 items-center justify-center rounded-full bg-muted'>
                   <Chrome className='h-4 w-4 text-primary' />
                 </span>
-                {copy.googleLabel}
+                {t(`auth_form_${mode}_googleLabel`)}
               </Button>
 
               <div className='flex items-center gap-3 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
@@ -223,33 +193,33 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 size='lg'
                 className='mt-2 w-full'
                 disabled={isSubmitting}>
-                {copy.submitLabel}
+                {t(`auth_form_${mode}_submitLabel`)}
               </Button>
 
               {mode === 'register' && (
                 <p className='text-xs text-muted-foreground'>
-                  Натискаючи &quot;Зареєструватися&quot;, ви погоджуєтесь з
+                  {t('auth_form_terms_text')}
                   <Link
                     href='/terms'
                     className='text-primary underline-offset-4 hover:underline'>
-                    умовами
+                    {t('auth_form_terms_termsLabel')}
                   </Link>
                   та
                   <Link
                     href='/privacy'
                     className='text-primary underline-offset-4 hover:underline'>
-                    політикою конфіденційності
+                    {t('auth_form_terms_privacyLabel')}
                   </Link>
                   .
                 </p>
               )}
 
               <p className='text-sm text-muted-foreground'>
-                {copy.switchText}{' '}
+                {t(`auth_form_${mode}_switchText`)}{' '}
                 <Link
-                  href={copy.switchHref}
+                  href={t(`auth_form_${mode}_switchHref`)}
                   className='font-semibold text-primary underline-offset-4 hover:underline'>
-                  {copy.switchLinkLabel}
+                  {t(`auth_form_${mode}_switchLinkLabel`)}
                 </Link>
               </p>
             </Form>

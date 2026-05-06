@@ -5,14 +5,29 @@ import Link from 'next/link';
 import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/hooks/use-translation';
+import { formatTemplate } from '@/utils/i18n';
 import {
-  footerContactItems,
-  mainNavigationLinks,
-  footerServiceLinks,
+  FOOTER_CONTACT_ITEMS,
+  NAVIGATION_LINKS,
+  SERVICE_LINKS,
   footerSocialLinks,
 } from '@/constants/navigation.constants';
 
 export default function Footer() {
+  const { t } = useTranslation();
+  const navLinks = NAVIGATION_LINKS.map((link) => ({
+    ...link,
+    label: t(`navigation_main_${link.key}`),
+  }));
+  const serviceLinks = SERVICE_LINKS.map((link) => ({
+    ...link,
+    label: t(`navigation_services_${link.key}`),
+  }));
+  const rightsMessage = formatTemplate(t('footer_rights'), {
+    year: new Date().getFullYear(),
+  });
+
   return (
     <footer
       id='contact'
@@ -27,10 +42,10 @@ export default function Footer() {
             className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
             <div>
               <h3 className='text-2xl font-bold md:text-3xl'>
-                Підпишіться на новини
+                {t('footer_newsletterTitle')}
               </h3>
               <p className='mt-2 text-primary-foreground/80'>
-                Отримуйте ексклюзивні пропозиції та знижки першими
+                {t('footer_newsletterDescription')}
               </p>
             </div>
 
@@ -39,14 +54,14 @@ export default function Footer() {
               className='flex w-full gap-3 lg:w-auto'>
               <Input
                 type='email'
-                placeholder='Ваш email'
+                placeholder={t('footer_emailPlaceholder')}
                 className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
               />
               <Button
                 className='h-10 px-6 py-2 bg-gold'
                 type='submit'
                 size='icon'
-                aria-label='Subscribe'>
+                aria-label={t('footer_subscribeLabel')}>
                 <Send className='h-4 w-4' />
               </Button>
             </form>
@@ -60,11 +75,10 @@ export default function Footer() {
             <Link
               href='/'
               className='text-3xl font-bold'>
-              Bloomify
+              {t('common_brand')}
             </Link>
             <p className='mt-4 text-sm text-primary-foreground/80'>
-              Ексклюзивні флористичні композиції для особливих моментів вашого
-              життя.
+              {t('footer_tagline')}
             </p>
 
             <div className='mt-6 flex gap-3'>
@@ -83,10 +97,10 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className='text-lg font-semibold'>Навігація</h4>
+            <h4 className='text-lg font-semibold'>{t('footer_navTitle')}</h4>
             <ul className='mt-4 space-y-2 text-sm'>
-              {mainNavigationLinks.map((item) => (
-                <li key={item.label}>
+              {navLinks.map((item) => (
+                <li key={item.key}>
                   <Link
                     href={item.href}
                     className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
@@ -98,10 +112,10 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className='text-lg font-semibold'>Послуги</h4>
+            <h4 className='text-lg font-semibold'>{t('footer_servicesTitle')}</h4>
             <ul className='mt-4 space-y-2 text-sm'>
-              {footerServiceLinks.map((service) => (
-                <li key={service.label}>
+              {serviceLinks.map((service) => (
+                <li key={service.key}>
                   <Link
                     href={service.href}
                     className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
@@ -113,37 +127,60 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className='text-lg font-semibold'>Контакти</h4>
+            <h4 className='text-lg font-semibold'>{t('footer_contactsTitle')}</h4>
             <ul className='mt-4 space-y-3 text-sm'>
-              {footerContactItems.map((item) => (
-                <li
-                  key={item.id}
-                  className='flex items-start gap-3'>
-                  <item.icon
-                    className='mt-0.5 h-4 w-4 text-gold'
-                    aria-hidden
-                  />
-                  {item.content}
-                </li>
-              ))}
+              {FOOTER_CONTACT_ITEMS.map((item) => {
+                const text = item.labelKey ? t(item.labelKey) : item.staticText ?? '';
+                const href = item.id === 'address'
+                  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`
+                  : item.href;
+
+                return (
+                  <li
+                    key={item.id}
+                    className='flex items-start gap-3'>
+                    <item.icon
+                      className='mt-0.5 h-4 w-4 text-gold'
+                      aria-hidden
+                    />
+                    {item.id === 'address' ? (
+                      <address className='not-italic text-primary-foreground/80'>
+                        <a
+                          href={href}
+                          target='_blank'
+                          rel='noreferrer'
+                          className='transition-colors hover:text-primary-foreground'>
+                          {text}
+                        </a>
+                      </address>
+                    ) : (
+                      <a
+                        href={href}
+                        className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
+                        {text}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
 
         <div className='mt-12 flex flex-col items-center justify-between gap-4 border-t border-primary-foreground/10 pt-8 md:flex-row'>
           <p className='text-sm text-primary-foreground/60'>
-            © {new Date().getFullYear()} Bloomify. Всі права захищені.
+            {rightsMessage}
           </p>
           <div className='flex gap-6'>
             <Link
               href='/privacy'
               className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
-              Політика конфіденційності
+              {t('footer_privacy')}
             </Link>
             <Link
               href='/terms'
               className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
-              Умови використання
+              {t('footer_terms')}
             </Link>
           </div>
         </div>

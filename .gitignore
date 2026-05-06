@@ -97,6 +97,7 @@ docker-data/
 *.pid
 
 # Misc
+AGENTS.md
 *.lock.bak
 *.local
 *.secret

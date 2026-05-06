@@ -7,11 +7,13 @@ import CatalogGrid from '@/features/catalog/catalog-grid';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
 import { useFavoritesStore } from './favorites.store';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function FavoritesFeature() {
   const isHydrated = useHydrated();
   const favoriteIds = useFavoritesStore((state) => state.ids);
   const { data, isLoading } = useGetProducts();
+  const { t } = useTranslation();
 
   const favoriteItems = useMemo(
     () =>
@@ -29,16 +31,15 @@ export default function FavoritesFeature() {
     return (
       <div className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
         <h2 className='font-display mb-3 text-2xl font-bold'>
-          У вас ще немає вибраних букетів
+          {t('sections_favorites_emptyTitle')}
         </h2>
         <p className='mb-6 text-sm text-muted-foreground'>
-          Тут зібрані букети, які торкнулися вашого серця. Зберігайте натхнення
-          та обирайте ідеальний момент для замовлення.
+          {t('sections_favorites_emptyDescription')}
         </p>
         <Button
           asChild
           size='lg'>
-          <Link href='/catalog'>Перейти до каталогу</Link>
+          <Link href='/catalog'>{t('sections_favorites_emptyCta')}</Link>
         </Button>
       </div>
     );

@@ -31,6 +31,8 @@ repos:
           - django-cors-headers
           - django-crispy-forms
           - django-unfold
+          - django-parler
+          - drf-spectacular
           - pydantic-settings
           - psycopg[binary]
           - types-redis

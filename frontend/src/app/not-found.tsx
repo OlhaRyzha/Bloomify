@@ -1,8 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function NotFound() {
+  const { t } = useTranslation();
   return (
     <section className='relative overflow-hidden bg-gradient-hero pb-24 pt-28'>
       <div className='absolute inset-0 overflow-hidden'>
@@ -12,13 +16,11 @@ export default function NotFound() {
 
       <div className='relative mx-auto max-w-4xl px-4 text-center'>
         <span className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
-          Помилка 404
+          {t('notFound_status')}
         </span>
-        <h1 className='font-display text-5xl font-bold md:text-6xl'>
-          Сторінку не знайдено
-        </h1>
+        <h1 className='font-display text-5xl font-bold md:text-6xl'>{t('notFound_title')}</h1>
         <p className='mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg'>
-          Схоже, що цієї сторінки більше немає або адреса введена некоректно.
+          {t('notFound_description')}
         </p>
 
         <div className='mt-8 flex flex-col justify-center gap-3 sm:flex-row'>
@@ -26,8 +28,8 @@ export default function NotFound() {
             asChild
             size='lg'>
             <Link href='/'>
-              <Home className='mr-2 h-5 w-5' />
-              На головну
+            <Home className='mr-2 h-5 w-5' />
+            {t('notFound_homeCta')}
             </Link>
           </Button>
           <Button
@@ -35,7 +37,7 @@ export default function NotFound() {
             size='lg'
             variant='secondary'>
             <Link href='/catalog'>
-              Перейти в каталог
+              {t('notFound_catalogCta')}
               <ArrowRight className='ml-2 h-5 w-5' />
             </Link>
           </Button>

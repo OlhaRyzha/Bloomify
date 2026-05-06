@@ -11,20 +11,17 @@ import { useHydrated } from '@/hooks/use-hydrated';
 import type { CatalogItem } from '@/types/catalog';
 import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  FREE_DELIVERY_MESSAGE,
-  FREE_DELIVERY_THRESHOLD,
-} from '@/constants/delivery.constants';
+import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
+import { formatCurrency, formatTemplate } from '@/utils/i18n';
 import { useGetProducts } from '@/hooks/tan-stack-query/products/use-products';
 import { useCartStore } from './cart.store';
 import CartItemSkeleton from './cart-item-skeleton';
+import { useTranslation } from '@/hooks/use-translation';
+import { useLocale } from '@/components/providers/locale-provider';
 
 type CartItemWithDetails = CatalogItem & { quantity: number };
 
 const DELIVERY_FEE = 150;
-
-const formatPrice = (value: number) =>
-  new Intl.NumberFormat('uk-UA').format(value);
 
 export default function CartFeature() {
   const isHydrated = useHydrated();
@@ -32,6 +29,11 @@ export default function CartFeature() {
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const clearCart = useCartStore((state) => state.clearCart);
+  const { t } = useTranslation();
+  const { locale } = useLocale();
+  const freeDeliveryMessage = formatTemplate(t('delivery_freeDeliveryMessage'), {
+    threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
+  });
   const { data: catalogItems = [], isLoading: isCatalogLoading } =
     useGetProducts();
 
@@ -134,15 +136,15 @@ export default function CartFeature() {
     return (
       <div className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
         <h2 className='font-display mb-3 text-2xl font-bold'>
-          Ваш кошик поки що порожній
+          {t('cart_emptyTitle')}
         </h2>
         <p className='mb-6 text-sm text-muted-foreground'>
-          Оберіть букет у каталозі, а ми подбаємо про бездоганну доставку.
+          {t('cart_emptyDescription')}
         </p>
         <Button
           asChild
           size='lg'>
-          <Link href='/catalog'>Перейти до каталогу</Link>
+          <Link href='/catalog'>{t('cart_emptyCta')}</Link>
         </Button>
       </div>
     );
@@ -153,16 +155,13 @@ export default function CartFeature() {
       <div className='space-y-6'>
         <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-muted/60 px-6 py-4 text-sm text-muted-foreground'>
           <p>
-            У кошику{' '}
-            <span className='font-semibold text-foreground'>
-              {itemCount} букети
-            </span>
+            {formatTemplate(t('cart_itemCount'), { count: itemCount })}
           </p>
           <Button
             variant='ghost'
             size='sm'
             onClick={clearCart}>
-            Очистити кошик
+            {t('cart_clearCart')}
           </Button>
         </div>
 
@@ -215,13 +214,13 @@ export default function CartFeature() {
             <div className='flex items-center justify-between gap-4 md:flex-col md:items-end'>
               <div className='text-right'>
                 <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
-                  Сума
+                  {t('cart_sum')}
                 </p>
                 <p className='font-display text-2xl text-primary'>
-                  {formatPrice(item.price * item.quantity)} ₴
+                  {formatCurrency(item.price * item.quantity, locale)}
                 </p>
                 <p className='text-xs text-muted-foreground'>
-                  {formatPrice(item.price)} ₴ / букет
+                  {formatCurrency(item.price, locale)} / {t('common_bouquet')}
                 </p>
               </div>
               <Button
@@ -236,51 +235,50 @@ export default function CartFeature() {
         ))}
 
         <div className='rounded-2xl bg-muted/50 px-6 py-4 text-sm text-muted-foreground'>
-          Додайте побажання до листівки або точний час доставки під час
-          оформлення.
+          {t('cart_note')}
         </div>
       </div>
 
       <aside className='space-y-6'>
         <div className='rounded-3xl bg-gradient-card p-6 shadow-card'>
           <h3 className='font-display text-2xl font-semibold'>
-            Підсумок замовлення
+            {t('cart_summaryTitle')}
           </h3>
 
           <div className='mt-6 space-y-4 text-sm text-muted-foreground'>
             <div className='flex items-center justify-between'>
-              <span>Вартість букетів</span>
+              <span>{t('cart_bouquetCost')}</span>
               <span className='font-semibold text-foreground'>
-                {formatPrice(subtotal)} ₴
+                {formatCurrency(subtotal, locale)}
               </span>
             </div>
             <div className='flex items-center justify-between'>
-              <span>Доставка</span>
+              <span>{t('cart_delivery')}</span>
               <span className='font-semibold text-foreground'>
                 {deliveryCost === 0
-                  ? 'Безкоштовно'
-                  : `${formatPrice(deliveryCost)} ₴`}
+                  ? t('common_free')
+                  : formatCurrency(deliveryCost, locale)}
               </span>
             </div>
           </div>
 
           <div className='mt-6 flex items-center justify-between border-t border-border pt-4'>
-            <span className='text-base font-semibold'>Разом</span>
+            <span className='text-base font-semibold'>{t('cart_total')}</span>
             <span className='font-display text-2xl font-semibold text-primary'>
-              {formatPrice(total)} ₴
+              {formatCurrency(total, locale)}
             </span>
           </div>
 
           <Button
             className='mt-6 w-full'
             size='lg'>
-            Оформити замовлення
+            {t('cart_checkoutButton')}
           </Button>
           <Button
             asChild
             variant='outline'
             className='mt-3 w-full'>
-            <Link href='/catalog'>Продовжити покупки</Link>
+            <Link href='/catalog'>{t('cart_continueShopping')}</Link>
           </Button>
         </div>
 
@@ -289,33 +287,35 @@ export default function CartFeature() {
           className='rounded-3xl bg-muted/60 p-5'>
           <div className='flex items-center gap-2 text-sm font-semibold text-primary'>
             <TicketPercent className='h-4 w-4' />
-            Промокод або сертифікат
+            {t('cart_promo_title')}
           </div>
           <div className='mt-4 flex flex-col gap-3 sm:flex-row'>
             <Input
-              placeholder='Введіть код'
+              placeholder={t('cart_promo_placeholder')}
               className='bg-background'
             />
             <Button
               type='submit'
               variant='secondary'>
-              Застосувати
+              {t('cart_promo_button')}
             </Button>
           </div>
           <p className='mt-3 text-xs text-muted-foreground'>
-            {FREE_DELIVERY_MESSAGE}.
+            {formatTemplate(t('cart_promo_message'), {
+              freeDelivery: freeDeliveryMessage,
+            })}
           </p>
         </form>
 
         <div className='grid gap-3'>
-          <InfoCard title='Доставка'>
-            Кур’єр доставить букет у зручний час. По Києву — від 2 годин.
+          <InfoCard title={t('cart_infoCards_delivery_title')}>
+            {t('cart_infoCards_delivery_description')}
           </InfoCard>
-          <InfoCard title='Пакування'>
-            Естетична упаковка та листівка вже включені у вартість.
+          <InfoCard title={t('cart_infoCards_packaging_title')}>
+            {t('cart_infoCards_packaging_description')}
           </InfoCard>
-          <InfoCard title='Підтримка'>
-            Підберемо ідеальний букет для події — напишіть нам у чат.
+          <InfoCard title={t('cart_infoCards_support_title')}>
+            {t('cart_infoCards_support_description')}
           </InfoCard>
         </div>
       </aside>
