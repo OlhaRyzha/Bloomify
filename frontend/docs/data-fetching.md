@@ -109,11 +109,60 @@ Mutations should:
 
 - call service functions
 - use optimistic updates only when rollback is clear
-- invalidate or update relevant query keys
+- update relevant query data from the backend response when the response is authoritative
+- invalidate query keys only when the backend response is not enough to repair the cache
 - show user feedback at the hook/component boundary
 - convert unknown errors into `ApiError`
 
 For cart and favorites, local Zustand actions are acceptable because the current behavior is local-only. If backend persistence is added, introduce mutation hooks and sync carefully.
+
+### List Mutations
+
+Use `useOptimisticListMutation` for mutations that affect cached lists.
+
+Rules:
+
+- Do not refetch lists by default after every mutation.
+- Prefer `cache.updateFromResponse` when the backend returns the created or updated entity.
+- Use `cache.optimisticUpdate` only when rollback is simple and the user benefits from immediate UI feedback.
+- Use `cache.invalidateList: true` only when the list can change in ways the response cannot describe.
+- Use `cache.invalidateQueries` for related data that must be refreshed, such as detail views or counters.
+- Pass explicit `mutationKey` from mutation key factories.
+
+Create/update example:
+
+```ts
+useOptimisticListMutation<ProductItem, { item: ProductItem }, ProductItem>({
+  queryKey: productsQueryKeys.list(locale),
+  mutationKey: productsMutationKeys.create,
+  mutationFn: ({ item }) => ProductsService.createProduct(item),
+  cache: {
+    updateFromResponse: (items, product) => upsertProduct(items, product),
+  },
+  toast: {
+    successMessage: 'Product created',
+  },
+});
+```
+
+Delete example:
+
+```ts
+useOptimisticListMutation<ProductItem, { id: string }, void>({
+  queryKey: productsQueryKeys.list(locale),
+  mutationKey: productsMutationKeys.delete,
+  mutationFn: ({ id }) => ProductsService.deleteProduct(id),
+  cache: {
+    optimisticUpdate: (items, { id }) =>
+      items.filter((item) => item.id !== id),
+  },
+  toast: {
+    successMessage: 'Product deleted',
+  },
+});
+```
+
+This keeps the fast UI update for safe cases and avoids unnecessary network refetches when the cache can be updated accurately.
 
 ## Loading And Error States
 
