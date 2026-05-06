@@ -1,5 +1,3 @@
-'use client';
-
 import type { CatalogQueryParams } from './catalog.types';
 
 export const DEFAULT_CATALOG_PARAMS: CatalogQueryParams = {

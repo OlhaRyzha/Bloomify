@@ -9,6 +9,21 @@ import { createAxiosConfig } from './axios.config';
 import { BASE_URL } from '@/components/config/env';
 import { isAbsoluteUrl } from '@/utils/guards/is-absolute-url';
 import { getHost } from '@/utils/url/get-host';
+import { safeRequest, safeVoidRequest } from '@/utils/api/safe-request';
+import type { SafeRequestOptions } from '@/utils/api/safe-request';
+
+type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
+
+type RequestParams<TBody = unknown> = {
+  method: RequestMethod;
+  url: string;
+  body?: TBody;
+  config?: AxiosRequestConfig;
+};
+
+const silentRequestOptions: SafeRequestOptions = {
+  showErrorToast: false,
+};
 
 export class ApiClient {
   private axiosBase: AxiosInstance;
@@ -114,13 +129,32 @@ export class ApiClient {
     return this.axiosBase;
   }
 
+  private async request<TResponse, TBody = unknown>({
+    method,
+    url,
+    body,
+    config,
+  }: RequestParams<TBody>): Promise<TResponse> {
+    const client = this.pickInstance(url);
+
+    const response = await client.request<TResponse>({
+      ...config,
+      data: body,
+      method,
+      url,
+    });
+
+    return response.data;
+  }
+
   public async get<TResponse>(
     url: string,
     config?: AxiosRequestConfig
   ): Promise<TResponse> {
-    const client = this.pickInstance(url);
-    const response = await client.get<TResponse>(url, config);
-    return response.data;
+    return safeRequest(
+      this.request<TResponse>({ method: 'get', url, config }),
+      silentRequestOptions
+    );
   }
 
   public async post<TResponse, TBody = unknown>(
@@ -128,9 +162,15 @@ export class ApiClient {
     body?: TBody,
     config?: AxiosRequestConfig
   ): Promise<TResponse> {
-    const client = this.pickInstance(url);
-    const response = await client.post<TResponse>(url, body, config);
-    return response.data;
+    return safeRequest(
+      this.request<TResponse, TBody>({
+        method: 'post',
+        url,
+        body,
+        config,
+      }),
+      silentRequestOptions
+    );
   }
 
   public async put<TResponse, TBody = unknown>(
@@ -138,18 +178,63 @@ export class ApiClient {
     body: TBody,
     config?: AxiosRequestConfig
   ): Promise<TResponse> {
-    const client = this.pickInstance(url);
-    const response = await client.put<TResponse>(url, body, config);
-    return response.data;
+    return safeRequest(
+      this.request<TResponse, TBody>({
+        method: 'put',
+        url,
+        body,
+        config,
+      }),
+      silentRequestOptions
+    );
+  }
+
+  public async patch<TResponse, TBody = unknown>(
+    url: string,
+    body?: TBody,
+    config?: AxiosRequestConfig
+  ): Promise<TResponse> {
+    return safeRequest(
+      this.request<TResponse, TBody>({
+        method: 'patch',
+        url,
+        body,
+        config,
+      }),
+      silentRequestOptions
+    );
   }
 
   public async delete<TResponse>(
     url: string,
     config?: AxiosRequestConfig
   ): Promise<TResponse> {
-    const client = this.pickInstance(url);
-    const response = await client.delete<TResponse>(url, config);
-    return response.data;
+    return safeRequest(
+      this.request<TResponse>({
+        method: 'delete',
+        url,
+        config,
+      }),
+      silentRequestOptions
+    );
+  }
+
+  public async deleteVoid(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<Record<string, never>> {
+    return safeVoidRequest(
+      this.request<void>({
+        method: 'delete',
+        url,
+        config,
+      }),
+      silentRequestOptions
+    );
+  }
+
+  public getRawInstance(): AxiosInstance {
+    return this.axiosBase;
   }
 }
 
