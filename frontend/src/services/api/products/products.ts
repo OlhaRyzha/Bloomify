@@ -1,5 +1,4 @@
-import { fetchVoidResponse, safeFetch } from '@/utils/api/safe-fetch';
-import apiClient from '../clients/BaseService';
+import apiClient from '../clients/api-client';
 import {
   catalogItemSchema,
   catalogSchema,
@@ -7,37 +6,48 @@ import {
   type Products,
 } from '@/schemas/products.shemas';
 import { API_ROUTES } from '@/constants/api.constant';
+import type { Locale } from '@/locales/translations';
+import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
+
+type ProductsRequestParams = {
+  lang?: Locale;
+};
 
 const ProductsService = {
-  getProducts: (): Promise<Products> =>
-    safeFetch(apiClient.get<Products>(API_ROUTES.PRODUCTS), catalogSchema),
+  getProducts: async (params?: ProductsRequestParams): Promise<Products> => {
+    const response = await apiClient.get<Products>(API_ROUTES.PRODUCTS, {
+      params,
+    });
 
-  getProductById: (id: string): Promise<ProductItem> =>
-    safeFetch(
-      apiClient.get<ProductItem>(`${API_ROUTES.PRODUCTS}/${id}`),
-      catalogItemSchema
-    ),
+    return parseResponseWithSchema(response, catalogSchema);
+  },
+
+  getProductById: (
+    id: string,
+    params?: ProductsRequestParams
+  ): Promise<ProductItem> =>
+    apiClient
+      .get<ProductItem>(`${API_ROUTES.PRODUCTS}/${id}`, { params })
+      .then((response) => parseResponseWithSchema(response, catalogItemSchema)),
 
   createProduct: (payload: ProductItem): Promise<ProductItem> =>
-    safeFetch(
-      apiClient.post<ProductItem, ProductItem>(API_ROUTES.PRODUCTS, payload),
-      catalogItemSchema
-    ),
+    apiClient
+      .post<ProductItem, ProductItem>(API_ROUTES.PRODUCTS, payload)
+      .then((response) => parseResponseWithSchema(response, catalogItemSchema)),
 
   updateProduct: (
     id: string,
     payload: Partial<ProductItem>
   ): Promise<ProductItem> =>
-    safeFetch(
-      apiClient.put<ProductItem, Partial<ProductItem>>(
-        `${API_ROUTES.PRODUCTS}/${id}`,
-        payload
-      ),
-      catalogItemSchema
-    ),
+    apiClient
+      .put<
+        ProductItem,
+        Partial<ProductItem>
+      >(`${API_ROUTES.PRODUCTS}/${id}`, payload)
+      .then((response) => parseResponseWithSchema(response, catalogItemSchema)),
 
   deleteProduct: async (id: string): Promise<void> => {
-    await fetchVoidResponse(apiClient.delete(`${API_ROUTES.PRODUCTS}/${id}`));
+    await apiClient.deleteVoid(`${API_ROUTES.PRODUCTS}/${id}`);
   },
 };
 
