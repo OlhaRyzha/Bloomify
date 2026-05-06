@@ -1,5 +1,3 @@
-'use client';
-
 import { O, pipe } from '@mobily/ts-belt';
 import { isValueGreaterThanZero } from '@/utils/guards/is-number';
 import { DEFAULT_CATALOG_PARAMS } from './catalog.config';

@@ -1,10 +1,7 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import ProductsService from '@/services/api/products/products';
 import type { ProductItem, Products } from '@/schemas/products.shemas';
-import {
-  PRODUCT_QUERY_KEY,
-  PRODUCTS_QUERY_KEY,
-} from '@/constants/query-keys.constants';
+import { productsQueryKeys } from '@/constants/query-keys.constants';
 import type { ApiError } from '@/utils/api/api-error';
 import {
   MUTATION_ACTIONS,
@@ -17,46 +14,61 @@ type GetProductsOptions = Omit<
   'queryKey' | 'queryFn'
 >;
 
+type GetProductOptions = Omit<
+  UseQueryOptions<ProductItem, ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
 export const useGetProducts = (options?: GetProductsOptions) => {
   const { locale } = useLocale();
 
   return useQuery<Products, ApiError>({
-    queryKey: [...PRODUCTS_QUERY_KEY, locale],
+    queryKey: productsQueryKeys.list(locale),
     queryFn: () => ProductsService.getProducts(),
     ...options,
   });
 };
 
-export const useGetProductById = (id: string) => {
+export const useGetProductById = (id: string, options?: GetProductOptions) => {
   const { locale } = useLocale();
 
-  return useQuery<ProductItem>({
-    queryKey: [...PRODUCT_QUERY_KEY, id, locale],
+  return useQuery<ProductItem, ApiError>({
+    queryKey: productsQueryKeys.detail(id, locale),
     queryFn: () => ProductsService.getProductById(id),
     enabled: Boolean(id),
+    ...options,
   });
 };
 
-export const useCreateProduct = () =>
-  useMutateItemWithOptimisticUpdate<ProductItem, { item: ProductItem }>({
-    queryKey: PRODUCTS_QUERY_KEY,
+export const useCreateProduct = () => {
+  const { locale } = useLocale();
+
+  return useMutateItemWithOptimisticUpdate<ProductItem, { item: ProductItem }>({
+    queryKey: productsQueryKeys.list(locale),
     action: MUTATION_ACTIONS.CREATE,
     mutateFn: ({ item }) => ProductsService.createProduct(item),
   });
+};
 
-export const useUpdateProduct = () =>
-  useMutateItemWithOptimisticUpdate<
+export const useUpdateProduct = () => {
+  const { locale } = useLocale();
+
+  return useMutateItemWithOptimisticUpdate<
     ProductItem,
     { id: string; payload: Partial<ProductItem> }
   >({
-    queryKey: PRODUCTS_QUERY_KEY,
+    queryKey: productsQueryKeys.list(locale),
     action: MUTATION_ACTIONS.UPDATE,
     mutateFn: ({ id, payload }) => ProductsService.updateProduct(id, payload),
   });
+};
 
-export const useDeleteProduct = () =>
-  useMutateItemWithOptimisticUpdate<ProductItem, { id: string }>({
-    queryKey: PRODUCTS_QUERY_KEY,
+export const useDeleteProduct = () => {
+  const { locale } = useLocale();
+
+  return useMutateItemWithOptimisticUpdate<ProductItem, { id: string }>({
+    queryKey: productsQueryKeys.list(locale),
     action: MUTATION_ACTIONS.DELETE,
     mutateFn: ({ id }) => ProductsService.deleteProduct(id),
   });
+};

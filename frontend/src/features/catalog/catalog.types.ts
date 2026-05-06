@@ -1,5 +1,3 @@
-'use client';
-
 export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc';
 
 export type CatalogQueryParams = {
