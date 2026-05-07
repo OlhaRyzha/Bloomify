@@ -49,7 +49,11 @@ export default async function Footer() {
             <FooterNewsletterForm
               inputId={newsletterInputId}
               label={t('footer_subscribeLabel')}
+              loadingLabel={t('footer_subscribeLoadingLabel')}
               placeholder={t('footer_emailPlaceholder')}
+              invalidEmailMessage={t('footer_invalidEmail')}
+              successMessage={t('footer_subscribeSuccess')}
+              errorMessage={t('footer_subscribeError')}
             />
           </MotionDiv>
         </div>
