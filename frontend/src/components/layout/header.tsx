@@ -15,6 +15,7 @@ import { useCartStore } from '@/features/cart/cart.store';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const mobileNavId = 'mobile-navigation';
   const isHydrated = useHydrated();
   const cartCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0)
@@ -34,19 +35,22 @@ export default function Header() {
       className='fixed inset-x-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md'>
       <div className='mx-auto max-w-6xl px-4'>
         <div className='flex h-20 items-center justify-between'>
-            <Link
-              href='/'
-              className='flex items-center gap-2'>
-              <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
-                {t('common_brand')}
-              </span>
-            </Link>
+          <Link
+            href='/'
+            className='flex items-center gap-2'>
+            <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
+              {t('common_brand')}
+            </span>
+          </Link>
 
-          <nav className='hidden items-center gap-8 md:flex'>
+          <nav
+            className='hidden items-center gap-8 md:flex'
+            aria-label='Primary navigation'>
             {navigationLinks.map((link) => (
               <Link
                 key={link.key}
                 href={link.href}
+                aria-current={pathname === link.href ? 'page' : undefined}
                 className='text-sm font-medium text-muted-foreground transition-colors hover:text-primary'>
                 {link.label}
               </Link>
@@ -74,11 +78,14 @@ export default function Header() {
               asChild
               variant='ghost'
               size='icon'
-              className='relative'
-              aria-label='Cart'>
-              <Link href='/cart'>
+              className='relative'>
+              <Link
+                href='/cart'
+                aria-label='Cart'>
                 <ShoppingBag className='h-5 w-5' />
-                <span className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground'>
+                <span
+                  className='absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground'
+                  aria-hidden='true'>
                   {isHydrated ? cartCount : 0}
                 </span>
               </Link>
@@ -89,7 +96,9 @@ export default function Header() {
               size='icon'
               className='md:hidden'
               onClick={() => setIsMenuOpen((v) => !v)}
-              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}>
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-controls={mobileNavId}
+              aria-expanded={isMenuOpen}>
               {isMenuOpen ? (
                 <X className='h-5 w-5' />
               ) : (
@@ -102,16 +111,19 @@ export default function Header() {
         <AnimatePresence initial={false}>
           {isMenuOpen && (
             <motion.nav
+              id={mobileNavId}
               key='mobile-nav'
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className='border-t border-border py-4 md:hidden'>
+              className='border-t border-border py-4 md:hidden'
+              aria-label='Mobile navigation'>
               <div className='flex flex-col gap-4'>
                 {navigationLinks.map((link) => (
                   <Link
                     key={link.key}
                     href={link.href}
+                    aria-current={pathname === link.href ? 'page' : undefined}
                     className='text-base font-medium text-foreground transition-colors hover:text-primary'
                     onClick={() => setIsMenuOpen(false)}>
                     {link.label}

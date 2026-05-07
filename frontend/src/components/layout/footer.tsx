@@ -16,6 +16,7 @@ import {
 
 export default function Footer() {
   const { t } = useTranslation();
+  const newsletterInputId = 'footer-newsletter-email';
   const navLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
     label: t(`navigation_main_${link.key}`),
@@ -52,9 +53,17 @@ export default function Footer() {
             <form
               onSubmit={(e) => e.preventDefault()}
               className='flex w-full gap-3 lg:w-auto'>
+              <label
+                htmlFor={newsletterInputId}
+                className='sr-only'>
+                {t('footer_subscribeLabel')}
+              </label>
               <Input
+                id={newsletterInputId}
+                name='email'
                 type='email'
                 placeholder={t('footer_emailPlaceholder')}
+                autoComplete='email'
                 className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
               />
               <Button
@@ -96,8 +105,12 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
-            <h4 className='text-lg font-semibold'>{t('footer_navTitle')}</h4>
+          <nav aria-labelledby='footer-nav-title'>
+            <h4
+              id='footer-nav-title'
+              className='text-lg font-semibold'>
+              {t('footer_navTitle')}
+            </h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {navLinks.map((item) => (
                 <li key={item.key}>
@@ -109,10 +122,14 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h4 className='text-lg font-semibold'>{t('footer_servicesTitle')}</h4>
+          <nav aria-labelledby='footer-services-title'>
+            <h4
+              id='footer-services-title'
+              className='text-lg font-semibold'>
+              {t('footer_servicesTitle')}
+            </h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {serviceLinks.map((service) => (
                 <li key={service.key}>
@@ -124,16 +141,21 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           <div>
-            <h4 className='text-lg font-semibold'>{t('footer_contactsTitle')}</h4>
+            <h4 className='text-lg font-semibold'>
+              {t('footer_contactsTitle')}
+            </h4>
             <ul className='mt-4 space-y-3 text-sm'>
               {FOOTER_CONTACT_ITEMS.map((item) => {
-                const text = item.labelKey ? t(item.labelKey) : item.staticText ?? '';
-                const href = item.id === 'address'
-                  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`
-                  : item.href;
+                const text = item.labelKey
+                  ? t(item.labelKey)
+                  : item.staticText ?? '';
+                const href =
+                  item.id === 'address'
+                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`
+                    : item.href;
 
                 return (
                   <li

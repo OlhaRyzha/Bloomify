@@ -25,6 +25,7 @@ const DELIVERY_FEE = 150;
 
 export default function CartFeature() {
   const isHydrated = useHydrated();
+  const promoCodeInputId = 'cart-promo-code';
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -160,16 +161,17 @@ export default function CartFeature() {
           <Button
             variant='ghost'
             size='sm'
-            onClick={clearCart}>
+            onClick={clearCart}
+            aria-label={t('cart_clearCart')}>
             {t('cart_clearCart')}
           </Button>
         </div>
 
         {cartItems.map((item) => (
-          <div
+          <article
             key={item.id}
             className='flex flex-col gap-5 rounded-3xl bg-gradient-card p-5 shadow-card md:flex-row md:items-center'>
-            <div className='relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-muted md:h-28 md:w-28'>
+            <figure className='relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-muted md:h-28 md:w-28'>
               <Image
                 src={getCatalogItemImage(item)}
                 alt={item.name}
@@ -177,7 +179,7 @@ export default function CartFeature() {
                 sizes='(max-width: 768px) 100vw, 7rem'
                 className='object-cover'
               />
-            </div>
+            </figure>
 
             <div className='flex-1 space-y-2'>
               <span className='text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground'>
@@ -231,7 +233,7 @@ export default function CartFeature() {
                 <Trash2 className='h-4 w-4' />
               </Button>
             </div>
-          </div>
+          </article>
         ))}
 
         <div className='rounded-2xl bg-muted/50 px-6 py-4 text-sm text-muted-foreground'>
@@ -285,13 +287,18 @@ export default function CartFeature() {
         <form
           onSubmit={(event) => event.preventDefault()}
           className='rounded-3xl bg-muted/60 p-5'>
-          <div className='flex items-center gap-2 text-sm font-semibold text-primary'>
+          <label
+            htmlFor={promoCodeInputId}
+            className='flex items-center gap-2 text-sm font-semibold text-primary'>
             <TicketPercent className='h-4 w-4' />
             {t('cart_promo_title')}
-          </div>
+          </label>
           <div className='mt-4 flex flex-col gap-3 sm:flex-row'>
             <Input
+              id={promoCodeInputId}
+              name='promoCode'
               placeholder={t('cart_promo_placeholder')}
+              autoComplete='off'
               className='bg-background'
             />
             <Button
