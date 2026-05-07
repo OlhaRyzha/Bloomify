@@ -8,7 +8,6 @@ on:
       - "Makefile"
       - ".github/workflows/frontend-ci.yml"
   pull_request:
-    branches: [main, development]
     paths:
       - "frontend/**"
       - "Makefile"

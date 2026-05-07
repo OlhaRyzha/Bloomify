@@ -1,14 +1,15 @@
-'use client';
-
 import Link from 'next/link';
 import { ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from '@/hooks/use-translation';
+import { getServerTranslator } from '@/i18n/server';
 
-export default function NotFound() {
-  const { t } = useTranslation();
+export default async function NotFound() {
+  const { t } = await getServerTranslator();
+
   return (
-    <section className='relative overflow-hidden bg-gradient-hero pb-24 pt-28'>
+    <section
+      className='relative overflow-hidden bg-gradient-hero pb-24 pt-28'
+      aria-labelledby='not-found-title'>
       <div className='absolute inset-0 overflow-hidden'>
         <div className='absolute -left-10 top-24 h-72 w-72 rounded-full bg-blush/40 blur-3xl' />
         <div className='absolute -bottom-10 right-0 h-96 w-96 rounded-full bg-sage/30 blur-3xl' />
@@ -18,7 +19,11 @@ export default function NotFound() {
         <span className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
           {t('notFound_status')}
         </span>
-        <h1 className='font-display text-5xl font-bold md:text-6xl'>{t('notFound_title')}</h1>
+        <h1
+          id='not-found-title'
+          className='font-display text-5xl font-bold md:text-6xl'>
+          {t('notFound_title')}
+        </h1>
         <p className='mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg'>
           {t('notFound_description')}
         </p>
@@ -28,8 +33,8 @@ export default function NotFound() {
             asChild
             size='lg'>
             <Link href='/'>
-            <Home className='mr-2 h-5 w-5' />
-            {t('notFound_homeCta')}
+              <Home className='mr-2 h-5 w-5' />
+              {t('notFound_homeCta')}
             </Link>
           </Button>
           <Button
