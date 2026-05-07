@@ -7,6 +7,7 @@ import { withSkeleton } from '@/components/hoc/with-skeleton';
 import ProductFeature from '@/features/product/product';
 import ProductSkeleton from '@/features/product/product-skeleton';
 import { useGetProductById } from '@/hooks/tan-stack-query/products/use-products';
+import { useTranslation } from '@/hooks/use-translation';
 
 const ProductWithSkeleton = withSkeleton(ProductFeature, {
   skeleton: <ProductSkeleton />,
@@ -14,6 +15,7 @@ const ProductWithSkeleton = withSkeleton(ProductFeature, {
 
 export default function ProductDetailsClient() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation();
   const {
     data: product,
     isLoading,
@@ -31,16 +33,16 @@ export default function ProductDetailsClient() {
           <h1
             id='product-not-found-title'
             className='font-display text-3xl font-bold'>
-            Букет не знайдено
+            {t('product_notFoundTitle')}
           </h1>
           <p className='mt-3 max-w-xl text-sm text-muted-foreground'>
-            Спробуйте повернутися до каталогу та обрати іншу композицію.
+            {t('product_notFoundDescription')}
           </p>
           <Button
             asChild
             variant='ghost'
             className='mt-4'>
-            <Link href='/catalog'>До каталогу</Link>
+            <Link href='/catalog'>{t('product_backToCatalog')}</Link>
           </Button>
         </div>
       </section>
@@ -56,11 +58,11 @@ export default function ProductDetailsClient() {
           <Button
             asChild
             variant='ghost'>
-            <Link href='/catalog'>До каталогу</Link>
+            <Link href='/catalog'>{t('product_backToCatalog')}</Link>
           </Button>
           {product && (
             <p className='text-sm text-muted-foreground'>
-              Артикул: {product.id.padStart(3, '0')}
+              {t('product_article')}: {product.id.padStart(3, '0')}
             </p>
           )}
         </header>
