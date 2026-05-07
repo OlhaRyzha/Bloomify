@@ -71,20 +71,20 @@ export default function CatalogGrid({
         />
       )}
 
-        <PaginationContainer
-          items={itemsForRender}
-          pageSize={perPage}
-          page={page}
-          onPageChange={setPage}
-          hideControls={hideControls}
-          scrollToTopOnChange
-          showPageSizeControl={!hideControls}
-          pageSizeOptions={perPageOptions}
-          onPageSizeChange={updatePerPage}
-          showItemsCount={!hideControls}
-          itemsCount={filteredItems.length}
-          itemsCountPrefix={t('catalog_itemsCountPrefix')}
-          itemsCountSuffix={t('catalog_itemsCountSuffix')}
+      <PaginationContainer
+        items={itemsForRender}
+        pageSize={perPage}
+        page={page}
+        onPageChange={setPage}
+        hideControls={hideControls}
+        scrollToTopOnChange
+        showPageSizeControl={!hideControls}
+        pageSizeOptions={perPageOptions}
+        onPageSizeChange={updatePerPage}
+        showItemsCount={!hideControls}
+        itemsCount={filteredItems.length}
+        itemsCountPrefix={t('catalog_itemsCountPrefix')}
+        itemsCountSuffix={t('catalog_itemsCountSuffix')}
         renderPage={(pageItems) => (
           <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
             {pageItems.map((product) => (

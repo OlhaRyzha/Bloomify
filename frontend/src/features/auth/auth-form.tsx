@@ -99,8 +99,12 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
       className='w-full border border-border/70 bg-card/80 shadow-card backdrop-blur opacity-0 animate-scale-in'
       style={{ animationDelay: '0.1s' }}>
       <CardHeader className='pb-4'>
-        <CardTitle className='font-display text-3xl'>{t(`auth_form_${mode}_title`)}</CardTitle>
-        <CardDescription className='text-base'>{t(`auth_form_${mode}_subtitle`)}</CardDescription>
+        <CardTitle className='font-display text-3xl'>
+          {t(`auth_form_${mode}_title`)}
+        </CardTitle>
+        <CardDescription className='text-base'>
+          {t(`auth_form_${mode}_subtitle`)}
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -124,14 +128,17 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 variant='outline'
                 className='h-11 w-full justify-center gap-3 border-border/80 bg-background/60'>
                 <span className='flex h-8 w-8 items-center justify-center rounded-full bg-muted'>
-                  <Chrome className='h-4 w-4 text-primary' />
+                  <Chrome
+                    className='h-4 w-4 text-primary'
+                    aria-hidden
+                  />
                 </span>
                 {t(`auth_form_${mode}_googleLabel`)}
               </Button>
 
               <div className='flex items-center gap-3 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
                 <Separator className='flex-1' />
-                або
+                {t('auth_form_or')}
                 <Separator className='flex-1' />
               </div>
 
@@ -141,6 +148,8 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                     ? String(errors[field.name])
                     : undefined;
                 const isInvalid = Boolean(errorMessage);
+                const helperId = `${field.name}-helper`;
+                const errorId = `${field.name}-error`;
                 const Icon = field.icon;
 
                 return (
@@ -154,7 +163,10 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                     </label>
                     <div className='relative'>
                       <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'>
-                        <Icon className='h-4 w-4' />
+                        <Icon
+                          className='h-4 w-4'
+                          aria-hidden
+                        />
                       </span>
                       <Input
                         id={field.name}
@@ -167,19 +179,25 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                         onBlur={handleBlur}
                         aria-invalid={isInvalid}
                         aria-describedby={
-                          isInvalid ? `${field.name}-error` : undefined
+                          isInvalid
+                            ? errorId
+                            : field.helper
+                              ? helperId
+                              : undefined
                         }
-                        className='h-11 bg-background/70 pl-10 mt-0.5'
+                        className='mt-0.5 h-11 bg-background/70 pl-10'
                       />
                     </div>
                     {field.helper && !isInvalid && (
-                      <p className='text-xs text-muted-foreground'>
+                      <p
+                        id={helperId}
+                        className='text-xs text-muted-foreground'>
                         {field.helper}
                       </p>
                     )}
                     {isInvalid && (
                       <p
-                        id={`${field.name}-error`}
+                        id={errorId}
                         className='text-xs font-medium text-destructive'>
                         {errorMessage}
                       </p>
@@ -198,13 +216,13 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
 
               {mode === 'register' && (
                 <p className='text-xs text-muted-foreground'>
-                  {t('auth_form_terms_text')}
+                  {t('auth_form_terms_text')}{' '}
                   <Link
                     href='/terms'
                     className='text-primary underline-offset-4 hover:underline'>
                     {t('auth_form_terms_termsLabel')}
-                  </Link>
-                  та
+                  </Link>{' '}
+                  {t('auth_form_terms_and')}{' '}
                   <Link
                     href='/privacy'
                     className='text-primary underline-offset-4 hover:underline'>

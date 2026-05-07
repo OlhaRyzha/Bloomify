@@ -29,8 +29,12 @@ export default function FavoritesFeature() {
 
   if (favoriteItems.length === 0 && !isLoading) {
     return (
-      <div className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
-        <h2 className='font-display mb-3 text-2xl font-bold'>
+      <section
+        className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'
+        aria-labelledby='favorites-empty-title'>
+        <h2
+          id='favorites-empty-title'
+          className='font-display mb-3 text-2xl font-bold'>
           {t('sections_favorites_emptyTitle')}
         </h2>
         <p className='mb-6 text-sm text-muted-foreground'>
@@ -41,7 +45,7 @@ export default function FavoritesFeature() {
           size='lg'>
           <Link href='/catalog'>{t('sections_favorites_emptyCta')}</Link>
         </Button>
-      </div>
+      </section>
     );
   }
 

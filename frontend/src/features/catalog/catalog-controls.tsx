@@ -32,43 +32,92 @@ export function CatalogControls({
   availableTags,
 }: CatalogControlsProps) {
   const { t } = useTranslation();
+  const searchInputId = 'catalog-search';
+  const sortSelectId = 'catalog-sort';
+  const tagSelectId = 'catalog-tag-filter';
+
   return (
-    <div className='mb-2 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-card px-5 py-4 shadow-card'>
-      <Input
-        type='search'
-        placeholder={t('controls_searchPlaceholder')}
-        className='h-10 w-52'
-        prefix={<Search className='h-4 w-4 text-muted-foreground' />}
-        value={searchInput}
-        onChange={(e) => onSearchChange(e.target.value)}
-      />
+    <section
+      className='mb-2 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-card px-5 py-4 shadow-card'
+      aria-label={t('controls_label')}>
+      <div>
+        <label
+          htmlFor={searchInputId}
+          className='sr-only'>
+          {t('controls_searchLabel')}
+        </label>
+        <Input
+          id={searchInputId}
+          name='catalogSearch'
+          type='search'
+          placeholder={t('controls_searchPlaceholder')}
+          className='h-10 w-52'
+          prefix={
+            <Search
+              className='h-4 w-4 text-muted-foreground'
+              aria-hidden
+            />
+          }
+          value={searchInput}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+      </div>
+
       <div className='flex items-center gap-2'>
         <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
-            <ArrowUpDown className='h-4 w-4 text-muted-foreground' />
-            <span className='text-muted-foreground'>{t('controls_sortLabel')}</span>
-            <Select
-              value={sort}
-              onValueChange={(value) => onSortChange(value as SortOption)}>
-                <SelectTrigger className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-                  <SelectValue placeholder={t('controls_sortLabel')} />
-                </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='default'>{t('controls_sortOptions_default')}</SelectItem>
-                <SelectItem value='price-asc'>{t('controls_sortOptions_priceAsc')}</SelectItem>
-                <SelectItem value='price-desc'>{t('controls_sortOptions_priceDesc')}</SelectItem>
-                <SelectItem value='name-asc'>{t('controls_sortOptions_nameAsc')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <ArrowUpDown
+            className='h-4 w-4 text-muted-foreground'
+            aria-hidden
+          />
+          <span
+            id={`${sortSelectId}-label`}
+            className='text-muted-foreground'>
+            {t('controls_sortLabel')}
+          </span>
+          <Select
+            value={sort}
+            onValueChange={(value) => onSortChange(value as SortOption)}>
+            <SelectTrigger
+              id={sortSelectId}
+              aria-labelledby={`${sortSelectId}-label`}
+              className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
+              <SelectValue placeholder={t('controls_sortLabel')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='default'>
+                {t('controls_sortOptions_default')}
+              </SelectItem>
+              <SelectItem value='price-asc'>
+                {t('controls_sortOptions_priceAsc')}
+              </SelectItem>
+              <SelectItem value='price-desc'>
+                {t('controls_sortOptions_priceDesc')}
+              </SelectItem>
+              <SelectItem value='name-asc'>
+                {t('controls_sortOptions_nameAsc')}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         {availableTags.length > 0 && (
-          <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3  text-sm font-medium text-foreground shadow-sm'>
-            <SlidersHorizontal className='h-4 w-4 text-muted-foreground' />
-            <span className='text-muted-foreground'>{t('controls_tagLabel')}</span>
+          <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
+            <SlidersHorizontal
+              className='h-4 w-4 text-muted-foreground'
+              aria-hidden
+            />
+            <span
+              id={`${tagSelectId}-label`}
+              className='text-muted-foreground'>
+              {t('controls_tagLabel')}
+            </span>
             <Select
               value={tagFilter}
               onValueChange={onTagFilterChange}>
-              <SelectTrigger className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
+              <SelectTrigger
+                id={tagSelectId}
+                aria-labelledby={`${tagSelectId}-label`}
+                className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
                 <SelectValue placeholder={t('controls_tagPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -85,6 +134,6 @@ export function CatalogControls({
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

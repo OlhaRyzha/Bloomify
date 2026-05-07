@@ -66,6 +66,7 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
               'h-5 w-5 transition-colors',
               isFavoriteActive ? 'fill-primary text-primary' : 'text-foreground'
             )}
+            aria-hidden
           />
         </button>
       </div>
