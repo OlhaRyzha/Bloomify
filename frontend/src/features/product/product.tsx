@@ -1,19 +1,25 @@
-'use client';
-
 import Image from 'next/image';
 import AddToCartButton from '@/components/ui/add-to-cart-button';
 import InfoCard from '@/components/ui/info-card';
 import type { CatalogItem } from '@/types/catalog';
 import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
-import { useTranslation } from '@/hooks/use-translation';
+
+export type ProductFeatureCopy = {
+  actionsLabel: string;
+  compositionDescription: string;
+  compositionTitle: string;
+  deliveryDescription: string;
+  deliveryTitle: string;
+  infoLabel: string;
+};
 
 type ProductFeatureProps = {
+  copy: ProductFeatureCopy;
   product: CatalogItem;
 };
 
-export default function ProductFeature({ product }: ProductFeatureProps) {
+export default function ProductFeature({ copy, product }: ProductFeatureProps) {
   const imageSrc = getCatalogItemImage(product);
-  const { t } = useTranslation();
 
   return (
     <article className='grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start'>
@@ -46,23 +52,24 @@ export default function ProductFeature({ product }: ProductFeatureProps) {
 
         <section
           className='flex flex-wrap items-center gap-4'
-          aria-label={t('product_actionsLabel')}>
+          aria-label={copy.actionsLabel}>
           <p className='font-display text-3xl font-bold text-primary'>
             {product.price} ₴
           </p>
           <AddToCartButton
             size='lg'
             itemId={product.id}
+            itemName={product.name}
           />
         </section>
 
-        <section aria-label={t('product_infoLabel')}>
+        <section aria-label={copy.infoLabel}>
           <div className='grid gap-4 md:grid-cols-2'>
-            <InfoCard title={t('product_infoCards_delivery_title')}>
-              {t('product_infoCards_delivery_description')}
+            <InfoCard title={copy.deliveryTitle}>
+              {copy.deliveryDescription}
             </InfoCard>
-            <InfoCard title={t('product_infoCards_composition_title')}>
-              {t('product_infoCards_composition_description')}
+            <InfoCard title={copy.compositionTitle}>
+              {copy.compositionDescription}
             </InfoCard>
           </div>
         </section>

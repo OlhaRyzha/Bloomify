@@ -44,13 +44,13 @@ export function CatalogControls({
         <label
           htmlFor={searchInputId}
           className='sr-only'>
-          {t('controls_searchLabel')}
+          {t('controls_search_label')}
         </label>
         <Input
           id={searchInputId}
           name='catalogSearch'
           type='search'
-          placeholder={t('controls_searchPlaceholder')}
+          placeholder={t('controls_search_placeholder')}
           className='h-10 w-52'
           prefix={
             <Search
@@ -72,7 +72,7 @@ export function CatalogControls({
           <span
             id={`${sortSelectId}-label`}
             className='text-muted-foreground'>
-            {t('controls_sortLabel')}
+            {t('controls_sort_label')}
           </span>
           <Select
             value={sort}
@@ -81,20 +81,20 @@ export function CatalogControls({
               id={sortSelectId}
               aria-labelledby={`${sortSelectId}-label`}
               className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-              <SelectValue placeholder={t('controls_sortLabel')} />
+              <SelectValue placeholder={t('controls_sort_label')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='default'>
-                {t('controls_sortOptions_default')}
+                {t('controls_sort_options_default')}
               </SelectItem>
               <SelectItem value='price-asc'>
-                {t('controls_sortOptions_priceAsc')}
+                {t('controls_sort_options_price_asc')}
               </SelectItem>
               <SelectItem value='price-desc'>
-                {t('controls_sortOptions_priceDesc')}
+                {t('controls_sort_options_price_desc')}
               </SelectItem>
               <SelectItem value='name-asc'>
-                {t('controls_sortOptions_nameAsc')}
+                {t('controls_sort_options_name_asc')}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -109,7 +109,7 @@ export function CatalogControls({
             <span
               id={`${tagSelectId}-label`}
               className='text-muted-foreground'>
-              {t('controls_tagLabel')}
+              {t('controls_tag_label')}
             </span>
             <Select
               value={tagFilter}
@@ -118,10 +118,10 @@ export function CatalogControls({
                 id={tagSelectId}
                 aria-labelledby={`${tagSelectId}-label`}
                 className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-                <SelectValue placeholder={t('controls_tagPlaceholder')} />
+                <SelectValue placeholder={t('controls_tag_placeholder')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>{t('controls_tagAll')}</SelectItem>
+                <SelectItem value='all'>{t('controls_tag_all')}</SelectItem>
                 {availableTags.map((tag) => (
                   <SelectItem
                     key={tag}

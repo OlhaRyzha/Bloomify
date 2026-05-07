@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import AuthForm from '@/features/auth/auth-form';
+import AuthForm from '@/features/auth/forms/auth-form';
 import AuthShell from '@/features/auth/auth-shell';
 
 export const metadata: Metadata = {

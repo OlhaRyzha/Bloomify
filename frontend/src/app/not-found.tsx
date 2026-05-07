@@ -17,15 +17,15 @@ export default async function NotFound() {
 
       <div className='relative mx-auto max-w-4xl px-4 text-center'>
         <span className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
-          {t('notFound_status')}
+          {t('not_found_status')}
         </span>
         <h1
           id='not-found-title'
           className='font-display text-5xl font-bold md:text-6xl'>
-          {t('notFound_title')}
+          {t('not_found_title')}
         </h1>
         <p className='mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg'>
-          {t('notFound_description')}
+          {t('not_found_description')}
         </p>
 
         <div className='mt-8 flex flex-col justify-center gap-3 sm:flex-row'>
@@ -34,7 +34,7 @@ export default async function NotFound() {
             size='lg'>
             <Link href='/'>
               <Home className='mr-2 h-5 w-5' />
-              {t('notFound_homeCta')}
+              {t('not_found_home_cta')}
             </Link>
           </Button>
           <Button
@@ -42,7 +42,7 @@ export default async function NotFound() {
             size='lg'
             variant='secondary'>
             <Link href='/catalog'>
-              {t('notFound_catalogCta')}
+              {t('not_found_catalog_cta')}
               <ArrowRight className='ml-2 h-5 w-5' />
             </Link>
           </Button>

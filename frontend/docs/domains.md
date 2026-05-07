@@ -20,7 +20,7 @@ Rules:
 
 - Catalog list UI may be client-side when it needs search, filters, pagination, URL sync, favorites, or cart actions.
 - Keep query-param parsing and URL sync inside catalog-owned files.
-- Product data fetching hooks stay in `src/hooks/tan-stack-query/products` until a stronger feature-local API boundary is introduced.
+- Product API services, query keys, and query hooks live in `src/features/catalog/api`.
 - Catalog card can be client-side because favorite toggles and cart actions are interactive.
 
 ### Product Details

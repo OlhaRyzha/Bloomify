@@ -1,11 +1,4 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useTranslation } from '@/hooks/use-translation';
 import { formatTemplate } from '@/utils/i18n';
 import {
   FOOTER_CONTACT_ITEMS,
@@ -13,9 +6,11 @@ import {
   SERVICE_LINKS,
   footerSocialLinks,
 } from '@/constants/navigation.constants';
+import { getServerTranslator } from '@/i18n/server';
+import FooterNewsletterForm from '@/components/layout/forms/footer-newsletter-form.client';
 
-export default function Footer() {
-  const { t } = useTranslation();
+export default async function Footer() {
+  const { t } = await getServerTranslator();
   const newsletterInputId = 'footer-newsletter-email';
   const navLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
@@ -35,46 +30,25 @@ export default function Footer() {
       className='bg-primary text-primary-foreground'>
       <div className='border-b border-primary-foreground/10'>
         <div className='mx-auto max-w-6xl px-4 py-12'>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
+          <div className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
             <div>
               <h3 className='text-2xl font-bold md:text-3xl'>
-                {t('footer_newsletterTitle')}
+                {t('footer_newsletter_title')}
               </h3>
               <p className='mt-2 text-primary-foreground/80'>
-                {t('footer_newsletterDescription')}
+                {t('footer_newsletter_description')}
               </p>
             </div>
 
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className='flex w-full gap-3 lg:w-auto'>
-              <label
-                htmlFor={newsletterInputId}
-                className='sr-only'>
-                {t('footer_subscribeLabel')}
-              </label>
-              <Input
-                id={newsletterInputId}
-                name='email'
-                type='email'
-                placeholder={t('footer_emailPlaceholder')}
-                autoComplete='email'
-                className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
-              />
-              <Button
-                className='h-10 px-6 py-2 bg-gold'
-                type='submit'
-                size='icon'
-                aria-label={t('footer_subscribeLabel')}>
-                <Send className='h-4 w-4' />
-              </Button>
-            </form>
-          </motion.div>
+            <FooterNewsletterForm
+              inputId={newsletterInputId}
+              label={t('footer_subscribe_label')}
+              loadingLabel={t('footer_subscribe_loading_label')}
+              placeholder={t('footer_email_placeholder')}
+              successMessage={t('footer_subscribe_success')}
+              errorMessage={t('footer_subscribe_error')}
+            />
+          </div>
         </div>
       </div>
 
@@ -99,7 +73,10 @@ export default function Footer() {
                   rel='noreferrer'
                   className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20'
                   aria-label={item.label}>
-                  <item.icon className='h-5 w-5' />
+                  <item.icon
+                    className='h-5 w-5'
+                    aria-hidden
+                  />
                 </a>
               ))}
             </div>
@@ -109,7 +86,7 @@ export default function Footer() {
             <h4
               id='footer-nav-title'
               className='text-lg font-semibold'>
-              {t('footer_navTitle')}
+              {t('footer_nav_title')}
             </h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {navLinks.map((item) => (
@@ -128,7 +105,7 @@ export default function Footer() {
             <h4
               id='footer-services-title'
               className='text-lg font-semibold'>
-              {t('footer_servicesTitle')}
+              {t('footer_services_title')}
             </h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {serviceLinks.map((service) => (
@@ -145,7 +122,7 @@ export default function Footer() {
 
           <div>
             <h4 className='text-lg font-semibold'>
-              {t('footer_contactsTitle')}
+              {t('footer_contacts_title')}
             </h4>
             <ul className='mt-4 space-y-3 text-sm'>
               {FOOTER_CONTACT_ITEMS.map((item) => {

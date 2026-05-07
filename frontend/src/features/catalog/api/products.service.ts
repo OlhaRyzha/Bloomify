@@ -1,12 +1,12 @@
-import apiClient from '../clients/api-client';
+import { API_ROUTES } from '@/constants/api.constant';
+import type { Locale } from '@/locales/translations';
+import apiClient from '@/services/api/clients/api-client';
 import {
   catalogItemSchema,
   catalogSchema,
   type ProductItem,
   type Products,
 } from '@/schemas/products.shemas';
-import { API_ROUTES } from '@/constants/api.constant';
-import type { Locale } from '@/locales/translations';
 import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
 
 type ProductsRequestParams = {

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-type FavoritesState = {
+export type FavoritesState = {
   ids: string[];
   toggleFavorite: (id: string) => void;
   isFavorite: (id: string) => boolean;

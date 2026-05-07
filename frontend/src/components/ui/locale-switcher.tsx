@@ -1,6 +1,7 @@
 'use client';
 
 import { Globe } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Select,
@@ -24,9 +25,11 @@ type LocaleSwitcherProps = {
 };
 
 export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
+  const router = useRouter();
   const { locale, setLocale } = useLocale();
   const { t } = useTranslation();
-  const [enabledLocales, setEnabledLocales] = useState<Locale[]>(supportedLocales);
+  const [enabledLocales, setEnabledLocales] =
+    useState<Locale[]>(supportedLocales);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,7 +37,13 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
     fetch(`${BASE_URL}/site/languages`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (cancelled || !data?.enabledLocales || !Array.isArray(data.enabledLocales)) return;
+        if (
+          cancelled ||
+          !data?.enabledLocales ||
+          !Array.isArray(data.enabledLocales)
+        ) {
+          return;
+        }
 
         const locales = data.enabledLocales.filter((loc: string) =>
           supportedLocales.includes(loc as Locale)
@@ -63,20 +72,27 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
     }
   }, [currentLocale, locale, setLocale]);
 
+  const handleLocaleChange = (value: string) => {
+    setLocale(value as Locale);
+    router.refresh();
+  };
+
   return (
     <div className={cn('inline-flex', className)}>
-      <span className='sr-only'>{t('locale_switcherLabel')}</span>
+      <span className='sr-only'>{t('locale_switcher_label')}</span>
 
       <Select
         value={currentLocale}
-        onValueChange={(value) => setLocale(value as Locale)}>
+        onValueChange={handleLocaleChange}>
         <SelectTrigger
           size='sm'
           className='h-9 rounded-full border-border/70 bg-card px-3 text-xs font-semibold text-foreground shadow-soft hover:bg-muted/60'
-          aria-label={t('locale_switcherAria')}>
+          aria-label={t('locale_switcher_aria')}>
           <div className='flex items-center gap-2'>
             <Globe className='h-3.5 w-3.5 text-primary' />
-            <span className='tracking-[0.08em]'>{localeShortLabels[currentLocale]}</span>
+            <span className='tracking-[0.08em]'>
+              {localeShortLabels[currentLocale]}
+            </span>
           </div>
         </SelectTrigger>
 

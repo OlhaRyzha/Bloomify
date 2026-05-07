@@ -24,9 +24,10 @@ make frontend-build
 - App routes live in `src/app`.
 - Shared UI lives in `src/components`.
 - Feature code lives in `src/features`.
-- API access lives in `src/services/api`.
-- TanStack Query hooks live in `src/hooks/tan-stack-query`.
-- Client state stores stay close to the owning feature.
+- Feature API code lives in the owning feature, for example `src/features/catalog/api`.
+- Shared API infrastructure lives in `src/services/api`.
+- TanStack Query hooks live next to the owning feature API.
+- Client state stores stay close to the owning feature in `store/` folders.
 
 Server Components are the default. Add `"use client"` only when a component needs browser APIs, React client hooks, client stores, TanStack Query hooks, event handlers, or runtime animation.
 

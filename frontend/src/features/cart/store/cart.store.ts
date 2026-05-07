@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-type CartItem = {
+export type CartItem = {
   id: string;
   quantity: number;
 };
 
-type CartState = {
+export type CartState = {
   items: CartItem[];
   addItem: (id: string) => void;
   removeItem: (id: string) => void;

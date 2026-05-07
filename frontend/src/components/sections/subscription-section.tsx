@@ -1,20 +1,23 @@
-'use client';
-
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Check, Crown, Sparkles, Gift } from 'lucide-react';
+import {
+  Check,
+  Crown,
+  Sparkles,
+  Gift,
+  type LucideIcon,
+} from 'lucide-react';
 import subscriptionImage from '@/assets/subscription-box.jpg';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
-import { useTranslation } from '@/hooks/use-translation';
 import { formatTemplate } from '@/utils/i18n';
+import { getServerTranslator } from '@/i18n/server';
 
 type Plan = {
   name: string;
   price: number;
   period: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   description: string;
   features: string[];
   popular: boolean;
@@ -23,7 +26,7 @@ type Plan = {
 const planConfig: Array<{
   key: 'base' | 'premium' | 'luxe';
   price: number;
-  icon: React.ElementType;
+  icon: LucideIcon;
   popular: boolean;
 }> = [
   { key: 'base', price: 999, icon: Gift, popular: false },
@@ -31,8 +34,8 @@ const planConfig: Array<{
   { key: 'luxe', price: 2999, icon: Crown, popular: false },
 ];
 
-export default function SubscriptionSection() {
-  const { t } = useTranslation();
+export default async function SubscriptionSection() {
+  const { t } = await getServerTranslator();
   const plans: Plan[] = planConfig.map((config) => {
     const base = `plan_${config.key}`;
     return {
@@ -49,46 +52,31 @@ export default function SubscriptionSection() {
     <section
       id='subscription'
       className='bg-gradient-hero py-24'>
-        <div className='mx-auto max-w-6xl px-4'>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className='mb-16 text-center'>
-            <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-              {t('sections_subscription_label')}
-            </span>
-            <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-              {t('sections_subscription_title')}
-            </h2>
-            <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
-              {t('sections_subscription_description')}
-            </p>
-          </motion.div>
+      <div className='mx-auto max-w-6xl px-4'>
+        <header className='mb-16 text-center'>
+          <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
+            {t('sections_subscription_label')}
+          </span>
+          <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
+            {t('sections_subscription_title')}
+          </h2>
+          <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
+            {t('sections_subscription_description')}
+          </p>
+        </header>
 
         <div className='grid items-center gap-12 lg:grid-cols-2'>
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className='relative order-2 lg:order-1'>
+          <div className='relative order-2 lg:order-1'>
             <div className='absolute inset-0 rounded-3xl bg-gradient-to-br from-sage/30 to-blush/30 blur-2xl' />
             <Image
               src={subscriptionImage}
-              alt='Квіткова підписка Bloomify'
+              alt={t('sections_subscription_image_alt')}
               className='relative mx-auto w-full max-w-md rounded-3xl shadow-elevated'
               priority={false}
             />
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className='order-1 space-y-4 lg:order-2'>
+          <div className='order-1 space-y-4 lg:order-2'>
             {plans.map((plan) => (
               <Card
                 key={plan.name}
@@ -100,7 +88,7 @@ export default function SubscriptionSection() {
                 )}>
                 {plan.popular && (
                   <div className='absolute right-0 top-0 rounded-bl-xl bg-gold px-4 py-1 text-xs font-semibold text-forest'>
-                    {t('sections_subscription_popularBadge')}
+                    {t('sections_subscription_popular_badge')}
                   </div>
                 )}
 
@@ -121,6 +109,7 @@ export default function SubscriptionSection() {
                               ? 'text-primary-foreground'
                               : 'text-primary'
                           )}
+                          aria-hidden
                         />
                       </div>
 
@@ -180,7 +169,10 @@ export default function SubscriptionSection() {
                             ? 'bg-primary-foreground/20 text-primary-foreground'
                             : 'bg-muted text-muted-foreground'
                         )}>
-                        <Check className='h-3 w-3' />
+                        <Check
+                          className='h-3 w-3'
+                          aria-hidden
+                        />
                         {feature}
                       </span>
                     ))}
@@ -193,7 +185,7 @@ export default function SubscriptionSection() {
                             ? 'text-primary-foreground/80'
                             : 'text-muted-foreground'
                         )}>
-                        {formatTemplate(t('sections_subscription_moreLabel'), {
+                        {formatTemplate(t('sections_subscription_more_label'), {
                           count: plan.features.length - 3,
                         })}
                       </span>
@@ -211,7 +203,7 @@ export default function SubscriptionSection() {
                 </CardContent>
               </Card>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

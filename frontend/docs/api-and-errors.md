@@ -42,7 +42,7 @@ public async get<TResponse>(
 
 ## Service Layer
 
-Service files live in `src/services/api`.
+Feature service files live in the owning feature API folder, for example `src/features/catalog/api/products.service.ts`. Shared HTTP infrastructure stays in `src/services/api`.
 
 Rules:
 
@@ -68,7 +68,7 @@ const ProductsService = {
 
 ## Schemas
 
-Response schemas live in `src/schemas`.
+Response schemas can live in `src/schemas` when they are shared across multiple domains. Feature-specific form schemas should live next to the owning form in `forms/`.
 
 Rules:
 
@@ -76,6 +76,17 @@ Rules:
 - Schema names should match domain language.
 - Export inferred types from schemas.
 - Keep schema validation at the API boundary, not inside render components.
+
+## Runtime Guards
+
+Before writing a new inline runtime/type check, first look in `src/utils/guards`.
+
+Rules:
+
+- Reuse existing guards such as `isString`, `isBoolean`, `isObject`, or `isNonEmptyArray`.
+- Add a shared guard when the check is reusable across files.
+- Keep one-off inline checks only when they are truly local and unlikely to repeat.
+- Avoid duplicating expressions like `typeof value === 'string'` in multiple components or helpers.
 
 ## ApiError
 

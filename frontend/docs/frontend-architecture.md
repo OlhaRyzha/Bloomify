@@ -34,6 +34,21 @@ Use Client Components for:
 
 Keep `"use client"` as low in the tree as possible. A Server Component can render a Client Component, but a Client Component pulls everything it imports into the client bundle.
 
+## Runtime Animation
+
+Use `MotionDiv` from `src/components/ui/motion-div.tsx` for animated `div` elements. It centralizes the SSR-safe `initial` behavior and avoids repeating direct `motion.div` setup in sections and features.
+
+Direct `framer-motion` imports are acceptable when the element is not a `div`, or when the component needs APIs such as `AnimatePresence`.
+
+## React Performance
+
+Add memoization only when there is a clear need.
+
+- Use `useMemo` for expensive derived values or stable references required by dependencies.
+- Use `useCallback` when referential stability matters for a child, effect, subscription, or library API.
+- Use `memo` only when a component has a proven re-render problem or expensive render path.
+- Do not add memoization by default for simple values, small maps, or trivial handlers.
+
 ## TanStack Query Hydration Pattern
 
 For detail pages, prefetch route data in the Server Component and hydrate it into the Client Component.
@@ -41,10 +56,10 @@ For detail pages, prefetch route data in the Server Component and hydrate it int
 ```tsx
 // app/catalog/[id]/page.tsx
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
-import ProductDetailsClient from './ProductDetails.client';
-import { productsQueryKeys } from '@/constants/query-keys.constants';
+import ProductDetailsClient from './product-details.client';
+import ProductsService from '@/features/catalog/api/products.service';
+import { productsQueryKeys } from '@/features/catalog/api/query-keys';
 import { getServerTranslator } from '@/i18n/server';
-import ProductsService from '@/services/api/products/products';
 import { createQueryClient } from '@/services/queryClient';
 
 type PageProps = {
@@ -72,11 +87,11 @@ export default async function CatalogItemPage({ params }: PageProps) {
 The Client Component should use the same `queryKey` as the server prefetch. Use `refetchOnMount: false` when the server already hydrated fresh data for that route.
 
 ```tsx
-// app/catalog/[id]/ProductDetails.client.tsx
+// app/catalog/[id]/product-details.client.tsx
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useGetProductById } from '@/hooks/tan-stack-query/products/use-products';
+import { useGetProductById } from '@/features/catalog/api/use-products';
 
 export default function ProductDetailsClient() {
   const { id } = useParams<{ id: string }>();
@@ -104,7 +119,7 @@ Avoid creating proxy-only files by default.
 - Do not create a folder only to hold a single component plus an `index.ts` proxy.
 - Prefer direct imports from the owning file, such as `@/features/catalog/catalog-grid`, when that makes ownership clear.
 - Use a barrel file only when the folder intentionally owns a stable public API used by many consumers.
-- Keep route-level Client Components next to their Server Component route, for example `page.tsx` plus `ProductDetails.client.tsx`.
+- Keep route-level Client Components next to their Server Component route, for example `page.tsx` plus `product-details.client.tsx`.
 
 Good reasons for a frontend barrel file:
 
