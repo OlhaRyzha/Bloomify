@@ -29,6 +29,7 @@
   "sections_subscription_label": "Subscription",
   "sections_subscription_title": "Flowers every month",
   "sections_subscription_description": "Subscribe and receive fresh bouquets delivered to your door. Brighten your routine with seasonal arrangements.",
+  "sections_subscription_imageAlt": "Bloomify flower subscription box",
   "sections_subscription_popularBadge": "Popular",
   "sections_subscription_cta": "Start subscription",
   "sections_subscription_moreLabel": "+{{count}} more",

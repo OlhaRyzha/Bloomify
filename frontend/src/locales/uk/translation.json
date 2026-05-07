@@ -29,6 +29,7 @@
   "sections_subscription_label": "Підписка",
   "sections_subscription_title": "Квіти щомісяця",
   "sections_subscription_description": "Оформіть підписку та отримуйте свіжі букети прямо до дверей. Зробіть своє життя яскравішим!",
+  "sections_subscription_imageAlt": "Квіткова підписка Bloomify",
   "sections_subscription_popularBadge": "Популярний",
   "sections_subscription_cta": "Оформити підписку",
   "sections_subscription_moreLabel": "+{{count}} ще",

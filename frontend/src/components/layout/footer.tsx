@@ -1,11 +1,4 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useTranslation } from '@/hooks/use-translation';
 import { formatTemplate } from '@/utils/i18n';
 import {
   FOOTER_CONTACT_ITEMS,
@@ -13,9 +6,12 @@ import {
   SERVICE_LINKS,
   footerSocialLinks,
 } from '@/constants/navigation.constants';
+import { MotionDiv } from '@/components/ui/motion-div';
+import { getServerTranslator } from '@/i18n/server';
+import FooterNewsletterForm from '@/components/layout/footer-newsletter-form.client';
 
-export default function Footer() {
-  const { t } = useTranslation();
+export default async function Footer() {
+  const { t } = await getServerTranslator();
   const newsletterInputId = 'footer-newsletter-email';
   const navLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
@@ -35,7 +31,7 @@ export default function Footer() {
       className='bg-primary text-primary-foreground'>
       <div className='border-b border-primary-foreground/10'>
         <div className='mx-auto max-w-6xl px-4 py-12'>
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -50,31 +46,12 @@ export default function Footer() {
               </p>
             </div>
 
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className='flex w-full gap-3 lg:w-auto'>
-              <label
-                htmlFor={newsletterInputId}
-                className='sr-only'>
-                {t('footer_subscribeLabel')}
-              </label>
-              <Input
-                id={newsletterInputId}
-                name='email'
-                type='email'
-                placeholder={t('footer_emailPlaceholder')}
-                autoComplete='email'
-                className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
-              />
-              <Button
-                className='h-10 px-6 py-2 bg-gold'
-                type='submit'
-                size='icon'
-                aria-label={t('footer_subscribeLabel')}>
-                <Send className='h-4 w-4' />
-              </Button>
-            </form>
-          </motion.div>
+            <FooterNewsletterForm
+              inputId={newsletterInputId}
+              label={t('footer_subscribeLabel')}
+              placeholder={t('footer_emailPlaceholder')}
+            />
+          </MotionDiv>
         </div>
       </div>
 
@@ -99,7 +76,10 @@ export default function Footer() {
                   rel='noreferrer'
                   className='flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20'
                   aria-label={item.label}>
-                  <item.icon className='h-5 w-5' />
+                  <item.icon
+                    className='h-5 w-5'
+                    aria-hidden
+                  />
                 </a>
               ))}
             </div>

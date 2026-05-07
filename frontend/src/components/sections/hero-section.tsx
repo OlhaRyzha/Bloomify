@@ -1,24 +1,20 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import heroImage from '@/assets/hero-flowers.jpg';
 import { Button } from '../ui/button';
 import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { formatCurrency, formatTemplate } from '@/utils/i18n';
-import { useLocale } from '@/components/providers/locale-provider';
-import { useTranslation } from '@/hooks/use-translation';
+import { getServerTranslator } from '@/i18n/server';
+import { MotionDiv } from '@/components/ui/motion-div';
 
-export default function HeroSection() {
-  const { t } = useTranslation();
+export default async function HeroSection() {
+  const { t, locale } = await getServerTranslator();
   const stats = [
     { value: '5000+', label: t('hero_stats_satisfiedCustomers') },
     { value: '50+', label: t('hero_stats_flowerVarieties') },
     { value: '24/7', label: t('hero_stats_support') },
   ];
-  const { locale } = useLocale();
   const freeDeliveryMessage = formatTemplate(t('delivery_freeDeliveryMessage'), {
     threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
   });
@@ -32,21 +28,24 @@ export default function HeroSection() {
 
       <div className='relative z-10 mx-auto w-full max-w-6xl p-4'>
         <div className='grid items-center gap-12 lg:grid-cols-2'>
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className='text-center lg:text-left'>
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 backdrop-blur-sm'>
-              <Sparkles className='h-4 w-4 text-yellow-600' />
+              <Sparkles
+                className='h-4 w-4 text-yellow-600'
+                aria-hidden
+              />
               <span className='text-sm font-medium text-secondary-foreground'>
                 {t('hero_badge')}
               </span>
-            </motion.div>
+            </MotionDiv>
 
             <h1 className='font-display mb-6 text-5xl font-bold leading-tight text-foreground md:text-6xl lg:text-7xl'>
               {t('hero_titleLine1')}
@@ -64,7 +63,10 @@ export default function HeroSection() {
                 size='lg'>
                 <Link href='/catalog'>
                   {t('hero_primaryCta')}
-                  <ArrowRight className='ml-2 h-5 w-5' />
+                  <ArrowRight
+                    className='ml-2 h-5 w-5'
+                    aria-hidden
+                  />
                 </Link>
               </Button>
 
@@ -76,7 +78,7 @@ export default function HeroSection() {
               </Button>
             </div>
 
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
@@ -91,10 +93,10 @@ export default function HeroSection() {
                   <p className='text-xs text-muted-foreground'>{stat.label}</p>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
 
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -110,21 +112,25 @@ export default function HeroSection() {
               />
             </div>
 
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
               className='absolute -bottom-6 right-4 lg:right-8'>
               <div className='rounded-full  bg-gradient-to-r from-blush/60 to-[#6b7760]/70 px-5 py-3 shadow-lg backdrop-blur-sm'>
                 <div className='flex items-center gap-2'>
-                  <span className='text-lg'>🚚</span>
+                  <span
+                    className='text-lg'
+                    aria-hidden>
+                    🚚
+                  </span>
                   <span className='text-sm font-semibold text-white'>
                     {freeDeliveryMessage}
                   </span>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         </div>
       </div>
     </section>

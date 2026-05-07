@@ -1,26 +1,29 @@
-'use client';
-
-import { motion } from 'framer-motion';
-import { Truck, Shield, Clock, Leaf } from 'lucide-react';
-import { ElementType } from 'react';
-import { useTranslation } from '@/hooks/use-translation';
+import {
+  Truck,
+  Shield,
+  Clock,
+  Leaf,
+  type LucideIcon,
+} from 'lucide-react';
+import { MotionDiv } from '@/components/ui/motion-div';
+import { getServerTranslator } from '@/i18n/server';
 
 type Feature = {
   key: string;
-  icon: ElementType;
+  icon: LucideIcon;
   title: string;
   description: string;
 };
 
-const featureConfig: Array<{ key: string; icon: ElementType }> = [
+const featureConfig: Array<{ key: string; icon: LucideIcon }> = [
   { key: 'feature_fast_delivery', icon: Truck },
   { key: 'feature_fresh_guarantee', icon: Shield },
   { key: 'feature_easy_ordering', icon: Clock },
   { key: 'feature_eco_friendly', icon: Leaf },
 ];
 
-export default function FeaturesSection() {
-  const { t } = useTranslation();
+export default async function FeaturesSection() {
+  const { t } = await getServerTranslator();
 
   const features: Feature[] = featureConfig.map((item) => ({
     key: item.key,
@@ -32,7 +35,7 @@ export default function FeaturesSection() {
   return (
     <section className='bg-muted/30 py-24'>
       <div className='mx-auto max-w-6xl px-4'>
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -44,7 +47,7 @@ export default function FeaturesSection() {
           <h2 className='font-display text-4xl font-bold md:text-5xl'>
             {t('sections_features_title')}
           </h2>
-        </motion.div>
+        </MotionDiv>
 
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-4'>
           {features.map((feature) => (
@@ -52,7 +55,10 @@ export default function FeaturesSection() {
               key={feature.key}
               className='group text-center'>
               <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-cta shadow-card transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-elevated'>
-                <feature.icon className='h-10 w-10 text-primary-foreground' />
+                <feature.icon
+                  className='h-10 w-10 text-primary-foreground'
+                  aria-hidden
+                />
               </div>
 
               <h3 className='font-display mb-3 text-xl font-semibold'>
