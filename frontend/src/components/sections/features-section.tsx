@@ -5,7 +5,6 @@ import {
   Leaf,
   type LucideIcon,
 } from 'lucide-react';
-import { MotionDiv } from '@/components/ui/motion-div';
 import { getServerTranslator } from '@/i18n/server';
 
 type Feature = {
@@ -35,19 +34,14 @@ export default async function FeaturesSection() {
   return (
     <section className='bg-muted/30 py-24'>
       <div className='mx-auto max-w-6xl px-4'>
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className='mb-16 text-center'>
+        <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
             {t('sections_features_label')}
           </span>
           <h2 className='font-display text-4xl font-bold md:text-5xl'>
             {t('sections_features_title')}
           </h2>
-        </MotionDiv>
+        </header>
 
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-4'>
           {features.map((feature) => (

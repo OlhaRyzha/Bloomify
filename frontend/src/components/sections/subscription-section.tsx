@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { formatTemplate } from '@/utils/i18n';
-import { MotionDiv } from '@/components/ui/motion-div';
 import { getServerTranslator } from '@/i18n/server';
 
 type Plan = {
@@ -54,12 +53,7 @@ export default async function SubscriptionSection() {
       id='subscription'
       className='bg-gradient-hero py-24'>
       <div className='mx-auto max-w-6xl px-4'>
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className='mb-16 text-center'>
+        <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
             {t('sections_subscription_label')}
           </span>
@@ -69,30 +63,20 @@ export default async function SubscriptionSection() {
           <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
             {t('sections_subscription_description')}
           </p>
-        </MotionDiv>
+        </header>
 
         <div className='grid items-center gap-12 lg:grid-cols-2'>
-          <MotionDiv
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className='relative order-2 lg:order-1'>
+          <div className='relative order-2 lg:order-1'>
             <div className='absolute inset-0 rounded-3xl bg-gradient-to-br from-sage/30 to-blush/30 blur-2xl' />
             <Image
               src={subscriptionImage}
-              alt={t('sections_subscription_imageAlt')}
+              alt={t('sections_subscription_image_alt')}
               className='relative mx-auto w-full max-w-md rounded-3xl shadow-elevated'
               priority={false}
             />
-          </MotionDiv>
+          </div>
 
-          <MotionDiv
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className='order-1 space-y-4 lg:order-2'>
+          <div className='order-1 space-y-4 lg:order-2'>
             {plans.map((plan) => (
               <Card
                 key={plan.name}
@@ -104,7 +88,7 @@ export default async function SubscriptionSection() {
                 )}>
                 {plan.popular && (
                   <div className='absolute right-0 top-0 rounded-bl-xl bg-gold px-4 py-1 text-xs font-semibold text-forest'>
-                    {t('sections_subscription_popularBadge')}
+                    {t('sections_subscription_popular_badge')}
                   </div>
                 )}
 
@@ -201,7 +185,7 @@ export default async function SubscriptionSection() {
                             ? 'text-primary-foreground/80'
                             : 'text-muted-foreground'
                         )}>
-                        {formatTemplate(t('sections_subscription_moreLabel'), {
+                        {formatTemplate(t('sections_subscription_more_label'), {
                           count: plan.features.length - 3,
                         })}
                       </span>
@@ -219,7 +203,7 @@ export default async function SubscriptionSection() {
                 </CardContent>
               </Card>
             ))}
-          </MotionDiv>
+          </div>
         </div>
       </div>
     </section>

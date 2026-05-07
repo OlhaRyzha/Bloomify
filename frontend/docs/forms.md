@@ -4,10 +4,10 @@ Bloomify form standard is Formik for form state and Zod for validation.
 
 ## Target Pattern
 
-- Put schemas in `src/schemas`.
 - Use Zod as the source of truth for validation.
 - Use `validateWithZod` to connect Zod to Formik.
-- Keep field config close to the form when it is feature-specific.
+- Keep form schemas, field config, and initial values close to the owning form.
+- In features, put form-related files in a `forms/` folder.
 - Extract reusable field components only after duplication appears.
 
 ## File Ownership
@@ -16,13 +16,13 @@ Recommended structure for a larger form:
 
 ```text
 src/features/checkout/
-  checkout-form.tsx
   checkout.types.ts
   checkout.constants.ts
   checkout.utils.ts
-
-src/schemas/
-  checkout.schemas.ts
+  forms/
+    checkout-form.tsx
+    checkout-form.config.ts
+    checkout-form.schemas.ts
 ```
 
 Do not create proxy `index.ts` files for this structure unless the feature intentionally exposes a stable public API.
@@ -95,4 +95,4 @@ Do not split just to create more files. Prefer one readable form file over a fol
 
 ## Current Project Notes
 
-`src/features/auth/auth-form.tsx` already uses Formik + Zod and good field-level error wiring. Future form work should keep that direction but improve submission handling with real service/mutation boundaries when backend auth endpoints are connected.
+`src/features/auth/forms/auth-form.tsx`, `src/features/cart/forms/cart-promo-code-form.tsx`, and `src/components/layout/forms/footer-newsletter-form.client.tsx` follow the Formik + Zod direction with colocated config and schemas. Future form work should keep that structure and improve submission handling with real service/mutation boundaries when backend endpoints are connected.

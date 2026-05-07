@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import type { CatalogItem } from '@/types/catalog';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   getCatalogQueryParams,
   setCatalogQueryParams,
 } from './catalog-query-params';
-import { useCatalogStore } from './catalog.store';
+import { selectCatalogGridState } from './store/catalog.selectors';
+import { useCatalogStore } from './store/catalog.store';
 import type { SortOption } from './catalog.types';
 
 type UseCatalogGridStateProps = {
@@ -24,15 +26,15 @@ export function useCatalogGridState({
     page,
     perPage,
     sort,
-    tag: tagFilter,
-    search: searchInput,
+    tagFilter,
+    searchInput,
     setPage,
     setPerPage,
     setSort,
     setTag,
     setSearch,
     hydrate,
-  } = useCatalogStore();
+  } = useCatalogStore(useShallow(selectCatalogGridState));
   const debouncedSearch = useDebounce(searchInput);
   const isInitialSearchSync = useRef(false);
 

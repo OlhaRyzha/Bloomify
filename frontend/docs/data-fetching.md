@@ -17,7 +17,7 @@ Server state should not be duplicated in Zustand. Zustand can store selected ids
 
 ## Query Keys
 
-Query keys live in `src/constants/query-keys.constants.ts`.
+Query keys live next to the feature API that owns the server state. For catalog products, use `src/features/catalog/api/query-keys.ts`.
 
 Rules:
 
@@ -43,7 +43,7 @@ export const productsQueryKeys = {
 
 ## Query Hooks
 
-Query hooks live in `src/hooks/tan-stack-query`.
+Query hooks live next to the owning feature API, for example `src/features/catalog/api/use-products.ts`. Shared TanStack Query infrastructure belongs in `src/shared/query` when it is truly reusable across domains.
 
 Rules:
 
@@ -51,6 +51,8 @@ Rules:
 - Hooks should type data and errors.
 - Hooks should accept options when route-level behavior needs overrides.
 - Hooks should not hide important query key variables.
+- Hooks should pass request variables that match the query key, such as locale.
+- Hooks with local skeleton or inline loading UI should opt out of the global loader with `meta: { showGlobalLoader: false }`.
 
 Example:
 
@@ -60,8 +62,9 @@ export const useGetProductById = (id: string, options?: GetProductOptions) => {
 
   return useQuery<ProductItem, ApiError>({
     queryKey: productsQueryKeys.detail(id, locale),
-    queryFn: () => ProductsService.getProductById(id),
+    queryFn: () => ProductsService.getProductById(id, { lang: locale }),
     enabled: Boolean(id),
+    meta: { showGlobalLoader: false },
     ...options,
   });
 };
@@ -113,6 +116,34 @@ Mutations should:
 - show user feedback at the hook/component boundary
 - convert unknown errors into `ApiError`
 
+Use `src/shared/query/use-optimistic-list-mutation.ts` for list mutations that can be safely updated in cache.
+
+Rules:
+
+- Do not refetch by default after an optimistic mutation.
+- Use `updateFromResponse` when the backend returns the canonical item after create or update.
+- Use `invalidate: true` only when the backend response is not enough to update the affected cache correctly.
+- Keep `rollbackOnError` enabled unless the optimistic state is intentionally allowed to stay.
+- Set `updateFromResponse: false` for void responses such as deletes.
+- Keep mutation toast text localized in feature hooks or components.
+
+Example:
+
+```ts
+useOptimisticListMutation<ProductItem, { id: string }, void>({
+  queryKey: productsQueryKeys.list(locale),
+  action: OPTIMISTIC_LIST_MUTATION_ACTIONS.DELETE,
+  mutationFn: ({ id }) => ProductsService.deleteProduct(id),
+  options: {
+    updateFromResponse: false,
+    toast: {
+      showSuccessToast: true,
+      successMessage: t('product_mutation_deleted_success'),
+    },
+  },
+});
+```
+
 For cart and favorites, local Zustand actions are acceptable because the current behavior is local-only. If backend persistence is added, introduce mutation hooks and sync carefully.
 
 ## Loading And Error States
@@ -128,4 +159,4 @@ Use skeletons when the layout shape is predictable. Use inline errors when only 
 
 ## Current Project Notes
 
-The product detail route follows the target pattern: server prefetch in `app/catalog/[id]/page.tsx`, hydrated client read in `ProductDetails.client.tsx`.
+The product detail route is server-first: `app/catalog/[id]/page.tsx` loads the product on the server through the catalog service and renders the product surface as a Server Component. Client code is kept to interactive controls such as adding an item to the cart.

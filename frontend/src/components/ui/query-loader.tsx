@@ -4,13 +4,11 @@ import { useEffect, useState } from 'react';
 import { useIsFetching, useIsMutating } from '@tanstack/react-query';
 import Loader from './loader';
 import { isObject } from '@/utils/guards/is-object';
+import { isBoolean } from '@/utils/guards/is-boolean';
 
 type LoaderMeta = {
   showGlobalLoader?: boolean;
 };
-
-const isBoolean = (value: unknown): value is boolean =>
-  typeof value === 'boolean';
 
 const shouldShowGlobalLoader = (meta: unknown): boolean => {
   if (!isObject(meta)) {
@@ -34,9 +32,12 @@ export default function QueryLoader() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setIsVisible(isLoading);
-    }, isLoading ? 150 : 0);
+    const timeoutId = window.setTimeout(
+      () => {
+        setIsVisible(isLoading);
+      },
+      isLoading ? 150 : 0
+    );
 
     return () => window.clearTimeout(timeoutId);
   }, [isLoading]);

@@ -25,9 +25,12 @@ Do not use Zustand for:
 Stores should live next to the feature that owns them:
 
 ```text
-src/features/cart/cart.store.ts
-src/features/favorites/favorites.store.ts
-src/features/catalog/catalog.store.ts
+src/features/cart/store/cart.store.ts
+src/features/cart/store/cart.selectors.ts
+src/features/favorites/store/favorites.store.ts
+src/features/favorites/store/favorites.selectors.ts
+src/features/catalog/store/catalog.store.ts
+src/features/catalog/store/catalog.selectors.ts
 ```
 
 Shared stores are allowed only when multiple unrelated features truly own the same client state.
@@ -72,15 +75,27 @@ Side effects belong in components, hooks, or mutation handlers.
 
 ## Selectors
 
-Prefer narrow selectors:
+Selectors should live in a separate `*.selectors.ts` file next to the store. Components should import named selectors instead of writing inline selector functions repeatedly.
+
+Prefer narrow selectors for one-off values:
 
 ```ts
-const items = useCartStore((state) => state.items);
-const addItem = useCartStore((state) => state.addItem);
+const cartCount = useCartStore(selectCartCount);
+const addItem = useCartStore(selectAddCartItem);
+```
+
+For a component or hook that always needs a stable group of state and actions, create a grouped view selector and use shallow equality:
+
+```ts
+const { page, perPage, sort, setPage } = useCatalogStore(
+  useShallow(selectCatalogGridState)
+);
 ```
 
 Avoid selecting the whole store in large components because it increases re-renders and hides dependencies.
 
+Avoid anonymous inline selectors in components. Add a named selector to the feature `*.selectors.ts` file instead.
+
 ## Current Project Notes
 
-`cart.store.ts` and `favorites.store.ts` follow the right direction by persisting minimal ids/quantities. Future cleanup should consider adding store versioning if persisted data shape changes.
+`cart/store`, `favorites/store`, and `catalog/store` follow the current target by colocating each store with selectors in the owning feature. Future cleanup should consider adding store versioning if persisted data shape changes.

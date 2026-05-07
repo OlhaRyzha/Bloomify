@@ -1,5 +1,3 @@
-import type { Locale } from '@/locales/translations';
-
 export const mutationOperations = {
   create: 'create',
   update: 'update',
@@ -23,14 +21,3 @@ export const createMutationKeys = <TEntity extends string>(
   update: createMutationKey(entity, mutationOperations.update),
   delete: createMutationKey(entity, mutationOperations.delete),
 });
-
-export const productsQueryKeys = {
-  all: ['products'] as const,
-  lists: () => [...productsQueryKeys.all, 'list'] as const,
-  list: (locale: Locale) => [...productsQueryKeys.lists(), locale] as const,
-  details: () => [...productsQueryKeys.all, 'detail'] as const,
-  detail: (id: string, locale: Locale) =>
-    [...productsQueryKeys.details(), id, locale] as const,
-};
-
-export const productsMutationKeys = createMutationKeys('products');

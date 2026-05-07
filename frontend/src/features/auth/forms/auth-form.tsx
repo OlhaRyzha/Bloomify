@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { Formik, Form } from 'formik';
-import type { LucideIcon } from 'lucide-react';
-import { Chrome, Lock, Mail, User } from 'lucide-react';
+import { Chrome } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -14,84 +13,20 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { loginSchema, registerSchema } from '@/schemas/auth.schemas';
+import { loginSchema, registerSchema } from './auth.schemas';
+import {
+  authInitialValuesByMode,
+  getAuthFields,
+  type AuthFormValues,
+  type AuthMode,
+} from './auth-form.config';
+import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { useTranslation } from '@/hooks/use-translation';
 
-type AuthMode = 'login' | 'register';
-
-type FieldConfig = {
-  name: string;
-  label: string;
-  type: string;
-  placeholder: string;
-  autoComplete?: string;
-  helper?: string;
-  icon: LucideIcon;
-};
-
-const initialValuesByMode: Record<AuthMode, Record<string, string>> = {
-  login: {
-    email: '',
-    password: '',
-  },
-  register: {
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  },
-};
-
 export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { t } = useTranslation();
-
-  const fieldConfig: Record<string, FieldConfig> = {
-    name: {
-      name: 'name',
-      label: t('auth_form_fields_name_label'),
-      type: 'text',
-      placeholder: t('auth_form_fields_name_placeholder'),
-      autoComplete: 'name',
-      helper: t('auth_form_fields_name_helper') || undefined,
-      icon: User,
-    },
-    email: {
-      name: 'email',
-      label: t('auth_form_fields_email_label'),
-      type: 'email',
-      placeholder: t('auth_form_fields_email_placeholder'),
-      autoComplete: 'email',
-      icon: Mail,
-    },
-    password: {
-      name: 'password',
-      label: t('auth_form_fields_password_label'),
-      type: 'password',
-      placeholder: t('auth_form_fields_password_placeholder'),
-      autoComplete: mode === 'login' ? 'current-password' : 'new-password',
-      helper: t('auth_form_fields_password_helper') || undefined,
-      icon: Lock,
-    },
-    confirmPassword: {
-      name: 'confirmPassword',
-      label: t('auth_form_fields_confirmPassword_label'),
-      type: 'password',
-      placeholder: t('auth_form_fields_confirmPassword_placeholder'),
-      autoComplete: 'new-password',
-      icon: Lock,
-    },
-  };
-
-  const fields: FieldConfig[] =
-    mode === 'login'
-      ? [fieldConfig.email, fieldConfig.password]
-      : [
-          fieldConfig.name,
-          fieldConfig.email,
-          fieldConfig.password,
-          fieldConfig.confirmPassword,
-        ];
+  const fields = getAuthFields({ mode, t });
   const schema = mode === 'login' ? loginSchema : registerSchema;
 
   return (
@@ -108,8 +43,8 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
       </CardHeader>
 
       <CardContent>
-        <Formik
-          initialValues={initialValuesByMode[mode]}
+        <Formik<AuthFormValues>
+          initialValues={authInitialValuesByMode[mode]}
           validate={(values) => validateWithZod(schema, values)}
           onSubmit={(_, actions) => {
             actions.setSubmitting(false);
@@ -133,7 +68,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                     aria-hidden
                   />
                 </span>
-                {t(`auth_form_${mode}_googleLabel`)}
+                {t(`auth_form_${mode}_google_label`)}
               </Button>
 
               <div className='flex items-center gap-3 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
@@ -143,10 +78,11 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
               </div>
 
               {fields.map((field) => {
-                const errorMessage =
-                  touched[field.name] && errors[field.name]
-                    ? String(errors[field.name])
-                    : undefined;
+                const errorMessage = getFormFieldError({
+                  errors,
+                  name: field.name,
+                  touched,
+                });
                 const isInvalid = Boolean(errorMessage);
                 const helperId = `${field.name}-helper`;
                 const errorId = `${field.name}-error`;
@@ -211,33 +147,33 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 size='lg'
                 className='mt-2 w-full'
                 disabled={isSubmitting}>
-                {t(`auth_form_${mode}_submitLabel`)}
+                {t(`auth_form_${mode}_submit_label`)}
               </Button>
 
               {mode === 'register' && (
                 <p className='text-xs text-muted-foreground'>
-                  {t('auth_form_terms_text')}{' '}
+                  {t('auth_form_terms_text')}
                   <Link
                     href='/terms'
                     className='text-primary underline-offset-4 hover:underline'>
-                    {t('auth_form_terms_termsLabel')}
-                  </Link>{' '}
-                  {t('auth_form_terms_and')}{' '}
+                    {t('auth_form_terms_terms_label')}
+                  </Link>
+                  {t('auth_form_terms_and')}
                   <Link
                     href='/privacy'
                     className='text-primary underline-offset-4 hover:underline'>
-                    {t('auth_form_terms_privacyLabel')}
+                    {t('auth_form_terms_privacy_label')}
                   </Link>
                   .
                 </p>
               )}
 
               <p className='text-sm text-muted-foreground'>
-                {t(`auth_form_${mode}_switchText`)}{' '}
+                {t(`auth_form_${mode}_switch_text`)}
                 <Link
-                  href={t(`auth_form_${mode}_switchHref`)}
+                  href={t(`auth_form_${mode}_switch_href`)}
                   className='font-semibold text-primary underline-offset-4 hover:underline'>
-                  {t(`auth_form_${mode}_switchLinkLabel`)}
+                  {t(`auth_form_${mode}_switch_link_label`)}
                 </Link>
               </p>
             </Form>

@@ -8,7 +8,11 @@ import AddToCartButton from '@/components/ui/add-to-cart-button';
 import { useHydrated } from '@/hooks/use-hydrated';
 import type { CatalogItem } from '@/types/catalog';
 import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
-import { useFavoritesStore } from '@/features/favorites/favorites.store';
+import {
+  selectIsFavorite,
+  selectToggleFavorite,
+} from '@/features/favorites/store/favorites.selectors';
+import { useFavoritesStore } from '@/features/favorites/store/favorites.store';
 import { cn } from '@/lib/utils';
 
 type CatalogCardProps = {
@@ -18,8 +22,8 @@ type CatalogCardProps = {
 
 export default function CatalogCard({ item, className }: CatalogCardProps) {
   const isHydrated = useHydrated();
-  const isFavorite = useFavoritesStore((state) => state.isFavorite(item.id));
-  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+  const isFavorite = useFavoritesStore(selectIsFavorite(item.id));
+  const toggleFavorite = useFavoritesStore(selectToggleFavorite);
   const isFavoriteActive = isHydrated && isFavorite;
   const imageSrc = getCatalogItemImage(item);
 
@@ -89,6 +93,7 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
           <AddToCartButton
             size='sm'
             itemId={item.id}
+            itemName={item.name}
           />
         </div>
       </CardContent>

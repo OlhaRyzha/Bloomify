@@ -1,7 +1,18 @@
 'use client';
 
-import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { defaultLocale, translations, type Locale } from '@/locales/translations';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  defaultLocale,
+  translations,
+  type Locale,
+} from '@/locales/translations';
 import { ensureLocale } from '@/utils/i18n';
 
 const LOCALE_STORAGE_KEY = 'bloomify_locale';
@@ -15,25 +26,34 @@ type LocaleContextValue = {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
+const persistLocale = (locale: Locale) => {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  document.documentElement.lang = locale;
+  document.cookie = `${LOCALE_COOKIE_KEY}=${locale}; path=/; max-age=31536000; samesite=lax`;
+};
+
 type LocaleProviderProps = {
   children: ReactNode;
   initialLocale?: string;
 };
 
-export function LocaleProvider({ children, initialLocale }: LocaleProviderProps) {
+export function LocaleProvider({
+  children,
+  initialLocale,
+}: LocaleProviderProps) {
   const resolvedInitialLocale = ensureLocale(initialLocale);
   const [locale, setLocaleState] = useState<Locale>(resolvedInitialLocale);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
-    document.documentElement.lang = locale;
-    document.cookie = `${LOCALE_COOKIE_KEY}=${locale}; path=/; max-age=31536000; samesite=lax`;
+    persistLocale(locale);
   }, [locale]);
 
   const setLocale = (nextLocale: Locale) => {
-    setLocaleState(nextLocale);
+    const resolvedLocale = ensureLocale(nextLocale);
+    persistLocale(resolvedLocale);
+    setLocaleState(resolvedLocale);
   };
 
   const contextValue = useMemo(
@@ -45,7 +65,11 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
     [locale]
   );
 
-  return <LocaleContext.Provider value={contextValue}>{children}</LocaleContext.Provider>;
+  return (
+    <LocaleContext.Provider value={contextValue}>
+      {children}
+    </LocaleContext.Provider>
+  );
 }
 
 export function useLocale() {

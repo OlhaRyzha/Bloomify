@@ -1,5 +1,3 @@
-'use client';
-
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
@@ -13,7 +11,7 @@ import {
 } from 'lucide-react';
 import heroImage from '@/assets/hero-flowers.jpg';
 import subscriptionImage from '@/assets/subscription-box.jpg';
-import { useTranslation } from '@/hooks/use-translation';
+import { getServerTranslator } from '@/i18n/server';
 
 const authAssets = {
   login: {
@@ -35,9 +33,17 @@ type AuthShellProps = {
   children: ReactNode;
 };
 
-export default function AuthShell({ variant, children }: AuthShellProps) {
-  const { t } = useTranslation();
+type AuthShellHighlight = {
+  description: string;
+  title: string;
+};
+
+export default async function AuthShell({ variant, children }: AuthShellProps) {
+  const { t } = await getServerTranslator();
   const assets = authAssets[variant];
+  const highlights = t(`auth_shell_${variant}_highlights`, {
+    returnObjects: true,
+  }) as unknown as AuthShellHighlight[];
 
   return (
     <section className='relative overflow-hidden bg-gradient-hero pb-16 pt-28'>
@@ -63,7 +69,7 @@ export default function AuthShell({ variant, children }: AuthShellProps) {
             </div>
 
             <div className='grid gap-4 sm:grid-cols-2'>
-              {(t(`auth_shell_${variant}_highlights`, { returnObjects: true }) as unknown as Array<{ title: string; description: string }>).map((item, index: number) => {
+              {highlights.map((item, index) => {
                 const Icon = assets.icons[index];
                 return (
                   <div
@@ -91,16 +97,16 @@ export default function AuthShell({ variant, children }: AuthShellProps) {
                 className={`relative ${assets.aspect} overflow-hidden rounded-3xl bg-gradient-card p-3 shadow-card`}>
                 <Image
                   src={assets.image}
-                  alt={t(`auth_shell_${variant}_imageAlt`)}
+                  alt={t(`auth_shell_${variant}_image_alt`)}
                   className='rounded-2xl'
                 />
               </div>
               <div className='absolute -bottom-6 right-6 rounded-2xl bg-primary px-4 py-3 text-primary-foreground shadow-card'>
                 <p className='text-[0.6rem] uppercase tracking-[0.3em] text-primary-foreground/70'>
-                  {t(`auth_shell_${variant}_badgeLabel`)}
+                  {t(`auth_shell_${variant}_badge_label`)}
                 </p>
                 <p className='font-display text-lg font-semibold'>
-                  {t(`auth_shell_${variant}_badgeValue`)}
+                  {t(`auth_shell_${variant}_badge_value`)}
                 </p>
               </div>
             </div>

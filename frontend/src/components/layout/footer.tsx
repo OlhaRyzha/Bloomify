@@ -6,9 +6,8 @@ import {
   SERVICE_LINKS,
   footerSocialLinks,
 } from '@/constants/navigation.constants';
-import { MotionDiv } from '@/components/ui/motion-div';
 import { getServerTranslator } from '@/i18n/server';
-import FooterNewsletterForm from '@/components/layout/footer-newsletter-form.client';
+import FooterNewsletterForm from '@/components/layout/forms/footer-newsletter-form.client';
 
 export default async function Footer() {
   const { t } = await getServerTranslator();
@@ -31,30 +30,25 @@ export default async function Footer() {
       className='bg-primary text-primary-foreground'>
       <div className='border-b border-primary-foreground/10'>
         <div className='mx-auto max-w-6xl px-4 py-12'>
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
+          <div className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
             <div>
               <h3 className='text-2xl font-bold md:text-3xl'>
-                {t('footer_newsletterTitle')}
+                {t('footer_newsletter_title')}
               </h3>
               <p className='mt-2 text-primary-foreground/80'>
-                {t('footer_newsletterDescription')}
+                {t('footer_newsletter_description')}
               </p>
             </div>
 
             <FooterNewsletterForm
               inputId={newsletterInputId}
-              label={t('footer_subscribeLabel')}
-              loadingLabel={t('footer_subscribeLoadingLabel')}
-              placeholder={t('footer_emailPlaceholder')}
-              successMessage={t('footer_subscribeSuccess')}
-              errorMessage={t('footer_subscribeError')}
+              label={t('footer_subscribe_label')}
+              loadingLabel={t('footer_subscribe_loading_label')}
+              placeholder={t('footer_email_placeholder')}
+              successMessage={t('footer_subscribe_success')}
+              errorMessage={t('footer_subscribe_error')}
             />
-          </MotionDiv>
+          </div>
         </div>
       </div>
 
@@ -92,7 +86,7 @@ export default async function Footer() {
             <h4
               id='footer-nav-title'
               className='text-lg font-semibold'>
-              {t('footer_navTitle')}
+              {t('footer_nav_title')}
             </h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {navLinks.map((item) => (
@@ -111,7 +105,7 @@ export default async function Footer() {
             <h4
               id='footer-services-title'
               className='text-lg font-semibold'>
-              {t('footer_servicesTitle')}
+              {t('footer_services_title')}
             </h4>
             <ul className='mt-4 space-y-2 text-sm'>
               {serviceLinks.map((service) => (
@@ -128,7 +122,7 @@ export default async function Footer() {
 
           <div>
             <h4 className='text-lg font-semibold'>
-              {t('footer_contactsTitle')}
+              {t('footer_contacts_title')}
             </h4>
             <ul className='mt-4 space-y-3 text-sm'>
               {FOOTER_CONTACT_ITEMS.map((item) => {

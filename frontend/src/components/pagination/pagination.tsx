@@ -10,7 +10,7 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination';
 import { generatePageNumbers } from '@/utils/pagination/generate-page-numbers';
-import { ReactNode, useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { isFunction } from '@/utils/guards/is-function';
 import { cn } from '@/lib/utils';
 import {
@@ -60,7 +60,7 @@ export function PaginationContainer<T>({
   itemsCountPrefix = 'Items',
   itemsCountSuffix = 'total',
 }: PaginationContainerProps<T>) {
-  const isControlled = controlledPage && isFunction(onPageChange);
+  const isControlled = controlledPage !== undefined && isFunction(onPageChange);
   const [uncontrolledPage, setUncontrolledPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
@@ -71,6 +71,14 @@ export function PaginationContainer<T>({
   const end = start + pageSize;
 
   const pageItems = useMemo(() => items.slice(start, end), [items, start, end]);
+  const shouldShowPaginationControls = !hideControls && totalPages > 1;
+  const shouldShowFooterControls =
+    !hideControls &&
+    (shouldShowPaginationControls ||
+      showItemsCount ||
+      Boolean(showPageSizeControl && pageSizeOptions?.length) ||
+      Boolean(controlsLeftContent) ||
+      Boolean(controlsRightContent));
 
   const goTo = (n: number) => {
     const next = Math.min(totalPages, Math.max(1, n));
@@ -90,10 +98,10 @@ export function PaginationContainer<T>({
   return (
     <div className={cn('w-full', className)}>
       {renderPage(pageItems, page)}
-      {!hideControls && totalPages > 1 && (
+      {shouldShowFooterControls && (
         <div className='mt-10 flex items-center justify-between'>
           {showItemsCount ? (
-            <p className='font-semibold text-sm text-muted-foreground text-nowrap '>
+            <p className='text-nowrap text-sm font-semibold text-muted-foreground'>
               {itemsCountPrefix} <b> {itemsCount ?? items.length}</b>{' '}
               {itemsCountSuffix}
             </p>
@@ -101,54 +109,59 @@ export function PaginationContainer<T>({
             controlsLeftContent
           )}
 
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href='#'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    goTo(page - 1);
-                  }}
-                  className={cn(page === 1 && 'pointer-events-none opacity-50')}
-                />
-              </PaginationItem>
+          {shouldShowPaginationControls ? (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href='#'
+                    onClick={(e) => {
+                      e.preventDefault();
+                      goTo(page - 1);
+                    }}
+                    className={cn(
+                      page === 1 && 'pointer-events-none opacity-50'
+                    )}
+                  />
+                </PaginationItem>
 
-              {pages.map((p, idx) =>
-                typeof p === 'string' ? (
-                  <PaginationItem key={`ellipsis-${idx}`}>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                ) : (
-                  <PaginationItem key={p}>
-                    <PaginationLink
-                      href='#'
-                      isActive={p === page}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        goTo(p);
-                      }}>
-                      {p}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              )}
+                {pages.map((p, idx) =>
+                  typeof p === 'string' ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        href='#'
+                        isActive={p === page}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          goTo(p);
+                        }}>
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
 
-              <PaginationItem>
-                <PaginationNext
-                  href='#'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    goTo(page + 1);
-                  }}
-                  className={cn(
-                    page === totalPages && 'pointer-events-none opacity-50'
-                  )}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-          <div className=''>
+                <PaginationItem>
+                  <PaginationNext
+                    href='#'
+                    onClick={(e) => {
+                      e.preventDefault();
+                      goTo(page + 1);
+                    }}
+                    className={cn(
+                      page === totalPages && 'pointer-events-none opacity-50'
+                    )}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          ) : null}
+
+          <div>
             {showPageSizeControl && pageSizeOptions?.length ? (
               <Select
                 value={String(pageSize)}
@@ -157,8 +170,8 @@ export function PaginationContainer<T>({
                 }}>
                 <SelectTrigger
                   chevronDownIconClassName='stroke-white'
-                  className='h-10 min-w-[60px] justify-between rounded-md border border-border bg-primary px-2 text-sm font-semibold text-white shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20'>
-                  <SelectValue placeholder={`${pageSize} / page`} />
+                  className='h-10 min-w-[96px] justify-between rounded-md border border-border bg-primary px-3 text-sm font-semibold text-white shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20'>
+                  <SelectValue>{pageSize} / page</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {pageSizeOptions.map((option) => (
