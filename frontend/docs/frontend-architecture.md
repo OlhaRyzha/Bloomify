@@ -49,18 +49,15 @@ Add memoization only when there is a clear need.
 - Use `memo` only when a component has a proven re-render problem or expensive render path.
 - Do not add memoization by default for simple values, small maps, or trivial handlers.
 
-## TanStack Query Hydration Pattern
+## Route Data Pattern
 
-For detail pages, prefetch route data in the Server Component and hydrate it into the Client Component.
+Prefer server-first route data when the page can render from server data and only small controls need client-side behavior.
 
 ```tsx
 // app/catalog/[id]/page.tsx
-import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
-import ProductDetailsClient from './product-details.client';
 import ProductsService from '@/features/catalog/api/products.service';
-import { productsQueryKeys } from '@/features/catalog/api/query-keys';
+import ProductFeature from '@/features/product/product';
 import { getServerTranslator } from '@/i18n/server';
-import { createQueryClient } from '@/services/queryClient';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -68,17 +65,32 @@ type PageProps = {
 
 export default async function CatalogItemPage({ params }: PageProps) {
   const { id } = await params;
-  const { locale } = await getServerTranslator();
+  const { locale, t } = await getServerTranslator();
+  const product = await ProductsService.getProductById(id, { lang: locale });
+
+  return <ProductFeature product={product} copy={{ actionsLabel: t('product_actions_label') }} />;
+}
+```
+
+Use TanStack Query hydration when the route needs client-owned server state after first render, for example live filters, mutations, or background refetching.
+
+```tsx
+// app/notes/[id]/page.tsx
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+import { createQueryClient } from '@/services/queryClient';
+import NoteDetailsClient from './note-details.client';
+
+export default async function NoteDetailsPage() {
   const queryClient = createQueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: productsQueryKeys.detail(id, locale),
-    queryFn: () => ProductsService.getProductById(id, { lang: locale }),
+    queryKey: ['note', id],
+    queryFn: () => getNote(id),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ProductDetailsClient />
+      <NoteDetailsClient />
     </HydrationBoundary>
   );
 }
@@ -87,23 +99,25 @@ export default async function CatalogItemPage({ params }: PageProps) {
 The Client Component should use the same `queryKey` as the server prefetch. Use `refetchOnMount: false` when the server already hydrated fresh data for that route.
 
 ```tsx
-// app/catalog/[id]/product-details.client.tsx
+// app/notes/[id]/note-details.client.tsx
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useGetProductById } from '@/features/catalog/api/use-products';
+import { useQuery } from '@tanstack/react-query';
 
-export default function ProductDetailsClient() {
+export default function NoteDetailsClient() {
   const { id } = useParams<{ id: string }>();
 
-  const { data, isLoading, error } = useGetProductById(id, {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['note', id],
+    queryFn: () => getNote(id),
     refetchOnMount: false,
   });
 
   if (isLoading) return null;
   if (error || !data) return null;
 
-  return <ProductView product={data} />;
+  return <NoteView note={data} />;
 }
 ```
 
@@ -119,7 +133,7 @@ Avoid creating proxy-only files by default.
 - Do not create a folder only to hold a single component plus an `index.ts` proxy.
 - Prefer direct imports from the owning file, such as `@/features/catalog/catalog-grid`, when that makes ownership clear.
 - Use a barrel file only when the folder intentionally owns a stable public API used by many consumers.
-- Keep route-level Client Components next to their Server Component route, for example `page.tsx` plus `product-details.client.tsx`.
+- Keep route-level Client Components next to their Server Component route when hydration is required, for example `page.tsx` plus `note-details.client.tsx`.
 
 Good reasons for a frontend barrel file:
 
