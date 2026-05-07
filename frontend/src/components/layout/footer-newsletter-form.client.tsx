@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { API_ROUTES } from '@/constants/api.constant';
 import apiClient from '@/services/api/clients/api-client';
+import { EMAIL_REGEX } from '@/utils/patterns/regex';
 
 type FooterNewsletterFormProps = {
   inputId: string;
@@ -17,8 +18,6 @@ type FooterNewsletterFormProps = {
   successMessage: string;
   errorMessage: string;
 };
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function FooterNewsletterForm({
   inputId,
@@ -41,7 +40,7 @@ export default function FooterNewsletterForm({
     setErrorMessage('');
     setSuccessMessage('');
 
-    if (!emailPattern.test(trimmedEmail)) {
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
       setErrorMessage(invalidEmailMessage);
       return;
     }
