@@ -6,15 +6,17 @@ import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { API_ROUTES } from '@/constants/api.constant';
+import {
+  newsletterSubscribeSchema,
+  type NewsletterSubscribeValues,
+} from '@/schemas/newsletter.schemas';
 import apiClient from '@/services/api/clients/api-client';
-import { EMAIL_REGEX } from '@/utils/patterns/regex';
 
 type FooterNewsletterFormProps = {
   inputId: string;
   label: string;
   loadingLabel: string;
   placeholder: string;
-  invalidEmailMessage: string;
   successMessage: string;
   errorMessage: string;
 };
@@ -24,7 +26,6 @@ export default function FooterNewsletterForm({
   label,
   loadingLabel,
   placeholder,
-  invalidEmailMessage,
   successMessage: successMessageText,
   errorMessage: fallbackErrorMessage,
 }: FooterNewsletterFormProps) {
@@ -33,24 +34,39 @@ export default function FooterNewsletterForm({
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  const validateEmail = (value: string): NewsletterSubscribeValues | null => {
+    const result = newsletterSubscribeSchema.safeParse({ email: value });
+    setErrorMessage('');
+
+    if (!result.success) {
+      setErrorMessage(result.error.issues[0]?.message ?? fallbackErrorMessage);
+      return null;
+    }
+
+    return result.data;
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    setSuccessMessage('');
+    validateEmail(value);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const trimmedEmail = email.trim();
-    setErrorMessage('');
     setSuccessMessage('');
+    const values = validateEmail(email);
 
-    if (!EMAIL_REGEX.test(trimmedEmail)) {
-      setErrorMessage(invalidEmailMessage);
-      return;
-    }
+    if (!values) return;
 
     setIsLoading(true);
 
     try {
-      await apiClient.post<unknown, { email: string }>(API_ROUTES.SUBSCRIBE, {
-        email: trimmedEmail,
-      });
+      await apiClient.post<unknown, NewsletterSubscribeValues>(
+        API_ROUTES.SUBSCRIBE,
+        values
+      );
       setSuccessMessage(successMessageText);
       setEmail('');
     } catch (error) {
@@ -80,7 +96,8 @@ export default function FooterNewsletterForm({
           autoComplete='email'
           required
           value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => handleEmailChange(event.target.value)}
+          onBlur={() => validateEmail(email)}
           aria-describedby={`${inputId}-status`}
           className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
         />

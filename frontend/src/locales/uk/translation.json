@@ -168,7 +168,6 @@
   "footer_emailPlaceholder": "Ваш email",
   "footer_subscribeLabel": "Підписатися",
   "footer_subscribeLoadingLabel": "Надсилаємо",
-  "footer_invalidEmail": "Введіть коректний email.",
   "footer_subscribeSuccess": "Дякуємо, ви підписані на новини.",
   "footer_subscribeError": "Не вдалося оформити підписку. Спробуйте ще раз.",
   "footer_navTitle": "Навігація",

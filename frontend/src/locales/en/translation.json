@@ -168,7 +168,6 @@
   "footer_emailPlaceholder": "Your email",
   "footer_subscribeLabel": "Subscribe",
   "footer_subscribeLoadingLabel": "Sending",
-  "footer_invalidEmail": "Enter a valid email.",
   "footer_subscribeSuccess": "Thank you, you are subscribed to updates.",
   "footer_subscribeError": "Could not subscribe you. Please try again.",
   "footer_navTitle": "Navigation",
