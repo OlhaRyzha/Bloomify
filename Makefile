@@ -23,7 +23,22 @@ frontend-typecheck:
 	cd $(FRONTEND_DIR) && npm run typecheck
 
 frontend-test:
-	cd $(FRONTEND_DIR) && npm run test --if-present
+	cd $(FRONTEND_DIR) && npm run test
+
+frontend-test-all:
+	cd $(FRONTEND_DIR) && npm run test:all
+
+frontend-test-unit:
+	cd $(FRONTEND_DIR) && npm run test:unit
+
+frontend-test-watch:
+	cd $(FRONTEND_DIR) && npm run test:unit:watch
+
+frontend-test-ui:
+	cd $(FRONTEND_DIR) && npm run test:unit:ui
+
+frontend-test-coverage:
+	cd $(FRONTEND_DIR) && npm run test:coverage
 
 
 # ---------- Backend ----------

@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { formatCurrency, formatTemplate } from '@/utils/i18n';
 import { getServerTranslator } from '@/i18n/server';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default async function HeroSection() {
   const { t, locale } = await getServerTranslator();
@@ -52,7 +53,7 @@ export default async function HeroSection() {
               <Button
                 asChild
                 size='lg'>
-                <Link href='/catalog'>
+                <Link href={getLocalizedPath('/catalog', locale)}>
                   {t('hero_primary_cta')}
                   <ArrowRight
                     className='ml-2 h-5 w-5'
@@ -65,7 +66,9 @@ export default async function HeroSection() {
                 asChild
                 variant='secondary'
                 size='lg'>
-                <Link href='/#subscription'>{t('hero_secondary_cta')}</Link>
+                <Link href={getLocalizedPath('/#subscription', locale)}>
+                  {t('hero_secondary_cta')}
+                </Link>
               </Button>
             </div>
 

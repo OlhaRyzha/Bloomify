@@ -20,17 +20,12 @@ type GetProductOptions = Omit<
   'queryKey' | 'queryFn'
 >;
 
-const localLoadingQueryMeta = {
-  showGlobalLoader: false,
-};
-
 export const useGetProducts = (options?: GetProductsOptions) => {
   const { locale } = useLocale();
 
   return useQuery<Products, ApiError>({
     queryKey: productsQueryKeys.list(locale),
     queryFn: () => ProductsService.getProducts({ lang: locale }),
-    meta: localLoadingQueryMeta,
     ...options,
   });
 };
@@ -42,7 +37,6 @@ export const useGetProductById = (id: string, options?: GetProductOptions) => {
     queryKey: productsQueryKeys.detail(id, locale),
     queryFn: () => ProductsService.getProductById(id, { lang: locale }),
     enabled: Boolean(id),
-    meta: localLoadingQueryMeta,
     ...options,
   });
 };

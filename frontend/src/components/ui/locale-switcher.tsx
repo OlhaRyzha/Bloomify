@@ -1,8 +1,8 @@
 'use client';
 
 import { Globe } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
   Select,
   SelectContent,
@@ -19,6 +19,8 @@ import { useLocale } from '@/components/providers/locale-provider';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 import { BASE_URL } from '@/components/config/env';
+import { getLocalizedPath } from '@/i18n/routing';
+import Loader from './loader';
 
 type LocaleSwitcherProps = {
   className?: string;
@@ -26,8 +28,11 @@ type LocaleSwitcherProps = {
 
 export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { locale, setLocale } = useLocale();
   const { t } = useTranslation();
+  const [isPending, startTransition] = useTransition();
   const [enabledLocales, setEnabledLocales] =
     useState<Locale[]>(supportedLocales);
 
@@ -73,23 +78,39 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
   }, [currentLocale, locale, setLocale]);
 
   const handleLocaleChange = (value: string) => {
-    setLocale(value as Locale);
-    router.refresh();
+    const nextLocale = value as Locale;
+    const query = searchParams.toString();
+    const nextPath = getLocalizedPath(
+      query ? `${pathname}?${query}` : pathname,
+      nextLocale
+    );
+
+    startTransition(() => {
+      setLocale(nextLocale);
+      router.replace(nextPath);
+      router.refresh();
+    });
   };
 
   return (
     <div className={cn('inline-flex', className)}>
+      <Loader loading={isPending} />
       <span className='sr-only'>{t('locale_switcher_label')}</span>
 
       <Select
         value={currentLocale}
-        onValueChange={handleLocaleChange}>
+        onValueChange={handleLocaleChange}
+        disabled={isPending}>
         <SelectTrigger
           size='sm'
           className='h-9 rounded-full border-border/70 bg-card px-3 text-xs font-semibold text-foreground shadow-soft hover:bg-muted/60'
-          aria-label={t('locale_switcher_aria')}>
+          aria-label={t('locale_switcher_aria')}
+          aria-busy={isPending}>
           <div className='flex items-center gap-2'>
-            <Globe className='h-3.5 w-3.5 text-primary' />
+            <Globe
+              className='h-3.5 w-3.5 text-primary'
+              aria-hidden={true}
+            />
             <span className='tracking-[0.08em]'>
               {localeShortLabels[currentLocale]}
             </span>

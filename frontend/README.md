@@ -31,7 +31,7 @@ make frontend-build
 
 Server Components are the default. Add `"use client"` only when a component needs browser APIs, React client hooks, client stores, TanStack Query hooks, event handlers, or runtime animation.
 
-For route data, prefer a server `page.tsx` that prefetches data and passes it through `HydrationBoundary`, then keep `useQuery` in the smallest necessary Client Component.
+For route data, prefer a server `page.tsx` that loads route-critical data and passes plain props to the smallest necessary Client Component. Use `HydrationBoundary` only when the same server-fetched data must become client-owned TanStack Query state after first render.
 
 Start with [Frontend Docs](./docs/README.md). The docs cover architecture, domains, semantic HTML, accessibility, data fetching, forms, state management, API boundaries, and error handling.
 

@@ -8,16 +8,19 @@ import {
 } from '@/constants/navigation.constants';
 import { getServerTranslator } from '@/i18n/server';
 import FooterNewsletterForm from '@/components/layout/forms/footer-newsletter-form.client';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default async function Footer() {
-  const { t } = await getServerTranslator();
+  const { locale, t } = await getServerTranslator();
   const newsletterInputId = 'footer-newsletter-email';
   const navLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
+    href: getLocalizedPath(link.href, locale),
     label: t(`navigation_main_${link.key}`),
   }));
   const serviceLinks = SERVICE_LINKS.map((link) => ({
     ...link,
+    href: getLocalizedPath(link.href, locale),
     label: t(`navigation_services_${link.key}`),
   }));
   const rightsMessage = formatTemplate(t('footer_rights'), {
@@ -56,7 +59,7 @@ export default async function Footer() {
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-4'>
           <div>
             <Link
-              href='/'
+              href={getLocalizedPath('/', locale)}
               className='text-3xl font-bold'>
               {t('common_brand')}
             </Link>
@@ -172,12 +175,12 @@ export default async function Footer() {
           </p>
           <div className='flex gap-6'>
             <Link
-              href='/privacy'
+              href={getLocalizedPath('/privacy', locale)}
               className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
               {t('footer_privacy')}
             </Link>
             <Link
-              href='/terms'
+              href={getLocalizedPath('/terms', locale)}
               className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
               {t('footer_terms')}
             </Link>

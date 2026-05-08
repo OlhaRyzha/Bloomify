@@ -23,9 +23,10 @@ import {
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { useTranslation } from '@/hooks/use-translation';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
   const fields = getAuthFields({ mode, t });
   const schema = mode === 'login' ? loginSchema : registerSchema;
 
@@ -154,13 +155,13 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 <p className='text-xs text-muted-foreground'>
                   {t('auth_form_terms_text')}
                   <Link
-                    href='/terms'
+                    href={getLocalizedPath('/terms', locale)}
                     className='text-primary underline-offset-4 hover:underline'>
                     {t('auth_form_terms_terms_label')}
                   </Link>
                   {t('auth_form_terms_and')}
                   <Link
-                    href='/privacy'
+                    href={getLocalizedPath('/privacy', locale)}
                     className='text-primary underline-offset-4 hover:underline'>
                     {t('auth_form_terms_privacy_label')}
                   </Link>
@@ -171,7 +172,10 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
               <p className='text-sm text-muted-foreground'>
                 {t(`auth_form_${mode}_switch_text`)}
                 <Link
-                  href={t(`auth_form_${mode}_switch_href`)}
+                  href={getLocalizedPath(
+                    t(`auth_form_${mode}_switch_href`),
+                    locale
+                  )}
                   className='font-semibold text-primary underline-offset-4 hover:underline'>
                   {t(`auth_form_${mode}_switch_link_label`)}
                 </Link>

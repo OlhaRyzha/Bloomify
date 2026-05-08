@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useLocale } from '@/components/providers/locale-provider';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCurrency } from '@/utils/i18n';
+import { getLocalizedPath } from '@/i18n/routing';
 
 type CartSummaryProps = {
   subtotal: number;
@@ -57,7 +58,9 @@ export default function CartSummary({
         asChild
         variant='outline'
         className='mt-3 w-full'>
-        <Link href='/catalog'>{t('cart_continue_shopping')}</Link>
+        <Link href={getLocalizedPath('/catalog', locale)}>
+          {t('cart_continue_shopping')}
+        </Link>
       </Button>
     </div>
   );

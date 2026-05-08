@@ -3,11 +3,14 @@ import SectionHeader from '@/components/ui/section-header';
 import CatalogGrid from '@/features/catalog/catalog-grid';
 import { getServerTranslator } from '@/i18n/server';
 
-export const metadata: Metadata = {
-  title: 'Каталог букетів',
-  description:
-    'Ознайомтесь з каталогом букетів Bloomify — витончені флористичні композиції для будь-якої нагоди. Авторські букети з доставкою по всій Україні.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerTranslator();
+
+  return {
+    title: t('metadata_catalog_title'),
+    description: t('metadata_catalog_description'),
+  };
+}
 
 export default async function CatalogPage() {
   const { t } = await getServerTranslator();

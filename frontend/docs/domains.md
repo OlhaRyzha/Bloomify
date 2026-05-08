@@ -36,8 +36,9 @@ Owns:
 Rules:
 
 - Route `page.tsx` should stay a Server Component.
-- Detail data should be prefetched on the server and hydrated through TanStack Query.
-- The smallest route client component should own `useParams` and `useQuery`.
+- Detail data should be loaded on the server and passed as props when the detail screen can render from server data.
+- Use TanStack Query hydration only when product detail data must also be client-owned query cache after first render.
+- The smallest route client component should own interactive controls such as cart and favorites actions.
 - Product presentation should use semantic `article`, `figure`, `header`, and meaningful sections.
 
 ### Cart

@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getServerTranslator } from '@/i18n/server';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default async function NotFound() {
-  const { t } = await getServerTranslator();
+  const { locale, t } = await getServerTranslator();
 
   return (
     <section
@@ -32,7 +33,7 @@ export default async function NotFound() {
           <Button
             asChild
             size='lg'>
-            <Link href='/'>
+            <Link href={getLocalizedPath('/', locale)}>
               <Home className='mr-2 h-5 w-5' />
               {t('not_found_home_cta')}
             </Link>
@@ -41,7 +42,7 @@ export default async function NotFound() {
             asChild
             size='lg'
             variant='secondary'>
-            <Link href='/catalog'>
+            <Link href={getLocalizedPath('/catalog', locale)}>
               {t('not_found_catalog_cta')}
               <ArrowRight className='ml-2 h-5 w-5' />
             </Link>

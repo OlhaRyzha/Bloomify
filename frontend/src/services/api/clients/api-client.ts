@@ -11,6 +11,7 @@ import { isAbsoluteUrl } from '@/utils/guards/is-absolute-url';
 import { getHost } from '@/utils/url/get-host';
 import { safeRequest, safeVoidRequest } from '@/utils/api/safe-request';
 import type { SafeRequestOptions } from '@/utils/api/safe-request';
+import { getLocaleFromPathname } from '@/i18n/routing';
 
 type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
@@ -69,8 +70,8 @@ export class ApiClient {
   private getCurrentLocale(): string | null {
     if (typeof window === 'undefined') return null;
 
-    const fromStorage = window.localStorage.getItem('bloomify_locale');
-    if (fromStorage) return fromStorage;
+    const fromPathname = getLocaleFromPathname(window.location.pathname);
+    if (fromPathname) return fromPathname;
 
     const fromHtml = document.documentElement.lang;
     return fromHtml || null;

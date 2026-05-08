@@ -7,10 +7,11 @@ This folder describes the target frontend standards for Bloomify. Treat these do
 - [Frontend Architecture](./frontend-architecture.md) - Next.js App Router, server/client boundaries, hydration, imports.
 - [Domains](./domains.md) - feature ownership for catalog, product, cart, favorites, subscription, auth, checkout, and shared UI.
 - [Semantic HTML And Accessibility](./semantic-accessibility.md) - markup, ARIA, keyboard, errors, loading and empty states.
-- [Data Fetching](./data-fetching.md) - TanStack Query, server prefetch, query keys, mutations.
+- [Data Fetching](./data-fetching.md) - server route data, TanStack Query hydration, query keys, mutations.
 - [Forms](./forms.md) - Formik + Zod standards.
 - [State Management](./state-management.md) - Zustand store rules.
 - [API And Errors](./api-and-errors.md) - services, schema validation, `ApiError`, user feedback.
+- [Testing](./testing.md) - Vitest, Testing Library, MSW, fixtures, factories, mocks.
 
 ## Default Workflow
 
@@ -25,6 +26,7 @@ Before changing frontend code:
 ```bash
 make frontend-lint
 make frontend-typecheck
+make frontend-test
 make frontend-build
 ```
 Use `make frontend-build` when routes, Server Components, Client Components, hydration, or API boundaries changed.

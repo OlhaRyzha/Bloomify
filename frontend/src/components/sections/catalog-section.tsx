@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { getServerTranslator } from '@/i18n/server';
 import { Button } from '../ui/button';
 import CatalogSectionPreview from './catalog-section-preview.client';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default async function CatalogSection() {
-  const { t } = await getServerTranslator();
+  const { locale, t } = await getServerTranslator();
 
   return (
     <section
@@ -30,7 +31,9 @@ export default async function CatalogSection() {
             asChild
             size='lg'
             variant='secondary'>
-            <Link href='/catalog'>{t('sections_catalog_button')}</Link>
+            <Link href={getLocalizedPath('/catalog', locale)}>
+              {t('sections_catalog_button')}
+            </Link>
           </Button>
         </div>
       </div>

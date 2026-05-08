@@ -19,7 +19,7 @@ Use Server Components for:
 - metadata
 - reading route params
 - reading cookies
-- prefetching data for the route
+- loading route-critical data
 - static layout and semantic page structure
 
 Use Client Components for:
@@ -49,18 +49,15 @@ Add memoization only when there is a clear need.
 - Use `memo` only when a component has a proven re-render problem or expensive render path.
 - Do not add memoization by default for simple values, small maps, or trivial handlers.
 
-## TanStack Query Hydration Pattern
+## Route Data Pattern
 
-For detail pages, prefetch route data in the Server Component and hydrate it into the Client Component.
+Prefer server-first route data when the page can render from server data and only small controls need client-side behavior.
 
 ```tsx
 // app/catalog/[id]/page.tsx
-import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
-import ProductDetailsClient from './product-details.client';
 import ProductsService from '@/features/catalog/api/products.service';
-import { productsQueryKeys } from '@/features/catalog/api/query-keys';
+import ProductFeature from '@/features/product/product';
 import { getServerTranslator } from '@/i18n/server';
-import { createQueryClient } from '@/services/queryClient';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -68,17 +65,34 @@ type PageProps = {
 
 export default async function CatalogItemPage({ params }: PageProps) {
   const { id } = await params;
-  const { locale } = await getServerTranslator();
+  const { locale, t } = await getServerTranslator();
+  const product = await ProductsService.getProductById(id, { lang: locale });
+
+  return <ProductFeature product={product} copy={{ actionsLabel: t('product_actions_label') }} />;
+}
+```
+
+Do not add TanStack Query hydration just because data is loaded on the route. A Server Component can load data and pass it as plain props when the data is only needed for the initial render.
+
+Use TanStack Query hydration only when the same route-critical data must become client-owned server state after first render, for example live filters, mutations that update the same cache, background refetching, or cache sharing with other client query consumers.
+
+```tsx
+// app/notes/[id]/page.tsx
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+import { createQueryClient } from '@/services/queryClient';
+import NoteDetailsClient from './note-details.client';
+
+export default async function NoteDetailsPage() {
   const queryClient = createQueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: productsQueryKeys.detail(id, locale),
-    queryFn: () => ProductsService.getProductById(id, { lang: locale }),
+    queryKey: ['note', id],
+    queryFn: () => getNote(id),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ProductDetailsClient />
+      <NoteDetailsClient />
     </HydrationBoundary>
   );
 }
@@ -87,23 +101,25 @@ export default async function CatalogItemPage({ params }: PageProps) {
 The Client Component should use the same `queryKey` as the server prefetch. Use `refetchOnMount: false` when the server already hydrated fresh data for that route.
 
 ```tsx
-// app/catalog/[id]/product-details.client.tsx
+// app/notes/[id]/note-details.client.tsx
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useGetProductById } from '@/features/catalog/api/use-products';
+import { useQuery } from '@tanstack/react-query';
 
-export default function ProductDetailsClient() {
+export default function NoteDetailsClient() {
   const { id } = useParams<{ id: string }>();
 
-  const { data, isLoading, error } = useGetProductById(id, {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['note', id],
+    queryFn: () => getNote(id),
     refetchOnMount: false,
   });
 
   if (isLoading) return null;
   if (error || !data) return null;
 
-  return <ProductView product={data} />;
+  return <NoteView note={data} />;
 }
 ```
 
@@ -139,7 +155,8 @@ Before adding `"use client"`:
 
 - Can the parent stay server-rendered?
 - Can only the button, form, or control be client-side?
-- Can server route data be prefetched and hydrated?
+- Can server route data be passed as props instead of hydrated into TanStack Query?
+- Is `HydrationBoundary` needed because the client must own the same query cache after first render?
 - Does this component really need browser APIs or hooks?
 - Will importing this file from a Client Component pull unnecessary static UI into the bundle?
 

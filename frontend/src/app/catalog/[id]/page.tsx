@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import ProductsService from '@/features/catalog/api/products.service';
 import ProductFeature from '@/features/product/product';
 import { getServerTranslator } from '@/i18n/server';
+import { getLocalizedPath } from '@/i18n/routing';
 
 type CatalogItemPageProps = {
   params: Promise<{ id: string }>;
@@ -36,7 +37,9 @@ export default async function CatalogItemPage({
             asChild
             variant='ghost'
             className='mt-4'>
-            <Link href='/catalog'>{t('product_back_to_catalog')}</Link>
+            <Link href={getLocalizedPath('/catalog', locale)}>
+              {t('product_back_to_catalog')}
+            </Link>
           </Button>
         </div>
       </section>
@@ -52,7 +55,9 @@ export default async function CatalogItemPage({
           <Button
             asChild
             variant='ghost'>
-            <Link href='/catalog'>{t('product_back_to_catalog')}</Link>
+            <Link href={getLocalizedPath('/catalog', locale)}>
+              {t('product_back_to_catalog')}
+            </Link>
           </Button>
           <p className='text-sm text-muted-foreground'>
             {t('product_article')}: {product.id.padStart(3, '0')}

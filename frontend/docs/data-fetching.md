@@ -70,9 +70,37 @@ export const useGetProductById = (id: string, options?: GetProductOptions) => {
 };
 ```
 
+## Server Route Data
+
+Use Server Components for route-critical data when the route can render from server data and only small controls need client-side behavior.
+
+Preferred flow:
+
+```text
+Server page -> service call -> plain props -> small Client Component only for interactivity
+```
+
+This keeps the page server-rendered, reduces client JavaScript, and avoids a hydration payload when the query cache is not needed on the client.
+
+Do not turn the whole page into a Client Component just to use `useQuery`.
+
 ## Server Prefetch And Hydration
 
-Use server prefetch for route-critical data, especially detail pages.
+Use TanStack Query prefetch and `HydrationBoundary` only when route-critical data must also become client-owned query cache after first render.
+
+Good reasons:
+
+- the Client Component needs `useQuery` for the same data after hydration
+- the screen has live filters, pagination, or background refetching
+- mutations update the same query cache
+- several client components read the same hydrated query key
+
+Avoid hydration when:
+
+- the Server Component can render the data and pass plain props
+- only buttons, cart controls, or favorite toggles need client-side behavior
+- the Client Component does not read the same data with `useQuery`
+- it would add a `QueryClient`, `dehydrate`, and hydration payload without a user-facing benefit
 
 Rules:
 
@@ -82,8 +110,6 @@ Rules:
 - Read the same data from a small Client Component with the same query key.
 - Use `refetchOnMount: false` when hydrated data is fresh enough.
 - Use the domain query key factory in both places.
-
-Do not turn the whole page into a Client Component just to use `useQuery`.
 
 ## Global Query Loading
 

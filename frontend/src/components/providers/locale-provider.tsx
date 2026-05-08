@@ -15,9 +15,6 @@ import {
 } from '@/locales/translations';
 import { ensureLocale } from '@/utils/i18n';
 
-const LOCALE_STORAGE_KEY = 'bloomify_locale';
-const LOCALE_COOKIE_KEY = 'bloomify_locale';
-
 type LocaleContextValue = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
@@ -25,14 +22,6 @@ type LocaleContextValue = {
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
-
-const persistLocale = (locale: Locale) => {
-  if (typeof window === 'undefined') return;
-
-  window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
-  document.documentElement.lang = locale;
-  document.cookie = `${LOCALE_COOKIE_KEY}=${locale}; path=/; max-age=31536000; samesite=lax`;
-};
 
 type LocaleProviderProps = {
   children: ReactNode;
@@ -47,12 +36,12 @@ export function LocaleProvider({
   const [locale, setLocaleState] = useState<Locale>(resolvedInitialLocale);
 
   useEffect(() => {
-    persistLocale(locale);
-  }, [locale]);
+    document.documentElement.lang = resolvedInitialLocale;
+  }, [resolvedInitialLocale]);
 
   const setLocale = (nextLocale: Locale) => {
     const resolvedLocale = ensureLocale(nextLocale);
-    persistLocale(resolvedLocale);
+    document.documentElement.lang = resolvedLocale;
     setLocaleState(resolvedLocale);
   };
 

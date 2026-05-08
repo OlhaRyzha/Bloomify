@@ -11,12 +11,13 @@ import { useFavoritesStore } from './store/favorites.store';
 import { useTranslation } from '@/hooks/use-translation';
 import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { getFavoriteCatalogItems } from './favorites.helpers';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default function FavoritesFeature() {
   const isHydrated = useHydrated();
   const favoriteIds = useFavoritesStore(selectFavoriteIds);
   const { data, isLoading } = useGetProducts();
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
 
   const favoriteItems = useMemo(
     () =>
@@ -44,7 +45,9 @@ export default function FavoritesFeature() {
         <Button
           asChild
           size='lg'>
-          <Link href='/catalog'>{t('sections_favorites_empty_cta')}</Link>
+          <Link href={getLocalizedPath('/catalog', locale)}>
+            {t('sections_favorites_empty_cta')}
+          </Link>
         </Button>
       </section>
     );
