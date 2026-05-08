@@ -85,6 +85,7 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
 
     setLocale(nextLocale);
     router.replace(nextPath);
+    router.refresh();
   };
 
   return (
