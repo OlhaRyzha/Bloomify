@@ -52,3 +52,10 @@ repos:
         language: system
         pass_filenames: false
         files: ^frontend/.*\.(ts|tsx)$
+
+      - id: frontend-unit-tests
+        name: unit tests (frontend)
+        entry: make frontend-test-unit
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx)$

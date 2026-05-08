@@ -3,11 +3,14 @@ import SectionHeader from '@/components/ui/section-header';
 import FavoritesFeature from '@/features/favorites/favorites';
 import { getServerTranslator } from '@/i18n/server';
 
-export const metadata: Metadata = {
-  title: 'Вибране',
-  description:
-    'Переглядайте збережені букети Bloomify, які вам найбільше сподобались. Поверніться до улюблених композицій та легко оформлюйте замовлення.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerTranslator();
+
+  return {
+    title: t('metadata_favorites_title'),
+    description: t('metadata_favorites_description'),
+  };
+}
 
 export default async function FavoritesPage() {
   const { t } = await getServerTranslator();

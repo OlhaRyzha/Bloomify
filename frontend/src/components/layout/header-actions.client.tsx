@@ -10,6 +10,8 @@ import LocaleSwitcher from '../ui/locale-switcher';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { selectCartCount } from '@/features/cart/store/cart.selectors';
 import { useCartStore } from '@/features/cart/store/cart.store';
+import { useLocale } from '@/components/providers/locale-provider';
+import { getLocalizedPath, stripLocaleFromPathname } from '@/i18n/routing';
 
 type HeaderNavLink = {
   href: string;
@@ -41,6 +43,8 @@ export default function HeaderActions({
   const pathname = usePathname();
   const isHydrated = useHydrated();
   const cartCount = useCartStore(selectCartCount);
+  const { locale } = useLocale();
+  const pathnameWithoutLocale = stripLocaleFromPathname(pathname);
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -57,7 +61,7 @@ export default function HeaderActions({
           size='icon'
           className='hidden md:inline-flex'>
           <Link
-            href='/profile'
+            href={getLocalizedPath('/profile', locale)}
             aria-label={copy.profileLabel}>
             <User
               className='h-5 w-5'
@@ -72,7 +76,7 @@ export default function HeaderActions({
           size='icon'
           className='relative'>
           <Link
-            href='/cart'
+            href={getLocalizedPath('/cart', locale)}
             aria-label={copy.cartLabel}>
             <ShoppingBag
               className='h-5 w-5'
@@ -123,7 +127,11 @@ export default function HeaderActions({
                 <Link
                   key={link.key}
                   href={link.href}
-                  aria-current={pathname === link.href ? 'page' : undefined}
+                  aria-current={
+                    pathnameWithoutLocale === stripLocaleFromPathname(link.href)
+                      ? 'page'
+                      : undefined
+                  }
                   className='text-base font-medium text-foreground transition-colors hover:text-primary'
                   onClick={closeMenu}>
                   {link.label}
@@ -134,7 +142,10 @@ export default function HeaderActions({
                 asChild
                 className='mt-2 w-full'>
                 <Link
-                  href={pathname === '/login' ? '/profile' : '/login'}
+                  href={getLocalizedPath(
+                    pathnameWithoutLocale === '/login' ? '/profile' : '/login',
+                    locale
+                  )}
                   onClick={closeMenu}>
                   <User
                     className='mr-2 h-4 w-4'

@@ -3,11 +3,14 @@ import SectionHeader from '@/components/ui/section-header';
 import CartFeature from '@/features/cart/cart';
 import { getServerTranslator } from '@/i18n/server';
 
-export const metadata: Metadata = {
-  title: 'Кошик',
-  description:
-    'Оформіть замовлення у Bloomify — перегляньте вибрані букети, додайте побажання та оберіть зручний час доставки.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerTranslator();
+
+  return {
+    title: t('metadata_cart_title'),
+    description: t('metadata_cart_description'),
+  };
+}
 
 export default async function CartPage() {
   const { t } = await getServerTranslator();

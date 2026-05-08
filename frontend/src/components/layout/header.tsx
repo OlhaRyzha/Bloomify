@@ -2,13 +2,15 @@ import Link from 'next/link';
 import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
 import { getServerTranslator } from '@/i18n/server';
 import HeaderActions from './header-actions.client';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default async function Header() {
   const mobileNavId = 'mobile-navigation';
-  const { t } = await getServerTranslator();
+  const { locale, t } = await getServerTranslator();
 
   const navigationLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
+    href: getLocalizedPath(link.href, locale),
     label: t(`navigation_main_${link.key}`),
   }));
 
@@ -17,7 +19,7 @@ export default async function Header() {
       <div className='mx-auto max-w-6xl px-4'>
         <div className='flex h-20 items-center justify-between'>
           <Link
-            href='/'
+            href={getLocalizedPath('/', locale)}
             className='flex items-center gap-2'>
             <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
               {t('common_brand')}

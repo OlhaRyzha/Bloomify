@@ -1,11 +1,10 @@
-import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
+import { LOCALE_HEADER } from '@/i18n/routing';
 import { createTranslator } from '@/i18n/translator';
 import { defaultLocale } from '@/locales/translations';
 
-const LOCALE_COOKIE = 'bloomify_locale';
-
 export async function getServerTranslator() {
-  const cookieStore = await cookies();
-  const locale = cookieStore.get(LOCALE_COOKIE)?.value ?? defaultLocale;
+  const headerStore = await headers();
+  const locale = headerStore.get(LOCALE_HEADER) ?? defaultLocale;
   return createTranslator(locale);
 }

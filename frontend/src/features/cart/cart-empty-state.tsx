@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
+import { getLocalizedPath } from '@/i18n/routing';
 
 export default function CartEmptyState() {
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
 
   return (
     <div className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
@@ -16,7 +17,9 @@ export default function CartEmptyState() {
       <Button
         asChild
         size='lg'>
-        <Link href='/catalog'>{t('cart_empty_cta')}</Link>
+        <Link href={getLocalizedPath('/catalog', locale)}>
+          {t('cart_empty_cta')}
+        </Link>
       </Button>
     </div>
   );

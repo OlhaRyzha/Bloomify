@@ -1,7 +1,7 @@
 'use client';
 
 import { Globe } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Select,
@@ -19,6 +19,7 @@ import { useLocale } from '@/components/providers/locale-provider';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 import { BASE_URL } from '@/components/config/env';
+import { getLocalizedPath } from '@/i18n/routing';
 
 type LocaleSwitcherProps = {
   className?: string;
@@ -26,6 +27,8 @@ type LocaleSwitcherProps = {
 
 export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { locale, setLocale } = useLocale();
   const { t } = useTranslation();
   const [enabledLocales, setEnabledLocales] =
@@ -73,8 +76,15 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
   }, [currentLocale, locale, setLocale]);
 
   const handleLocaleChange = (value: string) => {
-    setLocale(value as Locale);
-    router.refresh();
+    const nextLocale = value as Locale;
+    const query = searchParams.toString();
+    const nextPath = getLocalizedPath(
+      query ? `${pathname}?${query}` : pathname,
+      nextLocale
+    );
+
+    setLocale(nextLocale);
+    router.replace(nextPath);
   };
 
   return (
