@@ -31,6 +31,24 @@ describe('ProductsService', () => {
     );
   });
 
+  test('adds the current route locale when locale params are omitted', async () => {
+    window.history.pushState({}, '', '/uk/catalog');
+
+    const products = [createProductItem({ id: 'locale-aware-bouquet' })];
+
+    server.use(
+      http.get(apiUrl('products'), ({ request }) => {
+        const url = new URL(request.url);
+
+        expect(url.searchParams.get('lang')).toBe('uk');
+
+        return HttpResponse.json(products);
+      })
+    );
+
+    await expect(ProductsService.getProducts()).resolves.toEqual(products);
+  });
+
   test('loads a product by id', async () => {
     const product = createProductItem({ id: 'white-harmony' });
 

@@ -12,6 +12,7 @@ import { getHost } from '@/utils/url/get-host';
 import { safeRequest, safeVoidRequest } from '@/utils/api/safe-request';
 import type { SafeRequestOptions } from '@/utils/api/safe-request';
 import { getLocaleFromPathname } from '@/i18n/routing';
+import { isObject } from '@/utils/guards/is-object';
 
 type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
@@ -24,6 +25,34 @@ type RequestParams<TBody = unknown> = {
 
 const silentRequestOptions: SafeRequestOptions = {
   showErrorToast: false,
+};
+
+const withLocaleParam = (
+  params: AxiosRequestConfig['params'],
+  locale: string
+) => {
+  if (params instanceof URLSearchParams) {
+    const nextParams = new URLSearchParams(params);
+
+    if (!nextParams.has('lang')) {
+      nextParams.set('lang', locale);
+    }
+
+    return Object.fromEntries(nextParams.entries());
+  }
+
+  if (!isObject(params)) {
+    return { lang: locale };
+  }
+
+  if ('lang' in params) {
+    return params;
+  }
+
+  return {
+    ...params,
+    lang: locale,
+  };
 };
 
 export class ApiClient {
@@ -89,11 +118,7 @@ export class ApiClient {
     const locale = this.getCurrentLocale();
     if (!locale) return config;
 
-    const params = new URLSearchParams(config.params as Record<string, string> | undefined);
-    if (!params.has('lang')) {
-      params.set('lang', locale);
-      config.params = Object.fromEntries(params.entries());
-    }
+    config.params = withLocaleParam(config.params, locale);
 
     return config;
   }
