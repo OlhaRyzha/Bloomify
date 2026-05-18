@@ -15,7 +15,6 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useLocale } from '@/components/providers/locale-provider';
 import { useTranslation } from '@/hooks/use-translation';
@@ -33,7 +32,7 @@ import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { checkoutInitialValues } from './forms/checkout-form.config';
 import {
   CHECKOUT_PAYMENT_METHODS,
-  checkoutSchema,
+  createCheckoutSchema,
   type CheckoutFormValues,
   type CheckoutPaymentMethod,
 } from './forms/checkout-form.schemas';
@@ -42,7 +41,6 @@ type PaymentOption = {
   descriptionKey: string;
   icon: typeof Apple;
   id: CheckoutPaymentMethod;
-  recommended?: boolean;
   titleKey: string;
 };
 
@@ -66,13 +64,12 @@ const paymentOptions: PaymentOption[] = [
     descriptionKey: 'checkout_payment_card_description',
   },
   {
-    id: CHECKOUT_PAYMENT_METHODS.LOCAL,
+    id: CHECKOUT_PAYMENT_METHODS.CASH_ON_DELIVERY,
     icon: WalletCards,
-    titleKey: 'checkout_payment_local_title',
-    descriptionKey: 'checkout_payment_local_description',
-    recommended: true,
+    titleKey: 'checkout_payment_cash_title',
+    descriptionKey: 'checkout_payment_cash_description',
   },
-] as const;
+];
 
 type CheckoutFieldName = keyof CheckoutFormValues;
 
@@ -109,7 +106,7 @@ function CheckoutField({
   const errorId = `${name}-error`;
 
   return (
-    <div className='space-y-2'>
+    <div className='space-y-3'>
       <label
         htmlFor={name}
         className='text-sm font-medium text-foreground'>
@@ -145,6 +142,22 @@ export default function CheckoutFeature() {
   const { data: catalogItems = [], isLoading } = useGetProducts();
   const { t } = useTranslation();
   const { locale } = useLocale();
+  const checkoutSchema = useMemo(
+    () =>
+      createCheckoutSchema({
+        address: t('checkout_validation_address_required'),
+        cardCvc: t('checkout_validation_card_cvc_required'),
+        cardExpiry: t('checkout_validation_card_expiry_required'),
+        cardNumber: t('checkout_validation_card_number_required'),
+        city: t('checkout_validation_city_required'),
+        email: t('checkout_validation_email_required'),
+        invalidEmail: t('checkout_validation_email_invalid'),
+        minName: t('checkout_validation_name_min'),
+        name: t('checkout_validation_name_required'),
+        phone: t('checkout_validation_phone_required'),
+      }),
+    [t]
+  );
 
   const summary = useMemo(() => {
     if (!isHydrated) {
@@ -335,11 +348,6 @@ export default function CheckoutFeature() {
                       <span className='flex-1'>
                         <span className='flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground'>
                           {t(option.titleKey)}
-                          {option.recommended && (
-                            <Badge variant='secondary'>
-                              {t('checkout_payment_recommended')}
-                            </Badge>
-                          )}
                         </span>
                         <span className='mt-1 block text-sm text-muted-foreground'>
                           {t(option.descriptionKey)}
@@ -351,7 +359,7 @@ export default function CheckoutFeature() {
               </fieldset>
 
               {values.paymentMethod === CHECKOUT_PAYMENT_METHODS.CARD && (
-                <div className='grid gap-4 rounded-2xl border border-border bg-background/70 p-4 md:grid-cols-2'>
+                <div className='grid gap-6 rounded-2xl border border-border bg-background/70 p-4 md:grid-cols-2'>
                   <div className='md:col-span-2'>
                     <CheckoutField
                       name='cardNumber'
