@@ -106,10 +106,10 @@ function CheckoutField({
   const errorId = `${name}-error`;
 
   return (
-    <div className='space-y-3'>
+    <div>
       <label
         htmlFor={name}
-        className='text-sm font-medium text-foreground'>
+        className='mb-2 block text-sm font-medium text-foreground'>
         {label}
       </label>
       <Input
@@ -128,7 +128,7 @@ function CheckoutField({
       {errorMessage && (
         <p
           id={errorId}
-          className='text-xs font-medium text-destructive'>
+          className='mt-2 text-xs font-medium text-destructive'>
           {errorMessage}
         </p>
       )}
