@@ -2,7 +2,13 @@ from django.test import TestCase
 
 
 class SerializersSmokeTest(TestCase):
-    def test_serializers_module_imports(self):
-        from shop import serializers  # noqa: F401
+    def test_serializer_classes_import(self):
+        from shop.serializers.order import CheckoutCreateSerializer
+        from shop.serializers.product import ProductSerializer
+        from shop.serializers.site_language_settings import (
+            SiteLanguageSettingsSerializer,
+        )
 
-        self.assertTrue(True)
+        self.assertIsNotNone(CheckoutCreateSerializer)
+        self.assertIsNotNone(ProductSerializer)
+        self.assertIsNotNone(SiteLanguageSettingsSerializer)

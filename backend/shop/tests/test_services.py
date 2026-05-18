@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from shop.services import get_site_languages_settings
+from shop.services.site_languages import get_site_languages_settings
 
 
 class ServicesTest(TestCase):

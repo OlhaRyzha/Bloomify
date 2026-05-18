@@ -1,14 +1,9 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from shop.views import (
-    CheckoutCreateView,
-    LiqPayCallbackView,
-    ProductDetailView,
-    ProductListCreateView,
-    SiteLanguagesView,
-)
-from shop.views.products import html
+from shop.views.orders import CheckoutCreateView, LiqPayCallbackView
+from shop.views.products import ProductDetailView, ProductListCreateView, html
+from shop.views.site_languages import SiteLanguagesView
 
 urlpatterns = [
     path("products", ProductListCreateView.as_view(), name="products"),

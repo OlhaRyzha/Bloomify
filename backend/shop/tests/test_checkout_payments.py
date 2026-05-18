@@ -2,13 +2,14 @@ from decimal import Decimal
 
 from django.test import TestCase, override_settings
 
-from shop.models import Order, Product
+from shop.models import Order
 from shop.services.liqpay import create_signature, decode_data, encode_data
+from shop.tests.factories import create_order, create_product
 
 
 class CheckoutPaymentsTest(TestCase):
     def setUp(self):
-        self.product = Product.objects.create(price=Decimal("1750.00"))
+        self.product = create_product(price=Decimal("1750.00"))
 
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
@@ -78,7 +79,7 @@ class CheckoutPaymentsTest(TestCase):
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
     )
     def test_liqpay_callback_marks_order_paid_after_signature_verification(self):
-        order = Order.objects.create(
+        order = create_order(
             payment_provider="liqpay",
             payment_method="card",
             payment_status="pending",

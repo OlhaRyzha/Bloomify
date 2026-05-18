@@ -3,8 +3,8 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from shop.serializers import SiteLanguageSettingsSerializer
-from shop.services import get_site_languages_settings
+from shop.serializers.site_language_settings import SiteLanguageSettingsSerializer
+from shop.services.site_languages import get_site_languages_settings
 
 
 class SiteLanguagesView(APIView):

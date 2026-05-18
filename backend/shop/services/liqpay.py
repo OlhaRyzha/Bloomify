@@ -1,13 +1,13 @@
 import base64
 import hashlib
 import hmac
-import json
 from decimal import Decimal
 from typing import Any
 
 from django.conf import settings
 
 from shop.models import Order
+from shop.security.encoding import decode_json_payload, encode_json_payload
 
 
 class LiqPayConfigurationError(RuntimeError):
@@ -24,16 +24,11 @@ def create_signature(data: str) -> str:
 
 
 def encode_data(payload: dict[str, Any]) -> str:
-    encoded_json = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
-    return base64.b64encode(encoded_json.encode()).decode()
+    return encode_json_payload(payload)
 
 
 def decode_data(data: str) -> dict[str, Any]:
-    decoded = base64.b64decode(data).decode()
-    payload = json.loads(decoded)
-    if not isinstance(payload, dict):
-        raise ValueError("LiqPay data payload must be an object")
-    return payload
+    return decode_json_payload(data)
 
 
 def create_checkout_payload(order: Order) -> dict[str, str]:
