@@ -25,6 +25,7 @@ import { useGetProducts } from '@/features/catalog/api/use-products';
 import { formatCurrency } from '@/utils/i18n';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
+import { ApiError } from '@/utils/api/api-error';
 import { selectCartItems } from '@/features/cart/store/cart.selectors';
 import { useCartStore } from '@/features/cart/store/cart.store';
 import { getCartSummary } from '@/features/cart/cart.helpers';
@@ -36,6 +37,8 @@ import {
   type CheckoutFormValues,
   type CheckoutPaymentMethod,
 } from './forms/checkout-form.schemas';
+import CheckoutService from './api/checkout.service';
+import type { LiqPayCheckoutPayload } from './api/checkout.service';
 
 type PaymentOption = {
   descriptionKey: string;
@@ -136,6 +139,26 @@ function CheckoutField({
   );
 }
 
+function submitLiqPayCheckout(payload: LiqPayCheckoutPayload) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = payload.checkoutUrl;
+
+  const dataInput = document.createElement('input');
+  dataInput.type = 'hidden';
+  dataInput.name = 'data';
+  dataInput.value = payload.data;
+
+  const signatureInput = document.createElement('input');
+  signatureInput.type = 'hidden';
+  signatureInput.name = 'signature';
+  signatureInput.value = payload.signature;
+
+  form.append(dataInput, signatureInput);
+  document.body.append(form);
+  form.submit();
+}
+
 export default function CheckoutFeature() {
   const isHydrated = useHydrated();
   const cartItems = useCartStore(useShallow(selectCartItems));
@@ -199,9 +222,36 @@ export default function CheckoutFeature() {
     <Formik<CheckoutFormValues>
       initialValues={checkoutInitialValues}
       validate={(values) => validateWithZod(checkoutSchema, values)}
-      onSubmit={(_, actions) => {
-        actions.setStatus(t('checkout_submit_status'));
-        actions.setSubmitting(false);
+      onSubmit={async (values, actions) => {
+        actions.setStatus(undefined);
+
+        try {
+          const response = await CheckoutService.createCheckout({
+            customerName: values.customerName,
+            email: values.email,
+            phone: values.phone,
+            city: values.city,
+            address: values.address,
+            deliveryNote: values.deliveryNote,
+            paymentMethod: values.paymentMethod,
+            items: cartItems.map((item) => ({
+              id: item.id,
+              quantity: item.quantity,
+            })),
+          });
+
+          if (response.liqpay) {
+            actions.setStatus(t('checkout_submit_liqpay_redirect'));
+            submitLiqPayCheckout(response.liqpay);
+            return;
+          }
+
+          actions.setStatus(t('checkout_submit_cash_status'));
+        } catch (error) {
+          actions.setStatus(ApiError.fromUnknown(error).userMessage);
+        } finally {
+          actions.setSubmitting(false);
+        }
       }}>
       {({
         errors,

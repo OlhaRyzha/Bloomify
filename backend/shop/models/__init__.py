@@ -1,4 +1,4 @@
-from .order import Order
+from .order import Order, OrderItem
 from .product import Product
 from .site_language_settings import SiteLanguageSettings
 from .subscription import Subscription, SubscriptionPlan
@@ -9,4 +9,5 @@ __all__ = [
     "Subscription",
     "SiteLanguageSettings",
     "Order",
+    "OrderItem",
 ]
