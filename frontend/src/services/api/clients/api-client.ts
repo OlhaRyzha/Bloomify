@@ -13,6 +13,7 @@ import { safeRequest, safeVoidRequest } from '@/utils/api/safe-request';
 import type { SafeRequestOptions } from '@/utils/api/safe-request';
 import { getLocaleFromPathname } from '@/i18n/routing';
 import { isObject } from '@/utils/guards/is-object';
+import { useAuthTokenStore } from '@/features/auth/store/auth-token.store';
 
 type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
@@ -109,8 +110,10 @@ export class ApiClient {
   private handleBaseRequest = (
     config: InternalAxiosRequestConfig
   ): InternalAxiosRequestConfig => {
-    // const token = getAuthTokenSomehow();
-    // if (token) config.headers.setAuthorization(`Bearer ${token}`);
+    const accessToken = useAuthTokenStore.getState().accessToken;
+    if (accessToken) {
+      config.headers.set('Authorization', `Bearer ${accessToken}`);
+    }
 
     const url = config.url ?? '';
     if (url.startsWith('/api/')) return config;

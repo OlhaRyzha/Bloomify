@@ -1,6 +1,8 @@
 
 BACKEND_DIR=backend
 FRONTEND_DIR=frontend
+BACKEND_PORT=8000
+FRONTEND_PORT=3000
 
 # ---------- Frontend ----------
 
@@ -12,6 +14,15 @@ frontend-ci-install:
 
 start:
 	cd $(FRONTEND_DIR) && npm run dev
+
+liqpay-dev:
+	python3 scripts/liqpay_dev.py
+
+tunnel-backend:
+	cloudflared tunnel --url http://localhost:$(BACKEND_PORT)
+
+tunnel-frontend:
+	cloudflared tunnel --url http://localhost:$(FRONTEND_PORT)
 
 frontend-build:
 	cd $(FRONTEND_DIR) && npm run build

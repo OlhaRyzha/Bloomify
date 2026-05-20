@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { screen } from '@testing-library/react';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { createProductItem } from '@/features/catalog/api/products.factory';
 import { useCartStore } from '@/features/cart/store/cart.store';
@@ -30,9 +30,32 @@ const mockProducts = () => {
   );
 };
 
+const mockCheckout = () => {
+  server.use(
+    http.post(apiUrl('orders/checkout'), () =>
+      HttpResponse.json(
+        {
+          orderId: 1,
+          status: 'pending',
+          paymentStatus: 'pending',
+          paymentProvider: 'liqpay',
+          paymentMethod: 'card',
+          liqpay: {
+            checkoutUrl: 'https://www.liqpay.ua/api/3/checkout',
+            data: 'encoded-data',
+            signature: 'encoded-signature',
+          },
+        },
+        { status: 201 }
+      )
+    )
+  );
+};
+
 describe('CheckoutFeature', () => {
   beforeEach(() => {
     resetCartStore();
+    vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {});
   });
 
   test('shows empty checkout state when the cart has no items', async () => {
@@ -45,7 +68,7 @@ describe('CheckoutFeature', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders order summary and card fields when card payment is selected', async () => {
+  test('renders order summary and hosted payment method choices', async () => {
     mockProducts();
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 2 }] });
 
@@ -63,23 +86,34 @@ describe('CheckoutFeature', () => {
 
     await user.click(screen.getByRole('radio', { name: /^card/i }));
 
-    expect(screen.getByLabelText(/card number/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/expiry/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/cvc/i)).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^card/i })).toBeChecked();
+    expect(screen.queryByLabelText(/card number/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/expiry/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/cvc/i)).not.toBeInTheDocument();
   });
 
-  test('shows localized card validation messages', async () => {
+  test('redirects card payments to hosted LiqPay checkout', async () => {
     mockProducts();
+    mockCheckout();
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
 
     const { user } = renderWithProviders(<CheckoutFeature />, { locale: 'en' });
 
     await screen.findByText('Rose bouquet');
+    await user.type(screen.getByLabelText(/full name/i), 'Tom Smith');
+    await user.type(screen.getByLabelText(/phone/i), '+380671234567');
+    await user.type(screen.getByLabelText(/email/i), 'tom@example.com');
+    await user.clear(screen.getByLabelText(/city/i));
+    await user.type(screen.getByLabelText(/city/i), 'Kyiv');
+    await user.type(
+      screen.getByLabelText(/delivery address/i),
+      'Khreshchatyk 1'
+    );
     await user.click(screen.getByRole('radio', { name: /^card/i }));
     await user.click(screen.getByRole('button', { name: /pay for order/i }));
 
-    expect(await screen.findByText('Enter the card number.')).toBeInTheDocument();
-    expect(screen.getByText('Enter the card expiry date.')).toBeInTheDocument();
-    expect(screen.getByText('Enter the CVC.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Redirecting to LiqPay test payment.')
+    ).toBeInTheDocument();
   });
 });

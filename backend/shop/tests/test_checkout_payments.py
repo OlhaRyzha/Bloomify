@@ -21,8 +21,8 @@ class CheckoutPaymentsTest(TestCase):
         response = self.client.post(
             "/orders/checkout",
             data={
-                "customerName": "Olha Ryzha",
-                "email": "olha@example.com",
+                "customerName": "Tom Smith",
+                "email": "tom@example.com",
                 "phone": "+380671234567",
                 "city": "Kyiv",
                 "address": "Khreshchatyk 1",
@@ -49,16 +49,31 @@ class CheckoutPaymentsTest(TestCase):
 
         liqpay_payload = decode_data(body["liqpay"]["data"])
         self.assertEqual(liqpay_payload["public_key"], "sandbox_public_key")
+        self.assertEqual(liqpay_payload["version"], 7)
         self.assertEqual(liqpay_payload["sandbox"], 1)
         self.assertEqual(liqpay_payload["amount"], "3500.00")
         self.assertEqual(liqpay_payload["order_id"], order.liqpay_order_id)
+        self.assertEqual(liqpay_payload["paytypes"], "card")
+
+    @override_settings(LIQPAY_PRIVATE_KEY="a4825234f4bae72a0be04eafe9e8e2bada209255")
+    def test_liqpay_signature_matches_documentation_example(self):
+        data = (
+            "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwIiwidmVyc2lvbiI6NywiYWN0aW9u"
+            "IjoicGF5IiwiYW1vdW50IjoiMyIsImN1cnJlbmN5IjoiVUFIIiwiZGVzY3Jp"
+            "cHRpb24iOiJ0ZXN0Iiwib3JkZXJfaWQiOiIwMDAwMDEifQ=="
+        )
+
+        self.assertEqual(
+            create_signature(data),
+            "0adgJ8F2Ds5HCVkcz4AlmdLMRoIJf7IxsL3QmeFRz/s=",
+        )
 
     def test_checkout_creates_cash_on_delivery_order_without_liqpay_payload(self):
         response = self.client.post(
             "/orders/checkout",
             data={
-                "customerName": "Olha Ryzha",
-                "email": "olha@example.com",
+                "customerName": "Tom Smith",
+                "email": "tom@example.com",
                 "phone": "+380671234567",
                 "city": "Kyiv",
                 "address": "Khreshchatyk 1",

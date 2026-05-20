@@ -9,6 +9,12 @@ from django.conf import settings
 from shop.models import Order
 from shop.security.encoding import decode_json_payload, encode_json_payload
 
+PAYTYPE_BY_PAYMENT_METHOD = {
+    "apple_pay": "apay",
+    "google_pay": "gpay",
+    "card": "card",
+}
+
 
 class LiqPayConfigurationError(RuntimeError):
     pass
@@ -19,7 +25,7 @@ def create_signature(data: str) -> str:
     if not private_key:
         raise LiqPayConfigurationError("LIQPAY_PRIVATE_KEY is not configured")
 
-    digest = hashlib.sha1(f"{private_key}{data}{private_key}".encode()).digest()
+    digest = hashlib.sha3_256(f"{private_key}{data}{private_key}".encode()).digest()
     return base64.b64encode(digest).decode()
 
 
@@ -37,7 +43,7 @@ def create_checkout_payload(order: Order) -> dict[str, str]:
         raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
 
     payload: dict[str, Any] = {
-        "version": 3,
+        "version": 7,
         "public_key": public_key,
         "action": "pay",
         "amount": _format_amount(order.total),
@@ -50,6 +56,10 @@ def create_checkout_payload(order: Order) -> dict[str, str]:
 
     if settings.LIQPAY_SERVER_URL:
         payload["server_url"] = settings.LIQPAY_SERVER_URL
+
+    paytype = PAYTYPE_BY_PAYMENT_METHOD.get(order.payment_method)
+    if paytype:
+        payload["paytypes"] = paytype
 
     data = encode_data(payload)
     return {

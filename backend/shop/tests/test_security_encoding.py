@@ -9,7 +9,7 @@ class JsonPayloadEncodingTest(SimpleTestCase):
     def test_round_trip_preserves_payload(self):
         payload = {
             "sub": "user-1",
-            "email": "olha@example.com",
+            "email": "tom@example.com",
             "scope": "checkout",
         }
 

@@ -30,7 +30,7 @@ export default async function Footer() {
   return (
     <footer
       id='contact'
-      className='bg-primary text-primary-foreground'>
+      className='scroll-mt-24 bg-primary text-primary-foreground'>
       <div className='border-b border-primary-foreground/10'>
         <div className='mx-auto max-w-6xl px-4 py-12'>
           <div className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
@@ -131,7 +131,7 @@ export default async function Footer() {
               {FOOTER_CONTACT_ITEMS.map((item) => {
                 const text = item.labelKey
                   ? t(item.labelKey)
-                  : item.staticText ?? '';
+                  : (item.staticText ?? '');
                 const href =
                   item.id === 'address'
                     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`
@@ -170,9 +170,7 @@ export default async function Footer() {
         </div>
 
         <div className='mt-12 flex flex-col items-center justify-between gap-4 border-t border-primary-foreground/10 pt-8 md:flex-row'>
-          <p className='text-sm text-primary-foreground/60'>
-            {rightsMessage}
-          </p>
+          <p className='text-sm text-primary-foreground/60'>{rightsMessage}</p>
           <div className='flex gap-6'>
             <Link
               href={getLocalizedPath('/privacy', locale)}

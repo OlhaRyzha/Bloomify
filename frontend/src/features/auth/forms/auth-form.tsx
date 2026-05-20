@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Formik, Form } from 'formik';
 import { Chrome } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,11 +25,21 @@ import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { useTranslation } from '@/hooks/use-translation';
 import { getLocalizedPath } from '@/i18n/routing';
+import { ApiError } from '@/utils/api/api-error';
+import AuthService from '../api/auth.service';
+import { useAuthTokenStore } from '../store/auth-token.store';
+import { selectSetAccessToken } from '../store/auth-token.selectors';
+import { setAuthSessionCookie } from '../auth-session-cookie';
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { locale, t } = useTranslation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const setAccessToken = useAuthTokenStore(selectSetAccessToken);
   const fields = getAuthFields({ mode, t });
   const schema = mode === 'login' ? loginSchema : registerSchema;
+  const nextPath = searchParams.get('next');
+  const profilePath = getLocalizedPath('/profile', locale);
 
   return (
     <Card
@@ -47,8 +58,30 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
         <Formik<AuthFormValues>
           initialValues={authInitialValuesByMode[mode]}
           validate={(values) => validateWithZod(schema, values)}
-          onSubmit={(_, actions) => {
-            actions.setSubmitting(false);
+          onSubmit={async (values, actions) => {
+            actions.setStatus(undefined);
+
+            try {
+              const session =
+                mode === 'login'
+                  ? await AuthService.signIn({
+                      email: values.email,
+                      password: values.password,
+                    })
+                  : await AuthService.signUp({
+                      name: values.name,
+                      email: values.email,
+                      password: values.password,
+                    });
+
+              setAccessToken(session.accessToken);
+              setAuthSessionCookie();
+              router.replace(nextPath || profilePath);
+            } catch (error) {
+              actions.setStatus(ApiError.fromUnknown(error).userMessage);
+            } finally {
+              actions.setSubmitting(false);
+            }
           }}>
           {({
             values,
@@ -57,6 +90,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
             handleChange,
             handleBlur,
             isSubmitting,
+            status,
           }) => (
             <Form className='space-y-4'>
               <Button
@@ -143,6 +177,14 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 );
               })}
 
+              {status && (
+                <p
+                  role='alert'
+                  className='rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive'>
+                  {status}
+                </p>
+              )}
+
               <Button
                 type='submit'
                 size='lg'
@@ -153,13 +195,13 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
 
               {mode === 'register' && (
                 <p className='text-xs text-muted-foreground'>
-                  {t('auth_form_terms_text')}
+                  {t('auth_form_terms_text') + ' '}
                   <Link
                     href={getLocalizedPath('/terms', locale)}
                     className='text-primary underline-offset-4 hover:underline'>
-                    {t('auth_form_terms_terms_label')}
+                    {t('auth_form_terms_terms_label') + ' '}
                   </Link>
-                  {t('auth_form_terms_and')}
+                  {t('auth_form_terms_and') + ' '}
                   <Link
                     href={getLocalizedPath('/privacy', locale)}
                     className='text-primary underline-offset-4 hover:underline'>
@@ -170,7 +212,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
               )}
 
               <p className='text-sm text-muted-foreground'>
-                {t(`auth_form_${mode}_switch_text`)}
+                {t(`auth_form_${mode}_switch_text`) + ' '}
                 <Link
                   href={getLocalizedPath(
                     t(`auth_form_${mode}_switch_href`),

@@ -1,6 +1,11 @@
 'use client';
 
-import { useMemo, type ChangeEvent, type FocusEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  type ChangeEvent,
+  type FocusEvent,
+} from 'react';
 import Link from 'next/link';
 import { Form, Formik } from 'formik';
 import {
@@ -31,6 +36,7 @@ import { useCartStore } from '@/features/cart/store/cart.store';
 import { getCartSummary } from '@/features/cart/cart.helpers';
 import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { checkoutInitialValues } from './forms/checkout-form.config';
+import CheckoutLoadingState from './checkout-loading-state';
 import {
   CHECKOUT_PAYMENT_METHODS,
   createCheckoutSchema,
@@ -39,6 +45,12 @@ import {
 } from './forms/checkout-form.schemas';
 import CheckoutService from './api/checkout.service';
 import type { LiqPayCheckoutPayload } from './api/checkout.service';
+import { useCheckoutDraftStore } from './store/checkout-draft.store';
+import type { CheckoutDraftState } from './store/checkout-draft.store';
+import {
+  selectCheckoutDeliveryDraft,
+  selectSetCheckoutDeliveryDraft,
+} from './store/checkout-draft.selectors';
 
 type PaymentOption = {
   descriptionKey: string;
@@ -159,9 +171,49 @@ function submitLiqPayCheckout(payload: LiqPayCheckoutPayload) {
   form.submit();
 }
 
+function CheckoutDraftPersistence({
+  setDeliveryDraft,
+  values,
+}: {
+  setDeliveryDraft: CheckoutDraftState['setDeliveryDraft'];
+  values: CheckoutFormValues;
+}) {
+  const {
+    address,
+    city,
+    customerName,
+    deliveryNote = '',
+    email,
+    phone,
+  } = values;
+
+  useEffect(() => {
+    setDeliveryDraft({
+      address,
+      city,
+      customerName,
+      deliveryNote,
+      email,
+      phone,
+    });
+  }, [
+    address,
+    city,
+    customerName,
+    deliveryNote,
+    email,
+    phone,
+    setDeliveryDraft,
+  ]);
+
+  return null;
+}
+
 export default function CheckoutFeature() {
   const isHydrated = useHydrated();
   const cartItems = useCartStore(useShallow(selectCartItems));
+  const deliveryDraft = useCheckoutDraftStore(selectCheckoutDeliveryDraft);
+  const setDeliveryDraft = useCheckoutDraftStore(selectSetCheckoutDeliveryDraft);
   const { data: catalogItems = [], isLoading } = useGetProducts();
   const { t } = useTranslation();
   const { locale } = useLocale();
@@ -169,9 +221,6 @@ export default function CheckoutFeature() {
     () =>
       createCheckoutSchema({
         address: t('checkout_validation_address_required'),
-        cardCvc: t('checkout_validation_card_cvc_required'),
-        cardExpiry: t('checkout_validation_card_expiry_required'),
-        cardNumber: t('checkout_validation_card_number_required'),
         city: t('checkout_validation_city_required'),
         email: t('checkout_validation_email_required'),
         invalidEmail: t('checkout_validation_email_invalid'),
@@ -190,8 +239,8 @@ export default function CheckoutFeature() {
     return getCartSummary(cartItems, catalogItems);
   }, [cartItems, catalogItems, isHydrated]);
 
-  if (!isHydrated) {
-    return null;
+  if (!isHydrated || isLoading) {
+    return <CheckoutLoadingState />;
   }
 
   if (!isLoading && !isNonEmptyArray(summary.cartItems)) {
@@ -220,7 +269,10 @@ export default function CheckoutFeature() {
 
   return (
     <Formik<CheckoutFormValues>
-      initialValues={checkoutInitialValues}
+      initialValues={{
+        ...checkoutInitialValues,
+        ...deliveryDraft,
+      }}
       validate={(values) => validateWithZod(checkoutSchema, values)}
       onSubmit={async (values, actions) => {
         actions.setStatus(undefined);
@@ -264,6 +316,10 @@ export default function CheckoutFeature() {
         values,
       }) => (
         <Form className='grid gap-8 lg:grid-cols-[1.4fr_0.9fr]'>
+          <CheckoutDraftPersistence
+            values={values}
+            setDeliveryDraft={setDeliveryDraft}
+          />
           <div className='space-y-6'>
             <section
               className='space-y-5 rounded-3xl bg-gradient-card p-6 shadow-card'
@@ -407,46 +463,6 @@ export default function CheckoutFeature() {
                   );
                 })}
               </fieldset>
-
-              {values.paymentMethod === CHECKOUT_PAYMENT_METHODS.CARD && (
-                <div className='grid gap-6 rounded-2xl border border-border bg-background/70 p-4 md:grid-cols-2'>
-                  <div className='md:col-span-2'>
-                    <CheckoutField
-                      name='cardNumber'
-                      label={t('checkout_field_card_number')}
-                      placeholder='4242 4242 4242 4242'
-                      autoComplete='cc-number'
-                      values={values}
-                      errors={errors}
-                      touched={touched}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <CheckoutField
-                    name='cardExpiry'
-                    label={t('checkout_field_card_expiry')}
-                    placeholder='12/30'
-                    autoComplete='cc-exp'
-                    values={values}
-                    errors={errors}
-                    touched={touched}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                  />
-                  <CheckoutField
-                    name='cardCvc'
-                    label={t('checkout_field_card_cvc')}
-                    placeholder='123'
-                    autoComplete='cc-csc'
-                    values={values}
-                    errors={errors}
-                    touched={touched}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                  />
-                </div>
-              )}
             </section>
           </div>
 

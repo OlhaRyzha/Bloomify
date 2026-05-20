@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import AuthForm from '@/features/auth/forms/auth-form';
 import AuthShell from '@/features/auth/auth-shell';
 import { getServerTranslator } from '@/i18n/server';
@@ -12,10 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function LoginPage() {
+export default function SignInPage() {
   return (
     <AuthShell variant='login'>
-      <AuthForm mode='login' />
+      <Suspense>
+        <AuthForm mode='login' />
+      </Suspense>
     </AuthShell>
   );
 }
