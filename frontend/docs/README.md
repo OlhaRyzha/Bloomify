@@ -31,4 +31,5 @@ make frontend-typecheck
 make frontend-test
 make frontend-build
 ```
+
 Use `make frontend-build` when routes, Server Components, Client Components, hydration, or API boundaries changed.

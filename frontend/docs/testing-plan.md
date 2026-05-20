@@ -1,6 +1,6 @@
-# Frontend Testing Plan
+# Frontend Testing Status And Maintenance Plan
 
-This plan tracks the next frontend testing work for Bloomify. It follows the standards in [Testing](./testing.md), [Data Fetching](./data-fetching.md), [Forms](./forms.md), [State Management](./state-management.md), [API And Errors](./api-and-errors.md), and [Semantic HTML And Accessibility](./semantic-accessibility.md).
+This document records the current frontend testing baseline for Bloomify and the remaining maintenance work. It follows the standards in [Testing](./testing.md), [Data Fetching](./data-fetching.md), [Forms](./forms.md), [State Management](./state-management.md), [API And Errors](./api-and-errors.md), and [Semantic HTML And Accessibility](./semantic-accessibility.md).
 
 ## Current Baseline
 
@@ -13,7 +13,17 @@ Last measured with `npm run test:coverage`:
 - Branches: 77.17%
 - Functions: 85.15%
 
-The current suite covers many happy paths, but branch and function coverage show that error states, edge cases, selectors, hooks, and API normalization need more attention.
+The current suite covers the main frontend risk areas: auth flow, checkout and payment handoff, catalog query state, API error normalization, localized navigation, hash scrolling, and shared UI accessibility. Remaining work should focus on keeping coverage stable as features change, not chasing 100% line coverage.
+
+## Current Status
+
+- [x] Auth service, auth form, token/session marker, and profile routing are covered.
+- [x] Checkout delivery draft, payment methods, LiqPay handoff, cash-on-delivery, loading, and API errors are covered.
+- [x] Catalog query params, catalog store, product query hooks, filtering, empty state, and error state are covered.
+- [x] Shared API/error utilities are covered.
+- [x] Locale switching, header actions, and hash scrolling are covered.
+- [x] Shared UI/accessibility coverage exists for add-to-cart, pagination, query loader, and newsletter form.
+- [x] Test helpers/factories exist for repeated auth, checkout, catalog, API URL, and deferred-promise setup.
 
 ## Testing Principles
 
@@ -25,11 +35,11 @@ The current suite covers many happy paths, but branch and function coverage show
 - Test accessible behavior through roles, labels, visible text, and user actions.
 - Do not write broad snapshots.
 
-## Priority 1 - Auth Flow
+## Completed Area 1 - Auth Flow
 
 Goal: protect login/register/profile behavior before backend auth is implemented.
 
-Add or extend tests for:
+Covered tests:
 
 - [x] `AuthService`
   - [x] accepts both `access` and `access_token` response shapes
@@ -55,11 +65,11 @@ Done when:
 - Login and signup form success and failure paths are covered.
 - No token is persisted to `localStorage`.
 
-## Priority 2 - Checkout Flow
+## Completed Area 2 - Checkout Flow
 
 Goal: protect payment selection, LiqPay handoff, cash-on-delivery, and draft persistence.
 
-Add or extend tests for:
+Covered tests:
 
 - [x] checkout draft store
   - [x] stores delivery fields only
@@ -84,11 +94,11 @@ Done when:
 - Online payment and cash-on-delivery paths are both tested.
 - Draft persistence is tested at store level and one UI restoration path.
 
-## Priority 3 - Catalog Filters, Query Params, And Query Hooks
+## Completed Area 3 - Catalog Filters, Query Params, And Query Hooks
 
 Goal: cover the lower-coverage catalog query state and hook behavior.
 
-Add or extend tests for:
+Covered tests:
 
 - [x] `catalog-query-params`
   - [x] parses missing and invalid params safely
@@ -107,22 +117,26 @@ Add or extend tests for:
   - [x] uses locale-aware query keys
   - [x] passes locale to `ProductsService`
   - [x] does not fetch details when id is empty
-- [ ] catalog UI
+- [x] catalog UI
   - [x] filters visible bouquets by search text
   - [x] empty state after filtering
   - [x] error state when query fails
-  - [ ] favorite/cart interactions remain keyboard-accessible
+  - [x] add-to-cart interactions remain keyboard-accessible through shared `AddToCartButton` coverage
+
+Remaining catalog-specific gap:
+
+- Favorite toggle keyboard/accessibility behavior should be covered when favorite persistence/API behavior is finalized.
 
 Done when:
 
 - Catalog query-param helpers and query hooks have focused tests.
 - Main user interactions are covered through Testing Library.
 
-## Priority 4 - API And Error Utilities
+## Completed Area 4 - API And Error Utilities
 
 Goal: make error normalization predictable across frontend services.
 
-Add tests for:
+Covered tests:
 
 - [x] `ApiError.fromAxios`
   - [x] 400, 401, 403, 404, 409, 422, 429, 500
@@ -143,11 +157,11 @@ Done when:
 - API utility branch coverage improves materially.
 - Services can rely on shared error behavior without duplicating tests.
 
-## Priority 5 - Navigation, Locale, And Hash Scrolling
+## Completed Area 5 - Navigation, Locale, And Hash Scrolling
 
 Goal: prevent regressions in localized routes and anchor navigation.
 
-Add or extend tests for:
+Covered tests:
 
 - [x] `HashScrollHandler`
   - [x] scrolls to target on initial hash
@@ -167,11 +181,11 @@ Done when:
 - Anchor navigation behavior is covered without relying on browser screenshots.
 - Locale switching preserves path, query, and hash.
 
-## Priority 6 - UI Components And Accessibility
+## Completed Area 6 - UI Components And Accessibility
 
 Goal: cover reusable UI behavior that can break many screens.
 
-Add tests for:
+Covered tests:
 
 - [x] `AddToCartButton`
   - [x] accessible label and pressed/quantity states
@@ -193,33 +207,31 @@ Done when:
 - Shared UI behavior is protected by role/label based tests.
 - Accessibility contracts are asserted where they matter.
 
-## Priority 7 - Coverage Hygiene And Test Infrastructure
+## Remaining Maintenance - Coverage Hygiene And Test Infrastructure
 
-Goal: keep future tests maintainable.
+Goal: keep future tests maintainable and prevent regressions.
 
 Add or improve:
 
 - [x] feature factories for auth responses, checkout payloads, and catalog params
 - [x] shared helpers for API URLs and deferred promises
 - [x] reset helpers for repeated catalog store setup
-- [ ] MSW handlers grouped by domain when repeated
-- [ ] coverage thresholds after weak areas are improved
+- [ ] MSW handlers grouped by domain if more repeated endpoint setup appears
+- [ ] coverage thresholds after the team agrees on minimums
 - [ ] documentation examples for adding a new feature test
 
 Done when:
 
 - New tests use fixtures/factories instead of inline large objects.
 - Repeated MSW setup is extracted only where it reduces real duplication.
+- Coverage thresholds are enforced in CI without making normal feature work noisy.
 
-## Execution Order
+## Recommended Next Steps
 
-1. Auth flow tests.
-2. Checkout draft and payment tests.
-3. Catalog query params, store, and hook tests.
-4. API/error utility tests.
-5. Navigation, locale, and hash-scroll tests.
-6. Shared UI/accessibility tests.
-7. Infrastructure cleanup and coverage threshold decision.
+1. Add coverage thresholds after reviewing CI behavior.
+2. Add favorite toggle accessibility tests once favorite backend/API behavior is stable.
+3. Extract MSW domain handlers only when another feature repeats the same endpoint setup.
+4. Keep every new feature covered at the behavior boundary: schema/helper tests for pure logic, Testing Library for user behavior, MSW for API boundaries.
 
 ## Commands
 
