@@ -1,4 +1,5 @@
 import { Truck, Shield, Clock, Leaf, type LucideIcon } from 'lucide-react';
+import { Container } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
 
 type Feature = {
@@ -34,7 +35,7 @@ export default async function FeaturesSection() {
         className='absolute -top-24'
         aria-hidden='true'
       />
-      <div className='mx-auto max-w-6xl px-4'>
+      <Container>
         <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
             {t('sections_features_label')}
@@ -65,7 +66,7 @@ export default async function FeaturesSection() {
             </div>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Container, PageSection } from '@/components/layout/page-layout';
 import SectionHeader from '@/components/ui/section-header';
 import CartFeature from '@/features/cart/cart';
 import { getServerTranslator } from '@/i18n/server';
@@ -16,8 +17,8 @@ export default async function CartPage() {
   const { t } = await getServerTranslator();
 
   return (
-    <section className='bg-background pb-16 pt-28'>
-      <div className='mx-auto max-w-6xl px-4'>
+    <PageSection>
+      <Container>
         <SectionHeader
           label={t('cart_page_label')}
           title={t('cart_page_title')}
@@ -25,7 +26,7 @@ export default async function CartPage() {
         />
 
         <CartFeature />
-      </div>
-    </section>
+      </Container>
+    </PageSection>
   );
 }

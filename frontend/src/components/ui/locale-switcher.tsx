@@ -80,8 +80,9 @@ export default function LocaleSwitcher({ className }: LocaleSwitcherProps) {
   const handleLocaleChange = (value: string) => {
     const nextLocale = value as Locale;
     const query = searchParams.toString();
+    const hash = window.location.hash;
     const nextPath = getLocalizedPath(
-      query ? `${pathname}?${query}` : pathname,
+      `${query ? `${pathname}?${query}` : pathname}${hash}`,
       nextLocale
     );
 

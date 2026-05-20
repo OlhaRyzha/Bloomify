@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Home } from 'lucide-react';
+import { Container } from '@/components/layout/page-layout';
 import { Button } from '@/components/ui/button';
 import { getServerTranslator } from '@/i18n/server';
 import { getLocalizedPath } from '@/i18n/routing';
@@ -16,7 +17,9 @@ export default async function NotFound() {
         <div className='absolute -bottom-10 right-0 h-96 w-96 rounded-full bg-sage/30 blur-3xl' />
       </div>
 
-      <div className='relative mx-auto max-w-4xl px-4 text-center'>
+      <Container
+        size='sm'
+        className='relative text-center'>
         <span className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
           {t('not_found_status')}
         </span>
@@ -25,7 +28,7 @@ export default async function NotFound() {
           className='font-display text-5xl font-bold md:text-6xl'>
           {t('not_found_title')}
         </h1>
-        <p className='mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg'>
+        <p className='mx-auto mt-4 max-w-6xl text-base text-muted-foreground md:text-lg'>
           {t('not_found_description')}
         </p>
 
@@ -48,7 +51,7 @@ export default async function NotFound() {
             </Link>
           </Button>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
 import { getServerTranslator } from '@/i18n/server';
 import HeaderActions from './header-actions.client';
 import { getLocalizedPath } from '@/i18n/routing';
+import { Container } from './page-layout';
 
 export default async function Header() {
   const mobileNavId = 'mobile-navigation';
@@ -16,7 +17,7 @@ export default async function Header() {
 
   return (
     <header className='fixed inset-x-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md'>
-      <div className='mx-auto max-w-6xl px-4'>
+      <Container>
         <div className='flex h-20 items-center justify-between'>
           <Link
             href={getLocalizedPath('/', locale)}
@@ -52,7 +53,7 @@ export default async function Header() {
             }}
           />
         </div>
-      </div>
+      </Container>
     </header>
   );
 }

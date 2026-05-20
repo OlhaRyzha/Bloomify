@@ -8,6 +8,8 @@ export function cleanParams(
   Object.entries(params).forEach(([key, value]) => {
     if (!value) return;
 
+    if (Array.isArray(value) && value.length === 0) return;
+
     if (isNonEmptyArray(value)) {
       const filtered = value.filter((item) => item != null && item !== '');
       if (filtered.length > 0) {

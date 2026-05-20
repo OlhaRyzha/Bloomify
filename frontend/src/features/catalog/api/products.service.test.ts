@@ -3,11 +3,10 @@ import { describe, expect, test, vi } from 'vitest';
 
 import { ApiError, ApiErrorType } from '@/utils/api/api-error';
 import { server } from '@/test/msw/server';
+import { apiUrl } from '@/test/api-url';
 
 import ProductsService from './products.service';
 import { createProductItem } from './products.factory';
-
-const apiUrl = (path: string) => `http://localhost:8000/${path}`;
 
 describe('ProductsService', () => {
   test('loads products through the API boundary with locale params', async () => {

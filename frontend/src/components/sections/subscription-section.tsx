@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Check, Crown, Sparkles, Gift, type LucideIcon } from 'lucide-react';
 import subscriptionImage from '@/assets/subscription-box.jpg';
+import { Container } from '@/components/layout/page-layout';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
@@ -48,7 +49,7 @@ export default async function SubscriptionSection() {
     <section
       id='subscription'
       className='scroll-mt-24 bg-gradient-hero py-24'>
-      <div className='mx-auto max-w-6xl px-4'>
+      <Container>
         <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
             {t('sections_subscription_label')}
@@ -56,7 +57,7 @@ export default async function SubscriptionSection() {
           <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
             {t('sections_subscription_title')}
           </h2>
-          <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
+          <p className='mx-auto max-w-6xl text-lg text-muted-foreground'>
             {t('sections_subscription_description')}
           </p>
         </header>
@@ -201,7 +202,7 @@ export default async function SubscriptionSection() {
             ))}
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

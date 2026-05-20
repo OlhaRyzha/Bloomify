@@ -115,6 +115,7 @@ export function PaginationContainer<T>({
                 <PaginationItem>
                   <PaginationPrevious
                     href='#'
+                    aria-disabled={page === 1}
                     onClick={(e) => {
                       e.preventDefault();
                       goTo(page - 1);
@@ -148,6 +149,7 @@ export function PaginationContainer<T>({
                 <PaginationItem>
                   <PaginationNext
                     href='#'
+                    aria-disabled={page === totalPages}
                     onClick={(e) => {
                       e.preventDefault();
                       goTo(page + 1);
