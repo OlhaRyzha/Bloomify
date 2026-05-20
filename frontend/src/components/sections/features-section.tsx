@@ -1,10 +1,4 @@
-import {
-  Truck,
-  Shield,
-  Clock,
-  Leaf,
-  type LucideIcon,
-} from 'lucide-react';
+import { Truck, Shield, Clock, Leaf, type LucideIcon } from 'lucide-react';
 import { getServerTranslator } from '@/i18n/server';
 
 type Feature = {
@@ -32,7 +26,14 @@ export default async function FeaturesSection() {
   }));
 
   return (
-    <section className='bg-muted/30 py-24'>
+    <section
+      id='about'
+      className='relative scroll-mt-24 bg-muted/30 py-24'>
+      <span
+        id='services'
+        className='absolute -top-24'
+        aria-hidden='true'
+      />
       <div className='mx-auto max-w-6xl px-4'>
         <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>

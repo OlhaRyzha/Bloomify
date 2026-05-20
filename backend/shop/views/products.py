@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework import generics, permissions
 
 from shop.selectors import get_active_products_queryset
-from shop.serializers import ProductSerializer
+from shop.serializers.product import ProductSerializer
 
 
 class ProductListCreateView(generics.ListCreateAPIView):

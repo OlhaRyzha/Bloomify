@@ -50,9 +50,12 @@ export default function CartSummary({
       </div>
 
       <Button
+        asChild
         className='mt-6 w-full'
         size='lg'>
-        {t('cart_checkout_button')}
+        <Link href={getLocalizedPath('/checkout', locale)}>
+          {t('cart_checkout_button')}
+        </Link>
       </Button>
       <Button
         asChild

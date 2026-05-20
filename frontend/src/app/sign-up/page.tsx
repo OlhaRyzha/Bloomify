@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import AuthForm from '@/features/auth/forms/auth-form';
 import AuthShell from '@/features/auth/auth-shell';
 import { getServerTranslator } from '@/i18n/server';
@@ -12,10 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RegisterPage() {
+export default function SignUpPage() {
   return (
     <AuthShell variant='register'>
-      <AuthForm mode='register' />
+      <Suspense>
+        <AuthForm mode='register' />
+      </Suspense>
     </AuthShell>
   );
 }

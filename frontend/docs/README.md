@@ -7,6 +7,7 @@ This folder describes the target frontend standards for Bloomify. Treat these do
 - [Frontend Architecture](./frontend-architecture.md) - Next.js App Router, server/client boundaries, hydration, imports.
 - [Domains](./domains.md) - feature ownership for catalog, product, cart, favorites, subscription, auth, checkout, and shared UI.
 - [Semantic HTML And Accessibility](./semantic-accessibility.md) - markup, ARIA, keyboard, errors, loading and empty states.
+- [Design System](./design-system.md) - Bloomify visual tokens, shadcn/ui reuse, component styling, layout rhythm.
 - [Data Fetching](./data-fetching.md) - server route data, TanStack Query hydration, query keys, mutations.
 - [Forms](./forms.md) - Formik + Zod standards.
 - [State Management](./state-management.md) - Zustand store rules.

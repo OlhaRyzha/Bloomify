@@ -12,8 +12,8 @@ describe('validateWithZod', () => {
   test('returns an empty error object for valid values', () => {
     expect(
       validateWithZod(schema, {
-        email: 'olha@example.com',
-        name: 'Olha',
+        email: 'tom@example.com',
+        name: 'Tom',
       })
     ).toEqual({});
   });

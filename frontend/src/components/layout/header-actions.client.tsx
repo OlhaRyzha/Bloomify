@@ -143,7 +143,9 @@ export default function HeaderActions({
                 className='mt-2 w-full'>
                 <Link
                   href={getLocalizedPath(
-                    pathnameWithoutLocale === '/login' ? '/profile' : '/login',
+                    pathnameWithoutLocale === '/sign-in'
+                      ? '/profile'
+                      : '/sign-in',
                     locale
                   )}
                   onClick={closeMenu}>

@@ -21,6 +21,11 @@ class EnvironmentSettings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
+    LIQPAY_PUBLIC_KEY: str = ""
+    LIQPAY_PRIVATE_KEY: str = ""
+    LIQPAY_CHECKOUT_URL: str = "https://www.liqpay.ua/api/3/checkout"
+    LIQPAY_SERVER_URL: str = ""
+    LIQPAY_RESULT_URL: str = "http://localhost:3000/checkout"
 
 
 env = EnvironmentSettings.model_validate({})
@@ -44,6 +49,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOW_CREDENTIALS = True
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 
 
 INSTALLED_APPS = [
@@ -276,3 +284,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("unfold",)
 CRISPY_TEMPLATE_PACK = "unfold"
+
+LIQPAY_PUBLIC_KEY = env.LIQPAY_PUBLIC_KEY
+LIQPAY_PRIVATE_KEY = env.LIQPAY_PRIVATE_KEY
+LIQPAY_CHECKOUT_URL = env.LIQPAY_CHECKOUT_URL
+LIQPAY_SERVER_URL = env.LIQPAY_SERVER_URL
+LIQPAY_RESULT_URL = env.LIQPAY_RESULT_URL

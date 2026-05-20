@@ -9,7 +9,7 @@ describe('loginSchema', () => {
   test('accepts valid login values', () => {
     expect(
       loginSchema.safeParse({
-        email: 'olha@example.com',
+        email: 'tom@example.com',
         password: 'password',
       }).success
     ).toBe(true);
@@ -32,8 +32,8 @@ describe('registerSchema', () => {
   test('accepts valid register values', () => {
     expect(
       registerSchema.safeParse({
-        name: 'Olha',
-        email: 'olha@example.com',
+        name: 'Tom',
+        email: 'tom@example.com',
         password: 'flower123',
         confirmPassword: 'flower123',
       }).success
@@ -58,8 +58,8 @@ describe('registerSchema', () => {
   test('validates password confirmation', () => {
     expect(
       validateWithZod(registerSchema, {
-        name: 'Olha',
-        email: 'olha@example.com',
+        name: 'Tom',
+        email: 'tom@example.com',
         password: 'flower123',
         confirmPassword: 'flower456',
       })

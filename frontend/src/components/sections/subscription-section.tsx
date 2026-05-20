@@ -1,11 +1,5 @@
 import Image from 'next/image';
-import {
-  Check,
-  Crown,
-  Sparkles,
-  Gift,
-  type LucideIcon,
-} from 'lucide-react';
+import { Check, Crown, Sparkles, Gift, type LucideIcon } from 'lucide-react';
 import subscriptionImage from '@/assets/subscription-box.jpg';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -44,14 +38,16 @@ export default async function SubscriptionSection() {
       period: t(`${base}_period`),
       price: config.price,
       icon: config.icon,
-      features: t(`${base}_features`, { returnObjects: true }) as unknown as string[],
+      features: t(`${base}_features`, {
+        returnObjects: true,
+      }) as unknown as string[],
       popular: config.popular,
     };
   });
   return (
     <section
       id='subscription'
-      className='bg-gradient-hero py-24'>
+      className='scroll-mt-24 bg-gradient-hero py-24'>
       <div className='mx-auto max-w-6xl px-4'>
         <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>

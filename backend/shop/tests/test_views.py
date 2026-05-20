@@ -2,10 +2,16 @@ from django.test import TestCase
 
 
 class ViewsSmokeTest(TestCase):
-    def test_views_module_imports(self):
-        from shop import views  # noqa: F401
+    def test_view_classes_import(self):
+        from shop.views.orders import CheckoutCreateView, LiqPayCallbackView
+        from shop.views.products import ProductDetailView, ProductListCreateView
+        from shop.views.site_languages import SiteLanguagesView
 
-        self.assertTrue(True)
+        self.assertIsNotNone(CheckoutCreateView)
+        self.assertIsNotNone(LiqPayCallbackView)
+        self.assertIsNotNone(ProductDetailView)
+        self.assertIsNotNone(ProductListCreateView)
+        self.assertIsNotNone(SiteLanguagesView)
 
     def test_favicon_redirects_to_static_asset(self):
         response = self.client.get("/favicon.ico")

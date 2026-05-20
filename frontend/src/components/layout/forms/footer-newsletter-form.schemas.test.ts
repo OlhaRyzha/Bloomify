@@ -9,17 +9,17 @@ describe('newsletterSubscribeSchema', () => {
   test('accepts a valid email', () => {
     expect(
       newsletterSubscribeSchema.safeParse({
-        email: 'olha@example.com',
+        email: 'tom@example.com',
       }).success
     ).toBe(true);
   });
 
   test('trims email before validation', () => {
     const result = newsletterSubscribeSchema.parse({
-      email: '  olha@example.com  ',
+      email: '  tom@example.com  ',
     });
 
-    expect(result.email).toBe('olha@example.com');
+    expect(result.email).toBe('tom@example.com');
   });
 
   test('rejects invalid email', () => {

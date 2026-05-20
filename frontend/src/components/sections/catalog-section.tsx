@@ -10,7 +10,7 @@ export default async function CatalogSection() {
   return (
     <section
       id='catalog'
-      className='bg-background py-24'>
+      className='scroll-mt-24 bg-background py-24'>
       <div className='mx-auto max-w-6xl px-4'>
         <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
