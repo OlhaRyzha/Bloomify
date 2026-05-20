@@ -9,6 +9,7 @@ import {
 import { getServerTranslator } from '@/i18n/server';
 import FooterNewsletterForm from '@/components/layout/forms/footer-newsletter-form.client';
 import { getLocalizedPath } from '@/i18n/routing';
+import { Container } from './page-layout';
 
 export default async function Footer() {
   const { locale, t } = await getServerTranslator();
@@ -32,7 +33,7 @@ export default async function Footer() {
       id='contact'
       className='scroll-mt-24 bg-primary text-primary-foreground'>
       <div className='border-b border-primary-foreground/10'>
-        <div className='mx-auto max-w-6xl px-4 py-12'>
+        <Container className='py-12'>
           <div className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
             <div>
               <h3 className='text-2xl font-bold md:text-3xl'>
@@ -52,10 +53,10 @@ export default async function Footer() {
               errorMessage={t('footer_subscribe_error')}
             />
           </div>
-        </div>
+        </Container>
       </div>
 
-      <div className='mx-auto max-w-6xl px-4 py-12'>
+      <Container className='py-12'>
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-4'>
           <div>
             <Link
@@ -184,7 +185,7 @@ export default async function Footer() {
             </Link>
           </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

@@ -42,31 +42,31 @@ Use semantic Tailwind classes whenever possible: `bg-background`,
 `text-foreground`, `bg-card`, `border-border`, `text-muted-foreground`,
 `bg-primary`, `text-primary`, `bg-secondary`, `bg-muted`.
 
-| Name | CSS Variable | Tailwind | Role |
-|------|--------------|----------|------|
-| Background Cream | `--background: 30 25% 98%` | `bg-background` | Page background and full-width sections |
-| Foreground Forest Ink | `--foreground: 150 15% 15%` | `text-foreground` | Primary text and headings |
-| Card Cream | `--card: 30 30% 97%` | `bg-card` | shadcn card backgrounds |
-| Primary Forest | `--primary: 150 35% 25%` | `bg-primary`, `text-primary` | Main CTA, active controls, key icons |
-| Primary Foreground | `--primary-foreground: 30 25% 98%` | `text-primary-foreground` | Text on primary fills |
-| Secondary Blush | `--secondary: 350 45% 90%` | `bg-secondary` | Soft badges and gentle emphasis |
-| Muted Sage | `--muted: 140 20% 92%` | `bg-muted` | Subtle panels, inactive fills, info blocks |
-| Muted Text | `--muted-foreground: 150 10% 45%` | `text-muted-foreground` | Supporting copy and metadata |
-| Accent Blush | `--accent: 350 50% 85%` | `bg-accent` | Hover states and secondary interaction |
-| Border Sage | `--border: 140 15% 88%` | `border-border` | Borders, separators, input outlines |
-| Destructive Red | `--destructive: 0 65% 55%` | `text-destructive`, `border-destructive` | Errors and destructive actions |
-| Gold | `--gold: 40 70% 55%` | `text-gold`, `bg-gold` | Rare highlight only |
-| Blush | `--blush: 350 55% 88%` | `bg-blush` | Favorite state, floral accent |
-| Sage | `--sage: 145 25% 75%` | `bg-sage` | Botanical supporting accent |
-| Forest | `--forest: 150 40% 20%` | `bg-forest`, `text-forest` | Deep botanical accent |
+| Name                  | CSS Variable                       | Tailwind                                 | Role                                       |
+| --------------------- | ---------------------------------- | ---------------------------------------- | ------------------------------------------ |
+| Background Cream      | `--background: 30 25% 98%`         | `bg-background`                          | Page background and full-width sections    |
+| Foreground Forest Ink | `--foreground: 150 15% 15%`        | `text-foreground`                        | Primary text and headings                  |
+| Card Cream            | `--card: 30 30% 97%`               | `bg-card`                                | shadcn card backgrounds                    |
+| Primary Forest        | `--primary: 150 35% 25%`           | `bg-primary`, `text-primary`             | Main CTA, active controls, key icons       |
+| Primary Foreground    | `--primary-foreground: 30 25% 98%` | `text-primary-foreground`                | Text on primary fills                      |
+| Secondary Blush       | `--secondary: 350 45% 90%`         | `bg-secondary`                           | Soft badges and gentle emphasis            |
+| Muted Sage            | `--muted: 140 20% 92%`             | `bg-muted`                               | Subtle panels, inactive fills, info blocks |
+| Muted Text            | `--muted-foreground: 150 10% 45%`  | `text-muted-foreground`                  | Supporting copy and metadata               |
+| Accent Blush          | `--accent: 350 50% 85%`            | `bg-accent`                              | Hover states and secondary interaction     |
+| Border Sage           | `--border: 140 15% 88%`            | `border-border`                          | Borders, separators, input outlines        |
+| Destructive Red       | `--destructive: 0 65% 55%`         | `text-destructive`, `border-destructive` | Errors and destructive actions             |
+| Gold                  | `--gold: 40 70% 55%`               | `text-gold`, `bg-gold`                   | Rare highlight only                        |
+| Blush                 | `--blush: 350 55% 88%`             | `bg-blush`                               | Favorite state, floral accent              |
+| Sage                  | `--sage: 145 25% 75%`              | `bg-sage`                                | Botanical supporting accent                |
+| Forest                | `--forest: 150 40% 20%`            | `bg-forest`, `text-forest`               | Deep botanical accent                      |
 
 ### Gradients
 
-| Token | Class | Role |
-|-------|-------|------|
-| `--gradient-hero` | `bg-gradient-hero` | Hero and emotional landing sections |
+| Token             | Class              | Role                                         |
+| ----------------- | ------------------ | -------------------------------------------- |
+| `--gradient-hero` | `bg-gradient-hero` | Hero and emotional landing sections          |
 | `--gradient-card` | `bg-gradient-card` | Product cards, checkout panels, empty states |
-| `--gradient-cta` | `bg-gradient-cta` | Strong CTA moments only |
+| `--gradient-cta`  | `bg-gradient-cta`  | Strong CTA moments only                      |
 
 Use gradients sparingly. Avoid stacking gradient panels inside gradient cards.
 
@@ -88,29 +88,29 @@ Rules:
 
 Recommended type roles:
 
-| Role | Class Pattern |
-|------|---------------|
-| Page heading | `font-display text-4xl font-bold md:text-5xl` |
-| Section heading | `font-display text-3xl font-bold` |
-| Card title | `font-display text-xl/2xl font-semibold` |
-| Body text | `text-sm` or `text-base text-muted-foreground` |
-| Labels | `text-sm font-medium text-foreground` |
-| Metadata | `text-xs uppercase tracking-[0.2em] text-muted-foreground` |
+| Role            | Class Pattern                                              |
+| --------------- | ---------------------------------------------------------- |
+| Page heading    | `font-display text-4xl font-bold md:text-5xl`              |
+| Section heading | `font-display text-3xl font-bold`                          |
+| Card title      | `font-display text-xl/2xl font-semibold`                   |
+| Body text       | `text-sm` or `text-base text-muted-foreground`             |
+| Labels          | `text-sm font-medium text-foreground`                      |
+| Metadata        | `text-xs uppercase tracking-[0.2em] text-muted-foreground` |
 
 ## Spacing And Layout
 
 Base rhythm follows Tailwind's spacing scale with comfortable gaps.
 
-| Use | Preferred Classes |
-|-----|-------------------|
-| Page top offset under header | `pt-28` |
-| Page bottom spacing | `pb-16` |
-| Page width | `mx-auto max-w-6xl px-4` |
-| Major grid gap | `gap-8`, `gap-10` |
+| Use                           | Preferred Classes                     |
+| ----------------------------- | ------------------------------------- |
+| Page top offset under header  | `pt-28`                               |
+| Page bottom spacing           | `pb-16`                               |
+| Page width                    | `mx-auto max-w-6xl px-4`              |
+| Major grid gap                | `gap-8`, `gap-10`                     |
 | Section/card internal padding | `p-5`, `p-6`, `p-10` for empty states |
-| Form field stack | label `mb-2 block`, error `mt-2` |
-| Repeated item gap | `space-y-4`, `space-y-6` |
-| Inline control gap | `gap-2`, `gap-3`, `gap-4` |
+| Form field stack              | label `mb-2 block`, error `mt-2`      |
+| Repeated item gap             | `space-y-4`, `space-y-6`              |
+| Inline control gap            | `gap-2`, `gap-3`, `gap-4`             |
 
 Rules:
 
@@ -125,14 +125,14 @@ Rules:
 
 Global radius starts at `--radius: 0.75rem`.
 
-| Element | Preferred Classes |
-|---------|-------------------|
-| Buttons | shadcn `Button`, default `rounded-md`; do not override casually |
-| Inputs | `Input` component, `rounded-md` |
-| Product cards | `rounded-xl` / `rounded-2xl` / `rounded-3xl` where established |
-| Product images | `rounded-2xl` / `rounded-3xl` on large detail views |
-| Empty states | `rounded-2xl bg-gradient-card p-10 shadow-card` |
-| Checkout/cart panels | `rounded-3xl bg-gradient-card p-6 shadow-card` |
+| Element              | Preferred Classes                                               |
+| -------------------- | --------------------------------------------------------------- |
+| Buttons              | shadcn `Button`, default `rounded-md`; do not override casually |
+| Inputs               | `Input` component, `rounded-md`                                 |
+| Product cards        | `rounded-xl` / `rounded-2xl` / `rounded-3xl` where established  |
+| Product images       | `rounded-2xl` / `rounded-3xl` on large detail views             |
+| Empty states         | `rounded-2xl bg-gradient-card p-10 shadow-card`                 |
+| Checkout/cart panels | `rounded-3xl bg-gradient-card p-6 shadow-card`                  |
 
 Shadow tokens:
 
@@ -153,18 +153,18 @@ Bloomify uses shadcn/ui with:
 
 Reuse these primitives before creating new ones:
 
-| Need | Use |
-|------|-----|
-| Action | `Button` from `@/components/ui/button` |
-| Form field | `Input` from `@/components/ui/input` |
-| Select/dropdown | `Select` primitives from `@/components/ui/select` |
-| Badge/status | `Badge` from `@/components/ui/badge` |
-| Card shell | `Card`, `CardHeader`, `CardContent` from `@/components/ui/card` |
-| Separator | `Separator` from `@/components/ui/separator` |
-| Toast feedback | `useToast`, `Toaster`, `Toast` |
-| Loading | `Loader`, `Skeleton`, `QueryLoader`, feature skeletons |
-| Small info panel | `InfoCard` from `@/components/ui/info-card` |
-| Animation wrapper | `MotionDiv` from `@/components/ui/motion-div` |
+| Need              | Use                                                             |
+| ----------------- | --------------------------------------------------------------- |
+| Action            | `Button` from `@/components/ui/button`                          |
+| Form field        | `Input` from `@/components/ui/input`                            |
+| Select/dropdown   | `Select` primitives from `@/components/ui/select`               |
+| Badge/status      | `Badge` from `@/components/ui/badge`                            |
+| Card shell        | `Card`, `CardHeader`, `CardContent` from `@/components/ui/card` |
+| Separator         | `Separator` from `@/components/ui/separator`                    |
+| Toast feedback    | `useToast`, `Toaster`, `Toast`                                  |
+| Loading           | `Loader`, `Skeleton`, `QueryLoader`, feature skeletons          |
+| Small info panel  | `InfoCard` from `@/components/ui/info-card`                     |
+| Animation wrapper | `MotionDiv` from `@/components/ui/motion-div`                   |
 
 ### Buttons
 
@@ -188,7 +188,7 @@ Rules:
 - Labels are visible and connected with `htmlFor`.
 - Label to input spacing should be explicit: label `mb-2 block`.
 - Error text belongs close to the field: `mt-2 text-xs font-medium
-  text-destructive`.
+text-destructive`.
 - Use `aria-invalid` and `aria-describedby`.
 - Keep localized validation messages in locale JSON when form copy is
   user-facing in multiple languages.
@@ -199,9 +199,7 @@ Use shadcn `Card` for generic reusable card shells. For established feature
 surfaces, existing pattern is acceptable:
 
 ```tsx
-<section className="rounded-3xl bg-gradient-card p-6 shadow-card">
-  ...
-</section>
+<section className='rounded-3xl bg-gradient-card p-6 shadow-card'>...</section>
 ```
 
 Use semantic elements first: `section`, `article`, `aside`, `form`,
@@ -227,10 +225,13 @@ Pattern:
 Pattern:
 
 ```tsx
-<section className="space-y-5 rounded-3xl bg-gradient-card p-6 shadow-card">
-  <div className="flex items-center gap-3">
-    <Icon className="h-5 w-5 text-primary" aria-hidden />
-    <h2 className="font-display text-2xl font-semibold">...</h2>
+<section className='space-y-5 rounded-3xl bg-gradient-card p-6 shadow-card'>
+  <div className='flex items-center gap-3'>
+    <Icon
+      className='h-5 w-5 text-primary'
+      aria-hidden
+    />
+    <h2 className='font-display text-2xl font-semibold'>...</h2>
   </div>
   ...
 </section>
@@ -247,10 +248,14 @@ checkout page.
 Pattern:
 
 ```tsx
-<section className="rounded-2xl bg-gradient-card p-10 text-center shadow-card">
-  <h2 className="font-display mb-3 text-2xl font-bold">...</h2>
-  <p className="mb-6 text-sm text-muted-foreground">...</p>
-  <Button asChild size="lg"><Link href="...">...</Link></Button>
+<section className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'>
+  <h2 className='font-display mb-3 text-2xl font-bold'>...</h2>
+  <p className='mb-6 text-sm text-muted-foreground'>...</p>
+  <Button
+    asChild
+    size='lg'>
+    <Link href='...'>...</Link>
+  </Button>
 </section>
 ```
 

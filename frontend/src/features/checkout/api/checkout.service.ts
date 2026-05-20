@@ -1,5 +1,7 @@
 import { API_ROUTES } from '@/constants/api.constant';
 import apiClient from '@/services/api/clients/api-client';
+import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
+import { z } from 'zod';
 
 export type CheckoutPaymentMethod =
   | 'apple_pay'
@@ -38,12 +40,40 @@ export type CheckoutResponse = {
   liqpay?: LiqPayCheckoutPayload | null;
 };
 
+const liqPayCheckoutPayloadSchema = z.object({
+  checkoutUrl: z.string().url(),
+  data: z.string(),
+  signature: z.string(),
+});
+
+const checkoutResponseSchema = z.object({
+  orderId: z.number(),
+  status: z.string(),
+  paymentStatus: z.string(),
+  paymentProvider: z.string(),
+  paymentMethod: z.enum([
+    'apple_pay',
+    'google_pay',
+    'card',
+    'cash_on_delivery',
+  ]),
+  liqpay: liqPayCheckoutPayloadSchema.nullish(),
+});
+
 const CheckoutService = {
-  createCheckout: (payload: CheckoutRequest): Promise<CheckoutResponse> =>
-    apiClient.post<CheckoutResponse, CheckoutRequest>(
+  createCheckout: async (
+    payload: CheckoutRequest
+  ): Promise<CheckoutResponse> => {
+    const response = await apiClient.post<unknown, CheckoutRequest>(
       API_ROUTES.CHECKOUT,
       payload
-    ),
+    );
+
+    return parseResponseWithSchema(
+      response,
+      checkoutResponseSchema
+    ) as CheckoutResponse;
+  },
 };
 
 export default CheckoutService;

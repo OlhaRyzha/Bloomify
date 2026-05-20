@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import heroImage from '@/assets/hero-flowers.jpg';
 import subscriptionImage from '@/assets/subscription-box.jpg';
+import { Container } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
 
 const authAssets = {
@@ -52,7 +53,7 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
         <div className='absolute bottom-8 right-8 h-96 w-96 rounded-full bg-sage/30 blur-3xl' />
       </div>
 
-      <div className='relative mx-auto max-w-6xl px-4'>
+      <Container className='relative'>
         <div className='grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]'>
           <div className='order-2 space-y-8 lg:order-1'>
             <span className='inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
@@ -116,7 +117,7 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
             <div className='w-full max-w-md'>{children}</div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

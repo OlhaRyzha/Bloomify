@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Container } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
 import { Button } from '../ui/button';
 import CatalogSectionPreview from './catalog-section-preview.client';
@@ -11,7 +12,7 @@ export default async function CatalogSection() {
     <section
       id='catalog'
       className='scroll-mt-24 bg-background py-24'>
-      <div className='mx-auto max-w-6xl px-4'>
+      <Container>
         <header className='mb-16 text-center'>
           <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
             {t('sections_catalog_label')}
@@ -19,7 +20,7 @@ export default async function CatalogSection() {
           <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
             {t('sections_catalog_title')}
           </h2>
-          <p className='mx-auto max-w-2xl text-lg text-muted-foreground'>
+          <p className='mx-auto max-w-6xl text-lg text-muted-foreground'>
             {t('sections_catalog_description')}
           </p>
         </header>
@@ -36,7 +37,7 @@ export default async function CatalogSection() {
             </Link>
           </Button>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

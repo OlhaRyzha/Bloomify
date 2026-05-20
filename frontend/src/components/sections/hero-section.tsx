@@ -15,9 +15,12 @@ export default async function HeroSection() {
     { value: '50+', label: t('hero_stats_flower_varieties') },
     { value: '24/7', label: t('hero_stats_support') },
   ];
-  const freeDeliveryMessage = formatTemplate(t('delivery_free_delivery_message'), {
-    threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
-  });
+  const freeDeliveryMessage = formatTemplate(
+    t('delivery_free_delivery_message'),
+    {
+      threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
+    }
+  );
 
   return (
     <section className='relative flex min-h-screen items-center overflow-hidden bg-gradient-hero pt-20'>

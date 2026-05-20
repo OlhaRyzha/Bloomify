@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Heart, PackageCheck, ShoppingBag } from 'lucide-react';
+import { Container, PageSection } from '@/components/layout/page-layout';
 import SectionHeader from '@/components/ui/section-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -50,8 +51,8 @@ export default async function ProfilePage() {
   ];
 
   return (
-    <section className='bg-background pb-16 pt-28'>
-      <div className='mx-auto max-w-6xl px-4'>
+    <PageSection>
+      <Container>
         <SectionHeader
           label={t('profile_page_label')}
           title={t('profile_page_title')}
@@ -103,7 +104,7 @@ export default async function ProfilePage() {
             </Button>
           </CardContent>
         </Card>
-      </div>
-    </section>
+      </Container>
+    </PageSection>
   );
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Container, PageSection } from '@/components/layout/page-layout';
 import { Button } from '@/components/ui/button';
 import ProductsService from '@/features/catalog/api/products.service';
 import ProductFeature from '@/features/product/product';
@@ -21,10 +22,8 @@ export default async function CatalogItemPage({
 
   if (!product) {
     return (
-      <section
-        className='bg-background pb-16 pt-28'
-        aria-labelledby='product-not-found-title'>
-        <div className='mx-auto max-w-6xl px-4'>
+      <PageSection aria-labelledby='product-not-found-title'>
+        <Container>
           <h1
             id='product-not-found-title'
             className='font-display text-3xl font-bold'>
@@ -41,16 +40,14 @@ export default async function CatalogItemPage({
               {t('product_back_to_catalog')}
             </Link>
           </Button>
-        </div>
-      </section>
+        </Container>
+      </PageSection>
     );
   }
 
   return (
-    <section
-      className='bg-background pb-16 pt-28'
-      aria-labelledby='product-details-title'>
-      <div className='mx-auto max-w-6xl px-4'>
+    <PageSection aria-labelledby='product-details-title'>
+      <Container>
         <header className='mb-10 flex flex-wrap items-center justify-between gap-4'>
           <Button
             asChild
@@ -77,7 +74,7 @@ export default async function CatalogItemPage({
             infoLabel: t('product_info_label'),
           }}
         />
-      </div>
-    </section>
+      </Container>
+    </PageSection>
   );
 }

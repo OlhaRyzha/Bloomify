@@ -13,6 +13,7 @@ This folder describes the target frontend standards for Bloomify. Treat these do
 - [State Management](./state-management.md) - Zustand store rules.
 - [API And Errors](./api-and-errors.md) - services, schema validation, `ApiError`, user feedback.
 - [Testing](./testing.md) - Vitest, Testing Library, MSW, fixtures, factories, mocks.
+- [Frontend Testing Plan](./testing-plan.md) - prioritized gaps and execution order for improving frontend tests.
 
 ## Default Workflow
 

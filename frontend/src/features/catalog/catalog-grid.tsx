@@ -64,8 +64,11 @@ export default function CatalogGrid({
   const { t } = useTranslation();
 
   const shouldFetchCatalogItems = items === undefined;
-  const { data: catalogItems = [], isLoading: isCatalogLoading } =
-    useGetProducts({
+  const {
+    data: catalogItems = [],
+    isError: isCatalogError,
+    isLoading: isCatalogLoading,
+  } = useGetProducts({
       enabled: shouldFetchCatalogItems,
     });
 
@@ -118,6 +121,29 @@ export default function CatalogGrid({
         />
       )}
 
+      {isCatalogError && shouldFetchCatalogItems ? (
+        <section
+          role='alert'
+          className='rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center'>
+          <h2 className='font-display text-2xl font-semibold text-destructive'>
+            {t('catalog_error_title')}
+          </h2>
+          <p className='mt-2 text-sm text-muted-foreground'>
+            {t('catalog_error_description')}
+          </p>
+        </section>
+      ) : !loading && sortedItems.length === 0 ? (
+        <section
+          role='status'
+          className='rounded-2xl border border-border bg-card/70 p-6 text-center'>
+          <h2 className='font-display text-2xl font-semibold'>
+            {t('catalog_empty_title')}
+          </h2>
+          <p className='mt-2 text-sm text-muted-foreground'>
+            {t('catalog_empty_description')}
+          </p>
+        </section>
+      ) : (
       <PaginationContainer
         items={itemsForRender}
         pageSize={perPage}
@@ -148,6 +174,7 @@ export default function CatalogGrid({
           </div>
         )}
       />
+      )}
     </div>
   );
 }

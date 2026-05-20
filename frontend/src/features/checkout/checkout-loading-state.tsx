@@ -12,7 +12,10 @@ function CheckoutFieldSkeleton({ wide = false }: { wide?: boolean }) {
 
 export default function CheckoutLoadingState() {
   return (
-    <div className='grid gap-8 lg:grid-cols-[1.4fr_0.9fr]'>
+    <div
+      role='status'
+      aria-label='Loading checkout'
+      className='grid gap-8 lg:grid-cols-[1.4fr_0.9fr]'>
       <div className='space-y-6'>
         <section className='space-y-5 rounded-3xl bg-gradient-card p-6 shadow-card'>
           <div className='flex items-center gap-3'>
