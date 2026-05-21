@@ -7,6 +7,7 @@ import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { formatCurrency, formatTemplate } from '@/utils/i18n';
 import { getServerTranslator } from '@/i18n/server';
 import { getLocalizedPath } from '@/i18n/routing';
+import { Container } from '../layout/page-layout';
 
 export default async function HeroSection() {
   const { t, locale } = await getServerTranslator();
@@ -29,7 +30,7 @@ export default async function HeroSection() {
         <div className='absolute bottom-20 right-10 h-96 w-96 rounded-full bg-sage/30 blur-3xl' />
       </div>
 
-      <div className='relative z-10 mx-auto w-full max-w-6xl p-4'>
+      <Container className='relative z-10 py-4'>
         <div className='grid items-center gap-12 lg:grid-cols-2'>
           <div className='text-center lg:text-left'>
             <div className='mb-6 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 backdrop-blur-sm'>
@@ -117,7 +118,7 @@ export default async function HeroSection() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

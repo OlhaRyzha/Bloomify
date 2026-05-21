@@ -105,7 +105,7 @@ Base rhythm follows Tailwind's spacing scale with comfortable gaps.
 | ----------------------------- | ------------------------------------- |
 | Page top offset under header  | `pt-28`                               |
 | Page bottom spacing           | `pb-16`                               |
-| Page width                    | `mx-auto max-w-6xl px-4`              |
+| Page width                    | `mx-auto max-w-8/10 px-4`             |
 | Major grid gap                | `gap-8`, `gap-10`                     |
 | Section/card internal padding | `p-5`, `p-6`, `p-10` for empty states |
 | Form field stack              | label `mb-2 block`, error `mt-2`      |
@@ -291,7 +291,7 @@ no visible text.
 - Reuse `Button`, `Input`, `Select`, `Badge`, `Card`, `InfoCard`,
   `AddToCartButton`, and feature components.
 - Use semantic tokens instead of raw colors.
-- Keep page sections constrained with `max-w-6xl px-4`.
+- Keep page sections constrained with the shared `Container` component; its large width is `max-w-8/10 px-4`.
 - Use `bg-gradient-card` and `shadow-card` for premium feature surfaces.
 - Keep field spacing explicit and accessible.
 - Preserve localization and accessible names in new UI.

@@ -22,7 +22,7 @@ export default function HomeSectionHeader({
         {title}
       </h2>
       {description && (
-        <p className='mx-auto max-w-6xl text-lg text-muted-foreground'>
+        <p className='mx-auto max-w-3xl text-lg text-muted-foreground'>
           {description}
         </p>
       )}
