@@ -15,8 +15,8 @@ Last measured with `npm run test:coverage`:
 
 Last measured with `npm run test:e2e`:
 
-- Browser smoke tests: 3 passed
-- Covered flows: localized anchor navigation, catalog API rendering, anonymous profile redirect
+- Browser smoke tests: 6 passed
+- Covered flows: localized anchor navigation, catalog API rendering, anonymous profile redirect, cart-to-checkout, cash-on-delivery checkout, favorites persistence
 
 Coverage thresholds enforced by Vitest:
 
