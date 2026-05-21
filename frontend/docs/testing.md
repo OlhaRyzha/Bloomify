@@ -145,6 +145,7 @@ From `frontend`:
 ```bash
 npm run test
 npm run test:all
+npm run test:e2e
 npm run test:unit
 npm run test:unit:watch
 npm run test:unit:ui
@@ -158,6 +159,7 @@ From the repository root:
 ```bash
 make frontend-test
 make frontend-test-all
+make frontend-test-e2e
 make frontend-test-unit
 make frontend-test-watch
 make frontend-test-ui

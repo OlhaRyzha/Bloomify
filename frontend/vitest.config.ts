@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   cacheDir: '.vitest/cache',
@@ -20,6 +20,7 @@ export default defineConfig({
       },
     },
     environment: 'jsdom',
+    exclude: [...configDefaults.exclude, 'e2e/**'],
     globals: false,
     setupFiles: ['./src/test/setup.ts'],
   },

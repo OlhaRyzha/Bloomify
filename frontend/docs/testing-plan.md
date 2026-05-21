@@ -13,6 +13,11 @@ Last measured with `npm run test:coverage`:
 - Branches: 77.2%
 - Functions: 85.19%
 
+Last measured with `npm run test:e2e`:
+
+- Browser smoke tests: 3 passed
+- Covered flows: localized anchor navigation, catalog API rendering, anonymous profile redirect
+
 Coverage thresholds enforced by Vitest:
 
 - Statements: 90%
@@ -31,6 +36,7 @@ The current suite covers the main frontend risk areas: auth flow, checkout and p
 - [x] Locale switching, header actions, and hash scrolling are covered.
 - [x] Shared UI/accessibility coverage exists for add-to-cart, pagination, query loader, and newsletter form.
 - [x] Test helpers/factories exist for repeated auth, checkout, catalog, API URL, and deferred-promise setup.
+- [x] Playwright smoke coverage exists for route-level browser behavior.
 
 ## Testing Principles
 
@@ -223,6 +229,7 @@ Add or improve:
 - [x] feature factories for auth responses, checkout payloads, and catalog params
 - [x] shared helpers for API URLs and deferred promises
 - [x] reset helpers for repeated catalog store setup
+- [x] Playwright smoke tests for key route-level flows
 - [ ] MSW handlers grouped by domain if more repeated endpoint setup appears
 - [x] coverage thresholds after the team agrees on minimums
 - [ ] documentation examples for adding a new feature test
@@ -251,6 +258,7 @@ Run frontend checks before committing:
 
 ```bash
 npm run test:coverage
+npm run test:e2e
 npm run typecheck
 npm run lint
 npm run build
@@ -260,6 +268,7 @@ From repository root:
 
 ```bash
 make frontend-test-coverage
+make frontend-test-e2e
 make frontend-typecheck
 make frontend-lint
 make frontend-build
