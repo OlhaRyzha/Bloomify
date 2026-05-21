@@ -21,6 +21,7 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import SurfacePanel from '@/components/ui/surface-panel';
 import { useLocale } from '@/components/providers/locale-provider';
 import { useTranslation } from '@/hooks/use-translation';
 import { useHydrated } from '@/hooks/use-hydrated';
@@ -321,8 +322,8 @@ export default function CheckoutFeature() {
             setDeliveryDraft={setDeliveryDraft}
           />
           <div className='space-y-6'>
-            <section
-              className='space-y-5 rounded-3xl bg-gradient-card p-6 shadow-card'
+            <SurfacePanel
+              className='space-y-5'
               aria-labelledby='checkout-contact-title'>
               <div className='flex items-center gap-3'>
                 <MapPin
@@ -405,10 +406,10 @@ export default function CheckoutFeature() {
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
-            </section>
+            </SurfacePanel>
 
-            <section
-              className='space-y-5 rounded-3xl bg-gradient-card p-6 shadow-card'
+            <SurfacePanel
+              className='space-y-5'
               aria-labelledby='checkout-payment-title'>
               <div className='flex items-center gap-3'>
                 <ShieldCheck
@@ -463,13 +464,11 @@ export default function CheckoutFeature() {
                   );
                 })}
               </fieldset>
-            </section>
+            </SurfacePanel>
           </div>
 
           <aside className='space-y-6'>
-            <section
-              className='rounded-3xl bg-gradient-card p-6 shadow-card'
-              aria-labelledby='checkout-summary-title'>
+            <SurfacePanel aria-labelledby='checkout-summary-title'>
               <h2
                 id='checkout-summary-title'
                 className='font-display text-2xl font-semibold'>
@@ -540,7 +539,7 @@ export default function CheckoutFeature() {
                 />
                 {t('checkout_security_note')}
               </p>
-            </section>
+            </SurfacePanel>
           </aside>
         </Form>
       )}

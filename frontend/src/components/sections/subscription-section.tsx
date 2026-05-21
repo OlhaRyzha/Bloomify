@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { formatTemplate } from '@/utils/i18n';
 import { getServerTranslator } from '@/i18n/server';
+import HomeSectionHeader from './home-section-header';
 
 type Plan = {
   name: string;
@@ -50,17 +51,11 @@ export default async function SubscriptionSection() {
       id='subscription'
       className='scroll-mt-24 bg-gradient-hero py-24'>
       <Container>
-        <header className='mb-16 text-center'>
-          <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            {t('sections_subscription_label')}
-          </span>
-          <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-            {t('sections_subscription_title')}
-          </h2>
-          <p className='mx-auto max-w-6xl text-lg text-muted-foreground'>
-            {t('sections_subscription_description')}
-          </p>
-        </header>
+        <HomeSectionHeader
+          label={t('sections_subscription_label')}
+          title={t('sections_subscription_title')}
+          description={t('sections_subscription_description')}
+        />
 
         <div className='grid items-center gap-12 lg:grid-cols-2'>
           <div className='relative order-2 lg:order-1'>
