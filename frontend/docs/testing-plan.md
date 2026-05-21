@@ -10,8 +10,15 @@ Last measured with `npm run test:coverage`:
 - Tests: 178 passed
 - Statements: 92.2%
 - Lines: 92.82%
-- Branches: 77.17%
-- Functions: 85.15%
+- Branches: 77.2%
+- Functions: 85.19%
+
+Coverage thresholds enforced by Vitest:
+
+- Statements: 90%
+- Lines: 90%
+- Branches: 75%
+- Functions: 80%
 
 The current suite covers the main frontend risk areas: auth flow, checkout and payment handoff, catalog query state, API error normalization, localized navigation, hash scrolling, and shared UI accessibility. Remaining work should focus on keeping coverage stable as features change, not chasing 100% line coverage.
 
@@ -217,7 +224,7 @@ Add or improve:
 - [x] shared helpers for API URLs and deferred promises
 - [x] reset helpers for repeated catalog store setup
 - [ ] MSW handlers grouped by domain if more repeated endpoint setup appears
-- [ ] coverage thresholds after the team agrees on minimums
+- [x] coverage thresholds after the team agrees on minimums
 - [ ] documentation examples for adding a new feature test
 
 Done when:
@@ -228,10 +235,9 @@ Done when:
 
 ## Recommended Next Steps
 
-1. Add coverage thresholds after reviewing CI behavior.
-2. Add favorite toggle accessibility tests once favorite backend/API behavior is stable.
-3. Extract MSW domain handlers only when another feature repeats the same endpoint setup.
-4. Keep every new feature covered at the behavior boundary: schema/helper tests for pure logic, Testing Library for user behavior, MSW for API boundaries.
+1. Add favorite toggle accessibility tests once favorite backend/API behavior is stable.
+2. Extract MSW domain handlers only when another feature repeats the same endpoint setup.
+3. Keep every new feature covered at the behavior boundary: schema/helper tests for pure logic, Testing Library for user behavior, MSW for API boundaries.
 
 ## Commands
 

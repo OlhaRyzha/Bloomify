@@ -12,6 +12,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
+      thresholds: {
+        branches: 75,
+        functions: 80,
+        lines: 90,
+        statements: 90,
+      },
     },
     environment: 'jsdom',
     globals: false,
