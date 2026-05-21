@@ -6,12 +6,12 @@ This document records the current frontend testing baseline for Bloomify and the
 
 Last measured with `npm run test:coverage`:
 
-- Test files: 37 passed
-- Tests: 178 passed
-- Statements: 92.2%
-- Lines: 92.82%
+- Test files: 38 passed
+- Tests: 179 passed
+- Statements: 92.25%
+- Lines: 92.87%
 - Branches: 77.2%
-- Functions: 85.19%
+- Functions: 85.42%
 
 Last measured with `npm run test:e2e`:
 
@@ -135,10 +135,7 @@ Covered tests:
   - [x] empty state after filtering
   - [x] error state when query fails
   - [x] add-to-cart interactions remain keyboard-accessible through shared `AddToCartButton` coverage
-
-Remaining catalog-specific gap:
-
-- Favorite toggle keyboard/accessibility behavior should be covered when favorite persistence/API behavior is finalized.
+  - [x] favorite toggle exposes accessible pressed state and label changes
 
 Done when:
 
