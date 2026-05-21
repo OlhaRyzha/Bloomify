@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-from __future__ import annotations
-
 import re
 import subprocess
 import sys
@@ -13,8 +10,6 @@ FRONTEND_DIR = ROOT / "frontend"
 BACKEND_ENV = BACKEND_DIR / ".env"
 FRONTEND_ENV = FRONTEND_DIR / ".env"
 
-BACKEND_LOCAL_URL = "http://localhost:8000"
-FRONTEND_LOCAL_URL = "http://localhost:3000"
 TUNNEL_URL_RE = re.compile(r"https://[a-z0-9-]+\.trycloudflare\.com")
 
 
@@ -23,7 +18,8 @@ def log(prefix: str, line: str) -> None:
 
 
 def forward_output(prefix: str, process: subprocess.Popen[str]) -> None:
-    assert process.stdout is not None
+    if process.stdout is None:
+        return
     for line in process.stdout:
         log(prefix, line)
 
@@ -59,10 +55,11 @@ def start_tunnel(prefix: str, target_url: str) -> tuple[subprocess.Popen[str], s
         bufsize=1,
     )
 
-    assert process.stdout is not None
+    stdout = process.stdout
+    assert stdout is not None
     tunnel_url = ""
     while True:
-        line = process.stdout.readline()
+        line = stdout.readline()
         if not line:
             raise RuntimeError(f"{prefix} tunnel stopped before URL was created")
 
@@ -74,7 +71,7 @@ def start_tunnel(prefix: str, target_url: str) -> tuple[subprocess.Popen[str], s
             break
 
     def continue_forwarding() -> None:
-        for line in process.stdout:
+        for line in stdout:
             log(prefix, line)
 
     threading.Thread(target=continue_forwarding, daemon=True).start()
@@ -90,6 +87,18 @@ def parse_env(path: Path) -> tuple[list[str], dict[str, str]]:
         key, value = line.split("=", 1)
         values[key] = value
     return lines, values
+
+
+def read_env_value(path: Path, key: str) -> str:
+    _lines, values = parse_env(path)
+    value = values.get(key, "").strip()
+    if not value:
+        raise RuntimeError(f"{key} must be set in {path.relative_to(ROOT)}")
+    return value
+
+
+def host_from_url(url: str) -> str:
+    return url.removeprefix("https://").removeprefix("http://").split("/", 1)[0]
 
 
 def replace_generated_trycloudflare(value: str, replacement: str) -> str:
@@ -137,29 +146,28 @@ def write_env(path: Path, updates: dict[str, str]) -> None:
     path.write_text("\n".join(next_lines).rstrip() + "\n")
 
 
-def update_env_files(backend_url: str, frontend_url: str) -> None:
-    backend_host = backend_url.removeprefix("https://")
+def update_env_files(
+    backend_url: str,
+    frontend_url: str,
+    callback_path: str,
+    result_path: str,
+) -> None:
+    backend_host = host_from_url(backend_url)
     _backend_lines, backend_values = parse_env(BACKEND_ENV)
 
     write_env(
         BACKEND_ENV,
         {
             "DJANGO_ALLOWED_HOSTS": replace_generated_trycloudflare(
-                backend_values.get(
-                    "DJANGO_ALLOWED_HOSTS",
-                    "localhost,127.0.0.1,0.0.0.0",
-                ),
+                backend_values.get("DJANGO_ALLOWED_HOSTS", host_from_url(backend_url)),
                 backend_host,
             ),
             "DJANGO_CORS_ALLOWED_ORIGINS": replace_generated_trycloudflare_origin(
-                backend_values.get(
-                    "DJANGO_CORS_ALLOWED_ORIGINS",
-                    "http://localhost:3000,https://localhost:3000",
-                ),
+                backend_values.get("DJANGO_CORS_ALLOWED_ORIGINS", frontend_url),
                 frontend_url,
             ),
-            "LIQPAY_SERVER_URL": f"{backend_url}/payments/liqpay/callback",
-            "LIQPAY_RESULT_URL": f"{frontend_url}/checkout",
+            "LIQPAY_SERVER_URL": f"{backend_url}{callback_path}",
+            "LIQPAY_RESULT_URL": f"{frontend_url}{result_path}",
         },
     )
 
@@ -189,20 +197,28 @@ def main() -> int:
     processes: list[subprocess.Popen[str]] = []
 
     try:
-        backend_tunnel, backend_url = start_tunnel("backend-tunnel", BACKEND_LOCAL_URL)
+        backend_local_url = read_env_value(BACKEND_ENV, "LIQPAY_DEV_BACKEND_LOCAL_URL")
+        frontend_local_url = read_env_value(
+            FRONTEND_ENV, "LIQPAY_DEV_FRONTEND_LOCAL_URL"
+        )
+        checkout_path = read_env_value(FRONTEND_ENV, "LIQPAY_DEV_CHECKOUT_PATH")
+        callback_path = read_env_value(BACKEND_ENV, "LIQPAY_CALLBACK_PATH")
+        result_path = read_env_value(BACKEND_ENV, "LIQPAY_RESULT_PATH")
+
+        backend_tunnel, backend_url = start_tunnel("backend-tunnel", backend_local_url)
         processes.append(backend_tunnel)
 
         frontend_tunnel, frontend_url = start_tunnel(
-            "frontend-tunnel", FRONTEND_LOCAL_URL
+            "frontend-tunnel", frontend_local_url
         )
         processes.append(frontend_tunnel)
 
-        update_env_files(backend_url, frontend_url)
+        update_env_files(backend_url, frontend_url, callback_path, result_path)
 
         print("\nLiqPay dev URLs:")
         print(f"  Backend:  {backend_url}")
         print(f"  Frontend: {frontend_url}")
-        print(f"  Checkout: {frontend_url}/uk/checkout")
+        print(f"  Checkout: {frontend_url}{checkout_path}")
         print("\nUpdated backend/.env and frontend/.env. Starting dev servers...\n")
 
         processes.append(
