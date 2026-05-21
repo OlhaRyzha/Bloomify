@@ -14,4 +14,5 @@ make tunnel-backend
 make tunnel-frontend
 
 make check
+make pre-commit-install
 make pre-commit

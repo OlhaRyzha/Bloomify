@@ -91,6 +91,7 @@ check: format lint
 
 pre-commit-install:
 	uv run pre-commit install
+	uv run pre-commit install --hook-type pre-push
 
 
 pre-commit:

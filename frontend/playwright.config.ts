@@ -2,7 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 import { frontendBaseUrl } from './e2e/config/env';
 
-const shouldStartWebServer = !process.env.PLAYWRIGHT_BASE_URL;
+const shouldStartWebServer = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/.test(
+  frontendBaseUrl
+);
+const webServerHealthUrl = new URL('/uk/sign-in', frontendBaseUrl).toString();
 
 export default defineConfig({
   testDir: './e2e',
@@ -17,7 +20,7 @@ export default defineConfig({
   webServer: shouldStartWebServer
     ? {
         command: 'npm run dev',
-        url: frontendBaseUrl,
+        url: webServerHealthUrl,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
       }

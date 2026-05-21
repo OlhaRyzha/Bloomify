@@ -3,13 +3,12 @@ import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
 
 import { createProductItem } from '@/features/catalog/api/products.factory';
+import { apiUrl } from '@/test/api-url';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 
 import CartFeature from './cart';
 import { useCartStore } from './store/cart.store';
-
-const apiUrl = (path: string) => `http://localhost:8000/${path}`;
 
 const resetCartStore = () => {
   localStorage.clear();

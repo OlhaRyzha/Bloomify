@@ -59,3 +59,11 @@ repos:
         language: system
         pass_filenames: false
         files: ^frontend/.*\.(ts|tsx)$
+
+      - id: frontend-e2e-tests
+        name: e2e tests (frontend)
+        entry: make frontend-test-e2e
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx)$
+        stages: [pre-push]
