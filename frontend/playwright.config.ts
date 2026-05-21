@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import { frontendBaseUrl } from './e2e/config/env';
+
+const shouldStartWebServer = !process.env.PLAYWRIGHT_BASE_URL;
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -7,15 +11,17 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000',
+    baseURL: frontendBaseUrl,
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: shouldStartWebServer
+    ? {
+        command: 'npm run dev',
+        url: frontendBaseUrl,
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+      }
+    : undefined,
   projects: [
     {
       name: 'chromium',

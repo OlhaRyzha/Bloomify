@@ -1,46 +1,18 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-const apiBaseUrl = 'http://localhost:8000';
-
-const catalogItems = [
-  {
-    id: 'white-harmony',
-    name: 'Біла гармонія',
-    description: 'Класична композиція з білих лілій та троянд',
-    price: 1650,
-    imageUrl: '/images/white-harmony.jpg',
-    tag: 'Класика',
-  },
-  {
-    id: 'blue-harmony',
-    name: 'Блакитна гармонія',
-    description: 'Витончений букет із білих лілій та гортензії',
-    price: 1750,
-    imageUrl: '/images/blue-harmony.jpg',
-    tag: 'Класика',
-  },
-];
+import { mockCashOnDeliveryCheckout, mockCatalogProducts } from './helpers/api';
+import { e2ePrimaryCatalogItem } from './fixtures/catalog.fixture';
+import {
+  addCatalogItemToFavorites,
+  addFirstCatalogItemToCart,
+  clearPersistedState,
+} from './helpers/user-flows';
 
 test.beforeEach(async ({ page }) => {
-  await page.route(`${apiBaseUrl}/products**`, async (route) => {
-    await route.fulfill({
-      contentType: 'application/json',
-      json: catalogItems,
-    });
-  });
+  await mockCatalogProducts(page);
 });
 
-const clearPersistedState = async (page: Page) => {
-  await page.goto('/uk');
-  await page.evaluate(() => {
-    window.localStorage.clear();
-  });
-};
-
-const addWhiteHarmonyToCart = async (page: Page) => {
-  await page.goto('/uk/catalog');
-  await page.getByRole('button', { name: 'До кошика' }).first().click();
-};
+const primaryItemName = e2ePrimaryCatalogItem.name;
 
 test('home page supports localized anchor navigation', async ({ page }) => {
   await page.goto('/uk');
@@ -78,13 +50,13 @@ test('cart flow persists selected bouquet and opens checkout', async ({
   page,
 }) => {
   await clearPersistedState(page);
-  await addWhiteHarmonyToCart(page);
+  await addFirstCatalogItemToCart(page);
 
   await page.goto('/uk/cart');
 
   await expect(page.getByRole('heading', { name: 'Кошик' })).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Біла гармонія' })
+    page.getByRole('heading', { name: primaryItemName })
   ).toBeVisible();
   await expect(page.getByText('Разом')).toBeVisible();
 
@@ -100,12 +72,10 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
   page,
 }) => {
   await clearPersistedState(page);
-  await addWhiteHarmonyToCart(page);
+  await addFirstCatalogItemToCart(page);
 
-  await page.route(`${apiBaseUrl}/orders/checkout**`, async (route) => {
-    const requestBody = route.request().postDataJSON();
-
-    expect(requestBody).toMatchObject({
+  await mockCashOnDeliveryCheckout(page, (payload) => {
+    expect(payload).toMatchObject({
       customerName: 'Olha Ryzha',
       email: 'olha@example.com',
       phone: '+380671234567',
@@ -113,18 +83,6 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
       address: 'Хрещатик 1',
       paymentMethod: 'cash_on_delivery',
       items: [{ id: 'white-harmony', quantity: 1 }],
-    });
-
-    await route.fulfill({
-      contentType: 'application/json',
-      json: {
-        orderId: 42,
-        status: 'pending',
-        paymentStatus: 'pending',
-        paymentProvider: 'cash_on_delivery',
-        paymentMethod: 'cash_on_delivery',
-        liqpay: null,
-      },
     });
   });
 
@@ -148,17 +106,15 @@ test('favorites flow persists bouquet and supports removing it', async ({
   page,
 }) => {
   await clearPersistedState(page);
-  await page.goto('/uk/catalog');
-
-  await page
-    .getByRole('button', { name: /add біла гармонія to favorites/i })
-    .click();
+  await addCatalogItemToFavorites(page, primaryItemName);
   await page.goto('/uk/favorites');
 
-  await expect(page.getByText('Біла гармонія')).toBeVisible();
+  await expect(page.getByText(primaryItemName)).toBeVisible();
 
   await page
-    .getByRole('button', { name: /remove біла гармонія from favorites/i })
+    .getByRole('button', {
+      name: new RegExp(`remove ${primaryItemName} from favorites`, 'i'),
+    })
     .click();
 
   await expect(

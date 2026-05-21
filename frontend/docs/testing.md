@@ -140,6 +140,10 @@ Rules:
 
 ## Commands
 
+E2E tests use `NEXT_PUBLIC_API_URL` to intercept backend API requests and
+`PLAYWRIGHT_BASE_URL` to choose the frontend URL under test. Keep those values
+environment-specific instead of hardcoding deployment URLs in specs.
+
 From `frontend`:
 
 ```bash
