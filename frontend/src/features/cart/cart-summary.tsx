@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import SurfacePanel from '@/components/ui/surface-panel';
 import { useLocale } from '@/components/providers/locale-provider';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCurrency } from '@/utils/i18n';
@@ -20,7 +21,7 @@ export default function CartSummary({
   const { locale } = useLocale();
 
   return (
-    <div className='rounded-3xl bg-gradient-card p-6 shadow-card'>
+    <SurfacePanel as='div'>
       <h3 className='font-display text-2xl font-semibold'>
         {t('cart_summary_title')}
       </h3>
@@ -65,6 +66,6 @@ export default function CartSummary({
           {t('cart_continue_shopping')}
         </Link>
       </Button>
-    </div>
+    </SurfacePanel>
   );
 }

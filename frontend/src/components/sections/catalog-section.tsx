@@ -4,6 +4,7 @@ import { getServerTranslator } from '@/i18n/server';
 import { Button } from '../ui/button';
 import CatalogSectionPreview from './catalog-section-preview.client';
 import { getLocalizedPath } from '@/i18n/routing';
+import HomeSectionHeader from './home-section-header';
 
 export default async function CatalogSection() {
   const { locale, t } = await getServerTranslator();
@@ -13,17 +14,11 @@ export default async function CatalogSection() {
       id='catalog'
       className='scroll-mt-24 bg-background py-24'>
       <Container>
-        <header className='mb-16 text-center'>
-          <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            {t('sections_catalog_label')}
-          </span>
-          <h2 className='font-display mb-4 text-4xl font-bold md:text-5xl'>
-            {t('sections_catalog_title')}
-          </h2>
-          <p className='mx-auto max-w-6xl text-lg text-muted-foreground'>
-            {t('sections_catalog_description')}
-          </p>
-        </header>
+        <HomeSectionHeader
+          label={t('sections_catalog_label')}
+          title={t('sections_catalog_title')}
+          description={t('sections_catalog_description')}
+        />
 
         <CatalogSectionPreview />
 

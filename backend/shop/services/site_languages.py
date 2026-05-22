@@ -1,4 +1,4 @@
-from shop.models import SiteLanguageSettings
+from shop.models.site_language_settings import SiteLanguageSettings
 
 
 def get_site_languages_settings() -> SiteLanguageSettings:

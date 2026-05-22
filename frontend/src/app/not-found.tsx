@@ -28,7 +28,7 @@ export default async function NotFound() {
           className='font-display text-5xl font-bold md:text-6xl'>
           {t('not_found_title')}
         </h1>
-        <p className='mx-auto mt-4 max-w-6xl text-base text-muted-foreground md:text-lg'>
+        <p className='mx-auto mt-4 max-w-3xl text-base text-muted-foreground md:text-lg'>
           {t('not_found_description')}
         </p>
 

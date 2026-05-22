@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from shop.models import Subscription, SubscriptionPlan
+from shop.models.subscription import Subscription, SubscriptionPlan
 
 
 @admin.register(SubscriptionPlan)

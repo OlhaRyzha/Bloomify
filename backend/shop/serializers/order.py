@@ -2,7 +2,8 @@ from decimal import Decimal
 
 from rest_framework import serializers
 
-from shop.models import Order, Product
+from shop.models.order import Order
+from shop.models.product import Product
 
 PAYMENT_METHODS_WITH_LIQPAY = {"apple_pay", "google_pay", "card"}
 STANDARD_DELIVERY_FEE = Decimal("150.00")

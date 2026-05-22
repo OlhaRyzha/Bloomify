@@ -16,11 +16,15 @@ class EnvironmentSettings(BaseSettings):
     DJANGO_SECRET_KEY: str
     DJANGO_ALLOWED_HOSTS: str
     DJANGO_CORS_ALLOWED_ORIGINS: str
+    ADMIN_SITE_URL: str = "http://localhost:3000"
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
+    LIQPAY_DEV_BACKEND_LOCAL_URL: str = ""
+    LIQPAY_CALLBACK_PATH: str = "/payments/liqpay/callback"
+    LIQPAY_RESULT_PATH: str = "/checkout"
     LIQPAY_PUBLIC_KEY: str = ""
     LIQPAY_PRIVATE_KEY: str = ""
     LIQPAY_CHECKOUT_URL: str = "https://www.liqpay.ua/api/3/checkout"
@@ -85,7 +89,7 @@ UNFOLD = {
         "en": "🇬🇧",
         "pl": "🇵🇱",
     },
-    "SITE_URL": "http://localhost:3000",
+    "SITE_URL": env.ADMIN_SITE_URL,
     "SITE_ICON": {
         "light": "/static/bloomify/admin-icon.svg",
         "dark": "/static/bloomify/admin-icon.svg",

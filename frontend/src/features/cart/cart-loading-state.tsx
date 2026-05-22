@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import SurfacePanel from '@/components/ui/surface-panel';
 import CartItemSkeleton from './cart-item-skeleton';
 
 type CartLoadingStateProps = {
@@ -24,7 +25,9 @@ export default function CartLoadingState({ placeholders }: CartLoadingStateProps
       </div>
 
       <aside className='space-y-6'>
-        <div className='rounded-3xl bg-gradient-card p-6 shadow-card space-y-4'>
+        <SurfacePanel
+          as='div'
+          className='space-y-4'>
           <Skeleton className='h-7 w-40' />
           <div className='space-y-3 pt-2'>
             <div className='flex items-center justify-between'>
@@ -41,7 +44,7 @@ export default function CartLoadingState({ placeholders }: CartLoadingStateProps
           </div>
           <Skeleton className='h-11 w-full rounded-lg' />
           <Skeleton className='h-11 w-full rounded-lg' />
-        </div>
+        </SurfacePanel>
 
         <div className='rounded-3xl bg-muted/60 p-5 space-y-4'>
           <Skeleton className='h-4 w-40' />

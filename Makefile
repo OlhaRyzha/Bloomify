@@ -51,6 +51,9 @@ frontend-test-ui:
 frontend-test-coverage:
 	cd $(FRONTEND_DIR) && npm run test:coverage
 
+frontend-test-e2e:
+	cd $(FRONTEND_DIR) && npm run test:e2e
+
 
 # ---------- Backend ----------
 
@@ -88,6 +91,7 @@ check: format lint
 
 pre-commit-install:
 	uv run pre-commit install
+	uv run pre-commit install --hook-type pre-push
 
 
 pre-commit:

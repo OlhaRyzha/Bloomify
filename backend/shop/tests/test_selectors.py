@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from shop.models import Product
-from shop.selectors import get_active_products_queryset
+from shop.models.product import Product
+from shop.selectors.products import get_active_products_queryset
 
 
 class SelectorsTest(TestCase):

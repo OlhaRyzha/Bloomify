@@ -6,7 +6,7 @@ from typing import Any
 
 from django.conf import settings
 
-from shop.models import Order
+from shop.models.order import Order
 from shop.security.encoding import decode_json_payload, encode_json_payload
 
 PAYTYPE_BY_PAYMENT_METHOD = {

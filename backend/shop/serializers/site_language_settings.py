@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shop.models import SiteLanguageSettings
+from shop.models.site_language_settings import SiteLanguageSettings
 
 
 class SiteLanguageSettingsSerializer(serializers.ModelSerializer):

@@ -7,7 +7,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from parler.admin import TranslatableAdmin
 
-from shop.models import Product
+from shop.models.product import Product
 
 
 @admin.register(Product)

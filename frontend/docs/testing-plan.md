@@ -6,12 +6,24 @@ This document records the current frontend testing baseline for Bloomify and the
 
 Last measured with `npm run test:coverage`:
 
-- Test files: 37 passed
-- Tests: 178 passed
-- Statements: 92.2%
-- Lines: 92.82%
-- Branches: 77.17%
-- Functions: 85.15%
+- Test files: 38 passed
+- Tests: 179 passed
+- Statements: 92.25%
+- Lines: 92.87%
+- Branches: 77.2%
+- Functions: 85.42%
+
+Last measured with `npm run test:e2e`:
+
+- Browser smoke tests: 6 passed
+- Covered flows: localized anchor navigation, catalog API rendering, anonymous profile redirect, cart-to-checkout, cash-on-delivery checkout, favorites persistence
+
+Coverage thresholds enforced by Vitest:
+
+- Statements: 90%
+- Lines: 90%
+- Branches: 75%
+- Functions: 80%
 
 The current suite covers the main frontend risk areas: auth flow, checkout and payment handoff, catalog query state, API error normalization, localized navigation, hash scrolling, and shared UI accessibility. Remaining work should focus on keeping coverage stable as features change, not chasing 100% line coverage.
 
@@ -24,6 +36,7 @@ The current suite covers the main frontend risk areas: auth flow, checkout and p
 - [x] Locale switching, header actions, and hash scrolling are covered.
 - [x] Shared UI/accessibility coverage exists for add-to-cart, pagination, query loader, and newsletter form.
 - [x] Test helpers/factories exist for repeated auth, checkout, catalog, API URL, and deferred-promise setup.
+- [x] Playwright smoke coverage exists for route-level browser behavior.
 
 ## Testing Principles
 
@@ -122,10 +135,7 @@ Covered tests:
   - [x] empty state after filtering
   - [x] error state when query fails
   - [x] add-to-cart interactions remain keyboard-accessible through shared `AddToCartButton` coverage
-
-Remaining catalog-specific gap:
-
-- Favorite toggle keyboard/accessibility behavior should be covered when favorite persistence/API behavior is finalized.
+  - [x] favorite toggle exposes accessible pressed state and label changes
 
 Done when:
 
@@ -216,8 +226,9 @@ Add or improve:
 - [x] feature factories for auth responses, checkout payloads, and catalog params
 - [x] shared helpers for API URLs and deferred promises
 - [x] reset helpers for repeated catalog store setup
+- [x] Playwright smoke tests for key route-level flows
 - [ ] MSW handlers grouped by domain if more repeated endpoint setup appears
-- [ ] coverage thresholds after the team agrees on minimums
+- [x] coverage thresholds after the team agrees on minimums
 - [ ] documentation examples for adding a new feature test
 
 Done when:
@@ -228,10 +239,9 @@ Done when:
 
 ## Recommended Next Steps
 
-1. Add coverage thresholds after reviewing CI behavior.
-2. Add favorite toggle accessibility tests once favorite backend/API behavior is stable.
-3. Extract MSW domain handlers only when another feature repeats the same endpoint setup.
-4. Keep every new feature covered at the behavior boundary: schema/helper tests for pure logic, Testing Library for user behavior, MSW for API boundaries.
+1. Add favorite toggle accessibility tests once favorite backend/API behavior is stable.
+2. Extract MSW domain handlers only when another feature repeats the same endpoint setup.
+3. Keep every new feature covered at the behavior boundary: schema/helper tests for pure logic, Testing Library for user behavior, MSW for API boundaries.
 
 ## Commands
 
@@ -245,6 +255,7 @@ Run frontend checks before committing:
 
 ```bash
 npm run test:coverage
+npm run test:e2e
 npm run typecheck
 npm run lint
 npm run build
@@ -254,6 +265,7 @@ From repository root:
 
 ```bash
 make frontend-test-coverage
+make frontend-test-e2e
 make frontend-typecheck
 make frontend-lint
 make frontend-build

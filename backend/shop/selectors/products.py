@@ -1,4 +1,4 @@
-from shop.models import Product
+from shop.models.product import Product
 
 
 def get_active_products_queryset():

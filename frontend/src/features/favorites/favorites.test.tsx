@@ -3,13 +3,12 @@ import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
 
 import { createProductItem } from '@/features/catalog/api/products.factory';
+import { apiUrl } from '@/test/api-url';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 
 import FavoritesFeature from './favorites';
 import { useFavoritesStore } from './store/favorites.store';
-
-const apiUrl = (path: string) => `http://localhost:8000/${path}`;
 
 const products = [
   createProductItem({

@@ -1,6 +1,7 @@
 import { Truck, Shield, Clock, Leaf, type LucideIcon } from 'lucide-react';
 import { Container } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
+import HomeSectionHeader from './home-section-header';
 
 type Feature = {
   key: string;
@@ -36,14 +37,10 @@ export default async function FeaturesSection() {
         aria-hidden='true'
       />
       <Container>
-        <header className='mb-16 text-center'>
-          <span className='mb-4 block text-sm font-medium uppercase tracking-widest text-primary'>
-            {t('sections_features_label')}
-          </span>
-          <h2 className='font-display text-4xl font-bold md:text-5xl'>
-            {t('sections_features_title')}
-          </h2>
-        </header>
+        <HomeSectionHeader
+          label={t('sections_features_label')}
+          title={t('sections_features_title')}
+        />
 
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-4'>
           {features.map((feature) => (
