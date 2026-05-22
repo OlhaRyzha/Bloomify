@@ -13,7 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AUTH_COOKIE_NAMES } from '@/features/auth/auth-routing';
+import { getSignInPathWithNext } from '@/features/auth/auth-redirect';
+import { hasAuthSessionCookie } from '@/features/auth/auth-session.server';
 import { getLocalizedPath } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
 
@@ -29,12 +30,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProfilePage() {
   const { locale, t } = await getServerTranslator();
   const cookieStore = await cookies();
-  const hasAuthCookie = AUTH_COOKIE_NAMES.some((cookieName) =>
-    cookieStore.has(cookieName)
-  );
 
-  if (!hasAuthCookie) {
-    redirect(getLocalizedPath('/sign-in?next=/profile', locale));
+  if (!hasAuthSessionCookie(cookieStore)) {
+    redirect(getSignInPathWithNext(getLocalizedPath('/profile', locale), locale));
   }
 
   const profileCards = [

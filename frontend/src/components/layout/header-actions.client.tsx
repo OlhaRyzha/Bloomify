@@ -12,6 +12,7 @@ import { selectCartCount } from '@/features/cart/store/cart.selectors';
 import { useCartStore } from '@/features/cart/store/cart.store';
 import { useLocale } from '@/components/providers/locale-provider';
 import { getLocalizedPath, stripLocaleFromPathname } from '@/i18n/routing';
+import { useAuthSessionMarker } from '@/features/auth/use-auth-session-marker';
 
 type HeaderNavLink = {
   href: string;
@@ -44,7 +45,10 @@ export default function HeaderActions({
   const isHydrated = useHydrated();
   const cartCount = useCartStore(selectCartCount);
   const { locale } = useLocale();
+  const hasAuthSession = useAuthSessionMarker();
   const pathnameWithoutLocale = stripLocaleFromPathname(pathname);
+  const accountPath = hasAuthSession ? '/profile' : '/sign-in';
+  const accountLabel = hasAuthSession ? copy.profileLabel : copy.loginLabel;
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -61,8 +65,8 @@ export default function HeaderActions({
           size='icon'
           className='hidden md:inline-flex'>
           <Link
-            href={getLocalizedPath('/profile', locale)}
-            aria-label={copy.profileLabel}>
+            href={getLocalizedPath(accountPath, locale)}
+            aria-label={accountLabel}>
             <User
               className='h-5 w-5'
               aria-hidden
@@ -142,18 +146,13 @@ export default function HeaderActions({
                 asChild
                 className='mt-2 w-full'>
                 <Link
-                  href={getLocalizedPath(
-                    pathnameWithoutLocale === '/sign-in'
-                      ? '/profile'
-                      : '/sign-in',
-                    locale
-                  )}
+                  href={getLocalizedPath(accountPath, locale)}
                   onClick={closeMenu}>
                   <User
                     className='mr-2 h-4 w-4'
                     aria-hidden
                   />
-                  {copy.loginLabel}
+                  {accountLabel}
                 </Link>
               </Button>
             </div>

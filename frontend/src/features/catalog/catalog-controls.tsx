@@ -51,7 +51,7 @@ export function CatalogControls({
           name='catalogSearch'
           type='search'
           placeholder={t('controls_search_placeholder')}
-          className='h-10 w-52'
+          className='h-10 w-64'
           prefix={
             <Search
               className='h-4 w-4 text-muted-foreground'

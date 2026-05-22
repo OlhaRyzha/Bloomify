@@ -12,6 +12,7 @@ This folder describes the target frontend standards for Bloomify. Treat these do
 - [Forms](./forms.md) - Formik + Zod standards.
 - [State Management](./state-management.md) - Zustand store rules.
 - [API And Errors](./api-and-errors.md) - services, schema validation, `ApiError`, user feedback.
+- [Auth Architecture](./auth.md) - sign-in/sign-up flow, token handling, route guards, and future Django auth contract.
 - [Testing](./testing.md) - Vitest, Testing Library, MSW, fixtures, factories, mocks.
 - [Frontend Testing Plan](./testing-plan.md) - prioritized gaps and execution order for improving frontend tests.
 

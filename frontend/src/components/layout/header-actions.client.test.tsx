@@ -1,9 +1,10 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { renderWithProviders } from '@/test/render';
 
 import HeaderActions from './header-actions.client';
+import { AUTH_SESSION_COOKIE_NAME } from '@/features/auth/auth-routing';
 
 let pathnameMock = '/uk/catalog';
 
@@ -32,9 +33,12 @@ const navigationLinks = [
 describe('HeaderActions', () => {
   beforeEach(() => {
     pathnameMock = '/uk/catalog';
+    document.cookie = `${AUTH_SESSION_COOKIE_NAME}=; Path=/; Max-Age=0`;
   });
 
-  test('points profile action to the localized profile route', () => {
+  test('points account action to the localized profile route with session marker', async () => {
+    document.cookie = `${AUTH_SESSION_COOKIE_NAME}=1; Path=/`;
+
     renderWithProviders(
       <HeaderActions
         copy={copy}
@@ -44,9 +48,27 @@ describe('HeaderActions', () => {
       { locale: 'uk' }
     );
 
-    expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute(
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute(
+        'href',
+        '/uk/profile'
+      );
+    });
+  });
+
+  test('points anonymous profile action to localized sign in', () => {
+    renderWithProviders(
+      <HeaderActions
+        copy={copy}
+        mobileNavId='mobile-navigation'
+        navigationLinks={navigationLinks}
+      />,
+      { locale: 'uk' }
+    );
+
+    expect(screen.getByRole('link', { name: 'Log in' })).toHaveAttribute(
       'href',
-      '/uk/profile'
+      '/uk/sign-in'
     );
   });
 
@@ -65,7 +87,9 @@ describe('HeaderActions', () => {
     const mobileNavigation = screen.getByRole('navigation', {
       name: 'Mobile navigation',
     });
-    const authLink = screen.getByRole('link', { name: /log in/i });
+    const authLink = within(mobileNavigation).getByRole('link', {
+      name: /log in/i,
+    });
     expect(authLink).toHaveAttribute('href', '/uk/sign-in');
 
     await user.click(screen.getByRole('link', { name: 'Contact' }));
@@ -73,5 +97,35 @@ describe('HeaderActions', () => {
     await waitFor(() => {
       expect(mobileNavigation).not.toBeInTheDocument();
     });
+  });
+
+  test('mobile auth action points to profile for authenticated users', async () => {
+    document.cookie = `${AUTH_SESSION_COOKIE_NAME}=1; Path=/`;
+
+    const { user } = renderWithProviders(
+      <HeaderActions
+        copy={copy}
+        mobileNavId='mobile-navigation'
+        navigationLinks={navigationLinks}
+      />,
+      { locale: 'uk' }
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute(
+        'href',
+        '/uk/profile'
+      );
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const mobileNavigation = screen.getByRole('navigation', {
+      name: 'Mobile navigation',
+    });
+
+    expect(
+      within(mobileNavigation).getByRole('link', { name: /profile/i })
+    ).toHaveAttribute('href', '/uk/profile');
   });
 });

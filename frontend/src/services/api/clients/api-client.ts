@@ -4,6 +4,7 @@ import axios, {
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from 'axios';
+import { API_ROUTES } from '@/constants/api.constant';
 import { ALLOWED_EXTERNAL_HOSTS } from '@/constants/network.constants';
 import { createAxiosConfig } from './axios.config';
 import { BASE_URL } from '@/components/config/env';
@@ -11,11 +12,25 @@ import { isAbsoluteUrl } from '@/utils/guards/is-absolute-url';
 import { getHost } from '@/utils/url/get-host';
 import { safeRequest, safeVoidRequest } from '@/utils/api/safe-request';
 import type { SafeRequestOptions } from '@/utils/api/safe-request';
+import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
 import { getLocaleFromPathname } from '@/i18n/routing';
 import { isObject } from '@/utils/guards/is-object';
+import {
+  clearClientAuthSession,
+  startClientAuthSession,
+} from '@/features/auth/auth-session.client';
+import {
+  authTokenResponseSchema,
+  type AuthTokenResponse,
+} from '@/features/auth/api/auth.schemas';
 import { useAuthTokenStore } from '@/features/auth/store/auth-token.store';
 
 type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
+
+type AuthRetryRequestConfig = InternalAxiosRequestConfig & {
+  _authRetry?: boolean;
+  _skipAuthRefresh?: boolean;
+};
 
 type RequestParams<TBody = unknown> = {
   method: RequestMethod;
@@ -56,10 +71,35 @@ const withLocaleParam = (
   };
 };
 
+const authSessionRoutes = new Set([
+  API_ROUTES.AUTH_SIGN_IN,
+  API_ROUTES.AUTH_SIGN_UP,
+  API_ROUTES.AUTH_REFRESH_TOKEN,
+  API_ROUTES.AUTH_SIGN_OUT,
+]);
+
+const normalizeApiPath = (url: string) => {
+  const withoutQuery = url.split('?')[0] ?? '';
+  return withoutQuery.replace(/^\/+/, '');
+};
+
+const isAuthSessionRoute = (url: string) => {
+  if (isAbsoluteUrl(url)) {
+    try {
+      return authSessionRoutes.has(normalizeApiPath(new URL(url).pathname));
+    } catch {
+      return false;
+    }
+  }
+
+  return authSessionRoutes.has(normalizeApiPath(url));
+};
+
 export class ApiClient {
   private axiosBase: AxiosInstance;
   private axiosExternal: AxiosInstance;
   private axiosNext: AxiosInstance;
+  private refreshAccessTokenPromise: Promise<string | null> | null = null;
 
   constructor() {
     this.axiosBase = axios.create({
@@ -81,13 +121,13 @@ export class ApiClient {
     this.axiosBase.interceptors.request.use(this.handleBaseRequest);
     this.axiosBase.interceptors.response.use(
       (r) => r,
-      this.handleResponseError
+      this.handleAuthResponseError(this.axiosBase)
     );
 
     this.axiosNext.interceptors.request.use(this.handleBaseRequest);
     this.axiosNext.interceptors.response.use(
       (r) => r,
-      this.handleResponseError
+      this.handleAuthResponseError(this.axiosNext)
     );
 
     this.axiosExternal.interceptors.request.use(this.handleExternalRequest);
@@ -139,6 +179,81 @@ export class ApiClient {
   private handleResponseError(error: AxiosError): Promise<never> {
     console.error('[API ERROR]', error);
     return Promise.reject(error);
+  }
+
+  private handleAuthResponseError =
+    (client: AxiosInstance) =>
+    async (error: AxiosError): Promise<unknown> => {
+      const config = error.config as AuthRetryRequestConfig | undefined;
+
+      if (!this.shouldRefreshAccessToken(error, config)) {
+        return this.handleResponseError(error);
+      }
+
+      const accessToken = await this.refreshAccessToken();
+
+      if (!accessToken || !config) {
+        return this.handleResponseError(error);
+      }
+
+      config._authRetry = true;
+      config.headers.set('Authorization', `Bearer ${accessToken}`);
+
+      return client.request(config);
+    };
+
+  private shouldRefreshAccessToken(
+    error: AxiosError,
+    config?: AuthRetryRequestConfig
+  ) {
+    if (error.response?.status !== 401) return false;
+    if (!config || config._authRetry || config._skipAuthRefresh) return false;
+
+    const url = config.url ?? '';
+    if (isAuthSessionRoute(url)) return false;
+
+    return true;
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    this.refreshAccessTokenPromise ??= this.requestFreshAccessToken();
+
+    try {
+      return await this.refreshAccessTokenPromise;
+    } finally {
+      this.refreshAccessTokenPromise = null;
+    }
+  }
+
+  private async requestFreshAccessToken(): Promise<string | null> {
+    try {
+      const response = await this.axiosBase.request<unknown>({
+        method: 'post',
+        url: API_ROUTES.AUTH_REFRESH_TOKEN,
+        _skipAuthRefresh: true,
+      } as AuthRetryRequestConfig);
+
+      const { accessToken } = parseResponseWithSchema(
+        response.data,
+        authTokenResponseSchema
+      ) as AuthTokenResponse;
+
+      if (typeof document !== 'undefined') {
+        startClientAuthSession({ accessToken });
+      } else {
+        useAuthTokenStore.getState().setAccessToken(accessToken);
+      }
+
+      return accessToken;
+    } catch {
+      if (typeof document !== 'undefined') {
+        clearClientAuthSession();
+      } else {
+        useAuthTokenStore.getState().clearAccessToken();
+      }
+
+      return null;
+    }
   }
 
   private pickInstance(url: string): AxiosInstance {

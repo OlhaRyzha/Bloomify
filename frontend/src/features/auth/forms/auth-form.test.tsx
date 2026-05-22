@@ -7,25 +7,26 @@ import { renderWithProviders } from '@/test/render';
 import { ApiError, ApiErrorType } from '@/utils/api/api-error';
 
 import AuthForm from './auth-form';
-import AuthService from '../api/auth.service';
+import AuthSessionService from '../auth-session.service';
 import { createSignInPayload, createSignUpPayload } from '../auth.factory';
 import { useAuthTokenStore } from '../store/auth-token.store';
 import { AUTH_SESSION_COOKIE_NAME } from '../auth-routing';
 
 const replaceMock = vi.fn();
+let searchParams = new URLSearchParams();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     replace: replaceMock,
   }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => searchParams,
 }));
 
-vi.mock('../api/auth.service', () => ({
+vi.mock('../auth-session.service', () => ({
   default: {
     signIn: vi.fn(),
     signUp: vi.fn(),
-    refreshSession: vi.fn(),
+    refresh: vi.fn(),
     signOut: vi.fn(),
   },
 }));
@@ -33,10 +34,11 @@ vi.mock('../api/auth.service', () => ({
 describe('AuthForm', () => {
   beforeEach(() => {
     replaceMock.mockReset();
-    vi.mocked(AuthService.signIn).mockReset();
-    vi.mocked(AuthService.signUp).mockReset();
+    vi.mocked(AuthSessionService.signIn).mockReset();
+    vi.mocked(AuthSessionService.signUp).mockReset();
     useAuthTokenStore.getState().clearAccessToken();
     document.cookie = `${AUTH_SESSION_COOKIE_NAME}=; Path=/; Max-Age=0`;
+    searchParams = new URLSearchParams();
   });
 
   test('shows register validation errors after an empty submit', async () => {
@@ -54,8 +56,13 @@ describe('AuthForm', () => {
   });
 
   test('submits valid login values without validation errors', async () => {
-    vi.mocked(AuthService.signIn).mockResolvedValue({
-      accessToken: 'access-token',
+    vi.mocked(AuthSessionService.signIn).mockImplementation(async () => {
+      useAuthTokenStore.getState().setAccessToken('access-token');
+      document.cookie = `${AUTH_SESSION_COOKIE_NAME}=1; Path=/`;
+
+      return {
+        accessToken: 'access-token',
+      };
     });
 
     const { user } = renderWithProviders(<AuthForm mode='login' />, {
@@ -75,7 +82,7 @@ describe('AuthForm', () => {
       ).not.toBeInTheDocument();
     });
 
-    expect(AuthService.signIn).toHaveBeenCalledWith(
+    expect(AuthSessionService.signIn).toHaveBeenCalledWith(
       createSignInPayload({
         email: 'tom@example.com',
         password: 'password',
@@ -87,8 +94,12 @@ describe('AuthForm', () => {
   });
 
   test('submits sign up without confirmPassword payload', async () => {
-    vi.mocked(AuthService.signUp).mockResolvedValue({
-      accessToken: 'registered-access-token',
+    vi.mocked(AuthSessionService.signUp).mockImplementation(async () => {
+      useAuthTokenStore.getState().setAccessToken('registered-access-token');
+
+      return {
+        accessToken: 'registered-access-token',
+      };
     });
 
     const { user } = renderWithProviders(<AuthForm mode='register' />, {
@@ -105,7 +116,9 @@ describe('AuthForm', () => {
     await user.click(screen.getByRole('button', { name: /^register$/i }));
 
     await waitFor(() => {
-      expect(AuthService.signUp).toHaveBeenCalledWith(createSignUpPayload());
+      expect(AuthSessionService.signUp).toHaveBeenCalledWith(
+        createSignUpPayload()
+      );
     });
 
     expect(useAuthTokenStore.getState().accessToken).toBe(
@@ -114,8 +127,46 @@ describe('AuthForm', () => {
     expect(replaceMock).toHaveBeenCalledWith('/en/profile');
   });
 
+  test('redirects to safe next path after login', async () => {
+    searchParams = new URLSearchParams({ next: '/uk/checkout' });
+    vi.mocked(AuthSessionService.signIn).mockResolvedValue({
+      accessToken: 'access-token',
+    });
+
+    const { user } = renderWithProviders(<AuthForm mode='login' />, {
+      locale: 'uk',
+    });
+
+    await user.type(screen.getByLabelText(/email/i), 'tom@example.com');
+    await user.type(screen.getByLabelText(/^пароль$/i), 'password');
+    await user.click(screen.getByRole('button', { name: /^увійти$/i }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/uk/checkout');
+    });
+  });
+
+  test('ignores unsafe next path after login', async () => {
+    searchParams = new URLSearchParams({ next: 'https://example.com' });
+    vi.mocked(AuthSessionService.signIn).mockResolvedValue({
+      accessToken: 'access-token',
+    });
+
+    const { user } = renderWithProviders(<AuthForm mode='login' />, {
+      locale: 'en',
+    });
+
+    await user.type(screen.getByLabelText(/email/i), 'tom@example.com');
+    await user.type(screen.getByLabelText(/^password$/i), 'password');
+    await user.click(screen.getByRole('button', { name: /^log in$/i }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/en/profile');
+    });
+  });
+
   test('shows form-level API errors and preserves entered values', async () => {
-    vi.mocked(AuthService.signIn).mockRejectedValue(
+    vi.mocked(AuthSessionService.signIn).mockRejectedValue(
       new ApiError(ApiErrorType.Unauthorized, 'Invalid email or password')
     );
 
@@ -140,7 +191,7 @@ describe('AuthForm', () => {
 
   test('disables submit button while auth request is pending', async () => {
     const deferred = createDeferred<{ accessToken: string }>();
-    vi.mocked(AuthService.signIn).mockReturnValue(deferred.promise);
+    vi.mocked(AuthSessionService.signIn).mockReturnValue(deferred.promise);
 
     const { user } = renderWithProviders(<AuthForm mode='login' />, {
       locale: 'en',
