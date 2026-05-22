@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django.test import TestCase, override_settings
 
-from shop.models import Order
+from shop.models.order import Order
 from shop.services.liqpay import create_signature, decode_data, encode_data
 from shop.tests.factories import create_order, create_product
 

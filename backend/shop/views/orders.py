@@ -3,7 +3,7 @@ from rest_framework import permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from shop.models import Order
+from shop.models.order import Order
 from shop.serializers.order import (
     PAYMENT_METHODS_WITH_LIQPAY,
     CheckoutCreateSerializer,

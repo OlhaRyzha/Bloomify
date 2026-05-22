@@ -2,7 +2,7 @@ from django.http import HttpRequest
 from django.shortcuts import render
 from rest_framework import generics, permissions
 
-from shop.selectors import get_active_products_queryset
+from shop.selectors.products import get_active_products_queryset
 from shop.serializers.product import ProductSerializer
 
 

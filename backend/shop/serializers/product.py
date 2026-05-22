@@ -1,7 +1,7 @@
 from django.utils.translation import get_language
 from rest_framework import serializers
 
-from shop.models import Product
+from shop.models.product import Product
 
 
 class ProductSerializer(serializers.ModelSerializer):

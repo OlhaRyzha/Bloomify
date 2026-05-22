@@ -5,6 +5,7 @@ This folder describes target backend standards for Bloomify. Treat these documen
 ## Docs Map
 
 - [Testing](./testing.md) - Django tests, factories, fixtures, API tests, payment callbacks, and verification commands.
+- [Admin](./admin.md) - Unfold admin structure, registration rules, styling boundaries, and maintenance conventions.
 
 ## Default Workflow
 

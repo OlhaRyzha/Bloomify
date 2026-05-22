@@ -1,7 +1,8 @@
 from decimal import Decimal
 from typing import Any
 
-from shop.models import Order, Product
+from shop.models.order import Order
+from shop.models.product import Product
 
 
 def create_product(**overrides: Any) -> Product:

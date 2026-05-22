@@ -1,1 +1,1 @@
-
+"""Shop Django app package."""
