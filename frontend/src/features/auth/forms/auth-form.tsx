@@ -26,20 +26,19 @@ import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { useTranslation } from '@/hooks/use-translation';
 import { getLocalizedPath } from '@/i18n/routing';
 import { ApiError } from '@/utils/api/api-error';
-import AuthService from '../api/auth.service';
-import { useAuthTokenStore } from '../store/auth-token.store';
-import { selectSetAccessToken } from '../store/auth-token.selectors';
-import { setAuthSessionCookie } from '../auth-session-cookie';
+import { getPostAuthRedirectPath } from '../auth-redirect';
+import AuthSessionService from '../auth-session.service';
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { locale, t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const setAccessToken = useAuthTokenStore(selectSetAccessToken);
   const fields = getAuthFields({ mode, t });
   const schema = mode === 'login' ? loginSchema : registerSchema;
-  const nextPath = searchParams.get('next');
-  const profilePath = getLocalizedPath('/profile', locale);
+  const redirectPath = getPostAuthRedirectPath(
+    searchParams.get('next'),
+    locale
+  );
 
   return (
     <Card
@@ -62,21 +61,20 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
             actions.setStatus(undefined);
 
             try {
-              const session =
-                mode === 'login'
-                  ? await AuthService.signIn({
-                      email: values.email,
-                      password: values.password,
-                    })
-                  : await AuthService.signUp({
-                      name: values.name,
-                      email: values.email,
-                      password: values.password,
-                    });
+              if (mode === 'login') {
+                await AuthSessionService.signIn({
+                  email: values.email,
+                  password: values.password,
+                });
+              } else {
+                await AuthSessionService.signUp({
+                  name: values.name,
+                  email: values.email,
+                  password: values.password,
+                });
+              }
 
-              setAccessToken(session.accessToken);
-              setAuthSessionCookie();
-              router.replace(nextPath || profilePath);
+              router.replace(redirectPath);
             } catch (error) {
               actions.setStatus(ApiError.fromUnknown(error).userMessage);
             } finally {

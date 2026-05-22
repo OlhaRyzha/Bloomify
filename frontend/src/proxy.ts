@@ -14,6 +14,7 @@ import {
   AUTH_COOKIE_NAMES,
   isProtectedAuthPath,
 } from '@/features/auth/auth-routing';
+import { getSignInPathWithNext } from '@/features/auth/auth-redirect';
 
 const getPreferredLocale = (request: NextRequest): Locale => {
   const acceptLanguage = request.headers.get('accept-language') ?? '';
@@ -56,9 +57,14 @@ export function proxy(request: NextRequest) {
     !AUTH_COOKIE_NAMES.some((cookieName) => request.cookies.has(cookieName))
   ) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = `/${localeFromPathname}/sign-in`;
-    redirectUrl.search = '';
-    redirectUrl.searchParams.set('next', `${pathname}${search}`);
+    const signInPath = getSignInPathWithNext(
+      `${pathname}${search}`,
+      localeFromPathname
+    );
+    const [redirectPathname, redirectSearch = ''] = signInPath.split('?');
+
+    redirectUrl.pathname = redirectPathname;
+    redirectUrl.search = redirectSearch ? `?${redirectSearch}` : '';
 
     return NextResponse.redirect(redirectUrl);
   }

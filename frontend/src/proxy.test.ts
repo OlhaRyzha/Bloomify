@@ -20,6 +20,15 @@ describe('proxy auth routing', () => {
     );
   });
 
+  test('redirects unauthenticated profile requests with query in next', () => {
+    const response = proxy(createRequest(appUrl('/uk/profile?tab=orders')));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe(
+      appUrl('/uk/sign-in?next=%2Fuk%2Fprofile%3Ftab%3Dorders')
+    );
+  });
+
   test('rewrites authenticated localized profile requests', () => {
     const response = proxy(
       createRequest(
