@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import heroImage from '@/assets/hero-flowers.jpg';
 import subscriptionImage from '@/assets/subscription-box.jpg';
-import { Container } from '@/components/layout/page-layout';
+import { Container, PageSection } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
 
 const authAssets = {
@@ -47,7 +47,7 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
   }) as unknown as AuthShellHighlight[];
 
   return (
-    <section className='relative overflow-hidden bg-gradient-hero pb-16 pt-28'>
+    <PageSection className='relative overflow-hidden bg-gradient-hero'>
       <div className='absolute inset-0 overflow-hidden'>
         <div className='absolute left-6 top-16 h-72 w-72 rounded-full bg-blush/30 blur-3xl' />
         <div className='absolute bottom-8 right-8 h-96 w-96 rounded-full bg-sage/30 blur-3xl' />
@@ -77,7 +77,10 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
                     key={item.title}
                     className='rounded-2xl bg-card/70 p-4 shadow-soft backdrop-blur'>
                     <div className='mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary'>
-                      <Icon className='h-5 w-5' />
+                      <Icon
+                        className='h-5 w-5'
+                        aria-hidden
+                      />
                     </div>
                     <p className='text-sm font-semibold text-foreground'>
                       {item.title}
@@ -90,15 +93,14 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
               })}
             </div>
 
-            <div
-              className='relative opacity-0 animate-fade-up'
-              style={{ animationDelay: '0.2s' }}>
+            <div className='relative'>
               <div className='absolute -left-6 -top-6 h-24 w-24 rounded-full bg-gold/30 blur-2xl' />
               <div
                 className={`relative ${assets.aspect} overflow-hidden rounded-3xl bg-gradient-card p-3 shadow-card`}>
                 <Image
                   src={assets.image}
                   alt={t(`auth_shell_${variant}_image_alt`)}
+                  sizes='(max-width: 1024px) 100vw, 45vw'
                   className='rounded-2xl'
                 />
               </div>
@@ -118,6 +120,6 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
           </div>
         </div>
       </Container>
-    </section>
+    </PageSection>
   );
 }

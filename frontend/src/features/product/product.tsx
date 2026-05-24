@@ -28,7 +28,6 @@ export default function ProductFeature({ copy, product }: ProductFeatureProps) {
           src={imageSrc}
           alt={product.name}
           fill
-          loading='eager'
           priority
           sizes='(max-width: 768px) 100vw, (max-width: 1280px) 70vw, 50vw'
           className='object-cover'

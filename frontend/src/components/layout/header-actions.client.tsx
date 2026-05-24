@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, ShoppingBag, User, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import LocaleSwitcher from '../ui/locale-switcher';
@@ -41,6 +40,8 @@ export default function HeaderActions({
   navigationLinks,
 }: HeaderActionsProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
   const isHydrated = useHydrated();
   const cartCount = useCartStore(selectCartCount);
@@ -51,6 +52,28 @@ export default function HeaderActions({
   const accountLabel = hasAuthSession ? copy.profileLabel : copy.loginLabel;
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const firstLink = mobileNavRef.current?.querySelector<HTMLElement>(
+      'a[href], button:not([disabled])'
+    );
+    firstLink?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+
+      setIsMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -95,6 +118,7 @@ export default function HeaderActions({
         </Button>
 
         <Button
+          ref={menuButtonRef}
           variant='ghost'
           size='icon'
           className='md:hidden'
@@ -116,52 +140,47 @@ export default function HeaderActions({
         </Button>
       </div>
 
-      <AnimatePresence initial={false}>
-        {isMenuOpen && (
-          <motion.nav
-            id={mobileNavId}
-            key='mobile-nav'
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className='border-t border-border py-4 md:hidden'
-            aria-label={copy.mobileNavigationLabel}>
-            <div className='flex flex-col gap-4'>
-              {navigationLinks.map((link) => (
-                <Link
-                  key={link.key}
-                  href={link.href}
-                  aria-current={
-                    pathnameWithoutLocale === stripLocaleFromPathname(link.href)
-                      ? 'page'
-                      : undefined
-                  }
-                  className='text-base font-medium text-foreground transition-colors hover:text-primary'
-                  onClick={closeMenu}>
-                  {link.label}
-                </Link>
-              ))}
+      {isMenuOpen && (
+        <nav
+          ref={mobileNavRef}
+          id={mobileNavId}
+          className='border-t border-border py-4 md:hidden'
+          aria-label={copy.mobileNavigationLabel}>
+          <div className='flex flex-col gap-4'>
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.key}
+                href={link.href}
+                aria-current={
+                  pathnameWithoutLocale === stripLocaleFromPathname(link.href)
+                    ? 'page'
+                    : undefined
+                }
+                className='text-base font-medium text-foreground transition-colors hover:text-primary'
+                onClick={closeMenu}>
+                {link.label}
+              </Link>
+            ))}
 
-              <Button
-                asChild
-                className='mt-2 w-full'>
-                <Link
-                  href={getLocalizedPath(accountPath, locale)}
-                  onClick={closeMenu}>
-                  <User
-                    className='mr-2 h-4 w-4'
-                    aria-hidden
-                  />
-                  {accountLabel}
-                </Link>
-              </Button>
-            </div>
-            <div className='mt-4 flex items-center justify-center'>
-              <LocaleSwitcher />
-            </div>
-          </motion.nav>
-        )}
-      </AnimatePresence>
+            <Button
+              asChild
+              className='mt-2 w-full'>
+              <Link
+                href={getLocalizedPath(accountPath, locale)}
+                onClick={closeMenu}>
+                <User
+                  className='mr-2 h-4 w-4'
+                  aria-hidden
+                />
+                {accountLabel}
+              </Link>
+            </Button>
+          </div>
+          <div className='mt-4 flex items-center justify-center'>
+            <LocaleSwitcher />
+          </div>
+        </nav>
+      )}
     </>
   );
 }

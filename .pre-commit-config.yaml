@@ -33,8 +33,11 @@ repos:
           - django-unfold
           - django-parler
           - drf-spectacular
+          - celery
           - pydantic-settings
           - psycopg[binary]
+          - redis
+          - requests
           - types-redis
 
   - repo: local

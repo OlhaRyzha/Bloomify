@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { withSkeleton } from '@/components/hoc/with-skeleton';
 import { PaginationContainer } from '@/components/pagination/pagination';
+import FeedbackState from '@/components/ui/feedback-state';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CatalogItem } from '@/types/catalog';
 
@@ -68,9 +69,10 @@ export default function CatalogGrid({
     data: catalogItems = [],
     isError: isCatalogError,
     isLoading: isCatalogLoading,
+    refetch: refetchCatalogItems,
   } = useGetProducts({
-      enabled: shouldFetchCatalogItems,
-    });
+    enabled: shouldFetchCatalogItems,
+  });
 
   const loading = loadingProp ?? isCatalogLoading;
 
@@ -122,58 +124,51 @@ export default function CatalogGrid({
       )}
 
       {isCatalogError && shouldFetchCatalogItems ? (
-        <section
-          role='alert'
-          className='rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center'>
-          <h2 className='font-display text-2xl font-semibold text-destructive'>
-            {t('catalog_error_title')}
-          </h2>
-          <p className='mt-2 text-sm text-muted-foreground'>
-            {t('catalog_error_description')}
-          </p>
-        </section>
+        <FeedbackState
+          tone='error'
+          title={t('catalog_error_title')}
+          description={t('catalog_error_description')}
+          actionLabel={t('common_try_again')}
+          onAction={async () => {
+            await refetchCatalogItems();
+          }}
+        />
       ) : !loading && sortedItems.length === 0 ? (
-        <section
-          role='status'
-          className='rounded-2xl border border-border bg-card/70 p-6 text-center'>
-          <h2 className='font-display text-2xl font-semibold'>
-            {t('catalog_empty_title')}
-          </h2>
-          <p className='mt-2 text-sm text-muted-foreground'>
-            {t('catalog_empty_description')}
-          </p>
-        </section>
+        <FeedbackState
+          title={t('catalog_empty_title')}
+          description={t('catalog_empty_description')}
+        />
       ) : (
-      <PaginationContainer
-        items={itemsForRender}
-        pageSize={perPage}
-        page={page}
-        onPageChange={setPage}
-        hideControls={hideControls}
-        scrollToTopOnChange
-        showPageSizeControl={!hideControls}
-        pageSizeOptions={perPageOptions}
-        onPageSizeChange={updatePerPage}
-        showItemsCount={!hideControls}
-        itemsCount={filteredItems.length}
-        itemsCountPrefix={t('catalog_items_count_prefix')}
-        itemsCountSuffix={t('catalog_items_count_suffix')}
-        renderPage={(pageItems) => (
-          <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
-            {pageItems.map((product) =>
-              isCatalogSkeletonItem(product) ? (
-                <CatalogCardSkeleton key={product.id} />
-              ) : (
-                <CatalogCardWithSkeleton
-                  key={product.id}
-                  loading={loading}
-                  item={product}
-                />
-              )
-            )}
-          </div>
-        )}
-      />
+        <PaginationContainer
+          items={itemsForRender}
+          pageSize={perPage}
+          page={page}
+          onPageChange={setPage}
+          hideControls={hideControls}
+          scrollToTopOnChange
+          showPageSizeControl={!hideControls}
+          pageSizeOptions={perPageOptions}
+          onPageSizeChange={updatePerPage}
+          showItemsCount={!hideControls}
+          itemsCount={filteredItems.length}
+          itemsCountPrefix={t('catalog_items_count_prefix')}
+          itemsCountSuffix={t('catalog_items_count_suffix')}
+          renderPage={(pageItems) => (
+            <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
+              {pageItems.map((product) =>
+                isCatalogSkeletonItem(product) ? (
+                  <CatalogCardSkeleton key={product.id} />
+                ) : (
+                  <CatalogCardWithSkeleton
+                    key={product.id}
+                    loading={loading}
+                    item={product}
+                  />
+                )
+              )}
+            </div>
+          )}
+        />
       )}
     </div>
   );

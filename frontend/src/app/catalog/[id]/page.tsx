@@ -1,6 +1,11 @@
 import Link from 'next/link';
-import { Container, PageSection } from '@/components/layout/page-layout';
+import {
+  Container,
+  PageSection,
+  PageShell,
+} from '@/components/layout/page-layout';
 import { Button } from '@/components/ui/button';
+import FeedbackState from '@/components/ui/feedback-state';
 import ProductsService from '@/features/catalog/api/products.service';
 import ProductFeature from '@/features/product/product';
 import { getServerTranslator } from '@/i18n/server';
@@ -22,26 +27,14 @@ export default async function CatalogItemPage({
 
   if (!product) {
     return (
-      <PageSection aria-labelledby='product-not-found-title'>
-        <Container>
-          <h1
-            id='product-not-found-title'
-            className='font-display text-3xl font-bold'>
-            {t('product_not_found_title')}
-          </h1>
-          <p className='mt-3 max-w-xl text-sm text-muted-foreground'>
-            {t('product_not_found_description')}
-          </p>
-          <Button
-            asChild
-            variant='ghost'
-            className='mt-4'>
-            <Link href={getLocalizedPath('/catalog', locale)}>
-              {t('product_back_to_catalog')}
-            </Link>
-          </Button>
-        </Container>
-      </PageSection>
+      <PageShell>
+        <FeedbackState
+          title={t('product_not_found_title')}
+          description={t('product_not_found_description')}
+          actionLabel={t('product_back_to_catalog')}
+          actionHref={getLocalizedPath('/catalog', locale)}
+        />
+      </PageShell>
     );
   }
 

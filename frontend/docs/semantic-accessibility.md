@@ -72,6 +72,18 @@ Errors:
 - Keep technical details in logs or diagnostics.
 - Preserve navigation so the user can recover.
 
+Implementation standards:
+
+- Use feature skeletons for page-level loading when the final layout is known.
+- Use `FeedbackState` for shared empty/error panels.
+- Use `role="status"` for neutral empty/status messages.
+- Use `role="alert"` for error states that need immediate announcement.
+- Keep actions keyboard reachable and give icon-only retry/close controls an
+  accessible name.
+- Do not animate a parent container that contains readable text from
+  `opacity: 0`; it can create temporary contrast failures and poor reduced
+  motion behavior.
+
 ## ARIA Rules
 
 Prefer native semantics first. Add ARIA only when native HTML cannot express the behavior.
@@ -118,3 +130,4 @@ Before finishing UI work:
 - Are loading, empty, and error states defined?
 - Do icon-only controls have accessible names?
 - Are links and buttons used for the correct purpose?
+- Does `make frontend-test-e2e-a11y` pass for affected critical pages?

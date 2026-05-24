@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { Container, PageSection } from '@/components/layout/page-layout';
-import SectionHeader from '@/components/ui/section-header';
+import { PageShell } from '@/components/layout/page-layout';
 import CartFeature from '@/features/cart/cart';
 import { getServerTranslator } from '@/i18n/server';
 
@@ -17,16 +16,13 @@ export default async function CartPage() {
   const { t } = await getServerTranslator();
 
   return (
-    <PageSection>
-      <Container>
-        <SectionHeader
-          label={t('cart_page_label')}
-          title={t('cart_page_title')}
-          description={t('cart_page_description')}
-        />
-
-        <CartFeature />
-      </Container>
-    </PageSection>
+    <PageShell
+      header={{
+        label: t('cart_page_label'),
+        title: t('cart_page_title'),
+        description: t('cart_page_description'),
+      }}>
+      <CartFeature />
+    </PageShell>
   );
 }

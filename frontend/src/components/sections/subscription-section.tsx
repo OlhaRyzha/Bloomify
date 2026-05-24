@@ -63,6 +63,7 @@ export default async function SubscriptionSection() {
             <Image
               src={subscriptionImage}
               alt={t('sections_subscription_image_alt')}
+              sizes='(max-width: 1024px) 100vw, 40vw'
               className='relative mx-auto w-full max-w-md rounded-3xl shadow-elevated'
               priority={false}
             />

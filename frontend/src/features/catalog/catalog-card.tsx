@@ -13,6 +13,8 @@ import {
   selectToggleFavorite,
 } from '@/features/favorites/store/favorites.selectors';
 import { useFavoritesStore } from '@/features/favorites/store/favorites.store';
+import { useTranslation } from '@/hooks/use-translation';
+import { getLocalizedPath } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 type CatalogCardProps = {
@@ -26,6 +28,8 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
   const toggleFavorite = useFavoritesStore(selectToggleFavorite);
   const isFavoriteActive = isHydrated && isFavorite;
   const imageSrc = getCatalogItemImage(item);
+  const { locale, t } = useTranslation();
+  const productHref = getLocalizedPath(`/catalog/${item.id}`, locale);
 
   return (
     <Card
@@ -35,7 +39,7 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
       )}>
       <div className='relative aspect-square overflow-hidden'>
         <Link
-          href={`/catalog/${item.id}`}
+          href={productHref}
           className='absolute inset-0 z-0 block'>
           <Image
             src={imageSrc}
@@ -56,14 +60,14 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
             'absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-sm transition-all duration-300',
             isFavoriteActive
               ? 'bg-blush/90 opacity-100'
-              : 'bg-background/80 opacity-0 hover:bg-blush group-hover:opacity-100'
+              : 'bg-background/80 opacity-0 hover:bg-blush focus-visible:opacity-100 group-hover:opacity-100'
           )}
           aria-pressed={isFavoriteActive}
           onClick={() => toggleFavorite(item.id)}
           aria-label={
             isFavoriteActive
-              ? `Remove ${item.name} from favorites`
-              : `Add ${item.name} to favorites`
+              ? t('catalog_remove_favorite_label', { name: item.name })
+              : t('catalog_add_favorite_label', { name: item.name })
           }>
           <Heart
             className={cn(
@@ -78,7 +82,7 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
       <CardContent className='flex flex-1 flex-col p-6'>
         <h3 className='font-display mb-2 text-xl font-semibold leading-tight'>
           <Link
-            href={`/catalog/${item.id}`}
+            href={productHref}
             className='transition-colors hover:text-primary'>
             {item.name}
           </Link>

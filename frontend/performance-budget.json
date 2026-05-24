@@ -1,0 +1,7 @@
+{
+  "staticChunks": {
+    "maxTotalGzipKb": 650,
+    "maxSingleChunkGzipKb": 190,
+    "maxRootMainGzipKb": 330
+  }
+}

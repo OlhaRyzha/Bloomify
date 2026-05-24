@@ -3,8 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Heart, PackageCheck, ShoppingBag } from 'lucide-react';
-import { Container, PageSection } from '@/components/layout/page-layout';
-import SectionHeader from '@/components/ui/section-header';
+import { PageShell } from '@/components/layout/page-layout';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -49,60 +48,57 @@ export default async function ProfilePage() {
   ];
 
   return (
-    <PageSection>
-      <Container>
-        <SectionHeader
-          label={t('profile_page_label')}
-          title={t('profile_page_title')}
-          description={t('profile_page_description')}
-        />
+    <PageShell
+      header={{
+        label: t('profile_page_label'),
+        title: t('profile_page_title'),
+        description: t('profile_page_description'),
+      }}>
+      <div className='grid gap-4 md:grid-cols-2'>
+        {profileCards.map((item) => {
+          const Icon = item.icon;
 
-        <div className='grid gap-4 md:grid-cols-2'>
-          {profileCards.map((item) => {
-            const Icon = item.icon;
+          return (
+            <Card
+              key={item.title}
+              className='border-border/70 bg-card/80 shadow-card'>
+              <CardHeader>
+                <div className='mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-secondary-foreground'>
+                  <Icon
+                    className='h-5 w-5'
+                    aria-hidden
+                  />
+                </div>
+                <CardTitle>{item.title}</CardTitle>
+                <CardDescription>{item.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          );
+        })}
+      </div>
 
-            return (
-              <Card
-                key={item.title}
-                className='border-border/70 bg-card/80 shadow-card'>
-                <CardHeader>
-                  <div className='mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-secondary-foreground'>
-                    <Icon
-                      className='h-5 w-5'
-                      aria-hidden
-                    />
-                  </div>
-                  <CardTitle>{item.title}</CardTitle>
-                  <CardDescription>{item.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            );
-          })}
-        </div>
+      <Card className='mt-4 border-border/70 bg-card/80 shadow-card'>
+        <CardContent className='flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between'>
+          <div>
+            <h2 className='font-display text-2xl font-semibold'>
+              {t('profile_continue_shopping_title')}
+            </h2>
+            <p className='mt-1 text-sm text-muted-foreground'>
+              {t('profile_continue_shopping_description')}
+            </p>
+          </div>
 
-        <Card className='mt-4 border-border/70 bg-card/80 shadow-card'>
-          <CardContent className='flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between'>
-            <div>
-              <h2 className='font-display text-2xl font-semibold'>
-                {t('profile_continue_shopping_title')}
-              </h2>
-              <p className='mt-1 text-sm text-muted-foreground'>
-                {t('profile_continue_shopping_description')}
-              </p>
-            </div>
-
-            <Button asChild>
-              <Link href={getLocalizedPath('/catalog', locale)}>
-                <ShoppingBag
-                  className='mr-2 h-4 w-4'
-                  aria-hidden
-                />
-                {t('profile_continue_shopping_cta')}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </Container>
-    </PageSection>
+          <Button asChild>
+            <Link href={getLocalizedPath('/catalog', locale)}>
+              <ShoppingBag
+                className='mr-2 h-4 w-4'
+                aria-hidden
+              />
+              {t('profile_continue_shopping_cta')}
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </PageShell>
   );
 }

@@ -12,7 +12,10 @@
     "test": "vitest run",
     "test:all": "npm run test:unit",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
+    "test:e2e:a11y": "env -u NO_COLOR playwright test e2e/accessibility.spec.ts",
+    "test:e2e:visual": "env -u NO_COLOR playwright test e2e/visual-responsive.spec.ts",
+    "test:e2e": "env -u NO_COLOR playwright test e2e/app-smoke.spec.ts e2e/visual-responsive.spec.ts",
+    "performance:budget": "node scripts/check-performance-budget.mjs",
     "test:unit": "vitest run",
     "test:unit:ui": "vitest --ui",
     "test:unit:watch": "vitest"
@@ -42,6 +45,7 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",

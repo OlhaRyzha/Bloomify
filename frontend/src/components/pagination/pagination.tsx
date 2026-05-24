@@ -116,8 +116,10 @@ export function PaginationContainer<T>({
                   <PaginationPrevious
                     href='#'
                     aria-disabled={page === 1}
+                    tabIndex={page === 1 ? -1 : undefined}
                     onClick={(e) => {
                       e.preventDefault();
+                      if (page === 1) return;
                       goTo(page - 1);
                     }}
                     className={cn(
@@ -136,6 +138,7 @@ export function PaginationContainer<T>({
                       <PaginationLink
                         href='#'
                         isActive={p === page}
+                        aria-label={`Go to page ${p}`}
                         onClick={(e) => {
                           e.preventDefault();
                           goTo(p);
@@ -150,8 +153,10 @@ export function PaginationContainer<T>({
                   <PaginationNext
                     href='#'
                     aria-disabled={page === totalPages}
+                    tabIndex={page === totalPages ? -1 : undefined}
                     onClick={(e) => {
                       e.preventDefault();
+                      if (page === totalPages) return;
                       goTo(page + 1);
                     }}
                     className={cn(
@@ -172,6 +177,7 @@ export function PaginationContainer<T>({
                 }}>
                 <SelectTrigger
                   chevronDownIconClassName='stroke-white'
+                  aria-label='Items per page'
                   className='h-10 min-w-[96px] justify-between rounded-md border border-border bg-primary px-3 text-sm font-semibold text-white shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20'>
                   <SelectValue>{pageSize} / page</SelectValue>
                 </SelectTrigger>

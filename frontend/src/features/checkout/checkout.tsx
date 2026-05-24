@@ -6,7 +6,6 @@ import {
   type ChangeEvent,
   type FocusEvent,
 } from 'react';
-import Link from 'next/link';
 import { Form, Formik } from 'formik';
 import {
   Apple,
@@ -20,6 +19,7 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 
 import { Button } from '@/components/ui/button';
+import FeedbackState from '@/components/ui/feedback-state';
 import { Input } from '@/components/ui/input';
 import SurfacePanel from '@/components/ui/surface-panel';
 import { useLocale } from '@/components/providers/locale-provider';
@@ -215,7 +215,12 @@ export default function CheckoutFeature() {
   const cartItems = useCartStore(useShallow(selectCartItems));
   const deliveryDraft = useCheckoutDraftStore(selectCheckoutDeliveryDraft);
   const setDeliveryDraft = useCheckoutDraftStore(selectSetCheckoutDeliveryDraft);
-  const { data: catalogItems = [], isLoading } = useGetProducts();
+  const {
+    data: catalogItems = [],
+    isError,
+    isLoading,
+    refetch,
+  } = useGetProducts();
   const { t } = useTranslation();
   const { locale } = useLocale();
   const checkoutSchema = useMemo(
@@ -244,27 +249,29 @@ export default function CheckoutFeature() {
     return <CheckoutLoadingState />;
   }
 
-  if (!isLoading && !isNonEmptyArray(summary.cartItems)) {
+  if (isError) {
     return (
-      <section
-        className='rounded-2xl bg-gradient-card p-10 text-center shadow-card'
-        aria-labelledby='checkout-empty-title'>
-        <h2
-          id='checkout-empty-title'
-          className='font-display mb-3 text-2xl font-bold'>
-          {t('checkout_empty_title')}
-        </h2>
-        <p className='mb-6 text-sm text-muted-foreground'>
-          {t('checkout_empty_description')}
-        </p>
-        <Button
-          asChild
-          size='lg'>
-          <Link href={getLocalizedPath('/catalog', locale)}>
-            {t('checkout_empty_cta')}
-          </Link>
-        </Button>
-      </section>
+      <FeedbackState
+        tone='error'
+        title={t('checkout_error_title')}
+        description={t('checkout_error_description')}
+        actionLabel={t('common_try_again')}
+        onAction={async () => {
+          await refetch();
+        }}
+      />
+    );
+  }
+
+  if (!isNonEmptyArray(summary.cartItems)) {
+    return (
+      <FeedbackState
+        title={t('checkout_empty_title')}
+        description={t('checkout_empty_description')}
+        actionLabel={t('checkout_empty_cta')}
+        actionHref={getLocalizedPath('/catalog', locale)}
+        className='bg-gradient-card shadow-card'
+      />
     );
   }
 

@@ -102,10 +102,10 @@ export default function FooterNewsletterForm({
                   onBlur={handleBlur}
                   aria-invalid={Boolean(emailError)}
                   aria-describedby={`${inputId}-status`}
-                  className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50'
+                  className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/70'
                 />
                 <Button
-                  className='h-10 bg-gold px-6 py-2'
+                  className='h-10 bg-gold px-6 py-2 text-forest hover:bg-gold/90'
                   type='submit'
                   disabled={isSubmitting}
                   aria-label={label}>
@@ -119,7 +119,7 @@ export default function FooterNewsletterForm({
 
               <p
                 id={`${inputId}-status`}
-                className='mt-2 min-h-4 text-xs text-primary-foreground/80'
+                className='mt-2 min-h-4 text-xs text-primary-foreground/90'
                 role='status'
                 aria-live='polite'>
                 {statusMessage}
