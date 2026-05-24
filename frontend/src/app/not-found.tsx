@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Home } from 'lucide-react';
-import { Container } from '@/components/layout/page-layout';
+import { Container, PageSection } from '@/components/layout/page-layout';
 import { Button } from '@/components/ui/button';
 import { getServerTranslator } from '@/i18n/server';
 import { getLocalizedPath } from '@/i18n/routing';
@@ -9,7 +9,7 @@ export default async function NotFound() {
   const { locale, t } = await getServerTranslator();
 
   return (
-    <section
+    <PageSection
       className='relative overflow-hidden bg-gradient-hero pb-24 pt-28'
       aria-labelledby='not-found-title'>
       <div className='absolute inset-0 overflow-hidden'>
@@ -52,6 +52,6 @@ export default async function NotFound() {
           </Button>
         </div>
       </Container>
-    </section>
+    </PageSection>
   );
 }

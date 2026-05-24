@@ -22,7 +22,7 @@
     --secondary-foreground: 350 35% 35%;
 
     --muted: 140 20% 92%;
-    --muted-foreground: 150 10% 45%;
+    --muted-foreground: 150 12% 36%;
 
     --accent: 350 50% 85%;
     --accent-foreground: 350 40% 30%;
@@ -315,5 +315,16 @@
     height: 56px;
     opacity: 1;
     box-shadow: 0 6px 18px hsl(var(--gold) / 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

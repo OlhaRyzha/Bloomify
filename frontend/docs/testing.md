@@ -140,9 +140,16 @@ Rules:
 
 ## Commands
 
-E2E tests use `NEXT_PUBLIC_API_URL` to intercept backend API requests and
-`PLAYWRIGHT_BASE_URL` to choose the frontend URL under test. Keep those values
-environment-specific instead of hardcoding deployment URLs in specs.
+E2E tests use `PLAYWRIGHT_BASE_URL` for the frontend URL and
+`PLAYWRIGHT_API_URL` for the mock API that backs server and client requests.
+The Playwright config passes that API URL to Next.js as `NEXT_PUBLIC_API_URL`
+for the test run. Keep those values environment-specific instead of hardcoding
+deployment URLs in specs.
+
+The Playwright web server disables Sentry browser/tunnel env for test runs.
+This keeps e2e output focused on app behavior and avoids proxy noise from
+third-party monitoring endpoints. Do not rely on Sentry side effects in e2e
+tests; assert user-visible error states instead.
 
 From `frontend`:
 
@@ -150,6 +157,8 @@ From `frontend`:
 npm run test
 npm run test:all
 npm run test:e2e
+npm run test:e2e:a11y
+npm run test:e2e:visual
 npm run test:unit
 npm run test:unit:watch
 npm run test:unit:ui
@@ -164,8 +173,19 @@ From the repository root:
 make frontend-test
 make frontend-test-all
 make frontend-test-e2e
+make frontend-test-e2e-a11y
+make frontend-test-e2e-visual
 make frontend-test-unit
 make frontend-test-watch
 make frontend-test-ui
 make frontend-test-coverage
 ```
+
+Use `make frontend-test-e2e-a11y` after changing page shells, shared layout,
+forms, navigation, color tokens, skeletons, empty states, or error states. The
+axe suite runs against critical page states and should keep `color-contrast`
+enabled; fix tokens/components instead of suppressing contrast failures.
+
+Use `make frontend-test-e2e-visual` after changing responsive layout, shared
+spacing, page shells, header/footer composition, catalog cards, checkout
+layout, or global visual tokens.

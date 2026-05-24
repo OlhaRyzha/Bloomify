@@ -28,6 +28,29 @@ test('home page supports localized anchor navigation', async ({ page }) => {
   await expect(page.locator('#contact')).toBeInViewport();
 });
 
+test('mobile navigation opens, keeps focus usable, and supports anchors', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await goToAppPage(page, '/uk');
+
+  const menuButton = page.getByRole('button', { name: 'Відкрити меню' });
+  await menuButton.click();
+
+  const mobileNavigation = page.getByRole('navigation', {
+    name: 'Мобільна навігація',
+  });
+  await expect(mobileNavigation).toBeVisible();
+  await expect(
+    mobileNavigation.getByRole('link', { name: 'Каталог' })
+  ).toBeFocused();
+
+  await mobileNavigation.getByRole('link', { name: 'Контакти' }).click();
+
+  await expect(mobileNavigation).toBeHidden();
+  await expect(page.locator('#contact')).toBeInViewport();
+});
+
 test('catalog page renders products from the API boundary', async ({ page }) => {
   await goToAppPage(page, '/uk/catalog');
 
@@ -36,6 +59,29 @@ test('catalog page renders products from the API boundary', async ({ page }) => 
   ).toBeVisible();
   await expect(page.getByText('Біла гармонія')).toBeVisible();
   await expect(page.getByText('Блакитна гармонія')).toBeVisible();
+});
+
+test('catalog product details page opens selected bouquet and supports cart action', async ({
+  page,
+}) => {
+  await goToAppPage(page, '/uk/catalog');
+
+  await expect(
+    page.getByRole('link', { name: primaryItemName }).first()
+  ).toHaveAttribute('href', '/uk/catalog/white-harmony');
+
+  await goToAppPage(page, '/uk/catalog/white-harmony');
+
+  await expect(page).toHaveURL(/\/uk\/catalog\/white-harmony$/);
+  await expect(
+    page.getByRole('heading', { name: primaryItemName })
+  ).toBeVisible();
+  await expect(page.getByText('1650 ₴')).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'Дії з товаром' })
+  ).toBeVisible();
+
+  await expect(page.getByRole('button', { name: 'До кошика' })).toBeVisible();
 });
 
 test('profile redirects anonymous users to sign in', async ({ page }) => {
@@ -109,7 +155,7 @@ test('favorites flow persists bouquet and supports removing it', async ({
 
   await page
     .getByRole('button', {
-      name: new RegExp(`remove ${primaryItemName} from favorites`, 'i'),
+      name: new RegExp(`прибрати.*${primaryItemName}.*вибраного`, 'i'),
     })
     .click();
 
@@ -118,4 +164,36 @@ test('favorites flow persists bouquet and supports removing it', async ({
       name: 'У вас ще немає вибраних букетів',
     })
   ).toBeVisible();
+});
+
+test('keyboard navigation keeps focus visible on catalog and auth controls', async ({
+  page,
+}) => {
+  await goToAppPage(page, '/uk/catalog');
+
+  const favoriteButton = page.getByRole('button', {
+    name: new RegExp(`додати.*${primaryItemName}.*вибраного`, 'i'),
+  });
+  await favoriteButton.focus();
+  await expect(favoriteButton).toBeFocused();
+
+  await page.keyboard.press('Space');
+
+  await expect(
+    page.getByRole('button', {
+      name: new RegExp(`прибрати.*${primaryItemName}.*вибраного`, 'i'),
+    })
+  ).toHaveAttribute('aria-pressed', 'true');
+
+  await goToAppPage(page, '/uk/sign-in');
+  await page.bringToFront();
+
+  const emailField = page.getByLabel('Email');
+  const passwordField = page.getByLabel('Пароль');
+
+  await emailField.click();
+  await expect(emailField).toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expect(passwordField).toBeFocused();
 });

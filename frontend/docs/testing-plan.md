@@ -6,17 +6,22 @@ This document records the current frontend testing baseline for Bloomify and the
 
 Last measured with `npm run test:coverage`:
 
-- Test files: 38 passed
-- Tests: 179 passed
-- Statements: 92.25%
-- Lines: 92.87%
-- Branches: 77.2%
-- Functions: 85.42%
+- Test files: 42 passed
+- Tests: 211 passed
+- Statements: 92.31%
+- Lines: 92.95%
+- Branches: 78.01%
+- Functions: 85.71%
 
 Last measured with `npm run test:e2e`:
 
-- Browser smoke tests: 6 passed
-- Covered flows: localized anchor navigation, catalog API rendering, anonymous profile redirect, cart-to-checkout, cash-on-delivery checkout, favorites persistence
+- Browser smoke and visual tests: 15 passed
+- Covered flows: localized anchor navigation, mobile navigation, catalog API rendering, catalog product details, anonymous profile redirect, cart-to-checkout, cash-on-delivery checkout, favorites persistence, keyboard focus behavior, and responsive visual screenshots
+
+Last measured with `npm run test:e2e:a11y`:
+
+- Axe accessibility smoke tests: 5 passed
+- Covered states: home, catalog, product details, sign-in, cart, favorites, and checkout
 
 Coverage thresholds enforced by Vitest:
 
@@ -37,6 +42,10 @@ The current suite covers the main frontend risk areas: auth flow, checkout and p
 - [x] Shared UI/accessibility coverage exists for add-to-cart, pagination, query loader, and newsletter form.
 - [x] Test helpers/factories exist for repeated auth, checkout, catalog, API URL, and deferred-promise setup.
 - [x] Playwright smoke coverage exists for route-level browser behavior.
+- [x] Playwright mock API uses environment-driven frontend/API URLs.
+- [x] Axe accessibility smoke coverage exists for critical pages and cart/favorites/checkout states.
+- [x] Responsive visual regression baseline exists for home, catalog, and checkout.
+- [x] Performance budget is enforced after production build.
 
 ## Testing Principles
 
@@ -185,6 +194,10 @@ Covered tests:
   - [x] profile link points to localized `/profile`
   - [x] mobile auth action points to `/sign-in`
   - [x] mobile menu closes after navigation
+- [x] Playwright route smoke
+  - [x] localized contact anchor scrolls into view
+  - [x] mobile menu opens, moves focus to the first link, closes after anchor navigation
+  - [x] anonymous `/profile` redirects to localized sign-in with `next`
 
 Done when:
 
@@ -211,6 +224,10 @@ Covered tests:
   - [x] successful submit
   - [x] failed submit
   - [x] disabled state while submitting
+- [x] axe accessibility smoke
+  - [x] home, catalog, product details, and sign-in pages
+  - [x] cart, favorites, and checkout persisted states
+  - [x] color contrast remains enabled; fix tokens/components instead of suppressing failures
 
 Done when:
 
@@ -229,6 +246,11 @@ Add or improve:
 - [x] Playwright smoke tests for key route-level flows
 - [ ] MSW handlers grouped by domain if more repeated endpoint setup appears
 - [x] coverage thresholds after the team agrees on minimums
+- [x] dedicated axe e2e command
+- [x] dedicated visual regression e2e command
+- [x] frontend bundle/performance budget command
+- [x] Playwright mock API for route-level tests
+- [x] jsdom setup mocks for scroll, pointer capture, and same-document test navigation
 - [ ] documentation examples for adding a new feature test
 
 Done when:
@@ -239,9 +261,10 @@ Done when:
 
 ## Recommended Next Steps
 
-1. Add favorite toggle accessibility tests once favorite backend/API behavior is stable.
+1. Add a short documentation example for a new feature test using fixture, factory, MSW handler, and Testing Library query rules.
 2. Extract MSW domain handlers only when another feature repeats the same endpoint setup.
-3. Keep every new feature covered at the behavior boundary: schema/helper tests for pure logic, Testing Library for user behavior, MSW for API boundaries.
+3. Keep every new feature covered at the behavior boundary: schema/helper tests for pure logic, Testing Library for user behavior, MSW for API boundaries, and Playwright for critical route flows.
+4. Re-run `npm run test:coverage` after meaningful feature work and update this baseline only when coverage changes materially.
 
 ## Commands
 
@@ -256,6 +279,8 @@ Run frontend checks before committing:
 ```bash
 npm run test:coverage
 npm run test:e2e
+npm run test:e2e:a11y
+npm run test:e2e:visual
 npm run typecheck
 npm run lint
 npm run build
@@ -266,6 +291,9 @@ From repository root:
 ```bash
 make frontend-test-coverage
 make frontend-test-e2e
+make frontend-test-e2e-a11y
+make frontend-test-e2e-visual
+make frontend-performance-budget
 make frontend-typecheck
 make frontend-lint
 make frontend-build

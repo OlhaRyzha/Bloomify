@@ -57,7 +57,7 @@ describe('CartFeature', () => {
     expect(screen.getByText('In cart 1 bouquets')).toBeInTheDocument();
 
     await user.click(
-      screen.getByRole('button', { name: /increase rose bouquet quantity/i })
+      screen.getByRole('button', { name: /increase.*rose bouquet.*quantity/i })
     );
 
     await waitFor(() => {

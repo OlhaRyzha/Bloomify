@@ -28,7 +28,7 @@ describe('CatalogCard', () => {
     });
 
     const addButton = await screen.findByRole('button', {
-      name: /add white harmony to favorites/i,
+      name: /add.*white harmony.*favorites/i,
     });
 
     expect(addButton).toHaveAttribute('aria-pressed', 'false');
@@ -36,7 +36,7 @@ describe('CatalogCard', () => {
     await user.click(addButton);
 
     const removeButton = screen.getByRole('button', {
-      name: /remove white harmony from favorites/i,
+      name: /remove.*white harmony.*favorites/i,
     });
     expect(removeButton).toHaveAttribute('aria-pressed', 'true');
   });

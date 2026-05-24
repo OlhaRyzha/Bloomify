@@ -46,7 +46,7 @@ export default function CartLineItem({
           variant='outline'
           size='icon-sm'
           onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-          aria-label={`Decrease ${item.name} quantity`}>
+          aria-label={t('cart_decrease_quantity_label', { name: item.name })}>
           <Minus
             className='h-4 w-4'
             aria-hidden
@@ -59,7 +59,7 @@ export default function CartLineItem({
           variant='outline'
           size='icon-sm'
           onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-          aria-label={`Increase ${item.name} quantity`}>
+          aria-label={t('cart_increase_quantity_label', { name: item.name })}>
           <Plus
             className='h-4 w-4'
             aria-hidden
@@ -83,7 +83,7 @@ export default function CartLineItem({
           variant='ghost'
           size='icon-sm'
           onClick={() => onRemove(item.id)}
-          aria-label={`Remove ${item.name} from cart`}>
+          aria-label={t('cart_remove_item_label', { name: item.name })}>
           <Trash2
             className='h-4 w-4'
             aria-hidden

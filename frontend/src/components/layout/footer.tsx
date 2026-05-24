@@ -39,7 +39,7 @@ export default async function Footer() {
               <h3 className='text-2xl font-bold md:text-3xl'>
                 {t('footer_newsletter_title')}
               </h3>
-              <p className='mt-2 text-primary-foreground/80'>
+              <p className='mt-2 text-primary-foreground/90'>
                 {t('footer_newsletter_description')}
               </p>
             </div>
@@ -64,7 +64,7 @@ export default async function Footer() {
               className='text-3xl font-bold'>
               {t('common_brand')}
             </Link>
-            <p className='mt-4 text-sm text-primary-foreground/80'>
+            <p className='mt-4 text-sm text-primary-foreground/90'>
               {t('footer_tagline')}
             </p>
 
@@ -97,7 +97,7 @@ export default async function Footer() {
                 <li key={item.key}>
                   <Link
                     href={item.href}
-                    className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
+                    className='text-primary-foreground/90 transition-colors hover:text-primary-foreground'>
                     {item.label}
                   </Link>
                 </li>
@@ -116,7 +116,7 @@ export default async function Footer() {
                 <li key={service.key}>
                   <Link
                     href={service.href}
-                    className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
+                    className='text-primary-foreground/90 transition-colors hover:text-primary-foreground'>
                     {service.label}
                   </Link>
                 </li>
@@ -147,7 +147,7 @@ export default async function Footer() {
                       aria-hidden
                     />
                     {item.id === 'address' ? (
-                      <address className='not-italic text-primary-foreground/80'>
+                      <address className='not-italic text-primary-foreground/90'>
                         <a
                           href={href}
                           target='_blank'
@@ -159,7 +159,7 @@ export default async function Footer() {
                     ) : (
                       <a
                         href={href}
-                        className='text-primary-foreground/80 transition-colors hover:text-primary-foreground'>
+                        className='text-primary-foreground/90 transition-colors hover:text-primary-foreground'>
                         {text}
                       </a>
                     )}
@@ -171,16 +171,16 @@ export default async function Footer() {
         </div>
 
         <div className='mt-12 flex flex-col items-center justify-between gap-4 border-t border-primary-foreground/10 pt-8 md:flex-row'>
-          <p className='text-sm text-primary-foreground/60'>{rightsMessage}</p>
+          <p className='text-sm text-primary-foreground/85'>{rightsMessage}</p>
           <div className='flex gap-6'>
             <Link
               href={getLocalizedPath('/privacy', locale)}
-              className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
+              className='text-sm text-primary-foreground/85 transition-colors hover:text-primary-foreground'>
               {t('footer_privacy')}
             </Link>
             <Link
               href={getLocalizedPath('/terms', locale)}
-              className='text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground'>
+              className='text-sm text-primary-foreground/85 transition-colors hover:text-primary-foreground'>
               {t('footer_terms')}
             </Link>
           </div>

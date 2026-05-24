@@ -54,6 +54,15 @@ frontend-test-coverage:
 frontend-test-e2e:
 	cd $(FRONTEND_DIR) && npm run test:e2e
 
+frontend-test-e2e-a11y:
+	cd $(FRONTEND_DIR) && npm run test:e2e:a11y
+
+frontend-test-e2e-visual:
+	cd $(FRONTEND_DIR) && npm run test:e2e:visual
+
+frontend-performance-budget:
+	cd $(FRONTEND_DIR) && npm run build && npm run performance:budget
+
 
 # ---------- Docker services ----------
 
@@ -84,7 +93,7 @@ install:
 upgrade:
 	cd $(BACKEND_DIR) && uv sync --upgrade
 
-run: services-up
+run:
 	cd $(BACKEND_DIR) && uv run python manage.py runserver
 
 backend-run: services-up

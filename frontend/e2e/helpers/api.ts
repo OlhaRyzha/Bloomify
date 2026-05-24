@@ -5,6 +5,18 @@ import { e2eCatalogItems } from '../fixtures/catalog.fixture';
 
 export const mockCatalogProducts = async (page: Page) => {
   const fulfillProducts = async (route: Route) => {
+    const requestUrl = new URL(route.request().url());
+    const productId = requestUrl.pathname.split('/').filter(Boolean).at(-1);
+    const product = e2eCatalogItems.find((item) => item.id === productId);
+
+    if (product) {
+      await route.fulfill({
+        contentType: 'application/json',
+        json: product,
+      });
+      return;
+    }
+
     await route.fulfill({
       contentType: 'application/json',
       json: e2eCatalogItems,

@@ -51,7 +51,7 @@ Use semantic Tailwind classes whenever possible: `bg-background`,
 | Primary Foreground    | `--primary-foreground: 30 25% 98%` | `text-primary-foreground`                | Text on primary fills                      |
 | Secondary Blush       | `--secondary: 350 45% 90%`         | `bg-secondary`                           | Soft badges and gentle emphasis            |
 | Muted Sage            | `--muted: 140 20% 92%`             | `bg-muted`                               | Subtle panels, inactive fills, info blocks |
-| Muted Text            | `--muted-foreground: 150 10% 45%`  | `text-muted-foreground`                  | Supporting copy and metadata               |
+| Muted Text            | `--muted-foreground: 150 12% 36%`  | `text-muted-foreground`                  | Supporting copy and metadata               |
 | Accent Blush          | `--accent: 350 50% 85%`            | `bg-accent`                              | Hover states and secondary interaction     |
 | Border Sage           | `--border: 140 15% 88%`            | `border-border`                          | Borders, separators, input outlines        |
 | Destructive Red       | `--destructive: 0 65% 55%`         | `text-destructive`, `border-destructive` | Errors and destructive actions             |
@@ -206,6 +206,64 @@ Use semantic elements first: `section`, `article`, `aside`, `form`,
 `fieldset`, `legend`.
 
 ## Component Patterns
+
+### Page Shell
+
+Use `PageShell` from `@/components/layout/page-layout` for standard static
+and feature pages instead of repeating `bg-background pb-16 pt-28` and
+`mx-auto max-w-8/10 px-4`.
+
+Pattern:
+
+```tsx
+<PageShell
+  header={{
+    label: t('page_label'),
+    title: t('page_title'),
+    description: t('page_description'),
+  }}>
+  ...
+</PageShell>
+```
+
+Use `containerSize="sm"` for narrow auth/profile/support-style content and the
+default `lg` container for catalog, cart, checkout, and section-heavy pages.
+Use `containerClassName` only when the page needs a real layout difference,
+such as a two-column grid.
+
+### Feedback State
+
+Use `FeedbackState` from `@/components/ui/feedback-state` for reusable empty
+and error surfaces. Do not build new one-off empty cards when the content fits
+this pattern.
+
+Pattern:
+
+```tsx
+<FeedbackState
+  title={t('empty_title')}
+  description={t('empty_description')}
+  actionLabel={t('empty_action')}
+  actionHref='/uk/catalog'
+/>
+```
+
+Use `tone="error"` for recoverable user-facing errors and provide an action
+when the user can retry or navigate somewhere useful. Keep technical error
+details out of visible UI.
+
+### Loading, Empty, And Error States
+
+Every async page or feature region should expose a complete feedback contract:
+
+- skeleton while shape-known content is loading
+- `FeedbackState` for empty data
+- `FeedbackState tone="error"` or a feature-specific error panel for errors
+- the real content state
+
+Skeletons should preserve the final layout dimensions. Prefer feature skeletons
+when a page has a clear shape, such as `CartLoadingState`; use the shared
+`Skeleton` primitive only for small repeated placeholders.
 
 ### Product Card
 

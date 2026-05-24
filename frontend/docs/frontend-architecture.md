@@ -40,6 +40,37 @@ Use `MotionDiv` from `src/components/ui/motion-div.tsx` for animated `div` eleme
 
 Direct `framer-motion` imports are acceptable when the element is not a `div`, or when the component needs APIs such as `AnimatePresence`.
 
+Keep animation libraries out of globally mounted components such as `Header`,
+`Footer`, providers, and route shells unless the interaction genuinely requires
+runtime animation. Prefer CSS transitions or conditional rendering for simple
+menus and disclosures.
+
+## Bundle And Client Component Audit
+
+Current client boundaries should stay intentionally small:
+
+- Route `page.tsx` files remain Server Components, except `global-error.tsx`
+  which must be client-side by Next.js contract.
+- Global providers are client-side only where required for React Query, locale,
+  toast, and hydration-sensitive state.
+- Header interactivity is isolated in `HeaderActions`; avoid importing heavy
+  animation or data-fetching libraries there because it appears on every page.
+- Feature-owned client surfaces are acceptable for cart, checkout, favorites,
+  catalog filtering, auth forms, and persisted Zustand stores.
+- Shared primitives such as `FeedbackState`, `QueryLoader`, `LocaleSwitcher`,
+  and `AddToCartButton` are client-side because they own events, browser state,
+  or query status.
+
+Before adding a new Client Component:
+
+- Check whether only a leaf control needs `"use client"`.
+- Do not import Server Component helpers, large static sections, or feature
+  pages into a Client Component.
+- Do not add `framer-motion`, Formik, TanStack Query, or Zustand to a global
+  component unless the global interaction needs that dependency.
+- After broad client-boundary changes, run `make frontend-build` and inspect
+  the route bundle output for unexpected shared JS growth.
+
 ## React Performance
 
 Add memoization only when there is a clear need.

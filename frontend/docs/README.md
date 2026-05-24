@@ -15,6 +15,7 @@ This folder describes the target frontend standards for Bloomify. Treat these do
 - [Auth Architecture](./auth.md) - sign-in/sign-up flow, token handling, route guards, and future Django auth contract.
 - [Testing](./testing.md) - Vitest, Testing Library, MSW, fixtures, factories, mocks.
 - [Frontend Testing Plan](./testing-plan.md) - prioritized gaps and execution order for improving frontend tests.
+- [Performance](./performance.md) - bundle budget, visual regression baseline, and CI performance gates.
 
 ## Default Workflow
 
