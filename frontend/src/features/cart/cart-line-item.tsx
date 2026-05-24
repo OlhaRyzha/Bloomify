@@ -47,7 +47,10 @@ export default function CartLineItem({
           size='icon-sm'
           onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
           aria-label={`Decrease ${item.name} quantity`}>
-          <Minus className='h-4 w-4' />
+          <Minus
+            className='h-4 w-4'
+            aria-hidden
+          />
         </Button>
         <span className='min-w-[2.5rem] text-center text-base font-semibold'>
           {item.quantity}
@@ -57,7 +60,10 @@ export default function CartLineItem({
           size='icon-sm'
           onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
           aria-label={`Increase ${item.name} quantity`}>
-          <Plus className='h-4 w-4' />
+          <Plus
+            className='h-4 w-4'
+            aria-hidden
+          />
         </Button>
       </div>
 
@@ -78,7 +84,10 @@ export default function CartLineItem({
           size='icon-sm'
           onClick={() => onRemove(item.id)}
           aria-label={`Remove ${item.name} from cart`}>
-          <Trash2 className='h-4 w-4' />
+          <Trash2
+            className='h-4 w-4'
+            aria-hidden
+          />
         </Button>
       </div>
     </article>

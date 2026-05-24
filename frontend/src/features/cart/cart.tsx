@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { Button } from '@/components/ui/button';
+import FeedbackState from '@/components/ui/feedback-state';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { formatTemplate } from '@/utils/i18n';
 import { useGetProducts } from '@/features/catalog/api/use-products';
@@ -24,8 +25,12 @@ export default function CartFeature() {
     useShallow(selectCartViewState)
   );
   const { t } = useTranslation();
-  const { data: catalogItems = [], isLoading: isCatalogLoading } =
-    useGetProducts();
+  const {
+    data: catalogItems = [],
+    isError: isCatalogError,
+    isLoading: isCatalogLoading,
+    refetch: refetchCatalogItems,
+  } = useGetProducts();
 
   const { cartItems, deliveryCost, itemCount, subtotal, total } = useMemo(() => {
     if (!isHydrated) {
@@ -43,6 +48,20 @@ export default function CartFeature() {
     const placeholders = Math.max(items.length || 0, 2);
 
     return <CartLoadingState placeholders={placeholders} />;
+  }
+
+  if (isCatalogError) {
+    return (
+      <FeedbackState
+        tone='error'
+        title={t('cart_error_title')}
+        description={t('cart_error_description')}
+        actionLabel={t('common_try_again')}
+        onAction={async () => {
+          await refetchCatalogItems();
+        }}
+      />
+    );
   }
 
   if (!isNonEmptyArray(cartItems)) {

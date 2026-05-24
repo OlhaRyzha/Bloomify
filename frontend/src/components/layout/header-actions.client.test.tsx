@@ -128,4 +128,30 @@ describe('HeaderActions', () => {
       within(mobileNavigation).getByRole('link', { name: /profile/i })
     ).toHaveAttribute('href', '/uk/profile');
   });
+
+  test('moves focus into mobile navigation and returns it after Escape', async () => {
+    const { user } = renderWithProviders(
+      <HeaderActions
+        copy={copy}
+        mobileNavId='mobile-navigation'
+        navigationLinks={navigationLinks}
+      />,
+      { locale: 'uk' }
+    );
+
+    const menuButton = screen.getByRole('button', { name: 'Open menu' });
+
+    await user.click(menuButton);
+
+    expect(screen.getByRole('link', { name: 'Catalog' })).toHaveFocus();
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('navigation', { name: 'Mobile navigation' })
+      ).not.toBeInTheDocument();
+    });
+    expect(menuButton).toHaveFocus();
+  });
 });

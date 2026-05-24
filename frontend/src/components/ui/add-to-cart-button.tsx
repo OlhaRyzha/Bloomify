@@ -130,7 +130,10 @@ export default function AddToCartButton({
       className={className}
       onClick={itemId ? handleClick : onClick}
       {...props}>
-      <ShoppingBag className={iconClassName} />
+      <ShoppingBag
+        className={iconClassName}
+        aria-hidden
+      />
       {buttonLabel}
     </Button>
   );

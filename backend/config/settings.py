@@ -10,6 +10,7 @@ class EnvironmentSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
         env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     DJANGO_DEBUG: bool
@@ -17,11 +18,20 @@ class EnvironmentSettings(BaseSettings):
     DJANGO_ALLOWED_HOSTS: str
     DJANGO_CORS_ALLOWED_ORIGINS: str
     ADMIN_SITE_URL: str = "http://localhost:3000"
+
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
+
+    REDIS_PORT: int = 6379
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
+
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_ADMIN_CHAT_ID: str = ""
+
     LIQPAY_DEV_BACKEND_LOCAL_URL: str = ""
     LIQPAY_CALLBACK_PATH: str = "/payments/liqpay/callback"
     LIQPAY_RESULT_PATH: str = "/checkout"
@@ -76,6 +86,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "corsheaders",
     "shop.apps.ShopConfig",
+    # "notifications",
+    "notifications.apps.NotificationsConfig",
     "django.contrib.staticfiles",
 ]
 
@@ -219,6 +231,18 @@ DATABASES = {
         "PORT": env.POSTGRES_PORT,
     }
 }
+
+
+CELERY_BROKER_URL = env.CELERY_BROKER_URL
+CELERY_RESULT_BACKEND = env.CELERY_RESULT_BACKEND
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Europe/Kyiv"
+
+TELEGRAM_BOT_TOKEN = env.TELEGRAM_BOT_TOKEN
+TELEGRAM_ADMIN_CHAT_ID = env.TELEGRAM_ADMIN_CHAT_ID
 
 
 AUTH_PASSWORD_VALIDATORS = [

@@ -26,11 +26,13 @@ describe('PaginationContainer', () => {
     );
 
     expect(screen.getByText('Item 6')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '2' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /go to page 2/i })).toHaveAttribute(
       'aria-current',
       'page'
     );
-    expect(screen.getByRole('navigation', { name: /pagination/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('navigation', { name: /pagination/i })
+    ).toBeInTheDocument();
   });
 
   test('marks previous and next controls disabled at pagination edges', () => {
@@ -47,6 +49,10 @@ describe('PaginationContainer', () => {
     expect(screen.getByRole('link', { name: /previous page/i })).toHaveAttribute(
       'aria-disabled',
       'true'
+    );
+    expect(screen.getByRole('link', { name: /previous page/i })).toHaveAttribute(
+      'tabindex',
+      '-1'
     );
     expect(screen.getByRole('link', { name: /next page/i })).toHaveAttribute(
       'aria-disabled',
@@ -71,7 +77,7 @@ describe('PaginationContainer', () => {
 
   test('calls controlled page change without leaving valid page range', async () => {
     const onPageChange = vi.fn();
-    const { user } = renderWithProviders(
+    const { rerender, user } = renderWithProviders(
       <PaginationContainer
         items={items}
         page={1}
@@ -83,6 +89,16 @@ describe('PaginationContainer', () => {
 
     await user.click(screen.getByRole('link', { name: /next page/i }));
     expect(onPageChange).toHaveBeenCalledWith(2);
+
+    rerender(
+      <PaginationContainer
+        items={items}
+        page={2}
+        pageSize={5}
+        onPageChange={onPageChange}
+        renderPage={() => null}
+      />
+    );
 
     await user.click(screen.getByRole('link', { name: /previous page/i }));
     expect(onPageChange).toHaveBeenCalledWith(1);

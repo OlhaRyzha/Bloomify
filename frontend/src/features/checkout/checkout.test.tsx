@@ -145,6 +145,24 @@ describe('CheckoutFeature', () => {
     expect(await screen.findByText('Rose bouquet')).toBeInTheDocument();
   });
 
+  test('shows an error state when checkout product details fail to load', async () => {
+    server.use(
+      http.get(apiUrl('products'), () =>
+        HttpResponse.json({ error: 'Server error' }, { status: 500 })
+      )
+    );
+    useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
+
+    renderWithProviders(<CheckoutFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /could not prepare checkout/i,
+      })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
+
   test('restores delivery draft values', async () => {
     mockProducts();
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });

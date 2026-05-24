@@ -70,4 +70,20 @@ describe('CartFeature', () => {
       await screen.findByRole('heading', { name: /your cart is still empty/i })
     ).toBeInTheDocument();
   });
+
+  test('shows an error state when cart product details fail to load', async () => {
+    server.use(
+      http.get(apiUrl('products'), () =>
+        HttpResponse.json({ error: 'Server error' }, { status: 500 })
+      )
+    );
+    useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
+
+    renderWithProviders(<CartFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', { name: /could not load your cart/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
 });

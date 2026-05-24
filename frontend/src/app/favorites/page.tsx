@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { Container, PageSection } from '@/components/layout/page-layout';
-import SectionHeader from '@/components/ui/section-header';
+import { PageShell } from '@/components/layout/page-layout';
 import FavoritesFeature from '@/features/favorites/favorites';
 import { getServerTranslator } from '@/i18n/server';
 
@@ -17,16 +16,13 @@ export default async function FavoritesPage() {
   const { t } = await getServerTranslator();
 
   return (
-    <PageSection>
-      <Container>
-        <SectionHeader
-          label={t('favorites_page_label')}
-          title={t('favorites_page_title')}
-          description={t('favorites_page_description')}
-        />
-
-        <FavoritesFeature />
-      </Container>
-    </PageSection>
+    <PageShell
+      header={{
+        label: t('favorites_page_label'),
+        title: t('favorites_page_title'),
+        description: t('favorites_page_description'),
+      }}>
+      <FavoritesFeature />
+    </PageShell>
   );
 }

@@ -98,6 +98,7 @@ export default async function HeroSection() {
                 src={heroImage}
                 alt={t('hero_image_alt')}
                 priority
+                sizes='(max-width: 1024px) 100vw, 40vw'
                 className='relative mx-auto w-full max-w-lg rounded-3xl shadow-elevated animate-float'
               />
             </div>

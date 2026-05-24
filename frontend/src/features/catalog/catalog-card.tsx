@@ -56,7 +56,7 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
             'absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-sm transition-all duration-300',
             isFavoriteActive
               ? 'bg-blush/90 opacity-100'
-              : 'bg-background/80 opacity-0 hover:bg-blush group-hover:opacity-100'
+              : 'bg-background/80 opacity-0 hover:bg-blush focus-visible:opacity-100 group-hover:opacity-100'
           )}
           aria-pressed={isFavoriteActive}
           onClick={() => toggleFavorite(item.id)}

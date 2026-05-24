@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -41,6 +41,8 @@ export default function HeaderActions({
   navigationLinks,
 }: HeaderActionsProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
   const isHydrated = useHydrated();
   const cartCount = useCartStore(selectCartCount);
@@ -51,6 +53,28 @@ export default function HeaderActions({
   const accountLabel = hasAuthSession ? copy.profileLabel : copy.loginLabel;
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const firstLink = mobileNavRef.current?.querySelector<HTMLElement>(
+      'a[href], button:not([disabled])'
+    );
+    firstLink?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+
+      setIsMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -95,6 +119,7 @@ export default function HeaderActions({
         </Button>
 
         <Button
+          ref={menuButtonRef}
           variant='ghost'
           size='icon'
           className='md:hidden'
@@ -119,6 +144,7 @@ export default function HeaderActions({
       <AnimatePresence initial={false}>
         {isMenuOpen && (
           <motion.nav
+            ref={mobileNavRef}
             id={mobileNavId}
             key='mobile-nav'
             initial={{ opacity: 0, height: 0 }}

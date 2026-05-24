@@ -77,7 +77,10 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
                     key={item.title}
                     className='rounded-2xl bg-card/70 p-4 shadow-soft backdrop-blur'>
                     <div className='mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary'>
-                      <Icon className='h-5 w-5' />
+                      <Icon
+                        className='h-5 w-5'
+                        aria-hidden
+                      />
                     </div>
                     <p className='text-sm font-semibold text-foreground'>
                       {item.title}
@@ -99,6 +102,7 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
                 <Image
                   src={assets.image}
                   alt={t(`auth_shell_${variant}_image_alt`)}
+                  sizes='(max-width: 1024px) 100vw, 45vw'
                   className='rounded-2xl'
                 />
               </div>

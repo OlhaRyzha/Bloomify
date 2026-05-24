@@ -61,4 +61,22 @@ describe('FavoritesFeature', () => {
     expect(await screen.findByText('White harmony')).toBeInTheDocument();
     expect(screen.queryByText('Rose bouquet')).not.toBeInTheDocument();
   });
+
+  test('shows an error state when favorite product details fail to load', async () => {
+    server.use(
+      http.get(apiUrl('products'), () =>
+        HttpResponse.json({ error: 'Server error' }, { status: 500 })
+      )
+    );
+    useFavoritesStore.setState({ ids: ['white-harmony'] });
+
+    renderWithProviders(<FavoritesFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /could not load favorites/i,
+      })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
 });

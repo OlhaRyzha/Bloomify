@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from django.db import transaction
+from notifications.tasks import send_order_created_telegram_notification
 from rest_framework import serializers
 
 from shop.models.order import Order
@@ -30,6 +32,7 @@ class CheckoutCreateSerializer(serializers.Serializer):
     def validate_items(self, value):
         if not value:
             raise serializers.ValidationError("Cart must contain at least one item.")
+
         return value
 
 
@@ -45,10 +48,12 @@ def create_checkout_order(payload: dict) -> Order:
 
     subtotal = Decimal("0.00")
     order_items = []
+
     for item in payload["items"]:
         product = products[item["id"]]
         quantity = item["quantity"]
         item_total = product.price * quantity
+
         subtotal += item_total
         order_items.append((product, quantity, product.price, item_total))
 
@@ -57,6 +62,7 @@ def create_checkout_order(payload: dict) -> Order:
         if subtotal >= FREE_DELIVERY_THRESHOLD
         else STANDARD_DELIVERY_FEE
     )
+
     total = subtotal + delivery_cost
     payment_method = payload["paymentMethod"]
     uses_liqpay = payment_method in PAYMENT_METHODS_WITH_LIQPAY
@@ -76,6 +82,7 @@ def create_checkout_order(payload: dict) -> Order:
         delivery_cost=delivery_cost,
         total=total,
     )
+
     order.liqpay_order_id = f"bloomify-{order.pk}"
     order.save(update_fields=["liqpay_order_id"])
 
@@ -91,4 +98,9 @@ def create_checkout_order(payload: dict) -> Order:
             for product, quantity, unit_price, item_total in order_items
         ]
     )
+
+    transaction.on_commit(
+        lambda: send_order_created_telegram_notification.delay(order.id)
+    )
+
     return order
