@@ -34,8 +34,8 @@ export default async function Footer() {
       className='scroll-mt-24 bg-primary text-primary-foreground'>
       <div className='border-b border-primary-foreground/10'>
         <Container className='py-12'>
-          <div className='flex flex-col items-center justify-between gap-8 lg:flex-row'>
-            <div>
+          <div className='flex min-w-0 flex-col items-stretch justify-between gap-8 lg:flex-row lg:items-center'>
+            <div className='min-w-0'>
               <h3 className='text-2xl font-bold md:text-3xl'>
                 {t('footer_newsletter_title')}
               </h3>

@@ -99,7 +99,7 @@ export function PaginationContainer<T>({
     <div className={cn('w-full', className)}>
       {renderPage(pageItems, page)}
       {shouldShowFooterControls && (
-        <div className='mt-10 flex items-center justify-between'>
+        <div className='mt-10 flex min-w-0 flex-col items-center justify-center gap-5 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left'>
           {showItemsCount ? (
             <p className='text-nowrap text-sm font-semibold text-muted-foreground'>
               {itemsCountPrefix} <b> {itemsCount ?? items.length}</b>{' '}
@@ -110,8 +110,8 @@ export function PaginationContainer<T>({
           )}
 
           {shouldShowPaginationControls ? (
-            <Pagination>
-              <PaginationContent>
+            <Pagination className='min-w-0 flex-1 justify-center'>
+              <PaginationContent className='max-w-full flex-wrap justify-center'>
                 <PaginationItem>
                   <PaginationPrevious
                     href='#'
@@ -168,7 +168,7 @@ export function PaginationContainer<T>({
             </Pagination>
           ) : null}
 
-          <div>
+          <div className='flex shrink-0 justify-center'>
             {showPageSizeControl && pageSizeOptions?.length ? (
               <Select
                 value={String(pageSize)}

@@ -16,25 +16,25 @@ export default async function Header() {
   }));
 
   return (
-    <header className='fixed inset-x-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md'>
+    <header className='fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md'>
       <Container>
-        <div className='flex h-20 items-center justify-between'>
+        <div className='flex h-20 min-w-0 items-center justify-between gap-3'>
           <Link
             href={getLocalizedPath('/', locale)}
-            className='flex items-center gap-2'>
-            <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-3xl font-bold text-transparent'>
+            className='flex min-w-0 shrink-0 items-center gap-2'>
+            <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl'>
               {t('common_brand')}
             </span>
           </Link>
 
           <nav
-            className='hidden items-center gap-8 md:flex'
+            className='hidden min-w-0 flex-1 items-center justify-center gap-5 lg:flex xl:gap-8'
             aria-label={t('header_primary_navigation_label')}>
             {navigationLinks.map((link) => (
               <Link
                 key={link.key}
                 href={link.href}
-                className='text-sm font-medium text-muted-foreground transition-colors hover:text-primary'>
+                className='text-sm font-medium leading-tight text-muted-foreground transition-colors hover:text-primary'>
                 {link.label}
               </Link>
             ))}

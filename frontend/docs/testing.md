@@ -151,6 +151,18 @@ This keeps e2e output focused on app behavior and avoids proxy noise from
 third-party monitoring endpoints. Do not rely on Sentry side effects in e2e
 tests; assert user-visible error states instead.
 
+## E2E Data Source Policy
+
+Default Playwright smoke, a11y, and visual tests use the local mock API in
+`e2e/mock-api/server.mjs`. Keep visual snapshots on deterministic mock data.
+Do not point visual regression tests at a live Django database or admin-managed
+media by default: changed seed data, uploaded images, translations, or admin
+edits would create noisy screenshot diffs unrelated to frontend regressions.
+
+Use the backend and Docker Compose for integration checks where the goal is to
+verify the real API contract. Those checks should have their own command and
+seeded test data. They should not replace the deterministic visual baseline.
+
 From `frontend`:
 
 ```bash

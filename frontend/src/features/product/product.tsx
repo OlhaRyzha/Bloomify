@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import AddToCartButton from '@/components/ui/add-to-cart-button';
+import FallbackImage from '@/components/ui/fallback-image';
 import InfoCard from '@/components/ui/info-card';
 import type { CatalogItem } from '@/types/catalog';
 import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
@@ -24,7 +24,7 @@ export default function ProductFeature({ copy, product }: ProductFeatureProps) {
   return (
     <article className='grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start'>
       <figure className='relative aspect-square overflow-hidden rounded-3xl bg-gradient-card shadow-card'>
-        <Image
+        <FallbackImage
           src={imageSrc}
           alt={product.name}
           fill

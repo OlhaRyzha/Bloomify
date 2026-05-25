@@ -1,10 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import AddToCartButton from '@/components/ui/add-to-cart-button';
+import FallbackImage from '@/components/ui/fallback-image';
 import { useHydrated } from '@/hooks/use-hydrated';
 import type { CatalogItem } from '@/types/catalog';
 import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
@@ -41,7 +41,7 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
         <Link
           href={productHref}
           className='absolute inset-0 z-0 block'>
-          <Image
+          <FallbackImage
             src={imageSrc}
             alt={item.name}
             fill
