@@ -18,7 +18,10 @@ jobs:
   check:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8010
+      NEXT_PUBLIC_MEDIA_HOST: http://127.0.0.1:8010
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      SENTRY_AUTH_TOKEN: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -48,7 +51,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: check
     env:
-      NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8010
+      NEXT_PUBLIC_MEDIA_HOST: http://127.0.0.1:8010
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      SENTRY_AUTH_TOKEN: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -73,6 +79,7 @@ jobs:
         with:
           name: frontend-build
           path: frontend/.next
+          include-hidden-files: true
 
   e2e:
     runs-on: ubuntu-latest
@@ -80,6 +87,8 @@ jobs:
     env:
       NEXT_PUBLIC_API_URL: http://127.0.0.1:8010
       NEXT_PUBLIC_MEDIA_HOST: http://127.0.0.1:8010
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      SENTRY_AUTH_TOKEN: ""
       PLAYWRIGHT_API_URL: http://127.0.0.1:8010
       PLAYWRIGHT_BASE_URL: http://127.0.0.1:3100
     steps:
@@ -94,6 +103,12 @@ jobs:
 
       - name: Install dependencies
         run: make frontend-ci-install
+
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/.next
 
       - name: Install Playwright browser
         run: cd frontend && npx playwright install --with-deps chromium
