@@ -10,6 +10,14 @@ export const goToAppPage = async (page: Page, path: string) => {
   await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(
     () => undefined
   );
+  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(
+    () => undefined
+  );
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
 };
 
 export const clearPersistedState = async (page: Page) => {
