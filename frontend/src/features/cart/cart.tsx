@@ -1,11 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { Button } from '@/components/ui/button';
+import ConfirmationDialog from '@/components/ui/confirmation-dialog';
+import {
+  getConfirmationCopy,
+  type ConfirmationCopyRequest,
+} from '@/components/ui/confirmation-copy';
 import FeedbackState from '@/components/ui/feedback-state';
 import { useHydrated } from '@/hooks/use-hydrated';
-import { formatTemplate } from '@/utils/i18n';
+import { formatTemplate, getBouquetCountLabel } from '@/utils/i18n';
 import { useGetProducts } from '@/features/catalog/api/use-products';
 import { selectCartViewState } from './store/cart.selectors';
 import { useCartStore } from './store/cart.store';
@@ -18,13 +23,24 @@ import CartPromoCodeForm from './forms/cart-promo-code-form';
 import CartSummary from './cart-summary';
 import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { getCartSummary } from './cart.helpers';
+import { useLocale } from '@/components/providers/locale-provider';
+import type { CartItemWithDetails } from './cart.types';
+
+type CartConfirmation =
+  | {
+      request: ConfirmationCopyRequest;
+      onConfirm: () => void;
+    }
+  | null;
 
 export default function CartFeature() {
   const isHydrated = useHydrated();
+  const [confirmation, setConfirmation] = useState<CartConfirmation>(null);
   const { items, removeItem, updateQuantity, clearCart } = useCartStore(
     useShallow(selectCartViewState)
   );
   const { t } = useTranslation();
+  const { locale } = useLocale();
   const {
     data: catalogItems = [],
     isError: isCatalogError,
@@ -39,6 +55,32 @@ export default function CartFeature() {
 
     return getCartSummary(items, catalogItems);
   }, [items, isHydrated, catalogItems]);
+
+  const requestRemoveItem = (item: CartItemWithDetails) => {
+    setConfirmation({
+      request: {
+        action: 'delete',
+        entity: 'cartItem',
+        entityName: item.name,
+      },
+      onConfirm: () => removeItem(item.id),
+    });
+  };
+
+  const requestClearCart = () => {
+    setConfirmation({
+      request: {
+        action: 'clear',
+        entity: 'cart',
+      },
+      onConfirm: clearCart,
+    });
+  };
+
+  const activeConfirmation = confirmation;
+  const confirmationCopy = activeConfirmation
+    ? getConfirmationCopy(t, activeConfirmation.request)
+    : null;
 
   if (!isHydrated) {
     return null;
@@ -71,12 +113,17 @@ export default function CartFeature() {
   return (
     <div className='grid gap-10 lg:grid-cols-[1.6fr_0.9fr]'>
       <div className='space-y-6'>
-        <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-muted/60 px-6 py-4 text-sm text-muted-foreground'>
-          <p>{formatTemplate(t('cart_item_count'), { count: itemCount })}</p>
+        <div className='flex flex-col items-center justify-center gap-3 rounded-2xl bg-muted/60 px-6 py-5 text-center text-sm text-muted-foreground sm:flex-row sm:justify-between sm:text-left'>
+          <p>
+            {formatTemplate(t('cart_item_count'), {
+              count: itemCount,
+              item: getBouquetCountLabel(itemCount, locale),
+            })}
+          </p>
           <Button
             variant='ghost'
             size='sm'
-            onClick={clearCart}
+            onClick={requestClearCart}
             aria-label={t('cart_clear_cart')}>
             {t('cart_clear_cart')}
           </Button>
@@ -86,7 +133,7 @@ export default function CartFeature() {
           <CartLineItem
             key={item.id}
             item={item}
-            onRemove={removeItem}
+            onRemove={requestRemoveItem}
             onUpdateQuantity={updateQuantity}
           />
         ))}
@@ -105,6 +152,24 @@ export default function CartFeature() {
         <CartPromoCodeForm />
         <CartInfoCards />
       </aside>
+
+      {confirmationCopy ? (
+        <ConfirmationDialog
+          open
+          tone='danger'
+          title={confirmationCopy.title}
+          description={confirmationCopy.description}
+          confirmLabel={confirmationCopy.confirmLabel}
+          cancelLabel={confirmationCopy.cancelLabel}
+          closeLabel={confirmationCopy.closeLabel}
+          onConfirm={() => activeConfirmation?.onConfirm()}
+          onOpenChange={(open) => {
+            if (!open) {
+              setConfirmation(null);
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 }

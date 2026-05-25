@@ -17,6 +17,11 @@ const frontendUrl = new URL(frontendBaseUrl);
 const webServerHealthUrl = new URL('/uk/sign-in', frontendBaseUrl).toString();
 const mockApiHealthUrl = new URL('/site/languages', apiBaseUrl).toString();
 const frontendPort = frontendUrl.port || '3000';
+const isCi = process.env.CI === 'true';
+const frontendCommand = isCi
+  ? `npm run start -- --hostname ${frontendUrl.hostname} --port ${frontendPort}`
+  : `npm run dev -- --hostname ${frontendUrl.hostname} --port ${frontendPort}`;
+const frontendServerTimeout = isCi ? 180_000 : 120_000;
 
 export default defineConfig({
   testDir: './e2e',
@@ -41,7 +46,7 @@ export default defineConfig({
       : null,
     shouldStartWebServer && !shouldSkipWebServer
       ? {
-          command: `npm run dev -- --hostname ${frontendUrl.hostname} --port ${frontendPort}`,
+          command: frontendCommand,
           env: {
             NEXT_PUBLIC_API_URL: apiBaseUrl,
             NEXT_PUBLIC_SENTRY_DSN: '',
@@ -50,7 +55,7 @@ export default defineConfig({
           },
           url: webServerHealthUrl,
           reuseExistingServer: false,
-          timeout: 120_000,
+          timeout: frontendServerTimeout,
         }
       : null,
   ].filter((server) => server !== null),

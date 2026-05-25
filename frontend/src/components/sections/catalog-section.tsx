@@ -12,7 +12,7 @@ export default async function CatalogSection() {
   return (
     <section
       id='catalog'
-      className='scroll-mt-24 bg-background py-24'>
+      className='scroll-mt-24 bg-background py-16 md:py-24'>
       <Container>
         <HomeSectionHeader
           label={t('sections_catalog_label')}

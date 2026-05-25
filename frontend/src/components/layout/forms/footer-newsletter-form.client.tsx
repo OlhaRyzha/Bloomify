@@ -42,7 +42,7 @@ export default function FooterNewsletterForm({
   } = useFormActionStatus();
 
   return (
-    <div className='w-full lg:w-auto'>
+    <div className='w-full max-w-full lg:w-auto'>
       <Formik<NewsletterSubscribeValues>
         initialValues={newsletterSubscribeInitialValues}
         validateOnMount
@@ -80,8 +80,8 @@ export default function FooterNewsletterForm({
           const statusMessage = emailError || errorMessage || successMessage;
 
           return (
-            <Form className='w-full lg:w-auto'>
-              <div className='flex w-full gap-3 lg:w-auto'>
+            <Form className='w-full max-w-full lg:w-auto'>
+              <div className='flex w-full min-w-0 flex-col gap-3 sm:flex-row lg:w-auto'>
                 <label
                   htmlFor={inputId}
                   className='sr-only'>
@@ -102,10 +102,10 @@ export default function FooterNewsletterForm({
                   onBlur={handleBlur}
                   aria-invalid={Boolean(emailError)}
                   aria-describedby={`${inputId}-status`}
-                  className='min-w-[250px] bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/70'
+                  className='w-full min-w-0 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/70 sm:min-w-0 lg:w-72'
                 />
                 <Button
-                  className='h-10 bg-gold px-6 py-2 text-forest hover:bg-gold/90'
+                  className='h-10 w-full shrink-0 bg-gold px-5 py-2 text-forest hover:bg-gold/90 sm:w-auto'
                   type='submit'
                   disabled={isSubmitting}
                   aria-label={label}>

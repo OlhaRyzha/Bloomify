@@ -7,6 +7,8 @@ import { PaginationContainer } from '@/components/pagination/pagination';
 import FeedbackState from '@/components/ui/feedback-state';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CatalogItem } from '@/types/catalog';
+import { getBouquetCountLabel } from '@/utils/i18n';
+import { useLocale } from '@/components/providers/locale-provider';
 
 import { useGetProducts } from './api/use-products';
 import CatalogCard from './catalog-card';
@@ -63,6 +65,7 @@ export default function CatalogGrid({
   perPageOptions = [6, 9, 12],
 }: CatalogGridProps) {
   const { t } = useTranslation();
+  const { locale } = useLocale();
 
   const shouldFetchCatalogItems = items === undefined;
   const {
@@ -152,7 +155,7 @@ export default function CatalogGrid({
           showItemsCount={!hideControls}
           itemsCount={filteredItems.length}
           itemsCountPrefix={t('catalog_items_count_prefix')}
-          itemsCountSuffix={t('catalog_items_count_suffix')}
+          itemsCountSuffix={getBouquetCountLabel(filteredItems.length, locale)}
           renderPage={(pageItems) => (
             <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
               {pageItems.map((product) =>

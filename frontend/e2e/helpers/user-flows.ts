@@ -5,11 +5,44 @@ type CartSeedItem = {
   quantity: number;
 };
 
+const waitForVisibleImages = async (page: Page) => {
+  await page
+    .waitForFunction(() => {
+      const visibleImages = Array.from(document.images).filter((image) => {
+        const rect = image.getBoundingClientRect();
+        const style = window.getComputedStyle(image);
+
+        return (
+          rect.bottom > 0 &&
+          rect.right > 0 &&
+          rect.top < window.innerHeight &&
+          rect.left < window.innerWidth &&
+          style.display !== 'none' &&
+          style.visibility !== 'hidden'
+        );
+      });
+
+      return visibleImages.every(
+        (image) => image.complete && image.naturalWidth > 0
+      );
+    }, null, { timeout: 5_000 })
+    .catch(() => undefined);
+};
+
 export const goToAppPage = async (page: Page, path: string) => {
   await page.goto(path, { waitUntil: 'commit' });
   await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(
     () => undefined
   );
+  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(
+    () => undefined
+  );
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
+  await waitForVisibleImages(page);
 };
 
 export const clearPersistedState = async (page: Page) => {

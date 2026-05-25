@@ -44,6 +44,19 @@ test('mobile navigation opens, keeps focus usable, and supports anchors', async 
   await expect(
     mobileNavigation.getByRole('link', { name: 'Каталог' })
   ).toBeFocused();
+  const mobileNavigationBox = await mobileNavigation.boundingBox();
+  expect(mobileNavigationBox).toMatchObject({
+    height: 764,
+    width: 390,
+    x: 0,
+    y: 80,
+  });
+
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)
+    )
+    .toBe(true);
 
   await mobileNavigation.getByRole('link', { name: 'Контакти' }).click();
 

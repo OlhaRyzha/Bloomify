@@ -56,6 +56,9 @@ export default function HeaderActions({
   useEffect(() => {
     if (!isMenuOpen) return;
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const firstLink = mobileNavRef.current?.querySelector<HTMLElement>(
       'a[href], button:not([disabled])'
     );
@@ -71,14 +74,15 @@ export default function HeaderActions({
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
+      document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isMenuOpen]);
 
   return (
     <>
-      <div className='flex items-center gap-3'>
-        <div className='hidden items-center gap-2 text-xs text-muted-foreground md:flex'>
+      <div className='flex shrink-0 items-center gap-1 sm:gap-2 lg:gap-3'>
+        <div className='hidden items-center gap-2 text-xs text-muted-foreground lg:flex'>
           <LocaleSwitcher />
         </div>
 
@@ -86,7 +90,7 @@ export default function HeaderActions({
           asChild
           variant='ghost'
           size='icon'
-          className='hidden md:inline-flex'>
+          className='hidden lg:inline-flex'>
           <Link
             href={getLocalizedPath(accountPath, locale)}
             aria-label={accountLabel}>
@@ -121,7 +125,7 @@ export default function HeaderActions({
           ref={menuButtonRef}
           variant='ghost'
           size='icon'
-          className='md:hidden'
+          className='lg:hidden'
           onClick={() => setIsMenuOpen((value) => !value)}
           aria-label={isMenuOpen ? copy.closeMenuLabel : copy.openMenuLabel}
           aria-controls={mobileNavId}
@@ -144,9 +148,9 @@ export default function HeaderActions({
         <nav
           ref={mobileNavRef}
           id={mobileNavId}
-          className='border-t border-border py-4 md:hidden'
+          className='absolute inset-x-0 top-full z-40 h-[calc(100dvh-5rem)] overflow-y-auto border-t border-border bg-background px-4 py-6 shadow-elevated lg:hidden'
           aria-label={copy.mobileNavigationLabel}>
-          <div className='flex flex-col gap-4'>
+          <div className='mx-auto flex min-h-full w-full max-w-md flex-col gap-2'>
             {navigationLinks.map((link) => (
               <Link
                 key={link.key}
@@ -156,7 +160,7 @@ export default function HeaderActions({
                     ? 'page'
                     : undefined
                 }
-                className='text-base font-medium text-foreground transition-colors hover:text-primary'
+                className='rounded-xl px-4 py-4 text-lg font-semibold text-foreground transition-colors hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                 onClick={closeMenu}>
                 {link.label}
               </Link>
@@ -164,7 +168,7 @@ export default function HeaderActions({
 
             <Button
               asChild
-              className='mt-2 w-full'>
+              className='mt-4 h-12 w-full'>
               <Link
                 href={getLocalizedPath(accountPath, locale)}
                 onClick={closeMenu}>
@@ -175,9 +179,10 @@ export default function HeaderActions({
                 {accountLabel}
               </Link>
             </Button>
-          </div>
-          <div className='mt-4 flex items-center justify-center'>
-            <LocaleSwitcher />
+
+            <div className='mt-3 flex justify-center border-t border-border pt-5'>
+              <LocaleSwitcher />
+            </div>
           </div>
         </nav>
       )}

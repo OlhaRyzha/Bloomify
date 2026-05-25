@@ -1,3 +1,3 @@
-import fallbackImage from '@/assets/fallback-img.webp';
+import imageNotFound from '@/assets/image_not_fount.webp';
 
-export const FALLBACK_IMAGE_SRC = fallbackImage;
+export const FALLBACK_IMAGE_SRC = imageNotFound;

@@ -38,9 +38,9 @@ export function CatalogControls({
 
   return (
     <section
-      className='mb-2 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-card px-5 py-4 shadow-card'
+      className='mb-2 flex min-w-0 flex-col gap-4 rounded-2xl bg-gradient-card px-4 py-4 shadow-card sm:px-5 lg:flex-row lg:items-center lg:justify-between'
       aria-label={t('controls_label')}>
-      <div>
+      <div className='w-full min-w-0 lg:max-w-sm'>
         <label
           htmlFor={searchInputId}
           className='sr-only'>
@@ -51,7 +51,7 @@ export function CatalogControls({
           name='catalogSearch'
           type='search'
           placeholder={t('controls_search_placeholder')}
-          className='h-10 w-64'
+          className='h-10 w-full min-w-0'
           prefix={
             <Search
               className='h-4 w-4 text-muted-foreground'
@@ -63,15 +63,15 @@ export function CatalogControls({
         />
       </div>
 
-      <div className='flex items-center gap-2'>
-        <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
+      <div className='grid w-full min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 lg:w-auto'>
+        <div className='flex min-w-0 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
           <ArrowUpDown
-            className='h-4 w-4 text-muted-foreground'
+            className='h-4 w-4 shrink-0 text-muted-foreground'
             aria-hidden
           />
           <span
             id={`${sortSelectId}-label`}
-            className='text-muted-foreground'>
+            className='shrink-0 text-muted-foreground'>
             {t('controls_sort_label')}
           </span>
           <Select
@@ -80,7 +80,7 @@ export function CatalogControls({
             <SelectTrigger
               id={sortSelectId}
               aria-labelledby={`${sortSelectId}-label`}
-              className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
+              className='h-9 min-w-0 flex-1 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
               <SelectValue placeholder={t('controls_sort_label')} />
             </SelectTrigger>
             <SelectContent>
@@ -101,14 +101,14 @@ export function CatalogControls({
         </div>
 
         {availableTags.length > 0 && (
-          <div className='flex items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
+          <div className='flex min-w-0 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm'>
             <SlidersHorizontal
-              className='h-4 w-4 text-muted-foreground'
+              className='h-4 w-4 shrink-0 text-muted-foreground'
               aria-hidden
             />
             <span
               id={`${tagSelectId}-label`}
-              className='text-muted-foreground'>
+              className='shrink-0 text-muted-foreground'>
               {t('controls_tag_label')}
             </span>
             <Select
@@ -117,7 +117,7 @@ export function CatalogControls({
               <SelectTrigger
                 id={tagSelectId}
                 aria-labelledby={`${tagSelectId}-label`}
-                className='h-9 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
+                className='h-9 min-w-0 flex-1 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
                 <SelectValue placeholder={t('controls_tag_placeholder')} />
               </SelectTrigger>
               <SelectContent>

@@ -16,6 +16,7 @@ import { getSignInPathWithNext } from '@/features/auth/auth-redirect';
 import { hasAuthSessionCookie } from '@/features/auth/auth-session.server';
 import { getLocalizedPath } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
+import ProfileSignOutButton from './profile-sign-out-button.client';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
@@ -88,15 +89,18 @@ export default async function ProfilePage() {
             </p>
           </div>
 
-          <Button asChild>
-            <Link href={getLocalizedPath('/catalog', locale)}>
-              <ShoppingBag
-                className='mr-2 h-4 w-4'
-                aria-hidden
-              />
-              {t('profile_continue_shopping_cta')}
-            </Link>
-          </Button>
+          <div className='flex flex-col gap-3 sm:flex-row'>
+            <ProfileSignOutButton />
+            <Button asChild>
+              <Link href={getLocalizedPath('/catalog', locale)}>
+                <ShoppingBag
+                  className='mr-2 h-4 w-4'
+                  aria-hidden
+                />
+                {t('profile_continue_shopping_cta')}
+              </Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </PageShell>

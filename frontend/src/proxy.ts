@@ -38,6 +38,21 @@ export function proxy(request: NextRequest) {
   }
 
   const localeFromPathname = getLocaleFromPathname(pathname);
+  const localeFromHeader = request.headers.get(LOCALE_HEADER);
+  const requestHeaders = new Headers(request.headers);
+
+  if (
+    !localeFromPathname &&
+    supportedLocales.includes(localeFromHeader as Locale)
+  ) {
+    requestHeaders.set(LOCALE_HEADER, localeFromHeader as Locale);
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
 
   if (!localeFromPathname) {
     const locale = getPreferredLocale(request);
@@ -48,7 +63,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  const requestHeaders = new Headers(request.headers);
   requestHeaders.set(LOCALE_HEADER, localeFromPathname);
   const pathnameWithoutLocale = stripLocaleFromPathname(pathname);
 

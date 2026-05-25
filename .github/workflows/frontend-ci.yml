@@ -19,11 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_MEDIA_HOST: ${{ vars.NEXT_PUBLIC_MEDIA_HOST }}
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      SENTRY_AUTH_TOKEN: ""
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -49,11 +52,14 @@ jobs:
     needs: check
     env:
       NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_MEDIA_HOST: ${{ vars.NEXT_PUBLIC_MEDIA_HOST }}
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      SENTRY_AUTH_TOKEN: ""
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -68,25 +74,21 @@ jobs:
       - name: Performance budget
         run: cd frontend && npm run performance:budget
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/.next
-
   e2e:
     runs-on: ubuntu-latest
     needs: build
     env:
       NEXT_PUBLIC_API_URL: http://127.0.0.1:8010
       NEXT_PUBLIC_MEDIA_HOST: http://127.0.0.1:8010
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      SENTRY_AUTH_TOKEN: ""
       PLAYWRIGHT_API_URL: http://127.0.0.1:8010
       PLAYWRIGHT_BASE_URL: http://127.0.0.1:3100
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -95,18 +97,66 @@ jobs:
       - name: Install dependencies
         run: make frontend-ci-install
 
+      - name: Build frontend for E2E
+        run: make frontend-build
+
       - name: Install Playwright browser
         run: cd frontend && npx playwright install --with-deps chromium
 
-      - name: E2E smoke and visual tests
-        run: make frontend-test-e2e
+      - name: E2E smoke, visual, and accessibility tests
+        run: |
+          cd frontend
+          mkdir -p e2e-server-logs
 
-      - name: E2E accessibility tests
-        run: make frontend-test-e2e-a11y
+          node e2e/mock-api/server.mjs > e2e-server-logs/mock-api.log 2>&1 &
+          MOCK_API_PID=$!
+
+          npm run start -- --hostname 127.0.0.1 --port 3100 > e2e-server-logs/next-start.log 2>&1 &
+          NEXT_PID=$!
+
+          show_logs() {
+            echo "::group::mock API log"
+            cat e2e-server-logs/mock-api.log || true
+            echo "::endgroup::"
+            echo "::group::next start log"
+            cat e2e-server-logs/next-start.log || true
+            echo "::endgroup::"
+          }
+
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              show_logs
+            fi
+            kill "$MOCK_API_PID" "$NEXT_PID" 2>/dev/null || true
+            exit "$status"
+          }
+
+          wait_for_url() {
+            url=$1
+            echo "Waiting for $url"
+            for attempt in $(seq 1 90); do
+              if curl --fail --location --silent --show-error --max-redirs 5 "$url" >/dev/null; then
+                echo "$url is ready"
+                return 0
+              fi
+              sleep 2
+            done
+            echo "$url did not become ready in time"
+            return 1
+          }
+
+          trap cleanup EXIT
+
+          wait_for_url "$PLAYWRIGHT_API_URL/site/languages"
+          wait_for_url "$PLAYWRIGHT_BASE_URL/uk/sign-in"
+
+          PLAYWRIGHT_SKIP_WEBSERVER=1 npm run test:e2e
+          PLAYWRIGHT_SKIP_WEBSERVER=1 npm run test:e2e:a11y
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-playwright-report
           path: frontend/playwright-report
@@ -114,8 +164,16 @@ jobs:
 
       - name: Upload Playwright test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-playwright-test-results
           path: frontend/test-results
+          if-no-files-found: ignore
+
+      - name: Upload E2E server logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: frontend-e2e-server-logs
+          path: frontend/e2e-server-logs
           if-no-files-found: ignore

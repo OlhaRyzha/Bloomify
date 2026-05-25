@@ -24,7 +24,7 @@ export default async function HeroSection() {
   );
 
   return (
-    <section className='relative flex min-h-screen items-center overflow-hidden bg-gradient-hero pt-20'>
+    <section className='relative flex min-h-[calc(100svh-2rem)] items-center overflow-hidden bg-gradient-hero pb-20 pt-24 lg:min-h-screen lg:pb-16'>
       <div className='absolute inset-0 overflow-hidden'>
         <div className='absolute left-10 top-20 h-72 w-72 rounded-full bg-blush/30 blur-3xl' />
         <div className='absolute bottom-20 right-10 h-96 w-96 rounded-full bg-sage/30 blur-3xl' />
@@ -90,7 +90,7 @@ export default async function HeroSection() {
             </div>
           </div>
 
-          <div className='relative'>
+          <div className='relative mx-auto w-full max-w-lg lg:max-w-none'>
             <div className='relative'>
               <div className='absolute inset-0 rotate-6 rounded-3xl bg-gradient-to-br from-blush/20 to-sage/20 blur-2xl' />
 
@@ -103,15 +103,15 @@ export default async function HeroSection() {
               />
             </div>
 
-            <div className='absolute -bottom-6 right-4 lg:right-8'>
-              <div className='rounded-full  bg-gradient-to-r from-blush/60 to-[#6b7760]/70 px-5 py-3 shadow-lg backdrop-blur-sm'>
+            <div className='absolute -bottom-7 left-1/2 w-[min(calc(100%-2rem),22rem)] -translate-x-1/2 lg:left-auto lg:right-8 lg:w-auto lg:translate-x-0'>
+              <div className='rounded-full bg-gradient-to-r from-blush/60 to-[#6b7760]/70 px-4 py-3 shadow-lg backdrop-blur-sm sm:px-5'>
                 <div className='flex items-center gap-2'>
                   <span
                     className='text-lg'
                     aria-hidden>
                     🚚
                   </span>
-                  <span className='text-sm font-semibold text-white'>
+                  <span className='text-sm font-semibold leading-snug text-white'>
                     {freeDeliveryMessage}
                   </span>
                 </div>
