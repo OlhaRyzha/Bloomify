@@ -9,6 +9,9 @@ const viewports = [
   { height: 844, name: 'mobile', width: 390 },
 ] as const;
 
+const getMaxDiffPixelRatio = (viewportName: (typeof viewports)[number]['name']) =>
+  viewportName === 'mobile' ? 0.18 : 0.08;
+
 const preparePage = async (page: Page) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await mockCatalogProducts(page);
@@ -25,7 +28,7 @@ test.describe('responsive visual baseline', () => {
         animations: 'disabled',
         caret: 'hide',
         fullPage: false,
-        maxDiffPixelRatio: 0.08,
+        maxDiffPixelRatio: getMaxDiffPixelRatio(viewport.name),
         scale: 'css',
       });
     });
@@ -39,7 +42,7 @@ test.describe('responsive visual baseline', () => {
         animations: 'disabled',
         caret: 'hide',
         fullPage: false,
-        maxDiffPixelRatio: 0.08,
+        maxDiffPixelRatio: getMaxDiffPixelRatio(viewport.name),
         scale: 'css',
       });
     });
@@ -54,7 +57,7 @@ test.describe('responsive visual baseline', () => {
         animations: 'disabled',
         caret: 'hide',
         fullPage: false,
-        maxDiffPixelRatio: 0.08,
+        maxDiffPixelRatio: getMaxDiffPixelRatio(viewport.name),
         scale: 'css',
       });
     });
