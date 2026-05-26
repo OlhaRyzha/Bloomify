@@ -1,14 +1,18 @@
+import os
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_FILE = Path(os.getenv("DJANGO_ENV_FILE", BASE_DIR / ".env"))
+if not ENV_FILE.is_absolute():
+    ENV_FILE = BASE_DIR / ENV_FILE
 
 
 class EnvironmentSettings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ".env",
+        env_file=ENV_FILE,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -17,6 +21,13 @@ class EnvironmentSettings(BaseSettings):
     DJANGO_SECRET_KEY: str
     DJANGO_ALLOWED_HOSTS: str
     DJANGO_CORS_ALLOWED_ORIGINS: str
+    DJANGO_SECURE_SSL_REDIRECT: bool | None = None
+    DJANGO_SESSION_COOKIE_SECURE: bool | None = None
+    DJANGO_CSRF_COOKIE_SECURE: bool | None = None
+    DJANGO_SECURE_HSTS_SECONDS: int = 0
+    DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: bool = False
+    DJANGO_SECURE_HSTS_PRELOAD: bool = False
+    DJANGO_ENABLE_API_DOCS: bool | None = None
     ADMIN_SITE_URL: str = "http://localhost:3000"
 
     POSTGRES_HOST: str
@@ -54,9 +65,12 @@ ALLOWED_HOSTS = [
     item.strip() for item in env.DJANGO_ALLOWED_HOSTS.split(",") if item.strip()
 ]
 
-DOCS_PATH: str | None = "docs/"
-REDOC_PATH: str | None = "redoc/"
-SCHEMA_PATH: str | None = "schema/"
+ENABLE_API_DOCS = (
+    env.DJANGO_ENABLE_API_DOCS if env.DJANGO_ENABLE_API_DOCS is not None else DEBUG
+)
+DOCS_PATH: str | None = "docs/" if ENABLE_API_DOCS else None
+REDOC_PATH: str | None = "redoc/" if ENABLE_API_DOCS else None
+SCHEMA_PATH: str | None = "schema/" if ENABLE_API_DOCS else None
 
 CORS_ALLOWED_ORIGINS = [
     item.strip() for item in env.DJANGO_CORS_ALLOWED_ORIGINS.split(",") if item.strip()
@@ -66,6 +80,28 @@ CORS_ALLOW_CREDENTIALS = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = (
+    env.DJANGO_SECURE_SSL_REDIRECT
+    if env.DJANGO_SECURE_SSL_REDIRECT is not None
+    else not DEBUG
+)
+SESSION_COOKIE_SECURE = (
+    env.DJANGO_SESSION_COOKIE_SECURE
+    if env.DJANGO_SESSION_COOKIE_SECURE is not None
+    else not DEBUG
+)
+CSRF_COOKIE_SECURE = (
+    env.DJANGO_CSRF_COOKIE_SECURE
+    if env.DJANGO_CSRF_COOKIE_SECURE is not None
+    else not DEBUG
+)
+SESSION_COOKIE_HTTPONLY = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "DENY"
+SECURE_HSTS_SECONDS = env.DJANGO_SECURE_HSTS_SECONDS
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
+SECURE_HSTS_PRELOAD = env.DJANGO_SECURE_HSTS_PRELOAD
 
 
 INSTALLED_APPS = [

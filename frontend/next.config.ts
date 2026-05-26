@@ -8,6 +8,22 @@ const disableImageOptimization =
   mediaHost.includes('localhost') ||
   mediaHost.includes('127.0.0.1');
 
+const mediaHostPattern = (() => {
+  if (!mediaHost) return null;
+
+  try {
+    const url = new URL(mediaHost);
+    return {
+      protocol: url.protocol.replace(':', '') as 'http' | 'https',
+      hostname: url.hostname,
+      port: url.port,
+      pathname: '/**',
+    };
+  } catch {
+    return null;
+  }
+})();
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ['127.0.0.1'],
@@ -16,15 +32,12 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     unoptimized: isDev || disableImageOptimization,
     remotePatterns: [
+      ...(mediaHostPattern ? [mediaHostPattern] : []),
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '8000',
         pathname: '/media/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '**',
       },
       {
         protocol: 'http',

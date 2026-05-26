@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.conf import settings
-from notifications.telegram import send_telegram_message
 
+from notifications.telegram import send_telegram_message
 from shop.models import Order
 
 

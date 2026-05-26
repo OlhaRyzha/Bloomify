@@ -4,10 +4,15 @@ from django.test import TestCase
 class ViewsSmokeTest(TestCase):
     def test_view_classes_import(self):
         from shop.views.orders import CheckoutCreateView, LiqPayCallbackView
-        from shop.views.products import ProductDetailView, ProductListCreateView
+        from shop.views.products import (
+            IsAdminOrReadOnly,
+            ProductDetailView,
+            ProductListCreateView,
+        )
         from shop.views.site_languages import SiteLanguagesView
 
         self.assertIsNotNone(CheckoutCreateView)
+        self.assertIsNotNone(IsAdminOrReadOnly)
         self.assertIsNotNone(LiqPayCallbackView)
         self.assertIsNotNone(ProductDetailView)
         self.assertIsNotNone(ProductListCreateView)
