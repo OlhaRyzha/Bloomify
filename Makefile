@@ -63,6 +63,14 @@ frontend-test-e2e-visual:
 frontend-performance-budget:
 	cd $(FRONTEND_DIR) && npm run build && npm run performance:budget
 
+frontend-check-deps:
+	cd $(FRONTEND_DIR) && npx depcheck
+
+frontend-check-unimported:
+	cd $(FRONTEND_DIR) && npx unimported
+
+frontend-check-unused:
+	cd $(FRONTEND_DIR) && npx ts-prune
 
 # ---------- Docker services ----------
 

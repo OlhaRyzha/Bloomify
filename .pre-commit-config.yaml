@@ -70,3 +70,27 @@ repos:
         pass_filenames: false
         files: ^frontend/.*\.(ts|tsx)$
         stages: [pre-push]
+
+      - id: frontend-depcheck
+        name: depcheck (frontend)
+        entry: make frontend-check-deps
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(js|jsx|ts|tsx|json)$
+        stages: [pre-push]
+
+      - id: frontend-unimported
+        name: unimported (frontend)
+        entry: make frontend-check-unimported
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(js|jsx|ts|tsx|json)$
+        stages: [pre-push]
+
+      - id: frontend-ts-prune
+        name: ts-prune (frontend)
+        entry: make frontend-check-unused
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx)$
+        stages: [pre-push]
