@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { withSkeleton } from '@/components/hoc/with-skeleton';
 import { PaginationContainer } from '@/components/pagination/pagination';
@@ -9,6 +9,12 @@ import { useTranslation } from '@/hooks/use-translation';
 import type { CatalogItem } from '@/types/catalog';
 import { getBouquetCountLabel } from '@/utils/i18n';
 import { useLocale } from '@/components/providers/locale-provider';
+import {
+  trackCatalogSearch,
+  trackCatalogSort,
+  trackCatalogTagFilter,
+  trackCatalogViewed,
+} from '@/services/analytics/analytics.events';
 
 import { useGetProducts } from './api/use-products';
 import CatalogCard from './catalog-card';
@@ -95,11 +101,57 @@ export default function CatalogGrid({
     filteredItems,
     sortedItems,
     setPage,
+    debouncedSearch,
     updateSearch,
     updateSort,
     updateTagFilter,
     updatePerPage,
   } = useCatalogGridState({ items: effectiveItems, pageSize });
+  const trackedItemListKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (loading || effectiveItems.length === 0) {
+      return;
+    }
+
+    const listKey = `${locale}:${effectiveItems.map((item) => item.id).join(',')}`;
+    if (trackedItemListKeyRef.current === listKey) {
+      return;
+    }
+
+    trackedItemListKeyRef.current = listKey;
+    trackCatalogViewed({
+      itemListName: hideControls ? 'featured_catalog' : 'catalog',
+      itemCount: effectiveItems.length,
+      locale,
+    });
+  }, [effectiveItems, hideControls, loading, locale]);
+
+  useEffect(() => {
+    trackCatalogSearch({
+      query: debouncedSearch,
+      resultCount: filteredItems.length,
+      locale,
+    });
+  }, [debouncedSearch, filteredItems.length, locale]);
+
+  const handleSortChange = (value: Parameters<typeof updateSort>[0]) => {
+    updateSort(value);
+    trackCatalogSort({
+      sort: value,
+      resultCount: filteredItems.length,
+      locale,
+    });
+  };
+
+  const handleTagFilterChange = (value: string) => {
+    updateTagFilter(value);
+    trackCatalogTagFilter({
+      tag: value,
+      resultCount: filteredItems.length,
+      locale,
+    });
+  };
 
   const skeletonItems: CatalogSkeletonItem[] = Array.from(
     { length: perPage },
@@ -119,9 +171,9 @@ export default function CatalogGrid({
           searchInput={searchInput}
           onSearchChange={updateSearch}
           sort={sort}
-          onSortChange={updateSort}
+          onSortChange={handleSortChange}
           tagFilter={tagFilter}
-          onTagFilterChange={updateTagFilter}
+          onTagFilterChange={handleTagFilterChange}
           availableTags={availableTags}
         />
       )}

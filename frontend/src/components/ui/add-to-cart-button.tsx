@@ -14,6 +14,10 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
+import {
+  trackCartItemAdded,
+  trackCartItemRemoved,
+} from '@/services/analytics/analytics.events';
 
 type AddToCartButtonProps = Omit<
   ComponentProps<typeof Button>,
@@ -24,6 +28,9 @@ type AddToCartButtonProps = Omit<
   label?: string;
   itemId?: string;
   itemName?: string;
+  itemCategory?: string;
+  itemPrice?: number;
+  source?: string;
 };
 
 export default function AddToCartButton({
@@ -32,6 +39,9 @@ export default function AddToCartButton({
   label,
   itemId,
   itemName,
+  itemCategory,
+  itemPrice,
+  source,
   className,
   onClick,
   ...props
@@ -41,7 +51,7 @@ export default function AddToCartButton({
   const quantity = useCartStore(selectCartItemQuantity(itemId));
   const debouncedQuantity = useDebounce(quantity, 600);
   const previousToastQuantity = useRef(quantity);
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
   const { toast } = useToast();
   const iconClassName = size === 'lg' ? 'h-5 w-5' : 'h-4 w-4';
   const buttonLabel = label ?? t('cart_add_button');
@@ -78,6 +88,16 @@ export default function AddToCartButton({
     }
 
     addItem(itemId);
+    trackCartItemAdded({
+      item: {
+        id: itemId,
+        name: itemLabel,
+        tag: itemCategory,
+        price: itemPrice ?? 0,
+      },
+      source,
+      locale,
+    });
   };
 
   if (itemId && quantity > 0) {
@@ -97,7 +117,19 @@ export default function AddToCartButton({
           variant='ghost'
           size={quantityButtonSize}
           className='text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground'
-          onClick={() => updateQuantity(itemId, quantity - 1)}
+          onClick={() => {
+            updateQuantity(itemId, quantity - 1);
+            trackCartItemRemoved({
+              item: {
+                id: itemId,
+                name: itemLabel,
+                tag: itemCategory,
+                price: itemPrice ?? 0,
+              },
+              source,
+              locale,
+            });
+          }}
           aria-label={t('cart_decrease_quantity_label', { name: itemLabel })}>
           <Minus
             className='h-4 w-4'
@@ -112,7 +144,19 @@ export default function AddToCartButton({
           variant='ghost'
           size={quantityButtonSize}
           className='text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground'
-          onClick={() => updateQuantity(itemId, quantity + 1)}
+          onClick={() => {
+            updateQuantity(itemId, quantity + 1);
+            trackCartItemAdded({
+              item: {
+                id: itemId,
+                name: itemLabel,
+                tag: itemCategory,
+                price: itemPrice ?? 0,
+              },
+              source,
+              locale,
+            });
+          }}
           aria-label={t('cart_increase_quantity_label', { name: itemLabel })}>
           <Plus
             className='h-4 w-4'

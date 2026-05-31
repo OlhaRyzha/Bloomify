@@ -3,6 +3,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   type ChangeEvent,
   type FocusEvent,
 } from 'react';
@@ -52,6 +53,12 @@ import {
   selectCheckoutDeliveryDraft,
   selectSetCheckoutDeliveryDraft,
 } from './store/checkout-draft.selectors';
+import {
+  trackCheckoutStarted,
+  trackCheckoutSubmitted,
+  trackPaymentFailed,
+  trackPurchaseCompleted,
+} from '@/services/analytics/analytics.events';
 
 type PaymentOption = {
   descriptionKey: string;
@@ -223,6 +230,7 @@ export default function CheckoutFeature() {
   } = useGetProducts();
   const { t } = useTranslation();
   const { locale } = useLocale();
+  const trackedBeginCheckoutRef = useRef(false);
   const checkoutSchema = useMemo(
     () =>
       createCheckoutSchema({
@@ -244,6 +252,23 @@ export default function CheckoutFeature() {
 
     return getCartSummary(cartItems, catalogItems);
   }, [cartItems, catalogItems, isHydrated]);
+
+  useEffect(() => {
+    if (!isHydrated || !isNonEmptyArray(summary.cartItems)) {
+      return;
+    }
+
+    if (trackedBeginCheckoutRef.current) {
+      return;
+    }
+
+    trackedBeginCheckoutRef.current = true;
+    trackCheckoutStarted({
+      itemCount: summary.itemCount,
+      value: summary.total,
+      locale,
+    });
+  }, [isHydrated, locale, summary.cartItems, summary.itemCount, summary.total]);
 
   if (!isHydrated || isLoading) {
     return <CheckoutLoadingState />;
@@ -284,6 +309,12 @@ export default function CheckoutFeature() {
       validate={(values) => validateWithZod(checkoutSchema, values)}
       onSubmit={async (values, actions) => {
         actions.setStatus(undefined);
+        trackCheckoutSubmitted({
+          itemCount: summary.itemCount,
+          paymentMethod: values.paymentMethod,
+          value: summary.total,
+          locale,
+        });
 
         try {
           const response = await CheckoutService.createCheckout({
@@ -306,9 +337,22 @@ export default function CheckoutFeature() {
             return;
           }
 
+          trackPurchaseCompleted({
+            itemCount: summary.itemCount,
+            orderId: String(response.orderId),
+            paymentMethod: response.paymentMethod,
+            value: summary.total,
+            locale,
+          });
           actions.setStatus(t('checkout_submit_cash_status'));
         } catch (error) {
-          actions.setStatus(ApiError.fromUnknown(error).userMessage);
+          const apiError = ApiError.fromUnknown(error);
+          trackPaymentFailed({
+            paymentMethod: values.paymentMethod,
+            reason: apiError.type,
+            locale,
+          });
+          actions.setStatus(apiError.userMessage);
         } finally {
           actions.setSubmitting(false);
         }

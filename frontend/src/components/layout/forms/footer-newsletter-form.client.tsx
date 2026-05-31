@@ -15,6 +15,8 @@ import { useFormActionStatus } from '@/hooks/use-form-action-status';
 import { getErrorMessage } from '@/utils/errors/get-error-message';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
+import { useTranslation } from '@/hooks/use-translation';
+import { trackNewsletterSubscribed } from '@/services/analytics/analytics.events';
 
 type FooterNewsletterFormProps = {
   inputId: string;
@@ -33,6 +35,7 @@ export default function FooterNewsletterForm({
   successMessage: successMessageText,
   errorMessage: fallbackErrorMessage,
 }: FooterNewsletterFormProps) {
+  const { locale } = useTranslation();
   const {
     clearStatus,
     errorMessage,
@@ -56,6 +59,10 @@ export default function FooterNewsletterForm({
               API_ROUTES.SUBSCRIBE,
               payload
             );
+            trackNewsletterSubscribed({
+              source: 'footer',
+              locale,
+            });
             setSuccessStatus(successMessageText);
             actions.resetForm();
           } catch (error) {

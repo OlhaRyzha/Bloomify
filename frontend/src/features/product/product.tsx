@@ -3,6 +3,7 @@ import FallbackImage from '@/components/ui/fallback-image';
 import InfoCard from '@/components/ui/info-card';
 import type { CatalogItem } from '@/types/catalog';
 import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
+import ProductAnalytics from './product-analytics.client';
 
 export type ProductFeatureCopy = {
   actionsLabel: string;
@@ -23,6 +24,7 @@ export default function ProductFeature({ copy, product }: ProductFeatureProps) {
 
   return (
     <article className='grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start'>
+      <ProductAnalytics product={product} />
       <figure className='relative aspect-square overflow-hidden rounded-3xl bg-gradient-card shadow-card'>
         <FallbackImage
           src={imageSrc}
@@ -59,6 +61,9 @@ export default function ProductFeature({ copy, product }: ProductFeatureProps) {
             size='lg'
             itemId={product.id}
             itemName={product.name}
+            itemCategory={product.tag}
+            itemPrice={product.price}
+            source='product_detail'
           />
         </section>
 

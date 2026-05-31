@@ -28,6 +28,10 @@ import { getLocalizedPath } from '@/i18n/routing';
 import { ApiError } from '@/utils/api/api-error';
 import { getPostAuthRedirectPath } from '../auth-redirect';
 import AuthSessionService from '../auth-session.service';
+import {
+  trackAuthSignedIn,
+  trackAuthSignedUp,
+} from '@/services/analytics/analytics.events';
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { locale, t } = useTranslation();
@@ -74,6 +78,9 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 });
               }
 
+              const trackAuth =
+                mode === 'login' ? trackAuthSignedIn : trackAuthSignedUp;
+              trackAuth({ locale });
               router.replace(redirectPath);
             } catch (error) {
               actions.setStatus(ApiError.fromUnknown(error).userMessage);

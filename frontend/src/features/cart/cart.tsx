@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { Button } from '@/components/ui/button';
 import ConfirmationDialog from '@/components/ui/confirmation-dialog';
@@ -25,6 +25,11 @@ import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { getCartSummary } from './cart.helpers';
 import { useLocale } from '@/components/providers/locale-provider';
 import type { CartItemWithDetails } from './cart.types';
+import {
+  trackCartItemAdded,
+  trackCartItemRemoved,
+  trackCartViewed,
+} from '@/services/analytics/analytics.events';
 
 type CartConfirmation =
   | {
@@ -41,6 +46,7 @@ export default function CartFeature() {
   );
   const { t } = useTranslation();
   const { locale } = useLocale();
+  const trackedCartKeyRef = useRef<string | null>(null);
   const {
     data: catalogItems = [],
     isError: isCatalogError,
@@ -56,6 +62,40 @@ export default function CartFeature() {
     return getCartSummary(items, catalogItems);
   }, [items, isHydrated, catalogItems]);
 
+  useEffect(() => {
+    if (!isHydrated || !isNonEmptyArray(cartItems)) {
+      return;
+    }
+
+    const cartKey = cartItems
+      .map((item) => `${item.id}:${item.quantity}`)
+      .join('|');
+    if (trackedCartKeyRef.current === cartKey) {
+      return;
+    }
+
+    trackedCartKeyRef.current = cartKey;
+    trackCartViewed({
+      itemCount,
+      value: total,
+      locale,
+    });
+  }, [cartItems, isHydrated, itemCount, locale, total]);
+
+  const trackQuantityChange = (
+    item: CartItemWithDetails,
+    nextQuantity: number
+  ) => {
+    const delta = nextQuantity - item.quantity;
+    if (delta === 0) {
+      return;
+    }
+
+    const quantity = Math.abs(delta);
+    const track = delta > 0 ? trackCartItemAdded : trackCartItemRemoved;
+    track({ item, quantity, source: 'cart', locale });
+  };
+
   const requestRemoveItem = (item: CartItemWithDetails) => {
     setConfirmation({
       request: {
@@ -63,7 +103,15 @@ export default function CartFeature() {
         entity: 'cartItem',
         entityName: item.name,
       },
-      onConfirm: () => removeItem(item.id),
+      onConfirm: () => {
+        removeItem(item.id);
+        trackCartItemRemoved({
+          item,
+          quantity: item.quantity,
+          source: 'cart',
+          locale,
+        });
+      },
     });
   };
 
@@ -73,7 +121,17 @@ export default function CartFeature() {
         action: 'clear',
         entity: 'cart',
       },
-      onConfirm: clearCart,
+      onConfirm: () => {
+        cartItems.forEach((item) => {
+          trackCartItemRemoved({
+            item,
+            quantity: item.quantity,
+            source: 'cart_clear',
+            locale,
+          });
+        });
+        clearCart();
+      },
     });
   };
 
@@ -134,7 +192,10 @@ export default function CartFeature() {
             key={item.id}
             item={item}
             onRemove={requestRemoveItem}
-            onUpdateQuantity={updateQuantity}
+            onUpdateQuantity={(id, quantity) => {
+              trackQuantityChange(item, quantity);
+              updateQuantity(id, quantity);
+            }}
           />
         ))}
 

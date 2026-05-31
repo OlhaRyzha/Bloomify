@@ -16,6 +16,7 @@ import { useFavoritesStore } from '@/features/favorites/store/favorites.store';
 import { useTranslation } from '@/hooks/use-translation';
 import { getLocalizedPath } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { trackProductSelected } from '@/services/analytics/analytics.events';
 
 type CatalogCardProps = {
   item: CatalogItem;
@@ -40,7 +41,13 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
       <div className='relative aspect-square overflow-hidden'>
         <Link
           href={productHref}
-          className='absolute inset-0 z-0 block'>
+          className='absolute inset-0 z-0 block'
+          onClick={() => {
+            trackProductSelected({
+              item,
+              locale,
+            });
+          }}>
           <FallbackImage
             src={imageSrc}
             alt={item.name}
@@ -83,7 +90,13 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
         <h3 className='font-display mb-2 text-xl font-semibold leading-tight'>
           <Link
             href={productHref}
-            className='transition-colors hover:text-primary'>
+            className='transition-colors hover:text-primary'
+            onClick={() => {
+              trackProductSelected({
+                item,
+                locale,
+              });
+            }}>
             {item.name}
           </Link>
         </h3>
@@ -98,6 +111,9 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
             size='sm'
             itemId={item.id}
             itemName={item.name}
+            itemCategory={item.tag}
+            itemPrice={item.price}
+            source='catalog_card'
           />
         </div>
       </CardContent>

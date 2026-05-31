@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import HashScrollHandler from '@/components/layout/hash-scroll-handler.client';
+import AnalyticsReporter from '@/components/providers/analytics-reporter';
 import AppProviders from '@/components/providers/app-providers';
 import { LocaleProvider } from '@/components/providers/locale-provider';
 import { defaultLocale } from '@/locales/translations';
@@ -46,6 +47,7 @@ export default async function RootLayout({
               <Header />
               <main className='flex-1'>{children}</main>
               <Footer />
+              <AnalyticsReporter />
             </div>
           </LocaleProvider>
         </AppProviders>

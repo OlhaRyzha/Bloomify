@@ -13,6 +13,7 @@ import ConfirmationDialog from '@/components/ui/confirmation-dialog';
 import AuthSessionService from '@/features/auth/auth-session.service';
 import { getLocalizedPath } from '@/i18n/routing';
 import { useTranslation } from '@/hooks/use-translation';
+import { trackAuthSignedOut } from '@/services/analytics/analytics.events';
 
 export default function ProfileSignOutButton() {
   const [confirmationCopy, setConfirmationCopy] =
@@ -27,6 +28,7 @@ export default function ProfileSignOutButton() {
 
     try {
       await AuthSessionService.signOut();
+      trackAuthSignedOut({ locale });
     } catch {
       // Local session is cleared in AuthSessionService even when backend logout fails.
     } finally {
