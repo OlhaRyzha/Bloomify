@@ -44,6 +44,7 @@ urlpatterns.extend(
             "favicon.ico",
             RedirectView.as_view(url=f"{settings.STATIC_URL}bloomify/favicon-32.png"),
         ),
+        path("notifications/", include("notifications.urls")),
         path("", include("shop.urls")),
     ]
 )

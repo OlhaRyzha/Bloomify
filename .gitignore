@@ -109,3 +109,4 @@ AGENTS.md
 *.key
 *.ipynb
 jupyter_notebook_config.py
+.vercel

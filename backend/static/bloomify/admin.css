@@ -505,6 +505,95 @@ fieldset.module .selector,
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
+.aligned .form-row select[multiple],
+.change-form .form-row select[multiple],
+#content .form-row select[multiple],
+.unfold-main .form-row select[multiple] {
+  min-height: 136px;
+  padding: 10px !important;
+}
+
+.aligned .form-row .readonly,
+.change-form .form-row .readonly,
+#content .form-row .readonly,
+.unfold-main .form-row .readonly {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 40px;
+  box-sizing: border-box;
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 10px;
+  background: var(--bloomify-form-field);
+  color: var(--bloomify-form-muted);
+  padding: 10px 12px;
+  line-height: 1.45;
+}
+
+.aligned .form-row .readonly strong,
+.change-form .form-row .readonly strong,
+#content .form-row .readonly strong,
+.unfold-main .form-row .readonly strong {
+  color: var(--bloomify-form-text);
+}
+
+.aligned .form-row .checkbox-row,
+.change-form .form-row .checkbox-row,
+#content .form-row .checkbox-row,
+.unfold-main .form-row .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aligned .form-row:has(.bloomify-permission-matrix),
+.change-form .form-row:has(.bloomify-permission-matrix),
+#content .form-row:has(.bloomify-permission-matrix),
+.unfold-main .form-row:has(.bloomify-permission-matrix) {
+  padding-top: 14px;
+}
+
+.aligned .form-row:has(.bloomify-role-multiselect),
+.change-form .form-row:has(.bloomify-role-multiselect),
+#content .form-row:has(.bloomify-role-multiselect),
+.unfold-main .form-row:has(.bloomify-role-multiselect) {
+  padding-top: 14px;
+  padding-bottom: 18px;
+}
+
+.aligned .form-row .datetime,
+.change-form .form-row .datetime,
+#content .form-row .datetime,
+.unfold-main .form-row .datetime {
+  display: grid;
+  grid-template-columns: minmax(160px, 260px) minmax(160px, 220px);
+  align-items: end;
+  gap: 10px 14px;
+  max-width: 560px;
+}
+
+.aligned .form-row .vDateField,
+.aligned .form-row .vTimeField,
+.change-form .form-row .vDateField,
+.change-form .form-row .vTimeField,
+#content .form-row .vDateField,
+#content .form-row .vTimeField,
+.unfold-main .form-row .vDateField,
+.unfold-main .form-row .vTimeField {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.aligned .form-row .datetimeshortcuts,
+.change-form .form-row .datetimeshortcuts,
+#content .form-row .datetimeshortcuts,
+.unfold-main .form-row .datetimeshortcuts {
+  grid-column: 1 / -1;
+  color: var(--bloomify-form-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .aligned .form-row input:focus,
 .aligned .form-row select:focus,
 .aligned .form-row textarea:focus,
@@ -1155,6 +1244,68 @@ body.theme-dark .bloomify-bulk-select:hover {
   white-space: nowrap;
 }
 
+/* User role multi-select */
+.bloomify-role-multiselect {
+  display: grid;
+  gap: 12px;
+  max-width: 960px;
+}
+
+.bloomify-role-multiselect__hint {
+  margin: 0;
+  color: var(--bloomify-form-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bloomify-role-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.bloomify-role-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: start;
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 12px;
+  background: var(--bloomify-form-field);
+  color: var(--bloomify-form-text);
+  padding: 12px;
+}
+
+.bloomify-role-option input {
+  margin-top: 2px;
+}
+
+.bloomify-role-option__name {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.bloomify-role-option__meta {
+  grid-column: 2;
+  color: var(--bloomify-form-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.bloomify-role-option:has(input:checked) {
+  border-color: rgba(47, 93, 68, 0.42);
+  background: rgba(47, 93, 68, 0.08);
+}
+
+html.dark .bloomify-role-option:has(input:checked),
+html[data-theme='dark'] .bloomify-role-option:has(input:checked),
+body.theme-dark .bloomify-role-option:has(input:checked) {
+  border-color: rgba(126, 211, 163, 0.45);
+  background: rgba(126, 211, 163, 0.12);
+}
+
 /* Role permission matrix */
 .bloomify-permission-matrix {
   display: grid;
@@ -1242,30 +1393,34 @@ body.theme-dark .bloomify-bulk-select:hover {
 
 .bloomify-permission-option {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 2px 8px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 10px;
   align-items: start;
   border: 1px solid var(--bloomify-form-border);
   border-radius: 12px;
   background: var(--bloomify-form-field);
   color: var(--bloomify-form-text);
-  padding: 10px;
+  padding: 12px;
 }
 
 .bloomify-permission-option input {
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .bloomify-permission-option__action {
+  display: block;
   font-size: 13px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .bloomify-permission-option__description {
   grid-column: 2;
+  display: block;
   color: var(--bloomify-form-muted);
   font-size: 12px;
-  line-height: 1.35;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .bloomify-permission-option:has(input:checked) {
@@ -1288,14 +1443,24 @@ body.theme-dark .bloomify-permission-option:has(input:checked) {
 }
 
 @media (max-width: 900px) {
+  .bloomify-role-grid,
   .bloomify-permission-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 560px) {
+  .bloomify-role-grid,
   .bloomify-permission-grid {
     grid-template-columns: 1fr;
+  }
+
+  .aligned .form-row .datetime,
+  .change-form .form-row .datetime,
+  #content .form-row .datetime,
+  .unfold-main .form-row .datetime {
+    grid-template-columns: 1fr;
+    max-width: none;
   }
 
   .bloomify-permission-group__summary {

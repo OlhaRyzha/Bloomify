@@ -50,6 +50,12 @@ class EnvironmentSettings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_ADMIN_CHAT_ID: str = ""
 
+    SENTRY_DSN: str = ""
+    SENTRY_ENVIRONMENT: str = ""
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.0
+    SENTRY_SEND_DEFAULT_PII: bool = False
+    SENTRY_ALERT_WEBHOOK_SECRET: str = ""
+
     LIQPAY_DEV_BACKEND_LOCAL_URL: str = ""
     LIQPAY_CALLBACK_PATH: str = "/payments/liqpay/callback"
     LIQPAY_RESULT_PATH: str = "/checkout"
@@ -109,6 +115,23 @@ JWT_SECRET_KEY = SECRET_KEY
 JWT_ALGORITHM = "HS256"
 
 DEBUG = env.DJANGO_DEBUG
+
+if env.SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=env.SENTRY_DSN,
+        environment=env.SENTRY_ENVIRONMENT
+        or ("development" if DEBUG else "production"),
+        integrations=[
+            DjangoIntegration(),
+            CeleryIntegration(),
+        ],
+        traces_sample_rate=env.SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=env.SENTRY_SEND_DEFAULT_PII,
+    )
 
 ALLOWED_HOSTS = [
     item.strip() for item in env.DJANGO_ALLOWED_HOSTS.split(",") if item.strip()
@@ -313,6 +336,7 @@ CELERY_TIMEZONE = "Europe/Kyiv"
 
 TELEGRAM_BOT_TOKEN = env.TELEGRAM_BOT_TOKEN
 TELEGRAM_ADMIN_CHAT_ID = env.TELEGRAM_ADMIN_CHAT_ID
+SENTRY_ALERT_WEBHOOK_SECRET = env.SENTRY_ALERT_WEBHOOK_SECRET
 
 
 AUTH_PASSWORD_VALIDATORS = [

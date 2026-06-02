@@ -2,6 +2,7 @@ from django.contrib.auth.models import Group, Permission
 from django.test import TestCase
 
 from shop.admin.roles import RoleAdminForm
+from shop.admin.users import UserAdminForm
 
 
 class RoleAdminFormTest(TestCase):
@@ -40,3 +41,30 @@ class RoleAdminFormTest(TestCase):
             set(group.permissions.values_list("id", flat=True)),
             set(permissions),
         )
+
+
+class UserAdminFormTest(TestCase):
+    def test_groups_render_as_role_multiselect(self):
+        Group.objects.create(name="Seasonal coordinator")
+        Group.objects.create(name="Support lead")
+
+        form = UserAdminForm()
+
+        html = form["groups"].as_widget()
+
+        self.assertIn("bloomify-role-multiselect", html)
+        self.assertIn('type="checkbox"', html)
+        self.assertIn("Seasonal coordinator", html)
+        self.assertIn("Support lead", html)
+
+    def test_user_permissions_render_as_grouped_matrix(self):
+        form = UserAdminForm()
+
+        html = form["user_permissions"].as_widget()
+
+        self.assertIn("bloomify-permission-matrix", html)
+        self.assertIn("data-bloomify-permission-master", html)
+        self.assertIn("Read", html)
+        self.assertIn("Create", html)
+        self.assertIn("Edit", html)
+        self.assertIn("Delete", html)
