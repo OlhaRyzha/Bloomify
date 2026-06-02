@@ -1,15 +1,10 @@
-import logging
 from decimal import Decimal
 from typing import Any
 
-from django.db import transaction
-from notifications.tasks import send_order_created_telegram_notification
 from rest_framework import serializers
 
 from shop.models.order import Order
 from shop.models.product import Product
-
-logger = logging.getLogger(__name__)
 
 PAYMENT_METHODS_WITH_LIQPAY = {"apple_pay", "google_pay", "card"}
 STANDARD_DELIVERY_FEE = Decimal("150.00")
@@ -38,13 +33,6 @@ class CheckoutCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError("Cart must contain at least one item.")
 
         return value
-
-
-def send_order_created_notification_safely(order_id: int) -> None:
-    try:
-        send_order_created_telegram_notification.delay(order_id)
-    except Exception:
-        logger.exception("Failed to enqueue order created Telegram notification")
 
 
 def create_checkout_order(payload: dict[str, Any]) -> Order:
@@ -109,7 +97,5 @@ def create_checkout_order(payload: dict[str, Any]) -> Order:
             for product, quantity, unit_price, item_total in order_items
         ]
     )
-
-    transaction.on_commit(lambda: send_order_created_notification_safely(order.id))
 
     return order

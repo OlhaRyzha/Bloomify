@@ -328,6 +328,8 @@
   "checkout_empty_title": "Brak zamówienia do opłacenia",
   "checkout_empty_description": "Dodaj bukiety do koszyka przed wyborem dostawy i płatności.",
   "checkout_empty_cta": "Przejdź do katalogu",
+  "checkout_order_success_title": "Zamówienie utworzone",
+  "checkout_success_cta": "Kontynuuj zakupy",
   "checkout_error_title": "Nie udało się przygotować zamówienia",
   "checkout_error_description": "Nie udało się załadować szczegółów bukietów dla zamówienia. Spróbuj ponownie przed płatnością.",
   "checkout_contact_title": "Dane dostawy",

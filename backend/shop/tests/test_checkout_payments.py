@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 
@@ -93,6 +94,31 @@ class CheckoutPaymentsTest(TestCase):
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
     )
+    def test_checkout_does_not_notify_before_payment(self):
+        with patch(
+            "shop.views.orders.send_order_paid_telegram_notification.delay"
+        ) as enqueue_notification:
+            response = self.client.post(
+                "/orders/checkout",
+                data={
+                    "customerName": "Tom Smith",
+                    "email": "tom@example.com",
+                    "phone": "+380671234567",
+                    "city": "Kyiv",
+                    "address": "Khreshchatyk 1",
+                    "paymentMethod": "card",
+                    "items": [{"id": self.product.pk, "quantity": 1}],
+                },
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 201)
+        enqueue_notification.assert_not_called()
+
+    @override_settings(
+        LIQPAY_PUBLIC_KEY="sandbox_public_key",
+        LIQPAY_PRIVATE_KEY="sandbox_private_key",
+    )
     def test_liqpay_callback_marks_order_paid_after_signature_verification(self):
         order = create_order(
             payment_provider="liqpay",
@@ -110,19 +136,60 @@ class CheckoutPaymentsTest(TestCase):
             }
         )
 
-        response = self.client.post(
-            "/payments/liqpay/callback",
-            data={
-                "data": data,
-                "signature": create_signature(data),
-            },
-        )
+        with patch(
+            "shop.views.orders.send_order_paid_telegram_notification.delay"
+        ) as enqueue_notification:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    "/payments/liqpay/callback",
+                    data={
+                        "data": data,
+                        "signature": create_signature(data),
+                    },
+                )
 
         self.assertEqual(response.status_code, 200)
         order.refresh_from_db()
         self.assertEqual(order.payment_status, "paid")
         self.assertEqual(order.status, "paid")
         self.assertEqual(order.liqpay_payment_id, "123456")
+        enqueue_notification.assert_called_once_with(order.id)
+
+    @override_settings(
+        LIQPAY_PUBLIC_KEY="sandbox_public_key",
+        LIQPAY_PRIVATE_KEY="sandbox_private_key",
+    )
+    def test_liqpay_callback_does_not_duplicate_paid_notification(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="paid",
+            status="paid",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+        )
+        data = encode_data(
+            {
+                "order_id": order.liqpay_order_id,
+                "status": "success",
+                "payment_id": 123456,
+            }
+        )
+
+        with patch(
+            "shop.views.orders.send_order_paid_telegram_notification.delay"
+        ) as enqueue_notification:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    "/payments/liqpay/callback",
+                    data={
+                        "data": data,
+                        "signature": create_signature(data),
+                    },
+                )
+
+        self.assertEqual(response.status_code, 200)
+        enqueue_notification.assert_not_called()
 
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",

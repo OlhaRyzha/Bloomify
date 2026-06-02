@@ -214,12 +214,16 @@ describe('CheckoutFeature', () => {
     );
 
     expect(liqPayForm).toBeDefined();
+    expect(liqPayForm?.target).toBe('_blank');
     expect(liqPayForm?.querySelector<HTMLInputElement>('input[name="data"]'))
       .toHaveValue('encoded-data');
     expect(
       liqPayForm?.querySelector<HTMLInputElement>('input[name="signature"]')
     ).toHaveValue('encoded-signature');
     expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(useCartStore.getState().items).toEqual([]);
+    });
   }, 10000);
 
   test('creates cash-on-delivery order without LiqPay handoff', async () => {
@@ -253,6 +257,9 @@ describe('CheckoutFeature', () => {
       )
     ).toBeInTheDocument();
     expect(HTMLFormElement.prototype.submit).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(useCartStore.getState().items).toEqual([]);
+    });
   });
 
   test('shows API errors and preserves delivery input', async () => {
@@ -283,5 +290,8 @@ describe('CheckoutFeature', () => {
       expect(screen.getByRole('status')).toHaveTextContent('Checkout failed');
     });
     expect(nameInput).toHaveValue('Tom Smith');
+    expect(useCartStore.getState().items).toEqual([
+      { id: 'rose-bouquet', quantity: 1 },
+    ]);
   });
 });

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
 import { getServerTranslator } from '@/i18n/server';
 import HeaderActions from './header-actions.client';
+import HeaderLogo from './header-logo.client';
 import { getLocalizedPath } from '@/i18n/routing';
 import { Container } from './page-layout';
 
@@ -19,13 +20,10 @@ export default async function Header() {
     <header className='fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md'>
       <Container>
         <div className='flex h-20 min-w-0 items-center justify-between gap-3'>
-          <Link
+          <HeaderLogo
             href={getLocalizedPath('/', locale)}
-            className='flex min-w-0 shrink-0 items-center gap-2'>
-            <span className='bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl'>
-              {t('common_brand')}
-            </span>
-          </Link>
+            brand={t('common_brand')}
+          />
 
           <nav
             className='hidden min-w-0 flex-1 items-center justify-center gap-5 lg:flex xl:gap-8'

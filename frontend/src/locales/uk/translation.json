@@ -328,6 +328,8 @@
   "checkout_empty_title": "Оформлення порожнє",
   "checkout_empty_description": "Додайте букети в кошик перед вибором доставки та оплати.",
   "checkout_empty_cta": "Перейти до каталогу",
+  "checkout_order_success_title": "Замовлення створено",
+  "checkout_success_cta": "Продовжити покупки",
   "checkout_error_title": "Не вдалося підготувати оформлення",
   "checkout_error_description": "Не вдалося завантажити деталі букетів для замовлення. Спробуйте ще раз перед оплатою.",
   "checkout_contact_title": "Дані доставки",

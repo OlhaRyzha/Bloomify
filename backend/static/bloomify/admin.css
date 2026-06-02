@@ -1050,6 +1050,74 @@ body.theme-dark .bloomify-bulk-select {
   background-position: right 10px center;
 }
 
+/* Final bulk action select polish: match toolbar fields and avoid native blue focus. */
+.bloomify-bulk-topbar {
+  position: relative;
+  align-items: center;
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.bloomify-bulk-topbar::after {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: "";
+  pointer-events: none;
+  transform: translateY(-65%) rotate(45deg);
+  color: var(--bloomify-form-muted);
+}
+
+.bloomify-bulk-select {
+  appearance: none;
+  width: 138px !important;
+  min-width: 138px !important;
+  height: 40px;
+  padding: 0 34px 0 14px;
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 8px;
+  background-color: var(--bloomify-form-surface);
+  background-image: none;
+  background-position: 0 0;
+  background-size: auto;
+  background-repeat: no-repeat;
+  color: var(--bloomify-form-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  outline: none;
+  box-shadow: none;
+}
+
+.bloomify-bulk-select:hover {
+  border-color: rgba(216, 119, 129, 0.42);
+}
+
+.bloomify-bulk-select:focus,
+.bloomify-bulk-select:focus-visible {
+  border-color: var(--bloomify-primary);
+  box-shadow: 0 0 0 3px var(--bloomify-form-focus);
+  outline: none;
+}
+
+html.dark .bloomify-bulk-select,
+html[data-theme='dark'] .bloomify-bulk-select,
+body.theme-dark .bloomify-bulk-select {
+  border-color: rgb(51 65 85);
+  background-color: rgb(15 23 42);
+  color: rgb(241 245 249);
+}
+
+html.dark .bloomify-bulk-select:hover,
+html[data-theme='dark'] .bloomify-bulk-select:hover,
+body.theme-dark .bloomify-bulk-select:hover {
+  border-color: rgba(216, 119, 129, 0.55);
+}
+
 /* Selected count near pagination (right side) */
 .bloomify-selected-counter {
   margin-left: auto;
@@ -1085,4 +1153,152 @@ body.theme-dark .bloomify-bulk-select {
 /* Keep pagination summary + selected counter on one line */
 .bloomify-selected-counter {
   white-space: nowrap;
+}
+
+/* Role permission matrix */
+.bloomify-permission-matrix {
+  display: grid;
+  gap: 12px;
+  max-width: 960px;
+}
+
+.bloomify-permission-matrix__hint {
+  margin: 0 0 4px;
+  color: var(--bloomify-form-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bloomify-permission-group {
+  overflow: hidden;
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 14px;
+  background: var(--bloomify-form-surface);
+  box-shadow: 0 14px 32px -28px rgba(15, 23, 42, 0.55);
+}
+
+.bloomify-permission-group__summary {
+  display: flex;
+  min-height: 54px;
+  cursor: pointer;
+  list-style: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+}
+
+.bloomify-permission-group__summary::-webkit-details-marker {
+  display: none;
+}
+
+.bloomify-permission-group__title,
+.bloomify-permission-group__app {
+  display: block;
+}
+
+.bloomify-permission-group__title {
+  color: var(--bloomify-form-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.bloomify-permission-group__app {
+  margin-top: 2px;
+  color: var(--bloomify-form-muted);
+  font-size: 12px;
+}
+
+.bloomify-permission-group__count {
+  display: inline-flex;
+  min-width: 42px;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(47, 93, 68, 0.1);
+  color: #2f5d44;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.bloomify-permission-group__all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--bloomify-form-border);
+  padding: 12px 16px;
+  color: var(--bloomify-form-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bloomify-permission-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 10px;
+  border-top: 1px solid var(--bloomify-form-border);
+  padding: 14px 16px 16px;
+}
+
+.bloomify-permission-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  align-items: start;
+  border: 1px solid var(--bloomify-form-border);
+  border-radius: 12px;
+  background: var(--bloomify-form-field);
+  color: var(--bloomify-form-text);
+  padding: 10px;
+}
+
+.bloomify-permission-option input {
+  margin-top: 3px;
+}
+
+.bloomify-permission-option__action {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bloomify-permission-option__description {
+  grid-column: 2;
+  color: var(--bloomify-form-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.bloomify-permission-option:has(input:checked) {
+  border-color: rgba(47, 93, 68, 0.42);
+  background: rgba(47, 93, 68, 0.08);
+}
+
+html.dark .bloomify-permission-group__count,
+html[data-theme='dark'] .bloomify-permission-group__count,
+body.theme-dark .bloomify-permission-group__count {
+  background: rgba(126, 211, 163, 0.16);
+  color: rgb(190 242 202);
+}
+
+html.dark .bloomify-permission-option:has(input:checked),
+html[data-theme='dark'] .bloomify-permission-option:has(input:checked),
+body.theme-dark .bloomify-permission-option:has(input:checked) {
+  border-color: rgba(126, 211, 163, 0.45);
+  background: rgba(126, 211, 163, 0.12);
+}
+
+@media (max-width: 900px) {
+  .bloomify-permission-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .bloomify-permission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bloomify-permission-group__summary {
+    align-items: flex-start;
+  }
 }

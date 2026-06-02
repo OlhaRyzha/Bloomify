@@ -328,6 +328,8 @@
   "checkout_empty_title": "Your checkout is empty",
   "checkout_empty_description": "Add bouquets to the cart before choosing delivery and payment.",
   "checkout_empty_cta": "Go to catalog",
+  "checkout_order_success_title": "Order created",
+  "checkout_success_cta": "Continue shopping",
   "checkout_error_title": "Could not prepare checkout",
   "checkout_error_description": "We could not load bouquet details for your order. Try again before continuing to payment.",
   "checkout_contact_title": "Delivery details",

@@ -1,4 +1,8 @@
+import logging
+
+from django.db import transaction
 from drf_spectacular.utils import OpenApiTypes, extend_schema, inline_serializer
+from notifications.tasks import send_order_paid_telegram_notification
 from rest_framework import permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,6 +19,15 @@ from shop.services.liqpay import (
     decode_data,
     verify_signature,
 )
+
+logger = logging.getLogger(__name__)
+
+
+def send_order_paid_notification_safely(order_id: int) -> None:
+    try:
+        send_order_paid_telegram_notification.delay(order_id)
+    except Exception:
+        logger.exception("Failed to enqueue paid order Telegram notification")
 
 
 class CheckoutCreateView(APIView):
@@ -100,6 +113,7 @@ class LiqPayCallbackView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        was_paid_before = order.payment_status == "paid"
         order.payment_payload = payload
         order.liqpay_payment_id = str(payload.get("payment_id", ""))
         if payment_status in {"success", "sandbox"}:
@@ -119,4 +133,6 @@ class LiqPayCallbackView(APIView):
                 "status",
             ]
         )
+        if order.payment_status == "paid" and not was_paid_before:
+            transaction.on_commit(lambda: send_order_paid_notification_safely(order.id))
         return Response({"status": "ok"})

@@ -157,12 +157,15 @@
         (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
       );
       const originalLabelText = labelTextNode?.textContent?.trim() || "Actions";
+      const bulkActionLabel = /^action:?$/i.test(originalLabelText)
+        ? "Actions"
+        : originalLabelText.replace(/:$/, "");
 
-      customSelect.setAttribute("aria-label", originalLabelText);
+      customSelect.setAttribute("aria-label", bulkActionLabel);
 
       const placeholder = document.createElement("option");
       placeholder.value = "";
-      placeholder.textContent = originalLabelText;
+      placeholder.textContent = bulkActionLabel;
       customSelect.appendChild(placeholder);
 
       const originalDeleteOption = Array.from(originalSelect.options).find(
@@ -253,6 +256,58 @@
     refresh();
   };
 
+  const syncPermissionMaster = (master) => {
+    const groupId = master.dataset.bloomifyPermissionMaster;
+    const children = Array.from(
+      document.querySelectorAll(
+        `input[data-bloomify-permission-child="${groupId}"]`
+      )
+    );
+    const checkedCount = children.filter((child) => child.checked).length;
+
+    master.checked = children.length > 0 && checkedCount === children.length;
+    master.indeterminate = checkedCount > 0 && checkedCount < children.length;
+  };
+
+  const patchPermissionMatrix = () => {
+    const masters = Array.from(
+      document.querySelectorAll("input[data-bloomify-permission-master]")
+    );
+
+    if (!masters.length) return;
+
+    masters.forEach((master) => {
+      if (!master.dataset.bloomifyPermissionBound) {
+        master.addEventListener("change", () => {
+          const groupId = master.dataset.bloomifyPermissionMaster;
+          document
+            .querySelectorAll(`input[data-bloomify-permission-child="${groupId}"]`)
+            .forEach((child) => {
+              child.checked = master.checked;
+            });
+          syncPermissionMaster(master);
+        });
+        master.dataset.bloomifyPermissionBound = "1";
+      }
+
+      syncPermissionMaster(master);
+    });
+
+    document
+      .querySelectorAll("input[data-bloomify-permission-child]")
+      .forEach((child) => {
+        if (child.dataset.bloomifyPermissionBound) return;
+
+        child.addEventListener("change", () => {
+          const master = document.querySelector(
+            `input[data-bloomify-permission-master="${child.dataset.bloomifyPermissionChild}"]`
+          );
+          if (master) syncPermissionMaster(master);
+        });
+        child.dataset.bloomifyPermissionBound = "1";
+      });
+  };
+
   const initObserver = () => {
     if (!window.MutationObserver) return;
     const observer = new MutationObserver((mutations) => {
@@ -265,6 +320,7 @@
     if (!syncTheme()) return requestAnimationFrame(start);
     patchSearchClear();
     patchBulkActionsTopbar();
+    patchPermissionMatrix();
     initObserver();
   };
 

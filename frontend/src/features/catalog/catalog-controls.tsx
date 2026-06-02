@@ -35,6 +35,12 @@ export function CatalogControls({
   const searchInputId = 'catalog-search';
   const sortSelectId = 'catalog-sort';
   const tagSelectId = 'catalog-tag-filter';
+  const sortLabelByValue: Record<SortOption, string> = {
+    default: t('controls_sort_options_default'),
+    'price-asc': t('controls_sort_options_price_asc'),
+    'price-desc': t('controls_sort_options_price_desc'),
+    'name-asc': t('controls_sort_options_name_asc'),
+  };
 
   return (
     <section
@@ -81,7 +87,13 @@ export function CatalogControls({
               id={sortSelectId}
               aria-labelledby={`${sortSelectId}-label`}
               className='h-9 min-w-0 flex-1 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-              <SelectValue placeholder={t('controls_sort_label')} />
+              <span className='min-w-0 truncate'>
+                {sort === 'default' ? (
+                  <span className='hidden sm:inline'>{sortLabelByValue.default}</span>
+                ) : (
+                  sortLabelByValue[sort]
+                )}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='default'>

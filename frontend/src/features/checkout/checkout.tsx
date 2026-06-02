@@ -4,6 +4,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type ChangeEvent,
   type FocusEvent,
 } from 'react';
@@ -33,7 +34,10 @@ import { formatCurrency } from '@/utils/i18n';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { ApiError } from '@/utils/api/api-error';
-import { selectCartItems } from '@/features/cart/store/cart.selectors';
+import {
+  selectCartItems,
+  selectClearCart,
+} from '@/features/cart/store/cart.selectors';
 import { useCartStore } from '@/features/cart/store/cart.store';
 import { getCartSummary } from '@/features/cart/cart.helpers';
 import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
@@ -163,6 +167,7 @@ function submitLiqPayCheckout(payload: LiqPayCheckoutPayload) {
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = payload.checkoutUrl;
+  form.target = '_blank';
 
   const dataInput = document.createElement('input');
   dataInput.type = 'hidden';
@@ -220,6 +225,7 @@ function CheckoutDraftPersistence({
 export default function CheckoutFeature() {
   const isHydrated = useHydrated();
   const cartItems = useCartStore(useShallow(selectCartItems));
+  const clearCart = useCartStore(selectClearCart);
   const deliveryDraft = useCheckoutDraftStore(selectCheckoutDeliveryDraft);
   const setDeliveryDraft = useCheckoutDraftStore(selectSetCheckoutDeliveryDraft);
   const {
@@ -231,6 +237,9 @@ export default function CheckoutFeature() {
   const { t } = useTranslation();
   const { locale } = useLocale();
   const trackedBeginCheckoutRef = useRef(false);
+  const [completedOrderMessage, setCompletedOrderMessage] = useState<
+    string | null
+  >(null);
   const checkoutSchema = useMemo(
     () =>
       createCheckoutSchema({
@@ -289,6 +298,18 @@ export default function CheckoutFeature() {
   }
 
   if (!isNonEmptyArray(summary.cartItems)) {
+    if (completedOrderMessage) {
+      return (
+        <FeedbackState
+          title={t('checkout_order_success_title')}
+          description={completedOrderMessage}
+          actionLabel={t('checkout_success_cta')}
+          actionHref={getLocalizedPath('/catalog', locale)}
+          className='bg-gradient-card shadow-card'
+        />
+      );
+    }
+
     return (
       <FeedbackState
         title={t('checkout_empty_title')}
@@ -332,7 +353,11 @@ export default function CheckoutFeature() {
           });
 
           if (response.liqpay) {
-            actions.setStatus(t('checkout_submit_liqpay_redirect'));
+            const message = t('checkout_submit_liqpay_redirect');
+
+            clearCart();
+            setCompletedOrderMessage(message);
+            actions.setStatus(message);
             submitLiqPayCheckout(response.liqpay);
             return;
           }
@@ -344,7 +369,11 @@ export default function CheckoutFeature() {
             value: summary.total,
             locale,
           });
-          actions.setStatus(t('checkout_submit_cash_status'));
+          const message = t('checkout_submit_cash_status');
+
+          clearCart();
+          setCompletedOrderMessage(message);
+          actions.setStatus(message);
         } catch (error) {
           const apiError = ApiError.fromUnknown(error);
           trackPaymentFailed({

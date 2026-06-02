@@ -12,6 +12,7 @@ import { useCartStore } from '@/features/cart/store/cart.store';
 import { useLocale } from '@/components/providers/locale-provider';
 import { getLocalizedPath, stripLocaleFromPathname } from '@/i18n/routing';
 import { useAuthSessionMarker } from '@/features/auth/use-auth-session-marker';
+import { CLOSE_MOBILE_MENU_EVENT } from './header-events';
 
 type HeaderNavLink = {
   href: string;
@@ -52,6 +53,18 @@ export default function HeaderActions({
   const accountLabel = hasAuthSession ? copy.profileLabel : copy.loginLabel;
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  useEffect(() => {
+    const handleCloseMenu = () => {
+      setIsMenuOpen(false);
+    };
+
+    window.addEventListener(CLOSE_MOBILE_MENU_EVENT, handleCloseMenu);
+
+    return () => {
+      window.removeEventListener(CLOSE_MOBILE_MENU_EVENT, handleCloseMenu);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -108,7 +121,8 @@ export default function HeaderActions({
           className='relative'>
           <Link
             href={getLocalizedPath('/cart', locale)}
-            aria-label={copy.cartLabel}>
+            aria-label={copy.cartLabel}
+            onClick={closeMenu}>
             <ShoppingBag
               className='h-5 w-5'
               aria-hidden

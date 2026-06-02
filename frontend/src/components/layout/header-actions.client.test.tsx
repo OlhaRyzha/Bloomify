@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 
 import HeaderActions from './header-actions.client';
+import { CLOSE_MOBILE_MENU_EVENT } from './header-events';
 import { AUTH_SESSION_COOKIE_NAME } from '@/features/auth/auth-routing';
 
 let pathnameMock = '/uk/catalog';
@@ -93,6 +94,52 @@ describe('HeaderActions', () => {
     expect(authLink).toHaveAttribute('href', '/uk/sign-in');
 
     await user.click(screen.getByRole('link', { name: 'Contact' }));
+
+    await waitFor(() => {
+      expect(mobileNavigation).not.toBeInTheDocument();
+    });
+  });
+
+  test('closes mobile menu after cart navigation', async () => {
+    const { user } = renderWithProviders(
+      <HeaderActions
+        copy={copy}
+        mobileNavId='mobile-navigation'
+        navigationLinks={navigationLinks}
+      />,
+      { locale: 'uk' }
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const mobileNavigation = screen.getByRole('navigation', {
+      name: 'Mobile navigation',
+    });
+
+    await user.click(screen.getByRole('link', { name: 'Cart' }));
+
+    await waitFor(() => {
+      expect(mobileNavigation).not.toBeInTheDocument();
+    });
+  });
+
+  test('closes mobile menu when header logo requests menu close', async () => {
+    const { user } = renderWithProviders(
+      <HeaderActions
+        copy={copy}
+        mobileNavId='mobile-navigation'
+        navigationLinks={navigationLinks}
+      />,
+      { locale: 'uk' }
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const mobileNavigation = screen.getByRole('navigation', {
+      name: 'Mobile navigation',
+    });
+
+    window.dispatchEvent(new Event(CLOSE_MOBILE_MENU_EVENT));
 
     await waitFor(() => {
       expect(mobileNavigation).not.toBeInTheDocument();
