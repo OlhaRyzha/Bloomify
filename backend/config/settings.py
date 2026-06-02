@@ -33,7 +33,7 @@ class EnvironmentSettings(BaseSettings):
     DATABASE_URL: str = ""
     POSTGRES_URL: str = ""
     POSTGRES_HOST: str = ""
-    POSTGRES_PORT: int = 5432
+    POSTGRES_PORT: str = "5432"
     POSTGRES_DB: str = ""
     POSTGRES_DATABASE: str = ""
     POSTGRES_USER: str = ""
@@ -60,8 +60,16 @@ class EnvironmentSettings(BaseSettings):
 env = EnvironmentSettings.model_validate({})
 
 
+def parse_postgres_port(port: str) -> int:
+    try:
+        return int(port)
+    except ValueError:
+        return 5432
+
+
 def build_database_config() -> dict[str, object]:
     database_url = env.DATABASE_URL or env.POSTGRES_URL
+    postgres_port = parse_postgres_port(env.POSTGRES_PORT)
     if database_url:
         parsed_url = urlparse(database_url)
         query_params = parse_qs(parsed_url.query)
@@ -74,7 +82,7 @@ def build_database_config() -> dict[str, object]:
             "USER": unquote(parsed_url.username or ""),
             "PASSWORD": unquote(parsed_url.password or ""),
             "HOST": parsed_url.hostname or "",
-            "PORT": parsed_url.port or env.POSTGRES_PORT,
+            "PORT": parsed_url.port or postgres_port,
         }
         if database_options:
             config["OPTIONS"] = database_options
@@ -86,7 +94,7 @@ def build_database_config() -> dict[str, object]:
         "USER": env.POSTGRES_USER,
         "PASSWORD": env.POSTGRES_PASSWORD,
         "HOST": env.POSTGRES_HOST,
-        "PORT": env.POSTGRES_PORT,
+        "PORT": postgres_port,
     }
     if env.POSTGRES_SSLMODE:
         config["OPTIONS"] = {"sslmode": env.POSTGRES_SSLMODE}
