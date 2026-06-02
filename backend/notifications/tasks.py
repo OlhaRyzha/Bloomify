@@ -24,4 +24,5 @@ def build_order_created_message(order: Order) -> str:
         "🌸 <b>New Bloomify order</b>\n\n"
         f"<b>Order:</b> #{order.id}\n"
         f"<b>Status:</b> {order.status}\n"
+        f"<b>Status:</b> {order}\n"
     )
