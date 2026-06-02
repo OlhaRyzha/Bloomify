@@ -249,7 +249,11 @@ describe('CheckoutFeature', () => {
     await user.click(
       screen.getByRole('radio', { name: /payment on delivery/i })
     );
-    await user.click(screen.getByRole('button', { name: /pay for order/i }));
+    expect(
+      screen.getByRole('button', { name: /place order/i })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /place order/i }));
 
     expect(
       await screen.findByText(

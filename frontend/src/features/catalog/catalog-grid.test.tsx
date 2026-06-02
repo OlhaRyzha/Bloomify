@@ -71,6 +71,39 @@ describe('CatalogGrid', () => {
     expect(screen.queryByText('Rose bouquet')).not.toBeInTheDocument();
   });
 
+  test('opens sort menu and applies selected order', async () => {
+    const items = [
+      createProductItem({
+        id: 'premium-rose',
+        name: 'Premium rose',
+        price: 2500,
+      }),
+      createProductItem({
+        id: 'white-harmony',
+        name: 'White harmony',
+        price: 1200,
+      }),
+    ];
+
+    const { user } = renderWithProviders(<CatalogGrid items={items} />, {
+      locale: 'en',
+    });
+
+    await user.click(screen.getByRole('combobox', { name: /sort/i }));
+
+    expect(
+      await screen.findByRole('option', { name: /price: low to high/i })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('option', { name: /price: low to high/i }));
+
+    await waitFor(() => {
+      const productHeadings = screen.getAllByRole('heading', { level: 3 });
+      expect(productHeadings[0]).toHaveTextContent('White harmony');
+      expect(productHeadings[1]).toHaveTextContent('Premium rose');
+    });
+  });
+
   test('shows error state when catalog query fails', async () => {
     server.use(
       http.get(apiUrl('products'), () =>

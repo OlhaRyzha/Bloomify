@@ -2,7 +2,10 @@ import logging
 
 from django.db import transaction
 from drf_spectacular.utils import OpenApiTypes, extend_schema, inline_serializer
-from notifications.tasks import send_order_paid_telegram_notification
+from notifications.tasks import (
+    send_order_cash_on_delivery_telegram_notification,
+    send_order_paid_telegram_notification,
+)
 from rest_framework import permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,9 +28,16 @@ logger = logging.getLogger(__name__)
 
 def send_order_paid_notification_safely(order_id: int) -> None:
     try:
-        send_order_paid_telegram_notification.delay(order_id)
+        send_order_paid_telegram_notification(order_id)
     except Exception:
-        logger.exception("Failed to enqueue paid order Telegram notification")
+        logger.exception("Failed to send paid order Telegram notification")
+
+
+def send_cash_on_delivery_notification_safely(order_id: int) -> None:
+    try:
+        send_order_cash_on_delivery_telegram_notification(order_id)
+    except Exception:
+        logger.exception("Failed to send cash-on-delivery order Telegram notification")
 
 
 class CheckoutCreateView(APIView):
@@ -57,6 +67,10 @@ class CheckoutCreateView(APIView):
                     {"detail": str(exc)},
                     status=status.HTTP_503_SERVICE_UNAVAILABLE,
                 )
+        elif order.payment_method == "cash_on_delivery":
+            transaction.on_commit(
+                lambda: send_cash_on_delivery_notification_safely(order.id)
+            )
 
         return Response(
             {

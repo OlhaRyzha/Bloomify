@@ -165,6 +165,7 @@ FORCE_SCRIPT_NAME = (
 )
 STATIC_BASE_PATH = f"{FORCE_SCRIPT_NAME or ''}/static"
 ADMIN_BASE_PATH = f"{FORCE_SCRIPT_NAME or ''}/admin"
+ADMIN_ASSET_VERSION = "20260603-datetime-3"
 
 INSTALLED_APPS = [
     "unfold",
@@ -216,7 +217,7 @@ UNFOLD = {
             "href": f"{STATIC_BASE_PATH}/bloomify/favicon-32.png",
         },
     ],
-    "STYLES": [f"{STATIC_BASE_PATH}/bloomify/admin.css"],
+    "STYLES": [f"{STATIC_BASE_PATH}/bloomify/admin.css?v={ADMIN_ASSET_VERSION}"],
     "COLORS": {
         "primary": {
             "50": "252 243 244",
@@ -232,7 +233,7 @@ UNFOLD = {
             "950": "56 16 20",
         },
     },
-    "SCRIPTS": [f"{STATIC_BASE_PATH}/bloomify/admin.js"],
+    "SCRIPTS": [f"{STATIC_BASE_PATH}/bloomify/admin.js?v={ADMIN_ASSET_VERSION}"],
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": False,

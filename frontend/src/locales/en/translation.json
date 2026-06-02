@@ -359,6 +359,7 @@
   "checkout_field_card_cvc": "CVC",
   "checkout_summary_title": "What you pay for",
   "checkout_pay_button": "Pay for order",
+  "checkout_place_order_button": "Place order",
   "checkout_submit_status": "The order data is ready to send to the payment provider.",
   "checkout_submit_liqpay_redirect": "Redirecting to LiqPay test payment.",
   "checkout_submit_cash_status": "Order created. We will confirm payment on delivery after processing it.",

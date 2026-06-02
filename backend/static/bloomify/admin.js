@@ -308,12 +308,76 @@
       });
   };
 
+  const patchDatetimeWarnings = () => {
+    document.querySelectorAll("p.datetime").forEach((datetime) => {
+      const dateInput = datetime.querySelector(".vDateField");
+      const timeInput = datetime.querySelector(".vTimeField");
+      const warning = datetime.querySelector(".timezonewarning");
+      const dateLabel = dateInput
+        ? datetime.querySelector(`label[for="${dateInput.id}"]`)
+        : null;
+      const timeLabel = timeInput
+        ? datetime.querySelector(`label[for="${timeInput.id}"]`)
+        : null;
+      const dateShortcuts =
+        dateInput?.nextElementSibling?.classList?.contains("datetimeshortcuts")
+          ? dateInput.nextElementSibling
+          : null;
+      const timeShortcuts =
+        timeInput?.nextElementSibling?.classList?.contains("datetimeshortcuts")
+          ? timeInput.nextElementSibling
+          : null;
+
+      if (
+        !dateInput ||
+        !timeInput ||
+        !dateLabel ||
+        !timeLabel ||
+        !dateShortcuts ||
+        !timeShortcuts ||
+        !warning
+      ) {
+        return;
+      }
+
+      if (datetime.dataset.bloomifyDatetimePatched === "1") {
+        warning.classList.add("bloomify-timezone-warning");
+        return;
+      }
+
+      const dateRow = document.createElement("span");
+      dateRow.className = "bloomify-datetime-row bloomify-datetime-row--date";
+      dateRow.append(dateLabel, dateInput, dateShortcuts);
+
+      const warningRow = document.createElement("span");
+      warningRow.className = "bloomify-datetime-warning-row";
+      warning.classList.add("bloomify-timezone-warning");
+      warningRow.append(warning);
+
+      const timeRow = document.createElement("span");
+      timeRow.className = "bloomify-datetime-row bloomify-datetime-row--time";
+      timeRow.append(timeLabel, timeInput, timeShortcuts);
+
+      while (datetime.firstChild) {
+        datetime.removeChild(datetime.firstChild);
+      }
+
+      datetime.append(dateRow, timeRow, warningRow);
+      datetime.dataset.bloomifyDatetimePatched = "1";
+    });
+  };
+
   const initObserver = () => {
     if (!window.MutationObserver) return;
     const observer = new MutationObserver((mutations) => {
       if (mutations.some((m) => m.attributeName === "class")) syncTheme();
     });
     observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+
+    const datetimeObserver = new MutationObserver(() => {
+      patchDatetimeWarnings();
+    });
+    datetimeObserver.observe(document.body, { childList: true, subtree: true });
   };
 
   const start = () => {
@@ -321,6 +385,8 @@
     patchSearchClear();
     patchBulkActionsTopbar();
     patchPermissionMatrix();
+    patchDatetimeWarnings();
+    window.setTimeout(patchDatetimeWarnings, 100);
     initObserver();
   };
 

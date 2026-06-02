@@ -3,7 +3,10 @@ from unittest.mock import patch
 
 from django.test import Client, TestCase, override_settings
 
-from notifications.tasks import build_order_paid_message
+from notifications.tasks import (
+    build_order_cash_on_delivery_message,
+    build_order_paid_message,
+)
 from notifications.views import build_sentry_alert_message
 from shop.models.order import OrderItem
 from shop.tests.factories import create_order, create_product
@@ -45,6 +48,35 @@ class TelegramOrderMessageTest(TestCase):
         self.assertIn("Адреса: Хрещатик 1", message)
         self.assertIn("Коментар: Подзвонити перед доставкою", message)
         self.assertIn("Разом: <b>3300.00 ₴</b>", message)
+
+    def test_build_order_cash_on_delivery_message_uses_delivery_payment_title(self):
+        product = create_product(price=Decimal("1750.00"))
+        order = create_order(
+            customer_name="Ольга",
+            customer_email="olha@example.com",
+            customer_phone="+380671234567",
+            delivery_city="Київ",
+            delivery_address="Хрещатик 1",
+            payment_method="cash_on_delivery",
+            payment_status="not_required",
+            status="pending",
+            subtotal=Decimal("1750.00"),
+            delivery_cost=Decimal("0.00"),
+            total=Decimal("1750.00"),
+        )
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=1,
+            unit_price=Decimal("1750.00"),
+            total=Decimal("1750.00"),
+        )
+
+        message = build_order_cash_on_delivery_message(order)
+
+        self.assertIn("Нове замовлення Bloomify — оплата при отриманні", message)
+        self.assertIn("Оплата:</b> Payment on delivery", message)
+        self.assertIn("Разом: <b>1750.00 ₴</b>", message)
 
 
 class SentryAlertWebhookTest(TestCase):

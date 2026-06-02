@@ -609,7 +609,10 @@ export default function CheckoutFeature() {
                 size='lg'
                 className='mt-6 w-full'
                 disabled={isSubmitting || isLoading}>
-                {t('checkout_pay_button')}
+                {values.paymentMethod ===
+                CHECKOUT_PAYMENT_METHODS.CASH_ON_DELIVERY
+                  ? t('checkout_place_order_button')
+                  : t('checkout_pay_button')}
               </Button>
 
               <p className='mt-4 flex items-start gap-2 text-xs text-muted-foreground'>

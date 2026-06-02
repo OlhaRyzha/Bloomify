@@ -20,7 +20,35 @@ def send_order_paid_telegram_notification(order_id: int) -> str:
     return f"Telegram paid order notification sent for order #{order.id}"
 
 
+@shared_task
+def send_order_cash_on_delivery_telegram_notification(order_id: int) -> str:
+    order = Order.objects.get(id=order_id)
+
+    message = build_order_cash_on_delivery_message(order)
+
+    send_telegram_message(
+        chat_id=settings.TELEGRAM_ADMIN_CHAT_ID,
+        text=message,
+    )
+
+    return f"Telegram cash-on-delivery order notification sent for order #{order.id}"
+
+
 def build_order_paid_message(order: Order) -> str:
+    return build_order_message(
+        order,
+        title="🌸 <b>Нове оплачене замовлення Bloomify</b>",
+    )
+
+
+def build_order_cash_on_delivery_message(order: Order) -> str:
+    return build_order_message(
+        order,
+        title="🌸 <b>Нове замовлення Bloomify — оплата при отриманні</b>",
+    )
+
+
+def build_order_message(order: Order, *, title: str) -> str:
     items = order.items.select_related("product").all()
     item_lines = [
         (
@@ -32,7 +60,7 @@ def build_order_paid_message(order: Order) -> str:
     delivery_note = order.delivery_note.strip()
 
     lines = [
-        "🌸 <b>Нове оплачене замовлення Bloomify</b>",
+        title,
         "",
         f"<b>Замовлення:</b> #{order.id}",
         f"<b>Статус:</b> {escape(order.get_status_display())}",

@@ -70,25 +70,30 @@ class CheckoutPaymentsTest(TestCase):
         )
 
     def test_checkout_creates_cash_on_delivery_order_without_liqpay_payload(self):
-        response = self.client.post(
-            "/orders/checkout",
-            data={
-                "customerName": "Tom Smith",
-                "email": "tom@example.com",
-                "phone": "+380671234567",
-                "city": "Kyiv",
-                "address": "Khreshchatyk 1",
-                "paymentMethod": "cash_on_delivery",
-                "items": [{"id": self.product.pk, "quantity": 1}],
-            },
-            content_type="application/json",
-        )
+        with patch(
+            "shop.views.orders.send_order_cash_on_delivery_telegram_notification"
+        ) as enqueue_notification:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    "/orders/checkout",
+                    data={
+                        "customerName": "Tom Smith",
+                        "email": "tom@example.com",
+                        "phone": "+380671234567",
+                        "city": "Kyiv",
+                        "address": "Khreshchatyk 1",
+                        "paymentMethod": "cash_on_delivery",
+                        "items": [{"id": self.product.pk, "quantity": 1}],
+                    },
+                    content_type="application/json",
+                )
 
         self.assertEqual(response.status_code, 201)
         body = response.json()
         self.assertEqual(body["paymentProvider"], "")
         self.assertEqual(body["paymentStatus"], "not_required")
         self.assertIsNone(body["liqpay"])
+        enqueue_notification.assert_called_once_with(body["orderId"])
 
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
@@ -96,7 +101,32 @@ class CheckoutPaymentsTest(TestCase):
     )
     def test_checkout_does_not_notify_before_payment(self):
         with patch(
-            "shop.views.orders.send_order_paid_telegram_notification.delay"
+            "shop.views.orders.send_order_paid_telegram_notification"
+        ) as enqueue_paid_notification:
+            with patch(
+                "shop.views.orders.send_order_cash_on_delivery_telegram_notification"
+            ) as enqueue_cash_notification:
+                response = self.client.post(
+                    "/orders/checkout",
+                    data={
+                        "customerName": "Tom Smith",
+                        "email": "tom@example.com",
+                        "phone": "+380671234567",
+                        "city": "Kyiv",
+                        "address": "Khreshchatyk 1",
+                        "paymentMethod": "card",
+                        "items": [{"id": self.product.pk, "quantity": 1}],
+                    },
+                    content_type="application/json",
+                )
+
+        self.assertEqual(response.status_code, 201)
+        enqueue_paid_notification.assert_not_called()
+        enqueue_cash_notification.assert_not_called()
+
+    def test_checkout_does_not_notify_cash_on_delivery_when_create_fails(self):
+        with patch(
+            "shop.views.orders.send_order_cash_on_delivery_telegram_notification"
         ) as enqueue_notification:
             response = self.client.post(
                 "/orders/checkout",
@@ -106,13 +136,13 @@ class CheckoutPaymentsTest(TestCase):
                     "phone": "+380671234567",
                     "city": "Kyiv",
                     "address": "Khreshchatyk 1",
-                    "paymentMethod": "card",
-                    "items": [{"id": self.product.pk, "quantity": 1}],
+                    "paymentMethod": "cash_on_delivery",
+                    "items": [{"id": 99999, "quantity": 1}],
                 },
                 content_type="application/json",
             )
 
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 400)
         enqueue_notification.assert_not_called()
 
     @override_settings(
@@ -137,7 +167,7 @@ class CheckoutPaymentsTest(TestCase):
         )
 
         with patch(
-            "shop.views.orders.send_order_paid_telegram_notification.delay"
+            "shop.views.orders.send_order_paid_telegram_notification"
         ) as enqueue_notification:
             with self.captureOnCommitCallbacks(execute=True):
                 response = self.client.post(
@@ -177,7 +207,7 @@ class CheckoutPaymentsTest(TestCase):
         )
 
         with patch(
-            "shop.views.orders.send_order_paid_telegram_notification.delay"
+            "shop.views.orders.send_order_paid_telegram_notification"
         ) as enqueue_notification:
             with self.captureOnCommitCallbacks(execute=True):
                 response = self.client.post(

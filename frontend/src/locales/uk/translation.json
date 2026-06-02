@@ -359,6 +359,7 @@
   "checkout_field_card_cvc": "CVC",
   "checkout_summary_title": "За що ви платите",
   "checkout_pay_button": "Оплатити замовлення",
+  "checkout_place_order_button": "Оформити замовлення",
   "checkout_submit_status": "Дані замовлення готові до відправлення провайдеру оплати.",
   "checkout_submit_liqpay_redirect": "Переходимо до тестової оплати LiqPay.",
   "checkout_submit_cash_status": "Замовлення створено. Ми підтвердимо оплату при отриманні після обробки замовлення.",

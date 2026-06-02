@@ -41,6 +41,19 @@ export function CatalogControls({
     'price-desc': t('controls_sort_options_price_desc'),
     'name-asc': t('controls_sort_options_name_asc'),
   };
+  const blurFocusedTriggerOnOpen = (triggerId: string) => (open: boolean) => {
+    if (!open) return;
+
+    window.requestAnimationFrame(() => {
+      const activeElement = document.activeElement;
+      if (
+        activeElement instanceof HTMLElement &&
+        activeElement.id === triggerId
+      ) {
+        activeElement.blur();
+      }
+    });
+  };
 
   return (
     <section
@@ -82,20 +95,25 @@ export function CatalogControls({
           </span>
           <Select
             value={sort}
+            onOpenChange={blurFocusedTriggerOnOpen(sortSelectId)}
             onValueChange={(value) => onSortChange(value as SortOption)}>
             <SelectTrigger
               id={sortSelectId}
               aria-labelledby={`${sortSelectId}-label`}
               className='h-9 min-w-0 flex-1 rounded-md border-0 bg-transparent px-2 py-0 text-sm font-semibold shadow-none focus-visible:ring-0'>
-              <span className='min-w-0 truncate'>
-                {sort === 'default' ? (
-                  <span className='hidden sm:inline'>{sortLabelByValue.default}</span>
-                ) : (
-                  sortLabelByValue[sort]
-                )}
-              </span>
+              <SelectValue>
+                <span className='min-w-0 truncate'>
+                  {sort === 'default' ? (
+                    <span className='hidden sm:inline'>
+                      {sortLabelByValue.default}
+                    </span>
+                  ) : (
+                    sortLabelByValue[sort]
+                  )}
+                </span>
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position='popper'>
               <SelectItem value='default'>
                 {t('controls_sort_options_default')}
               </SelectItem>
@@ -125,6 +143,7 @@ export function CatalogControls({
             </span>
             <Select
               value={tagFilter}
+              onOpenChange={blurFocusedTriggerOnOpen(tagSelectId)}
               onValueChange={onTagFilterChange}>
               <SelectTrigger
                 id={tagSelectId}

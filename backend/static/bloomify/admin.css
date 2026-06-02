@@ -565,33 +565,184 @@ fieldset.module .selector,
 .change-form .form-row .datetime,
 #content .form-row .datetime,
 .unfold-main .form-row .datetime {
-  display: grid;
-  grid-template-columns: minmax(160px, 260px) minmax(160px, 220px);
-  align-items: end;
-  gap: 10px 14px;
-  max-width: 560px;
+  display: block !important;
+  width: min(100%, 680px) !important;
+  max-width: 680px !important;
+  color: var(--bloomify-form-text);
+  line-height: 1.8;
+  white-space: normal;
+}
+
+.aligned .form-row .datetime label,
+.change-form .form-row .datetime label,
+#content .form-row .datetime label,
+.unfold-main .form-row .datetime label {
+  display: inline-block;
+  width: 52px;
+  margin: 0 8px 0 0;
+  vertical-align: middle;
 }
 
 .aligned .form-row .vDateField,
-.aligned .form-row .vTimeField,
 .change-form .form-row .vDateField,
-.change-form .form-row .vTimeField,
 #content .form-row .vDateField,
-#content .form-row .vTimeField,
-.unfold-main .form-row .vDateField,
-.unfold-main .form-row .vTimeField {
+.unfold-main .form-row .vDateField {
+  display: inline-block !important;
   min-width: 0 !important;
-  width: 100% !important;
+  width: min(320px, calc(100% - 90px)) !important;
+  margin: 0 !important;
+  vertical-align: middle;
+}
+
+.aligned .form-row .vTimeField,
+.change-form .form-row .vTimeField,
+#content .form-row .vTimeField,
+.unfold-main .form-row .vTimeField {
+  display: inline-block !important;
+  min-width: 0 !important;
+  width: min(320px, calc(100% - 90px)) !important;
+  margin: 0 !important;
+  vertical-align: middle;
 }
 
 .aligned .form-row .datetimeshortcuts,
 .change-form .form-row .datetimeshortcuts,
 #content .form-row .datetimeshortcuts,
 .unfold-main .form-row .datetimeshortcuts {
-  grid-column: 1 / -1;
+  display: inline-flex !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  align-items: center;
+  gap: 8px;
+  max-width: min(100%, 360px);
+  margin: 0 0 0 4px;
   color: var(--bloomify-form-muted);
   font-size: 12px;
   line-height: 1.4;
+  vertical-align: middle;
+  flex-wrap: wrap;
+  white-space: normal;
+}
+
+.aligned .form-row .datetimeshortcuts a,
+.change-form .form-row .datetimeshortcuts a,
+#content .form-row .datetimeshortcuts a,
+.unfold-main .form-row .datetimeshortcuts a {
+  color: var(--bloomify-form-muted) !important;
+  opacity: 0.9;
+}
+
+.aligned .form-row .datetimeshortcuts a:hover,
+.aligned .form-row .datetimeshortcuts a:focus,
+.change-form .form-row .datetimeshortcuts a:hover,
+.change-form .form-row .datetimeshortcuts a:focus,
+#content .form-row .datetimeshortcuts a:hover,
+#content .form-row .datetimeshortcuts a:focus,
+.unfold-main .form-row .datetimeshortcuts a:hover,
+.unfold-main .form-row .datetimeshortcuts a:focus {
+  color: var(--bloomify-form-text) !important;
+  opacity: 1;
+}
+
+.aligned .form-row .timezonewarning,
+.change-form .form-row .timezonewarning,
+#content .form-row .timezonewarning,
+.unfold-main .form-row .timezonewarning {
+  display: flex !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 430px);
+  max-width: 430px;
+  margin: 8px 0 0 62px !important;
+  padding: 0 !important;
+  background: none !important;
+  color: var(--bloomify-form-muted) !important;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left !important;
+}
+
+.aligned .form-row .timezonewarning::before,
+.change-form .form-row .timezonewarning::before,
+#content .form-row .timezonewarning::before,
+.unfold-main .form-row .timezonewarning::before {
+  content: "warning";
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: #ef4444;
+  font-family: "Material Symbols Outlined";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: none;
+}
+
+.aligned .form-row .datetime br,
+.change-form .form-row .datetime br,
+#content .form-row .datetime br,
+.unfold-main .form-row .datetime br {
+  display: block;
+  content: "";
+  margin: 12px 0;
+}
+
+.aligned .form-row .bloomify-datetime-row,
+.change-form .form-row .bloomify-datetime-row,
+#content .form-row .bloomify-datetime-row,
+.unfold-main .form-row .bloomify-datetime-row {
+  display: grid;
+  grid-template-columns: 52px minmax(180px, 320px) max-content;
+  align-items: center;
+  gap: 8px 10px;
+  width: min(100%, 560px);
+}
+
+.aligned .form-row .bloomify-datetime-row + .bloomify-datetime-row,
+.change-form .form-row .bloomify-datetime-row + .bloomify-datetime-row,
+#content .form-row .bloomify-datetime-row + .bloomify-datetime-row,
+.unfold-main .form-row .bloomify-datetime-row + .bloomify-datetime-row {
+  margin-top: 12px;
+}
+
+.aligned .form-row .bloomify-datetime-warning-row,
+.change-form .form-row .bloomify-datetime-warning-row,
+#content .form-row .bloomify-datetime-warning-row,
+.unfold-main .form-row .bloomify-datetime-warning-row {
+  display: block;
+  width: min(100%, 560px);
+  padding-left: 62px;
+  margin: 6px 0 14px;
+  box-sizing: border-box;
+}
+
+.aligned .form-row .bloomify-timezone-warning,
+.change-form .form-row .bloomify-timezone-warning,
+#content .form-row .bloomify-timezone-warning,
+.unfold-main .form-row .bloomify-timezone-warning {
+  display: flex !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 430px;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none !important;
+  color: var(--bloomify-form-muted) !important;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
 }
 
 .aligned .form-row input:focus,
@@ -1459,8 +1610,84 @@ body.theme-dark .bloomify-permission-option:has(input:checked) {
   .change-form .form-row .datetime,
   #content .form-row .datetime,
   .unfold-main .form-row .datetime {
-    grid-template-columns: 1fr;
-    max-width: none;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .aligned .form-row .datetime label,
+  .change-form .form-row .datetime label,
+  #content .form-row .datetime label,
+  .unfold-main .form-row .datetime label {
+    display: block;
+    width: auto;
+    margin-bottom: 4px;
+  }
+
+  .aligned .form-row .vDateField,
+  .aligned .form-row .vTimeField,
+  .change-form .form-row .vDateField,
+  .change-form .form-row .vTimeField,
+  #content .form-row .vDateField,
+  #content .form-row .vTimeField,
+  .unfold-main .form-row .vDateField,
+  .unfold-main .form-row .vTimeField {
+    width: 100% !important;
+    margin: 6px 0 !important;
+  }
+
+  .aligned .form-row .datetimeshortcuts,
+  .change-form .form-row .datetimeshortcuts,
+  #content .form-row .datetimeshortcuts,
+  .unfold-main .form-row .datetimeshortcuts {
+    display: flex !important;
+    margin: 4px 0 0;
+  }
+
+  .aligned .form-row .timezonewarning,
+  .change-form .form-row .timezonewarning,
+  #content .form-row .timezonewarning,
+  .unfold-main .form-row .timezonewarning {
+    display: block !important;
+    flex: 0 0 100%;
+    margin: 0 0 8px !important;
+  }
+
+  .aligned .form-row .bloomify-datetime-row,
+  .change-form .form-row .bloomify-datetime-row,
+  #content .form-row .bloomify-datetime-row,
+  .unfold-main .form-row .bloomify-datetime-row {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    width: 100%;
+  }
+
+  .aligned .form-row .bloomify-datetime-row label,
+  .change-form .form-row .bloomify-datetime-row label,
+  #content .form-row .bloomify-datetime-row label,
+  .unfold-main .form-row .bloomify-datetime-row label {
+    grid-column: 1 / -1;
+    width: auto;
+  }
+
+  .aligned .form-row .bloomify-datetime-row input,
+  .change-form .form-row .bloomify-datetime-row input,
+  #content .form-row .bloomify-datetime-row input,
+  .unfold-main .form-row .bloomify-datetime-row input {
+    grid-column: 1;
+  }
+
+  .aligned .form-row .bloomify-datetime-row .datetimeshortcuts,
+  .change-form .form-row .bloomify-datetime-row .datetimeshortcuts,
+  #content .form-row .bloomify-datetime-row .datetimeshortcuts,
+  .unfold-main .form-row .bloomify-datetime-row .datetimeshortcuts {
+    grid-column: 2;
+  }
+
+  .aligned .form-row .bloomify-datetime-warning-row,
+  .change-form .form-row .bloomify-datetime-warning-row,
+  #content .form-row .bloomify-datetime-warning-row,
+  .unfold-main .form-row .bloomify-datetime-warning-row {
+    width: 100%;
+    padding-left: 0;
   }
 
   .bloomify-permission-group__summary {
