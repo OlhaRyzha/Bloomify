@@ -110,6 +110,7 @@ DJANGO_CORS_ALLOWED_ORIGINS=https://bloomify-pi.vercel.app
 DJANGO_CSRF_TRUSTED_ORIGINS=https://*.vercel.app,https://bloomify-pi.vercel.app
 DJANGO_FORCE_SCRIPT_NAME=/api
 ADMIN_SITE_URL=https://bloomify-pi.vercel.app
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
 POSTGRES_SSLMODE=require
 ```
 
