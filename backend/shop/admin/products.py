@@ -10,6 +10,17 @@ from parler.admin import TranslatableAdmin
 from shop.models.product import Product
 
 
+def get_public_product_image_url(product: Product) -> str:
+    """
+    Product images are stored in DB as relative paths:
+    products/image-name.png
+
+    In production demo, files are served from frontend/public/products:
+    /products/image-name.png
+    """
+    return f"/{product.image.name}"
+
+
 @admin.register(Product)
 class ProductAdmin(TranslatableAdmin):
     list_per_page = 10
@@ -50,9 +61,12 @@ class ProductAdmin(TranslatableAdmin):
     def image_thumb(self, obj: Product) -> str:
         if not obj.image:
             return "—"
+
+        image_url = get_public_product_image_url(obj)
+
         return format_html(
             '<img class="bloomify-thumb" src="{}" alt="{}">',
-            obj.image.url,
+            image_url,
             obj.safe_translation_getter("name", any_language=True),
         )
 
@@ -60,9 +74,12 @@ class ProductAdmin(TranslatableAdmin):
     def image_preview(self, obj: Product) -> str:
         if not obj.image:
             return str(_("Image is not uploaded yet."))
+
+        image_url = get_public_product_image_url(obj)
+
         return format_html(
             '<img class="bloomify-preview" src="{}" alt="{}">',
-            obj.image.url,
+            image_url,
             obj.safe_translation_getter("name", any_language=True),
         )
 
@@ -70,6 +87,7 @@ class ProductAdmin(TranslatableAdmin):
     def row_actions(self, obj: Product) -> str:
         change_url = reverse("admin:shop_product_change", args=[obj.pk])
         delete_url = reverse("admin:shop_product_delete", args=[obj.pk])
+
         return format_html(
             '<div class="bloomify-row-actions">'
             '<a class="bloomify-row-action" href="{}" aria-label="{}" title="{}">'
