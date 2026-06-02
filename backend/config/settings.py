@@ -1,14 +1,16 @@
+import os
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env")
 
 
 class EnvironmentSettings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ".env",
+        env_file=BASE_DIR / ENV_FILE,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -17,6 +19,15 @@ class EnvironmentSettings(BaseSettings):
     DJANGO_SECRET_KEY: str
     DJANGO_ALLOWED_HOSTS: str
     DJANGO_CORS_ALLOWED_ORIGINS: str
+    DJANGO_CSRF_TRUSTED_ORIGINS: str = ""
+    DJANGO_FORCE_SCRIPT_NAME: str = ""
+    DJANGO_SECURE_SSL_REDIRECT: bool = False
+    DJANGO_SESSION_COOKIE_SECURE: bool = False
+    DJANGO_CSRF_COOKIE_SECURE: bool = False
+    DJANGO_SECURE_HSTS_SECONDS: int = 0
+    DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: bool = False
+    DJANGO_SECURE_HSTS_PRELOAD: bool = False
+    DJANGO_ENABLE_API_DOCS: bool = True
     ADMIN_SITE_URL: str = "http://localhost:3000"
 
     POSTGRES_HOST: str
@@ -54,18 +65,32 @@ ALLOWED_HOSTS = [
     item.strip() for item in env.DJANGO_ALLOWED_HOSTS.split(",") if item.strip()
 ]
 
-DOCS_PATH: str | None = "docs/"
-REDOC_PATH: str | None = "redoc/"
-SCHEMA_PATH: str | None = "schema/"
+DOCS_PATH: str | None = "docs/" if env.DJANGO_ENABLE_API_DOCS else None
+REDOC_PATH: str | None = "redoc/" if env.DJANGO_ENABLE_API_DOCS else None
+SCHEMA_PATH: str | None = "schema/" if env.DJANGO_ENABLE_API_DOCS else None
 
 CORS_ALLOWED_ORIGINS = [
     item.strip() for item in env.DJANGO_CORS_ALLOWED_ORIGINS.split(",") if item.strip()
 ]
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    item.strip() for item in env.DJANGO_CSRF_TRUSTED_ORIGINS.split(",") if item.strip()
+]
+
+SECURE_SSL_REDIRECT = env.DJANGO_SECURE_SSL_REDIRECT
+SESSION_COOKIE_SECURE = env.DJANGO_SESSION_COOKIE_SECURE
+CSRF_COOKIE_SECURE = env.DJANGO_CSRF_COOKIE_SECURE
+SECURE_HSTS_SECONDS = env.DJANGO_SECURE_HSTS_SECONDS
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
+SECURE_HSTS_PRELOAD = env.DJANGO_SECURE_HSTS_PRELOAD
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+
+FORCE_SCRIPT_NAME = (
+    env.DJANGO_FORCE_SCRIPT_NAME.rstrip("/") if env.DJANGO_FORCE_SCRIPT_NAME else None
+)
 
 
 INSTALLED_APPS = [
@@ -191,6 +216,7 @@ UNFOLD = {
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -303,11 +329,11 @@ USE_I18N = True
 USE_TZ = True
 
 
-STATIC_URL = "/static/"
+STATIC_URL = f"{FORCE_SCRIPT_NAME}/static/" if FORCE_SCRIPT_NAME else "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
-MEDIA_URL = "/media/"
+MEDIA_URL = f"{FORCE_SCRIPT_NAME}/media/" if FORCE_SCRIPT_NAME else "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("unfold",)

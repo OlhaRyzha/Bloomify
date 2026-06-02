@@ -84,6 +84,38 @@ Local URLs:
 - Admin: `http://127.0.0.1:8000/admin/`
 - API docs: `http://127.0.0.1:8000/docs/`
 
+## Vercel Services Deployment
+
+Bloomify is configured for a single Vercel project with two services:
+
+| Service | Entrypoint | Route |
+| --- | --- | --- |
+| Frontend | `frontend` | `/` |
+| Backend | `backend` | `/api` |
+
+The root [vercel.json](vercel.json) uses Vercel Services. In the Vercel
+dashboard, set the project framework preset to **Services** before deploying.
+
+Production environment values:
+
+```env
+NEXT_PUBLIC_API_URL=/api
+NEXT_PUBLIC_MEDIA_HOST=/api
+NEXT_PUBLIC_ANALYTICS_ENABLED=true
+NEXT_PUBLIC_ANALYTICS_PROVIDER=vercel
+
+DJANGO_DEBUG=false
+DJANGO_ALLOWED_HOSTS=.vercel.app,your-domain.com
+DJANGO_CORS_ALLOWED_ORIGINS=https://your-domain.com
+DJANGO_FORCE_SCRIPT_NAME=/api
+ADMIN_SITE_URL=https://your-domain.com
+```
+
+Django still needs a production database and secrets configured in Vercel
+environment variables. Media files should use durable external storage for real
+production usage; local filesystem media is only suitable for demos and local
+development.
+
 ## Quality Checks
 
 Backend:
