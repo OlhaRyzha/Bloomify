@@ -137,7 +137,8 @@ USE_X_FORWARDED_HOST = True
 FORCE_SCRIPT_NAME = (
     env.DJANGO_FORCE_SCRIPT_NAME.rstrip("/") if env.DJANGO_FORCE_SCRIPT_NAME else None
 )
-
+STATIC_BASE_PATH = f"{FORCE_SCRIPT_NAME or ''}/static"
+ADMIN_BASE_PATH = f"{FORCE_SCRIPT_NAME or ''}/admin"
 
 INSTALLED_APPS = [
     "unfold",
@@ -174,22 +175,22 @@ UNFOLD = {
     },
     "SITE_URL": env.ADMIN_SITE_URL,
     "SITE_ICON": {
-        "light": "/static/bloomify/admin-icon.svg",
-        "dark": "/static/bloomify/admin-icon.svg",
+        "light": f"{STATIC_BASE_PATH}/bloomify/admin-icon.svg",
+        "dark": f"{STATIC_BASE_PATH}/bloomify/admin-icon.svg",
     },
     "SITE_LOGO": {
-        "light": "/static/bloomify/admin-logo.svg",
-        "dark": "/static/bloomify/admin-logo.svg",
+        "light": f"{STATIC_BASE_PATH}/bloomify/admin-logo.svg",
+        "dark": f"{STATIC_BASE_PATH}/bloomify/admin-logo.svg",
     },
     "SITE_FAVICONS": [
         {
             "rel": "icon",
             "sizes": "32x32",
             "type": "image/png",
-            "href": "/static/bloomify/favicon-32.png",
+            "href": f"{STATIC_BASE_PATH}/bloomify/favicon-32.png",
         },
     ],
-    "STYLES": ["/static/bloomify/admin.css"],
+    "STYLES": [f"{STATIC_BASE_PATH}/bloomify/admin.css"],
     "COLORS": {
         "primary": {
             "50": "252 243 244",
@@ -205,7 +206,7 @@ UNFOLD = {
             "950": "56 16 20",
         },
     },
-    "SCRIPTS": ["/static/bloomify/admin.js"],
+    "SCRIPTS": [f"{STATIC_BASE_PATH}/bloomify/admin.js"],
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": False,
@@ -216,27 +217,27 @@ UNFOLD = {
                     {
                         "title": "Bouquets",
                         "icon": "local_florist",
-                        "link": "/admin/shop/product/",
+                        "link": f"{ADMIN_BASE_PATH}/shop/product/",
                     },
                     {
                         "title": "Orders",
                         "icon": "receipt_long",
-                        "link": "/admin/shop/order/",
+                        "link": f"{ADMIN_BASE_PATH}/shop/order/",
                     },
                     {
                         "title": "Subscription plans",
                         "icon": "workspace_premium",
-                        "link": "/admin/shop/subscriptionplan/",
+                        "link": f"{ADMIN_BASE_PATH}/shop/subscriptionplan/",
                     },
                     {
                         "title": "Subscriptions",
                         "icon": "autorenew",
-                        "link": "/admin/shop/subscription/",
+                        "link": f"{ADMIN_BASE_PATH}/shop/subscription/",
                     },
                     {
                         "title": "Website languages",
                         "icon": "language",
-                        "link": "/admin/shop/sitelanguagesettings/",
+                        "link": f"{ADMIN_BASE_PATH}/shop/sitelanguagesettings/",
                     },
                 ],
             },
@@ -246,12 +247,12 @@ UNFOLD = {
                     {
                         "title": "Users",
                         "icon": "group",
-                        "link": "/admin/auth/user/",
+                        "link": f"{ADMIN_BASE_PATH}/auth/user/",
                     },
                     {
                         "title": "Roles",
                         "icon": "admin_panel_settings",
-                        "link": "/admin/auth/group/",
+                        "link": f"{ADMIN_BASE_PATH}/auth/group/",
                     },
                 ],
             },
