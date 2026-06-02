@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.db import models
 from django.templatetags.static import static
@@ -10,15 +11,28 @@ from parler.admin import TranslatableAdmin
 from shop.models.product import Product
 
 
-def get_public_product_image_url(product: Product) -> str:
+def get_product_image_url(product: Product) -> str:
     """
-    Product images are stored in DB as relative paths:
-    products/image-name.png
+    Local:
+    MEDIA_URL=/media/
+    products/image.png -> /media/products/image.png
 
-    In production demo, files are served from frontend/public/products:
-    /products/image-name.png
+    Production demo:
+    MEDIA_URL=/
+    products/image.png -> /products/image.png
     """
-    return f"/{product.image.name}"
+    image_name = product.image.name
+
+    if not image_name:
+        return ""
+
+    media_url = settings.MEDIA_URL.rstrip("/")
+    normalized_image_name = image_name.lstrip("/")
+
+    if not media_url:
+        return f"/{normalized_image_name}"
+
+    return f"{media_url}/{normalized_image_name}"
 
 
 @admin.register(Product)
@@ -62,7 +76,7 @@ class ProductAdmin(TranslatableAdmin):
         if not obj.image:
             return "—"
 
-        image_url = get_public_product_image_url(obj)
+        image_url = get_product_image_url(obj)
 
         return format_html(
             '<img class="bloomify-thumb" src="{}" alt="{}">',
@@ -75,7 +89,7 @@ class ProductAdmin(TranslatableAdmin):
         if not obj.image:
             return str(_("Image is not uploaded yet."))
 
-        image_url = get_public_product_image_url(obj)
+        image_url = get_product_image_url(obj)
 
         return format_html(
             '<img class="bloomify-preview" src="{}" alt="{}">',
