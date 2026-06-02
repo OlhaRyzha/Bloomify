@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-from django.utils.translation import gettext_lazy as _
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -117,9 +116,9 @@ INSTALLED_APPS = [
 ]
 
 UNFOLD = {
-    "SITE_TITLE": _("Bloomify admin panel"),
+    "SITE_TITLE": "Bloomify admin panel",
     "SITE_HEADER": "Bloomify",
-    "SITE_SUBHEADER": _("Flower shop • subscriptions • orders"),
+    "SITE_SUBHEADER": "Flower shop - subscriptions - orders",
     "SHOW_LANGUAGES": True,
     "LANGUAGE_FLAGS": {
         "uk": "🇺🇦",
@@ -165,45 +164,45 @@ UNFOLD = {
         "show_all_applications": False,
         "navigation": [
             {
-                "title": _("Store"),
+                "title": "Store",
                 "items": [
                     {
-                        "title": _("Bouquets"),
+                        "title": "Bouquets",
                         "icon": "local_florist",
                         "link": "/admin/shop/product/",
                     },
                     {
-                        "title": _("Orders"),
+                        "title": "Orders",
                         "icon": "receipt_long",
                         "link": "/admin/shop/order/",
                     },
                     {
-                        "title": _("Subscription plans"),
+                        "title": "Subscription plans",
                         "icon": "workspace_premium",
                         "link": "/admin/shop/subscriptionplan/",
                     },
                     {
-                        "title": _("Subscriptions"),
+                        "title": "Subscriptions",
                         "icon": "autorenew",
                         "link": "/admin/shop/subscription/",
                     },
                     {
-                        "title": _("Website languages"),
+                        "title": "Website languages",
                         "icon": "language",
                         "link": "/admin/shop/sitelanguagesettings/",
                     },
                 ],
             },
             {
-                "title": _("Users"),
+                "title": "Users",
                 "items": [
                     {
-                        "title": _("Users"),
+                        "title": "Users",
                         "icon": "group",
                         "link": "/admin/auth/user/",
                     },
                     {
-                        "title": _("Roles"),
+                        "title": "Roles",
                         "icon": "admin_panel_settings",
                         "link": "/admin/auth/group/",
                     },
@@ -303,9 +302,9 @@ SPECTACULAR_SETTINGS = {
 LANGUAGE_CODE = "uk"
 
 LANGUAGES = [
-    ("uk", _("Ukrainian")),
-    ("en", _("English")),
-    ("pl", _("Polish")),
+    ("uk", "Ukrainian"),
+    ("en", "English"),
+    ("pl", "Polish"),
 ]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
