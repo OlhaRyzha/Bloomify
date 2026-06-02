@@ -105,10 +105,12 @@ NEXT_PUBLIC_ANALYTICS_ENABLED=true
 NEXT_PUBLIC_ANALYTICS_PROVIDER=vercel
 
 DJANGO_DEBUG=false
-DJANGO_ALLOWED_HOSTS=.vercel.app,your-domain.com
-DJANGO_CORS_ALLOWED_ORIGINS=https://your-domain.com
+DJANGO_ALLOWED_HOSTS=.vercel.app,bloomify-pi.vercel.app
+DJANGO_CORS_ALLOWED_ORIGINS=https://bloomify-pi.vercel.app
+DJANGO_CSRF_TRUSTED_ORIGINS=https://*.vercel.app,https://bloomify-pi.vercel.app
 DJANGO_FORCE_SCRIPT_NAME=/api
-ADMIN_SITE_URL=https://your-domain.com
+ADMIN_SITE_URL=https://bloomify-pi.vercel.app
+POSTGRES_SSLMODE=require
 ```
 
 Django still needs a production database and secrets configured in Vercel

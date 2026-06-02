@@ -30,10 +30,12 @@ class EnvironmentSettings(BaseSettings):
     ADMIN_SITE_URL: str = "http://localhost:3000"
 
     POSTGRES_HOST: str
-    POSTGRES_PORT: int
-    POSTGRES_DB: str
+    POSTGRES_PORT: int = 5432
+    POSTGRES_DB: str = ""
+    POSTGRES_DATABASE: str = ""
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
+    POSTGRES_SSLMODE: str = ""
 
     REDIS_PORT: int = 6379
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
@@ -53,6 +55,7 @@ class EnvironmentSettings(BaseSettings):
 
 
 env = EnvironmentSettings.model_validate({})
+POSTGRES_DATABASE_NAME = env.POSTGRES_DB or env.POSTGRES_DATABASE
 
 SECRET_KEY = env.DJANGO_SECRET_KEY
 JWT_SECRET_KEY = SECRET_KEY
@@ -249,13 +252,16 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env.POSTGRES_DB,
+        "NAME": POSTGRES_DATABASE_NAME,
         "USER": env.POSTGRES_USER,
         "PASSWORD": env.POSTGRES_PASSWORD,
         "HOST": env.POSTGRES_HOST,
         "PORT": env.POSTGRES_PORT,
     }
 }
+
+if env.POSTGRES_SSLMODE:
+    DATABASES["default"]["OPTIONS"] = {"sslmode": env.POSTGRES_SSLMODE}
 
 
 CELERY_BROKER_URL = env.CELERY_BROKER_URL
