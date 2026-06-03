@@ -1,11 +1,16 @@
+import logging
 import os
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
+import sentry_sdk
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env")
+logger = logging.getLogger(__name__)
 
 
 class EnvironmentSettings(BaseSettings):
@@ -116,22 +121,28 @@ JWT_ALGORITHM = "HS256"
 
 DEBUG = env.DJANGO_DEBUG
 
-if env.SENTRY_DSN:
-    import sentry_sdk
-    from sentry_sdk.integrations.celery import CeleryIntegration
-    from sentry_sdk.integrations.django import DjangoIntegration
 
-    sentry_sdk.init(
-        dsn=env.SENTRY_DSN,
-        environment=env.SENTRY_ENVIRONMENT
-        or ("development" if DEBUG else "production"),
-        integrations=[
-            DjangoIntegration(),
-            CeleryIntegration(),
-        ],
-        traces_sample_rate=env.SENTRY_TRACES_SAMPLE_RATE,
-        send_default_pii=env.SENTRY_SEND_DEFAULT_PII,
-    )
+def init_sentry() -> None:
+    if not env.SENTRY_DSN or env.SENTRY_DSN.startswith("<"):
+        return
+
+    try:
+        sentry_sdk.init(
+            dsn=env.SENTRY_DSN,
+            environment=env.SENTRY_ENVIRONMENT
+            or ("development" if DEBUG else "production"),
+            integrations=[
+                DjangoIntegration(),
+                CeleryIntegration(),
+            ],
+            traces_sample_rate=env.SENTRY_TRACES_SAMPLE_RATE,
+            send_default_pii=env.SENTRY_SEND_DEFAULT_PII,
+        )
+    except Exception as exc:
+        logger.warning("Sentry initialization skipped: %s", exc)
+
+
+init_sentry()
 
 ALLOWED_HOSTS = [
     item.strip() for item in env.DJANGO_ALLOWED_HOSTS.split(",") if item.strip()

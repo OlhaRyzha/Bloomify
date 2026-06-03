@@ -38,6 +38,7 @@ repos:
           - psycopg[binary]
           - redis
           - requests
+          - sentry-sdk[django]
           - types-redis
 
   - repo: local
