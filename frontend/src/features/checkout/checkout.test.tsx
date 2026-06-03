@@ -95,6 +95,7 @@ describe('CheckoutFeature', () => {
     vi.restoreAllMocks();
     resetCartStore();
     resetCheckoutDraftStore();
+    window.history.pushState(null, '', '/en/checkout');
     document.body
       .querySelectorAll('form[action="https://www.liqpay.ua/api/3/checkout"]')
       .forEach((form) => form.remove());
@@ -246,10 +247,32 @@ describe('CheckoutFeature', () => {
       await screen.findByRole('heading', { name: /order created/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Payment confirmed. Your order is now being prepared.')
+      screen.getByText(/payment confirmed\. your order is now being prepared/i)
     ).toBeInTheDocument();
     expect(window.localStorage.getItem(pendingLiqPayOrderKey)).toBeNull();
     expect(useCartStore.getState().items).toEqual([]);
+  });
+
+  test('shows paid LiqPay success from result URL without cart items', async () => {
+    mockProducts();
+    window.history.pushState(null, '', '/en/checkout?orderId=10');
+    server.use(
+      http.post(apiUrl('orders/10/payment-status'), () =>
+        HttpResponse.json(createCheckoutPaymentStatusResponse())
+      )
+    );
+
+    renderWithProviders(<CheckoutFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', { name: /order created/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/subscribe to the telegram bot or return to the catalog/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /continue shopping/i })
+    ).toHaveAttribute('href', '/en/catalog');
   });
 
   test('creates cash-on-delivery order without LiqPay handoff', async () => {

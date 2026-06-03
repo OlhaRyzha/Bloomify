@@ -34,6 +34,7 @@ import { formatCurrency } from '@/utils/i18n';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { ApiError } from '@/utils/api/api-error';
+import { TELEGRAM_BOT_URL } from '@/components/config/env';
 import {
   selectCartItems,
   selectClearCart,
@@ -99,6 +100,20 @@ const paymentOptions: PaymentOption[] = [
 ];
 
 const PENDING_LIQPAY_ORDER_KEY = 'bloomify.pendingLiqPayOrderId';
+const PAYMENT_STATUS_SYNC_RETRY_LIMIT = 5;
+const PAYMENT_STATUS_SYNC_RETRY_DELAY_MS = 1500;
+
+const getOrderIdFromCheckoutSearch = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const orderId = Number(
+    new URLSearchParams(window.location.search).get('orderId')
+  );
+
+  return Number.isInteger(orderId) && orderId > 0 ? orderId : null;
+};
 
 type CheckoutFieldName = keyof CheckoutFormValues;
 
@@ -239,6 +254,7 @@ export default function CheckoutFeature() {
   const { t } = useTranslation();
   const { locale } = useLocale();
   const trackedBeginCheckoutRef = useRef(false);
+  const syncedPaymentOrderRef = useRef<number | null>(null);
   const [completedOrderMessage, setCompletedOrderMessage] = useState<
     string | null
   >(null);
@@ -282,19 +298,25 @@ export default function CheckoutFeature() {
   }, [isHydrated, locale, summary.cartItems, summary.itemCount, summary.total]);
 
   useEffect(() => {
-    if (!isHydrated || !isNonEmptyArray(summary.cartItems)) {
+    if (!isHydrated) {
       return;
     }
 
     const rawOrderId = window.localStorage.getItem(PENDING_LIQPAY_ORDER_KEY);
-    const orderId = Number(rawOrderId);
-    if (!Number.isInteger(orderId) || orderId <= 0) {
+    const storedOrderId = Number(rawOrderId);
+    const orderId =
+      Number.isInteger(storedOrderId) && storedOrderId > 0
+        ? storedOrderId
+        : getOrderIdFromCheckoutSearch();
+
+    if (!orderId || syncedPaymentOrderRef.current === orderId) {
       return;
     }
 
     let isActive = true;
+    syncedPaymentOrderRef.current = orderId;
 
-    const syncPaymentStatus = async () => {
+    const syncPaymentStatus = async (attempt = 0) => {
       try {
         const response = await CheckoutService.syncPaymentStatus(orderId);
 
@@ -304,22 +326,31 @@ export default function CheckoutFeature() {
 
         if (response.paymentStatus === 'paid') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
-          trackPurchaseCompleted({
-            itemCount: summary.itemCount,
-            orderId: String(response.orderId),
-            paymentMethod: response.paymentMethod,
-            value: summary.total,
-            locale,
-          });
+          if (summary.itemCount > 0) {
+            trackPurchaseCompleted({
+              itemCount: summary.itemCount,
+              orderId: String(response.orderId),
+              paymentMethod: response.paymentMethod,
+              value: summary.total,
+              locale,
+            });
+          }
           setCompletedOrderMessage(t('checkout_submit_paid_status'));
           clearCart();
         } else if (response.paymentStatus === 'failed') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
           setCompletedOrderMessage(null);
+        } else if (attempt < PAYMENT_STATUS_SYNC_RETRY_LIMIT) {
+          window.setTimeout(() => {
+            if (isActive) {
+              syncPaymentStatus(attempt + 1);
+            }
+          }, PAYMENT_STATUS_SYNC_RETRY_DELAY_MS);
         }
       } catch {
         if (isActive) {
           setCompletedOrderMessage(null);
+          syncedPaymentOrderRef.current = null;
         }
       }
     };
@@ -363,8 +394,20 @@ export default function CheckoutFeature() {
         <FeedbackState
           title={t('checkout_order_success_title')}
           description={completedOrderMessage}
-          actionLabel={t('checkout_success_cta')}
-          actionHref={getLocalizedPath('/catalog', locale)}
+          actionLabel={
+            TELEGRAM_BOT_URL
+              ? t('checkout_success_telegram_cta')
+              : t('checkout_success_cta')
+          }
+          actionHref={
+            TELEGRAM_BOT_URL || getLocalizedPath('/catalog', locale)
+          }
+          secondaryActionLabel={
+            TELEGRAM_BOT_URL ? t('checkout_success_cta') : undefined
+          }
+          secondaryActionHref={
+            TELEGRAM_BOT_URL ? getLocalizedPath('/catalog', locale) : undefined
+          }
           className='bg-gradient-card shadow-card'
         />
       );

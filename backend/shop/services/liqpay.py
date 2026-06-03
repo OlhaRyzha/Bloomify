@@ -3,6 +3,7 @@ import hashlib
 import hmac
 from decimal import Decimal
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import requests
 from django.conf import settings
@@ -30,7 +31,7 @@ def create_signature(data: str) -> str:
     if not private_key:
         raise LiqPayConfigurationError("LIQPAY_PRIVATE_KEY is not configured")
 
-    digest = hashlib.sha3_256(f"{private_key}{data}{private_key}".encode()).digest()
+    digest = hashlib.sha1(f"{private_key}{data}{private_key}".encode()).digest()
     return base64.b64encode(digest).decode()
 
 
@@ -55,7 +56,7 @@ def create_checkout_payload(order: Order) -> dict[str, str]:
         "currency": "UAH",
         "description": f"Bloomify order #{order.pk}",
         "order_id": order.liqpay_order_id,
-        "result_url": settings.LIQPAY_RESULT_URL,
+        "result_url": build_result_url(order),
         "sandbox": 1 if public_key.startswith("sandbox_") else 0,
     }
 
@@ -72,6 +73,22 @@ def create_checkout_payload(order: Order) -> dict[str, str]:
         "data": data,
         "signature": create_signature(data),
     }
+
+
+def build_result_url(order: Order) -> str:
+    parts = urlsplit(settings.LIQPAY_RESULT_URL)
+    query_params = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query_params["orderId"] = str(order.pk)
+
+    return urlunsplit(
+        (
+            parts.scheme,
+            parts.netloc,
+            parts.path,
+            urlencode(query_params),
+            parts.fragment,
+        )
+    )
 
 
 def fetch_payment_status(order: Order) -> dict[str, Any]:

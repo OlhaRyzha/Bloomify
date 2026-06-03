@@ -14,6 +14,8 @@ type FeedbackStateProps = {
   actionLabel?: string;
   actionHref?: string;
   onAction?: () => void | Promise<void>;
+  secondaryActionLabel?: string;
+  secondaryActionHref?: string;
   tone?: FeedbackStateTone;
   className?: string;
 };
@@ -34,12 +36,15 @@ export default function FeedbackState({
   actionLabel,
   actionHref,
   onAction,
+  secondaryActionHref,
+  secondaryActionLabel,
   tone = 'neutral',
   className,
 }: FeedbackStateProps) {
   const Icon = tone === 'error' ? AlertTriangle : Inbox;
   const role = tone === 'error' ? 'alert' : 'status';
   const hasAction = actionLabel && (actionHref || onAction);
+  const hasSecondaryAction = secondaryActionLabel && secondaryActionHref;
 
   return (
     <section
@@ -70,22 +75,33 @@ export default function FeedbackState({
         {description}
       </p>
 
-      {hasAction && actionHref ? (
-        <Button
-          asChild
-          size='lg'
-          className='mt-6'>
-          <Link href={actionHref}>{actionLabel}</Link>
-        </Button>
-      ) : hasAction ? (
-        <Button
-          type='button'
-          size='lg'
-          variant={tone === 'error' ? 'destructive' : 'default'}
-          className='mt-6'
-          onClick={onAction}>
-          {actionLabel}
-        </Button>
+      {hasAction || hasSecondaryAction ? (
+        <div className='mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row'>
+          {hasAction && actionHref ? (
+            <Button
+              asChild
+              size='lg'>
+              <Link href={actionHref}>{actionLabel}</Link>
+            </Button>
+          ) : hasAction ? (
+            <Button
+              type='button'
+              size='lg'
+              variant={tone === 'error' ? 'destructive' : 'default'}
+              onClick={onAction}>
+              {actionLabel}
+            </Button>
+          ) : null}
+
+          {hasSecondaryAction ? (
+            <Button
+              asChild
+              size='lg'
+              variant='outline'>
+              <Link href={secondaryActionHref}>{secondaryActionLabel}</Link>
+            </Button>
+          ) : null}
+        </div>
       ) : null}
     </section>
   );

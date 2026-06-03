@@ -54,6 +54,10 @@ class CheckoutPaymentsTest(TestCase):
         self.assertEqual(liqpay_payload["sandbox"], 1)
         self.assertEqual(liqpay_payload["amount"], "3500.00")
         self.assertEqual(liqpay_payload["order_id"], order.liqpay_order_id)
+        self.assertEqual(
+            liqpay_payload["result_url"],
+            f"http://localhost:3000/checkout?orderId={order.pk}",
+        )
         self.assertEqual(liqpay_payload["paytypes"], "card")
 
     @override_settings(LIQPAY_PRIVATE_KEY="a4825234f4bae72a0be04eafe9e8e2bada209255")
@@ -66,7 +70,7 @@ class CheckoutPaymentsTest(TestCase):
 
         self.assertEqual(
             create_signature(data),
-            "0adgJ8F2Ds5HCVkcz4AlmdLMRoIJf7IxsL3QmeFRz/s=",
+            "CZQ2WPZ4+rJnKdg5BT9lSsJtXZk=",
         )
 
     def test_checkout_creates_cash_on_delivery_order_without_liqpay_payload(self):
