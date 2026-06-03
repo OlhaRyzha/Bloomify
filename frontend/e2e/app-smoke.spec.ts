@@ -149,7 +149,7 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
   await page.getByLabel('Місто').fill('Київ');
   await page.getByLabel('Адреса доставки').fill('Хрещатик 1');
   await page.getByLabel('Оплата при отриманні').check();
-  await page.getByRole('button', { name: 'Оплатити замовлення' }).click();
+  await page.getByRole('button', { name: 'Оформити замовлення' }).click();
 
   await expect(
     page.getByRole('status').filter({
