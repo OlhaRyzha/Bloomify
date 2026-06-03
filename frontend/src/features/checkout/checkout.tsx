@@ -115,6 +115,16 @@ const getOrderIdFromCheckoutSearch = () => {
   return Number.isInteger(orderId) && orderId > 0 ? orderId : null;
 };
 
+export const buildTelegramOrderTrackingUrl = (
+  botUrl: string,
+  orderId: number
+) => {
+  const url = new URL(botUrl);
+  url.searchParams.set('start', `order_${orderId}`);
+
+  return url.toString();
+};
+
 type CheckoutFieldName = keyof CheckoutFormValues;
 
 type CheckoutFieldProps = {
@@ -255,6 +265,7 @@ export default function CheckoutFeature() {
   const { locale } = useLocale();
   const trackedBeginCheckoutRef = useRef(false);
   const syncedPaymentOrderRef = useRef<number | null>(null);
+  const [completedOrderId, setCompletedOrderId] = useState<number | null>(null);
   const [completedOrderMessage, setCompletedOrderMessage] = useState<
     string | null
   >(null);
@@ -335,10 +346,12 @@ export default function CheckoutFeature() {
               locale,
             });
           }
+          setCompletedOrderId(response.orderId);
           setCompletedOrderMessage(t('checkout_submit_paid_status'));
           clearCart();
         } else if (response.paymentStatus === 'failed') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
+          setCompletedOrderId(null);
           setCompletedOrderMessage(null);
         } else if (attempt < PAYMENT_STATUS_SYNC_RETRY_LIMIT) {
           window.setTimeout(() => {
@@ -390,23 +403,30 @@ export default function CheckoutFeature() {
 
   if (!isNonEmptyArray(summary.cartItems)) {
     if (completedOrderMessage) {
+      const telegramOrderTrackingUrl =
+        TELEGRAM_BOT_URL && completedOrderId
+          ? buildTelegramOrderTrackingUrl(TELEGRAM_BOT_URL, completedOrderId)
+          : '';
+
       return (
         <FeedbackState
           title={t('checkout_order_success_title')}
           description={completedOrderMessage}
           actionLabel={
-            TELEGRAM_BOT_URL
+            telegramOrderTrackingUrl
               ? t('checkout_success_telegram_cta')
               : t('checkout_success_cta')
           }
           actionHref={
-            TELEGRAM_BOT_URL || getLocalizedPath('/catalog', locale)
+            telegramOrderTrackingUrl || getLocalizedPath('/catalog', locale)
           }
           secondaryActionLabel={
-            TELEGRAM_BOT_URL ? t('checkout_success_cta') : undefined
+            telegramOrderTrackingUrl ? t('checkout_success_cta') : undefined
           }
           secondaryActionHref={
-            TELEGRAM_BOT_URL ? getLocalizedPath('/catalog', locale) : undefined
+            telegramOrderTrackingUrl
+              ? getLocalizedPath('/catalog', locale)
+              : undefined
           }
           className='bg-gradient-card shadow-card'
         />
@@ -433,6 +453,7 @@ export default function CheckoutFeature() {
       validate={(values) => validateWithZod(checkoutSchema, values)}
       onSubmit={async (values, actions) => {
         actions.setStatus(undefined);
+        setCompletedOrderId(null);
         trackCheckoutSubmitted({
           itemCount: summary.itemCount,
           paymentMethod: values.paymentMethod,
@@ -476,6 +497,7 @@ export default function CheckoutFeature() {
           });
           const message = t('checkout_submit_cash_status');
 
+          setCompletedOrderId(response.orderId);
           clearCart();
           setCompletedOrderMessage(message);
           actions.setStatus(message);

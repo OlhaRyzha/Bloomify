@@ -8,7 +8,7 @@ import { apiUrl } from '@/test/api-url';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 
-import CheckoutFeature from './checkout';
+import CheckoutFeature, { buildTelegramOrderTrackingUrl } from './checkout';
 import {
   createCheckoutPaymentStatusResponse,
   createCheckoutResponse,
@@ -273,6 +273,18 @@ describe('CheckoutFeature', () => {
     expect(
       screen.getByRole('link', { name: /continue shopping/i })
     ).toHaveAttribute('href', '/en/catalog');
+  });
+
+  test('builds Telegram order tracking deep link', () => {
+    expect(
+      buildTelegramOrderTrackingUrl('https://t.me/bloomify_orders_bot', 10)
+    ).toBe('https://t.me/bloomify_orders_bot?start=order_10');
+    expect(
+      buildTelegramOrderTrackingUrl(
+        'https://t.me/bloomify_orders_bot?source=checkout',
+        10
+      )
+    ).toBe('https://t.me/bloomify_orders_bot?source=checkout&start=order_10');
   });
 
   test('creates cash-on-delivery order without LiqPay handoff', async () => {
