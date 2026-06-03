@@ -6,7 +6,11 @@ import { apiUrl } from '@/test/api-url';
 import { ApiError, ApiErrorType } from '@/utils/api/api-error';
 
 import CheckoutService from './checkout.service';
-import { createCheckoutPayload, createCheckoutResponse } from './checkout.factory';
+import {
+  createCheckoutPayload,
+  createCheckoutPaymentStatusResponse,
+  createCheckoutResponse,
+} from './checkout.factory';
 
 const checkoutPayload = createCheckoutPayload();
 
@@ -48,5 +52,17 @@ describe('CheckoutService', () => {
     );
 
     consoleErrorSpy.mockRestore();
+  });
+
+  test('syncs checkout payment status', async () => {
+    server.use(
+      http.post(apiUrl('orders/10/payment-status'), () =>
+        HttpResponse.json(createCheckoutPaymentStatusResponse())
+      )
+    );
+
+    await expect(CheckoutService.syncPaymentStatus(10)).resolves.toEqual(
+      createCheckoutPaymentStatusResponse()
+    );
   });
 });

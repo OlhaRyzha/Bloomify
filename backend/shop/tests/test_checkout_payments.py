@@ -225,6 +225,67 @@ class CheckoutPaymentsTest(TestCase):
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
     )
+    def test_liqpay_status_sync_marks_order_paid_and_notifies(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="pending",
+            status="pending",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+        )
+
+        with patch(
+            "shop.views.orders.fetch_payment_status",
+            return_value={
+                "order_id": order.liqpay_order_id,
+                "status": "success",
+                "payment_id": 123456,
+            },
+        ):
+            with patch(
+                "shop.views.orders.send_order_paid_telegram_notification"
+            ) as enqueue_notification:
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.post(
+                        f"/orders/{order.pk}/payment-status",
+                    )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["paymentStatus"], "paid")
+        order.refresh_from_db()
+        self.assertEqual(order.payment_status, "paid")
+        self.assertEqual(order.status, "paid")
+        self.assertEqual(order.liqpay_payment_id, "123456")
+        enqueue_notification.assert_called_once_with(order.id)
+
+    def test_liqpay_status_sync_does_not_duplicate_paid_notification(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="paid",
+            status="paid",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+        )
+
+        with patch("shop.views.orders.fetch_payment_status") as fetch_payment_status:
+            with patch(
+                "shop.views.orders.send_order_paid_telegram_notification"
+            ) as enqueue_notification:
+                response = self.client.post(
+                    f"/orders/{order.pk}/payment-status",
+                )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["paymentStatus"], "paid")
+        fetch_payment_status.assert_not_called()
+        enqueue_notification.assert_not_called()
+
+    @override_settings(
+        LIQPAY_PUBLIC_KEY="sandbox_public_key",
+        LIQPAY_PRIVATE_KEY="sandbox_private_key",
+    )
     def test_liqpay_callback_rejects_invalid_signature(self):
         data = encode_data({"order_id": "bloomify-1", "status": "success"})
 

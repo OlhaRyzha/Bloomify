@@ -98,6 +98,8 @@ const paymentOptions: PaymentOption[] = [
   },
 ];
 
+const PENDING_LIQPAY_ORDER_KEY = 'bloomify.pendingLiqPayOrderId';
+
 type CheckoutFieldName = keyof CheckoutFormValues;
 
 type CheckoutFieldProps = {
@@ -279,6 +281,64 @@ export default function CheckoutFeature() {
     });
   }, [isHydrated, locale, summary.cartItems, summary.itemCount, summary.total]);
 
+  useEffect(() => {
+    if (!isHydrated || !isNonEmptyArray(summary.cartItems)) {
+      return;
+    }
+
+    const rawOrderId = window.localStorage.getItem(PENDING_LIQPAY_ORDER_KEY);
+    const orderId = Number(rawOrderId);
+    if (!Number.isInteger(orderId) || orderId <= 0) {
+      return;
+    }
+
+    let isActive = true;
+
+    const syncPaymentStatus = async () => {
+      try {
+        const response = await CheckoutService.syncPaymentStatus(orderId);
+
+        if (!isActive) {
+          return;
+        }
+
+        if (response.paymentStatus === 'paid') {
+          window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
+          trackPurchaseCompleted({
+            itemCount: summary.itemCount,
+            orderId: String(response.orderId),
+            paymentMethod: response.paymentMethod,
+            value: summary.total,
+            locale,
+          });
+          setCompletedOrderMessage(t('checkout_submit_paid_status'));
+          clearCart();
+        } else if (response.paymentStatus === 'failed') {
+          window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
+          setCompletedOrderMessage(null);
+        }
+      } catch {
+        if (isActive) {
+          setCompletedOrderMessage(null);
+        }
+      }
+    };
+
+    syncPaymentStatus();
+
+    return () => {
+      isActive = false;
+    };
+  }, [
+    clearCart,
+    isHydrated,
+    locale,
+    summary.cartItems,
+    summary.itemCount,
+    summary.total,
+    t,
+  ]);
+
   if (!isHydrated || isLoading) {
     return <CheckoutLoadingState />;
   }
@@ -355,8 +415,10 @@ export default function CheckoutFeature() {
           if (response.liqpay) {
             const message = t('checkout_submit_liqpay_redirect');
 
-            clearCart();
-            setCompletedOrderMessage(message);
+            window.localStorage.setItem(
+              PENDING_LIQPAY_ORDER_KEY,
+              String(response.orderId)
+            );
             actions.setStatus(message);
             submitLiqPayCheckout(response.liqpay);
             return;

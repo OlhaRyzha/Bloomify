@@ -10,6 +10,7 @@ import { renderWithProviders } from '@/test/render';
 
 import CheckoutFeature from './checkout';
 import {
+  createCheckoutPaymentStatusResponse,
   createCheckoutResponse,
   createLiqPayCheckoutPayload,
 } from './api/checkout.factory';
@@ -28,6 +29,8 @@ const resetCheckoutDraftStore = () => {
     delivery: checkoutDeliveryDraftInitialValues,
   });
 };
+
+const pendingLiqPayOrderKey = 'bloomify.pendingLiqPayOrderId';
 
 const mockProducts = () => {
   server.use(
@@ -221,10 +224,33 @@ describe('CheckoutFeature', () => {
       liqPayForm?.querySelector<HTMLInputElement>('input[name="signature"]')
     ).toHaveValue('encoded-signature');
     expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
-    await waitFor(() => {
-      expect(useCartStore.getState().items).toEqual([]);
-    });
+    expect(window.localStorage.getItem(pendingLiqPayOrderKey)).toBe('1');
+    expect(useCartStore.getState().items).toEqual([
+      { id: 'rose-bouquet', quantity: 1 },
+    ]);
   }, 10000);
+
+  test('clears cart after pending LiqPay order is confirmed paid', async () => {
+    mockProducts();
+    window.localStorage.setItem(pendingLiqPayOrderKey, '10');
+    useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
+    server.use(
+      http.post(apiUrl('orders/10/payment-status'), () =>
+        HttpResponse.json(createCheckoutPaymentStatusResponse())
+      )
+    );
+
+    renderWithProviders(<CheckoutFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', { name: /order created/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Payment confirmed. Your order is now being prepared.')
+    ).toBeInTheDocument();
+    expect(window.localStorage.getItem(pendingLiqPayOrderKey)).toBeNull();
+    expect(useCartStore.getState().items).toEqual([]);
+  });
 
   test('creates cash-on-delivery order without LiqPay handoff', async () => {
     mockProducts();
@@ -297,5 +323,5 @@ describe('CheckoutFeature', () => {
     expect(useCartStore.getState().items).toEqual([
       { id: 'rose-bouquet', quantity: 1 },
     ]);
-  });
+  }, 10000);
 });

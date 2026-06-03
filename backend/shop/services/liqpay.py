@@ -4,6 +4,7 @@ import hmac
 from decimal import Decimal
 from typing import Any
 
+import requests
 from django.conf import settings
 
 from shop.models.order import Order
@@ -17,6 +18,10 @@ PAYTYPE_BY_PAYMENT_METHOD = {
 
 
 class LiqPayConfigurationError(RuntimeError):
+    pass
+
+
+class LiqPayStatusError(RuntimeError):
     pass
 
 
@@ -67,6 +72,46 @@ def create_checkout_payload(order: Order) -> dict[str, str]:
         "data": data,
         "signature": create_signature(data),
     }
+
+
+def fetch_payment_status(order: Order) -> dict[str, Any]:
+    public_key = settings.LIQPAY_PUBLIC_KEY
+    if not public_key:
+        raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
+    if not order.liqpay_order_id:
+        raise LiqPayStatusError("Order does not have a LiqPay order id")
+
+    data = encode_data(
+        {
+            "version": 7,
+            "public_key": public_key,
+            "action": "status",
+            "order_id": order.liqpay_order_id,
+        }
+    )
+    try:
+        response = requests.post(
+            settings.LIQPAY_API_URL,
+            data={"data": data, "signature": create_signature(data)},
+            timeout=10,
+        )
+    except requests.RequestException as exc:
+        raise LiqPayStatusError("LiqPay status request failed") from exc
+
+    if not response.ok:
+        raise LiqPayStatusError(
+            f"LiqPay status request failed with HTTP {response.status_code}"
+        )
+
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        raise LiqPayStatusError("LiqPay status response is not JSON") from exc
+
+    if not isinstance(payload, dict):
+        raise LiqPayStatusError("LiqPay status response is not an object")
+
+    return payload
 
 
 def verify_signature(data: str, signature: str) -> bool:

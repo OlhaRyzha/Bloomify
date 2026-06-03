@@ -1,7 +1,11 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from shop.views.orders import CheckoutCreateView, LiqPayCallbackView
+from shop.views.orders import (
+    CheckoutCreateView,
+    LiqPayCallbackView,
+    LiqPayPaymentStatusView,
+)
 from shop.views.products import ProductDetailView, ProductListCreateView, html
 from shop.views.site_languages import SiteLanguagesView
 
@@ -12,6 +16,11 @@ urlpatterns = [
     ),
     path("products/<int:pk>", ProductDetailView.as_view(), name="product"),
     path("orders/checkout", CheckoutCreateView.as_view(), name="orders_checkout"),
+    path(
+        "orders/<int:pk>/payment-status",
+        LiqPayPaymentStatusView.as_view(),
+        name="order_payment_status",
+    ),
     path(
         "payments/liqpay/callback",
         LiqPayCallbackView.as_view(),

@@ -1,6 +1,8 @@
 export const API_ROUTES = {
   PRODUCTS: 'products',
   CHECKOUT: 'orders/checkout',
+  CHECKOUT_PAYMENT_STATUS: (orderId: number) =>
+    `orders/${orderId}/payment-status`,
   FAVORITES: 'favorites',
   CART: 'cart',
   AUTH_SIGN_IN: 'auth/token/',

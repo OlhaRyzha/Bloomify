@@ -1,4 +1,5 @@
 import type {
+  CheckoutPaymentStatusResponse,
   CheckoutRequest,
   CheckoutResponse,
   LiqPayCheckoutPayload,
@@ -36,5 +37,16 @@ export const createCheckoutResponse = (
   paymentProvider: 'liqpay',
   paymentMethod: 'card',
   liqpay: createLiqPayCheckoutPayload(),
+  ...overrides,
+});
+
+export const createCheckoutPaymentStatusResponse = (
+  overrides: Partial<CheckoutPaymentStatusResponse> = {}
+): CheckoutPaymentStatusResponse => ({
+  orderId: 10,
+  status: 'paid',
+  paymentStatus: 'paid',
+  paymentProvider: 'liqpay',
+  paymentMethod: 'card',
   ...overrides,
 });

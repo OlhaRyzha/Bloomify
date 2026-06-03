@@ -40,6 +40,8 @@ export type CheckoutResponse = {
   liqpay?: LiqPayCheckoutPayload | null;
 };
 
+export type CheckoutPaymentStatusResponse = Omit<CheckoutResponse, 'liqpay'>;
+
 const liqPayCheckoutPayloadSchema = z.object({
   checkoutUrl: z.string().url(),
   data: z.string(),
@@ -60,6 +62,10 @@ const checkoutResponseSchema = z.object({
   liqpay: liqPayCheckoutPayloadSchema.nullish(),
 });
 
+const checkoutPaymentStatusResponseSchema = checkoutResponseSchema.omit({
+  liqpay: true,
+});
+
 const CheckoutService = {
   createCheckout: async (
     payload: CheckoutRequest
@@ -73,6 +79,19 @@ const CheckoutService = {
       response,
       checkoutResponseSchema
     ) as CheckoutResponse;
+  },
+  syncPaymentStatus: async (
+    orderId: number
+  ): Promise<CheckoutPaymentStatusResponse> => {
+    const response = await apiClient.post<unknown, undefined>(
+      API_ROUTES.CHECKOUT_PAYMENT_STATUS(orderId),
+      undefined
+    );
+
+    return parseResponseWithSchema(
+      response,
+      checkoutPaymentStatusResponseSchema
+    ) as CheckoutPaymentStatusResponse;
   },
 };
 
