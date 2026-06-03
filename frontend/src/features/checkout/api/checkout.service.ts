@@ -21,6 +21,7 @@ export type CheckoutRequest = {
   city: string;
   address: string;
   deliveryNote?: string;
+  locale?: string;
   paymentMethod: CheckoutPaymentMethod;
   items: CheckoutRequestItem[];
 };

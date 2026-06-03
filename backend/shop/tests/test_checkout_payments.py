@@ -29,6 +29,7 @@ class CheckoutPaymentsTest(TestCase):
                 "address": "Khreshchatyk 1",
                 "deliveryNote": "Call before delivery",
                 "paymentMethod": "card",
+                "locale": "uk",
                 "items": [{"id": self.product.pk, "quantity": 2}],
             },
             content_type="application/json",
@@ -56,9 +57,40 @@ class CheckoutPaymentsTest(TestCase):
         self.assertEqual(liqpay_payload["order_id"], order.liqpay_order_id)
         self.assertEqual(
             liqpay_payload["result_url"],
-            f"http://localhost:3000/checkout?orderId={order.pk}",
+            f"http://localhost:3000/uk/checkout?orderId={order.pk}",
         )
         self.assertEqual(liqpay_payload["paytypes"], "card")
+
+    @override_settings(
+        LIQPAY_PUBLIC_KEY="sandbox_public_key",
+        LIQPAY_PRIVATE_KEY="sandbox_private_key",
+        LIQPAY_RESULT_URL="http://localhost:3000/en/checkout",
+        LIQPAY_SERVER_URL="http://localhost:8000/payments/liqpay/callback",
+    )
+    def test_checkout_keeps_existing_liqpay_result_url_locale(self):
+        response = self.client.post(
+            "/orders/checkout",
+            data={
+                "customerName": "Tom Smith",
+                "email": "tom@example.com",
+                "phone": "+380671234567",
+                "city": "Kyiv",
+                "address": "Khreshchatyk 1",
+                "paymentMethod": "card",
+                "locale": "uk",
+                "items": [{"id": self.product.pk, "quantity": 1}],
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        body = response.json()
+        order = Order.objects.get(pk=body["orderId"])
+        liqpay_payload = decode_data(body["liqpay"]["data"])
+        self.assertEqual(
+            liqpay_payload["result_url"],
+            f"http://localhost:3000/en/checkout?orderId={order.pk}",
+        )
 
     @override_settings(LIQPAY_PRIVATE_KEY="a4825234f4bae72a0be04eafe9e8e2bada209255")
     def test_liqpay_signature_matches_documentation_example(self):

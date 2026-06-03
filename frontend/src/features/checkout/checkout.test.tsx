@@ -191,7 +191,20 @@ describe('CheckoutFeature', () => {
 
   test('redirects card payments to hosted LiqPay checkout', async () => {
     mockProducts();
-    mockCheckout();
+    let checkoutPayload: unknown = null;
+    server.use(
+      http.post(apiUrl('orders/checkout'), async ({ request }) => {
+        checkoutPayload = await request.json();
+
+        return HttpResponse.json(
+          createCheckoutResponse({
+            orderId: 1,
+            liqpay: createLiqPayCheckoutPayload(),
+          }),
+          { status: 201 }
+        );
+      })
+    );
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
 
     const { user } = renderWithProviders(<CheckoutFeature />, { locale: 'en' });
@@ -225,6 +238,11 @@ describe('CheckoutFeature', () => {
       liqPayForm?.querySelector<HTMLInputElement>('input[name="signature"]')
     ).toHaveValue('encoded-signature');
     expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
+    expect(checkoutPayload).toEqual(
+      expect.objectContaining({
+        locale: 'en',
+      })
+    );
     expect(window.localStorage.getItem(pendingLiqPayOrderKey)).toBe('1');
     expect(useCartStore.getState().items).toEqual([
       { id: 'rose-bouquet', quantity: 1 },

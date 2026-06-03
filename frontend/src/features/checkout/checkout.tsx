@@ -507,6 +507,7 @@ export default function CheckoutFeature() {
             city: values.city,
             address: values.address,
             deliveryNote: values.deliveryNote,
+            locale,
             paymentMethod: values.paymentMethod,
             items: cartItems.map((item) => ({
               id: item.id,

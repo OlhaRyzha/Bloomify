@@ -137,7 +137,10 @@ class CheckoutCreateView(APIView):
         liqpay_payload = None
         if order.payment_method in PAYMENT_METHODS_WITH_LIQPAY:
             try:
-                liqpay_payload = create_checkout_payload(order)
+                liqpay_payload = create_checkout_payload(
+                    order,
+                    locale=payload.get("locale"),
+                )
             except LiqPayConfigurationError as exc:
                 order.payment_status = "failed"
                 order.status = "failed"

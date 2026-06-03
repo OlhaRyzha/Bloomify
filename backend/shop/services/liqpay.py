@@ -17,6 +17,7 @@ PAYTYPE_BY_PAYMENT_METHOD = {
     "google_pay": "gpay",
     "card": "card",
 }
+SUPPORTED_LANGUAGE_CODES = {language_code for language_code, _ in settings.LANGUAGES}
 
 
 class LiqPayConfigurationError(RuntimeError):
@@ -50,7 +51,11 @@ def decode_data(data: str) -> JsonObject:
     return decode_json_payload(data)
 
 
-def create_checkout_payload(order: Order) -> LiqPayCheckoutPayload:
+def create_checkout_payload(
+    order: Order,
+    *,
+    locale: str | None = None,
+) -> LiqPayCheckoutPayload:
     public_key = settings.LIQPAY_PUBLIC_KEY
     if not public_key:
         raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
@@ -63,7 +68,7 @@ def create_checkout_payload(order: Order) -> LiqPayCheckoutPayload:
         "currency": "UAH",
         "description": f"Bloomify order #{order.pk}",
         "order_id": order.liqpay_order_id,
-        "result_url": build_result_url(order),
+        "result_url": build_result_url(order, locale=locale),
         "sandbox": 1 if public_key.startswith("sandbox_") else 0,
     }
 
@@ -82,20 +87,32 @@ def create_checkout_payload(order: Order) -> LiqPayCheckoutPayload:
     }
 
 
-def build_result_url(order: Order) -> str:
+def build_result_url(order: Order, *, locale: str | None = None) -> str:
     parts = urlsplit(settings.LIQPAY_RESULT_URL)
     query_params = dict(parse_qsl(parts.query, keep_blank_values=True))
     query_params["orderId"] = str(order.pk)
+    path = parts.path
+    if locale is not None and locale in SUPPORTED_LANGUAGE_CODES:
+        path = _localize_result_path(path, locale)
 
     return urlunsplit(
         (
             parts.scheme,
             parts.netloc,
-            parts.path,
+            path,
             urlencode(query_params),
             parts.fragment,
         )
     )
+
+
+def _localize_result_path(path: str, locale: str) -> str:
+    normalized_path = path if path.startswith("/") else f"/{path}"
+    first_segment = normalized_path.split("/")[1]
+    if first_segment in SUPPORTED_LANGUAGE_CODES:
+        return normalized_path
+
+    return f"/{locale}{normalized_path}"
 
 
 def fetch_payment_status(order: Order) -> JsonObject:

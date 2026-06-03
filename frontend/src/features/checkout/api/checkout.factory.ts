@@ -14,6 +14,7 @@ export const createCheckoutPayload = (
   city: 'Kyiv',
   address: 'Khreshchatyk 1',
   deliveryNote: 'Call before delivery',
+  locale: 'en',
   paymentMethod: 'card',
   items: [{ id: 'rose-bouquet', quantity: 1 }],
   ...overrides,
