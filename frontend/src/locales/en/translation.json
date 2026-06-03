@@ -365,6 +365,8 @@
   "checkout_place_order_button": "Place order",
   "checkout_submit_status": "The order data is ready to send to the payment provider.",
   "checkout_submit_liqpay_redirect": "Redirecting to LiqPay test payment.",
+  "checkout_payment_sync_title": "Checking payment",
+  "checkout_payment_sync_description": "We are confirming the payment status with LiqPay. This usually takes a few seconds.",
   "checkout_submit_paid_status": "Payment for order #{{orderId}} is confirmed. Your order is now being prepared. To track the status, subscribe to the Telegram bot or return to the catalog.",
   "checkout_success_telegram_cta": "Subscribe to Telegram bot",
   "checkout_submit_cash_status": "Order created. We will confirm payment on delivery after processing it.",

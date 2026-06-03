@@ -103,6 +103,8 @@ const PENDING_LIQPAY_ORDER_KEY = 'bloomify.pendingLiqPayOrderId';
 const PAYMENT_STATUS_SYNC_RETRY_LIMIT = 5;
 const PAYMENT_STATUS_SYNC_RETRY_DELAY_MS = 1500;
 
+type PaymentReturnSyncState = 'idle' | 'syncing';
+
 const getOrderIdFromCheckoutSearch = () => {
   if (typeof window === 'undefined') {
     return null;
@@ -268,6 +270,8 @@ export default function CheckoutFeature() {
   const [completedOrderMessage, setCompletedOrderMessage] = useState<
     string | null
   >(null);
+  const [paymentReturnSyncState, setPaymentReturnSyncState] =
+    useState<PaymentReturnSyncState>('idle');
   const checkoutSchema = useMemo(
     () =>
       createCheckoutSchema({
@@ -314,25 +318,23 @@ export default function CheckoutFeature() {
 
     const rawOrderId = window.localStorage.getItem(PENDING_LIQPAY_ORDER_KEY);
     const storedOrderId = Number(rawOrderId);
+    const searchOrderId = getOrderIdFromCheckoutSearch();
     const orderId =
-      Number.isInteger(storedOrderId) && storedOrderId > 0
+      searchOrderId ??
+      (Number.isInteger(storedOrderId) && storedOrderId > 0
         ? storedOrderId
-        : getOrderIdFromCheckoutSearch();
+        : null);
 
     if (!orderId || syncedPaymentOrderRef.current === orderId) {
       return;
     }
 
-    let isActive = true;
     syncedPaymentOrderRef.current = orderId;
+    setPaymentReturnSyncState('syncing');
 
     const syncPaymentStatus = async (attempt = 0) => {
       try {
         const response = await CheckoutService.syncPaymentStatus(orderId);
-
-        if (!isActive) {
-          return;
-        }
 
         if (response.paymentStatus === 'paid') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
@@ -349,31 +351,28 @@ export default function CheckoutFeature() {
           setCompletedOrderMessage(
             t('checkout_submit_paid_status', { orderId: response.orderId })
           );
+          setPaymentReturnSyncState('idle');
           clearCart();
         } else if (response.paymentStatus === 'failed') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
           setCompletedOrderId(null);
           setCompletedOrderMessage(null);
+          setPaymentReturnSyncState('idle');
         } else if (attempt < PAYMENT_STATUS_SYNC_RETRY_LIMIT) {
           window.setTimeout(() => {
-            if (isActive) {
-              syncPaymentStatus(attempt + 1);
-            }
+            syncPaymentStatus(attempt + 1);
           }, PAYMENT_STATUS_SYNC_RETRY_DELAY_MS);
+        } else {
+          setPaymentReturnSyncState('idle');
         }
       } catch {
-        if (isActive) {
-          setCompletedOrderMessage(null);
-          syncedPaymentOrderRef.current = null;
-        }
+        setCompletedOrderMessage(null);
+        setPaymentReturnSyncState('idle');
+        syncedPaymentOrderRef.current = null;
       }
     };
 
     syncPaymentStatus();
-
-    return () => {
-      isActive = false;
-    };
   }, [
     clearCart,
     isHydrated,
@@ -402,58 +401,68 @@ export default function CheckoutFeature() {
     );
   }
 
+  if (completedOrderMessage) {
+    const telegramOrderTrackingUrl =
+      TELEGRAM_BOT_URL && completedOrderId
+        ? buildTelegramOrderTrackingUrl(TELEGRAM_BOT_URL, completedOrderId)
+        : '';
+
+    return (
+      <FeedbackState
+        title={t('checkout_order_success_title')}
+        description={completedOrderMessage}
+        actionLabel={
+          telegramOrderTrackingUrl
+            ? t('checkout_success_telegram_cta')
+            : t('checkout_success_cta')
+        }
+        actionHref={
+          telegramOrderTrackingUrl || getLocalizedPath('/catalog', locale)
+        }
+        secondaryActionLabel={
+          telegramOrderTrackingUrl ? t('checkout_success_cta') : undefined
+        }
+        secondaryActionHref={
+          telegramOrderTrackingUrl
+            ? getLocalizedPath('/catalog', locale)
+            : undefined
+        }
+        className='bg-gradient-card shadow-card'>
+        {completedOrderId ? (
+          <dl className='mx-auto grid max-w-sm gap-3 rounded-xl border border-border bg-background/70 p-4 text-left text-sm sm:grid-cols-2'>
+            <div>
+              <dt className='text-muted-foreground'>
+                {t('checkout_success_order_label')}
+              </dt>
+              <dd className='mt-1 font-semibold text-foreground'>
+                #{completedOrderId}
+              </dd>
+            </div>
+            <div>
+              <dt className='text-muted-foreground'>
+                {t('checkout_success_payment_status_label')}
+              </dt>
+              <dd className='mt-1 font-semibold text-primary'>
+                {t('checkout_success_payment_status_paid')}
+              </dd>
+            </div>
+          </dl>
+        ) : null}
+      </FeedbackState>
+    );
+  }
+
+  if (paymentReturnSyncState === 'syncing') {
+    return (
+      <FeedbackState
+        title={t('checkout_payment_sync_title')}
+        description={t('checkout_payment_sync_description')}
+        className='bg-gradient-card shadow-card'
+      />
+    );
+  }
+
   if (!isNonEmptyArray(summary.cartItems)) {
-    if (completedOrderMessage) {
-      const telegramOrderTrackingUrl =
-        TELEGRAM_BOT_URL && completedOrderId
-          ? buildTelegramOrderTrackingUrl(TELEGRAM_BOT_URL, completedOrderId)
-          : '';
-
-      return (
-        <FeedbackState
-          title={t('checkout_order_success_title')}
-          description={completedOrderMessage}
-          actionLabel={
-            telegramOrderTrackingUrl
-              ? t('checkout_success_telegram_cta')
-              : t('checkout_success_cta')
-          }
-          actionHref={
-            telegramOrderTrackingUrl || getLocalizedPath('/catalog', locale)
-          }
-          secondaryActionLabel={
-            telegramOrderTrackingUrl ? t('checkout_success_cta') : undefined
-          }
-          secondaryActionHref={
-            telegramOrderTrackingUrl
-              ? getLocalizedPath('/catalog', locale)
-              : undefined
-          }
-          className='bg-gradient-card shadow-card'>
-          {completedOrderId ? (
-            <dl className='mx-auto grid max-w-sm gap-3 rounded-xl border border-border bg-background/70 p-4 text-left text-sm sm:grid-cols-2'>
-              <div>
-                <dt className='text-muted-foreground'>
-                  {t('checkout_success_order_label')}
-                </dt>
-                <dd className='mt-1 font-semibold text-foreground'>
-                  #{completedOrderId}
-                </dd>
-              </div>
-              <div>
-                <dt className='text-muted-foreground'>
-                  {t('checkout_success_payment_status_label')}
-                </dt>
-                <dd className='mt-1 font-semibold text-primary'>
-                  {t('checkout_success_payment_status_paid')}
-                </dd>
-              </div>
-            </dl>
-          ) : null}
-        </FeedbackState>
-      );
-    }
-
     return (
       <FeedbackState
         title={t('checkout_empty_title')}

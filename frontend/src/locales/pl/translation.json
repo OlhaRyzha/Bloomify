@@ -365,6 +365,8 @@
   "checkout_place_order_button": "Złóż zamówienie",
   "checkout_submit_status": "Dane zamówienia są gotowe do wysłania do operatora płatności.",
   "checkout_submit_liqpay_redirect": "Przekierowujemy do testowej płatności LiqPay.",
+  "checkout_payment_sync_title": "Sprawdzamy płatność",
+  "checkout_payment_sync_description": "Potwierdzamy status płatności w LiqPay. Zwykle zajmuje to kilka sekund.",
   "checkout_submit_paid_status": "Płatność za zamówienie #{{orderId}} została potwierdzona. Zamówienie przyjęto do realizacji. Aby śledzić status, subskrybuj bota Telegram lub wróć do katalogu.",
   "checkout_success_telegram_cta": "Subskrybuj bota Telegram",
   "checkout_submit_cash_status": "Zamówienie utworzone. Potwierdzimy płatność przy odbiorze po jego obsłużeniu.",

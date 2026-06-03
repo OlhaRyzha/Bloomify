@@ -365,6 +365,8 @@
   "checkout_place_order_button": "Оформити замовлення",
   "checkout_submit_status": "Дані замовлення готові до відправлення провайдеру оплати.",
   "checkout_submit_liqpay_redirect": "Переходимо до тестової оплати LiqPay.",
+  "checkout_payment_sync_title": "Перевіряємо оплату",
+  "checkout_payment_sync_description": "Підтверджуємо статус платежу через LiqPay. Зазвичай це займає кілька секунд.",
   "checkout_submit_paid_status": "Оплату замовлення #{{orderId}} підтверджено. Замовлення прийнято в роботу. Щоб відстежувати статус, підпишіться на Telegram бот або перейдіть до каталогу.",
   "checkout_success_telegram_cta": "Підписатися на Telegram бот",
   "checkout_submit_cash_status": "Замовлення створено. Ми підтвердимо оплату при отриманні після обробки замовлення.",

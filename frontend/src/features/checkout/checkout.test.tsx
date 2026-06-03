@@ -275,6 +275,38 @@ describe('CheckoutFeature', () => {
     ).toHaveAttribute('href', '/en/catalog');
   });
 
+  test('prefers LiqPay result URL order id over stale pending storage', async () => {
+    mockProducts();
+    window.history.pushState(null, '', '/en/checkout?orderId=11');
+    window.localStorage.setItem(pendingLiqPayOrderKey, '10');
+    useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
+
+    const syncedOrderIds: number[] = [];
+    server.use(
+      http.post(apiUrl('orders/:orderId/payment-status'), ({ params }) => {
+        const rawOrderId = params.orderId;
+        const orderId = Number(
+          Array.isArray(rawOrderId) ? rawOrderId[0] : rawOrderId
+        );
+        syncedOrderIds.push(orderId);
+
+        return HttpResponse.json(
+          createCheckoutPaymentStatusResponse({ orderId })
+        );
+      })
+    );
+
+    renderWithProviders(<CheckoutFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', { name: /order created/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/payment for order #11 is confirmed/i)
+    ).toBeInTheDocument();
+    expect(syncedOrderIds).toEqual([11]);
+  });
+
   test('builds Telegram order tracking deep link', () => {
     expect(
       buildTelegramOrderTrackingUrl('https://t.me/bloomify_orders_bot', 10)
