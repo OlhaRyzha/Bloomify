@@ -31,6 +31,7 @@ from shop.services.liqpay import (
 from shop.types import PaymentProviderPayload
 
 logger = logging.getLogger(__name__)
+PAID_TELEGRAM_NOTIFICATION_SENT_KEY = "paid_telegram_notification_sent"
 
 
 class PaymentStatusResponse(TypedDict):
@@ -53,6 +54,26 @@ def send_cash_on_delivery_notification_safely(order_id: int) -> None:
         send_order_cash_on_delivery_telegram_notification(order_id)
     except Exception:
         logger.exception("Failed to send cash-on-delivery order Telegram notification")
+
+
+def has_paid_notification_been_sent(order: Order) -> bool:
+    return order.payment_payload.get(PAID_TELEGRAM_NOTIFICATION_SENT_KEY) is True
+
+
+def mark_paid_notification_as_sent(order: Order) -> None:
+    order.payment_payload = {
+        **order.payment_payload,
+        PAID_TELEGRAM_NOTIFICATION_SENT_KEY: True,
+    }
+    order.save(update_fields=["payment_payload"])
+
+
+def schedule_paid_notification_after_checkout_return(order: Order) -> None:
+    if order.payment_status != "paid" or has_paid_notification_been_sent(order):
+        return
+
+    mark_paid_notification_as_sent(order)
+    transaction.on_commit(lambda: send_order_paid_notification_safely(order.id))
 
 
 def apply_liqpay_payment_payload(
@@ -197,8 +218,7 @@ class LiqPayCallbackView(APIView):
             order.pk,
             payload.get("status"),
         )
-        if apply_liqpay_payment_payload(order, payload, sandbox_is_paid=False):
-            transaction.on_commit(lambda: send_order_paid_notification_safely(order.id))
+        apply_liqpay_payment_payload(order, payload, sandbox_is_paid=False)
         return Response({"status": "ok"})
 
 
@@ -217,6 +237,7 @@ class LiqPayPaymentStatusView(APIView):
             )
 
         if order.payment_status == "paid":
+            schedule_paid_notification_after_checkout_return(order)
             return Response(build_payment_status_response(order))
 
         try:
@@ -234,6 +255,6 @@ class LiqPayPaymentStatusView(APIView):
             payload.get("status"),
         )
         if apply_liqpay_payment_payload(order, payload):
-            transaction.on_commit(lambda: send_order_paid_notification_safely(order.id))
+            schedule_paid_notification_after_checkout_return(order)
 
         return Response(build_payment_status_response(order))

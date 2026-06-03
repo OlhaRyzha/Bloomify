@@ -51,6 +51,15 @@ describe('proxy auth routing', () => {
     );
   });
 
+  test('rewrites localized checkout return URL without dropping order id', () => {
+    const response = proxy(createRequest(appUrl('/uk/checkout?orderId=22')));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-middleware-rewrite')).toBe(
+      appUrl('/checkout?orderId=22')
+    );
+  });
+
   test('allows internal rewritten requests with locale header to continue', () => {
     const response = proxy(
       createRequest(appUrl('/'), undefined, {

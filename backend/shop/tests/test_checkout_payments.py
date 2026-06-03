@@ -153,7 +153,7 @@ class CheckoutPaymentsTest(TestCase):
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
     )
-    def test_liqpay_callback_marks_order_paid_after_signature_verification(self):
+    def test_liqpay_callback_marks_order_paid_without_notification(self):
         order = create_order(
             payment_provider="liqpay",
             payment_method="card",
@@ -187,7 +187,7 @@ class CheckoutPaymentsTest(TestCase):
         self.assertEqual(order.payment_status, "paid")
         self.assertEqual(order.status, "paid")
         self.assertEqual(order.liqpay_payment_id, "123456")
-        enqueue_notification.assert_called_once_with(order.id)
+        enqueue_notification.assert_not_called()
 
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
@@ -232,7 +232,7 @@ class CheckoutPaymentsTest(TestCase):
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
     )
-    def test_liqpay_callback_does_not_duplicate_paid_notification(self):
+    def test_liqpay_callback_does_not_notify_already_paid_order(self):
         order = create_order(
             payment_provider="liqpay",
             payment_method="card",
@@ -268,7 +268,7 @@ class CheckoutPaymentsTest(TestCase):
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
     )
-    def test_liqpay_status_sync_marks_order_paid_and_notifies(self):
+    def test_liqpay_status_sync_marks_order_paid_and_notifies_after_return(self):
         order = create_order(
             payment_provider="liqpay",
             payment_method="card",
@@ -300,6 +300,34 @@ class CheckoutPaymentsTest(TestCase):
         self.assertEqual(order.payment_status, "paid")
         self.assertEqual(order.status, "paid")
         self.assertEqual(order.liqpay_payment_id, "123456")
+        self.assertTrue(order.payment_payload["paid_telegram_notification_sent"])
+        enqueue_notification.assert_called_once_with(order.id)
+
+    def test_liqpay_status_sync_notifies_paid_callback_order_after_return(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="paid",
+            status="paid",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+            payment_payload={"status": "success"},
+        )
+
+        with patch("shop.views.orders.fetch_payment_status") as fetch_payment_status:
+            with patch(
+                "shop.views.orders.send_order_paid_telegram_notification"
+            ) as enqueue_notification:
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.post(
+                        f"/orders/{order.pk}/payment-status",
+                    )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["paymentStatus"], "paid")
+        fetch_payment_status.assert_not_called()
+        order.refresh_from_db()
+        self.assertTrue(order.payment_payload["paid_telegram_notification_sent"])
         enqueue_notification.assert_called_once_with(order.id)
 
     def test_liqpay_status_sync_does_not_duplicate_paid_notification(self):
@@ -310,6 +338,7 @@ class CheckoutPaymentsTest(TestCase):
             status="paid",
             liqpay_order_id="bloomify-1",
             total=Decimal("1750.00"),
+            payment_payload={"paid_telegram_notification_sent": True},
         )
 
         with patch("shop.views.orders.fetch_payment_status") as fetch_payment_status:

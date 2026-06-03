@@ -85,7 +85,6 @@ export function proxy(request: NextRequest) {
 
   const rewriteUrl = request.nextUrl.clone();
   rewriteUrl.pathname = pathnameWithoutLocale;
-  rewriteUrl.search = search;
 
   return NextResponse.rewrite(rewriteUrl, {
     request: {
