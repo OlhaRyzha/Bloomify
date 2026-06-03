@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any
+from typing import Protocol, cast
 
 from django import forms
 from django.contrib import admin
@@ -10,6 +10,15 @@ from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
+
+from shop.types import DjangoWidgetAttrs
+
+
+class FormDataWithGetlist(Protocol):
+    def getlist(self, key: str) -> list[str]: ...
+
+    def get(self, key: str, default: object = None) -> object: ...
+
 
 ACTION_LABELS = {
     "view": _("Read"),
@@ -48,15 +57,15 @@ class PermissionGroup:
 class GroupedPermissionsWidget(forms.Widget):
     grouped_permissions: list[PermissionGroup]
 
-    def __init__(self, attrs: dict[str, Any] | None = None):
+    def __init__(self, attrs: DjangoWidgetAttrs | None = None):
         super().__init__(attrs)
         self.grouped_permissions = []
 
     def value_from_datadict(self, data, files, name):
         if hasattr(data, "getlist"):
-            return data.getlist(name)
+            return cast(FormDataWithGetlist, data).getlist(name)
 
-        value = data.get(name, [])
+        value = cast(FormDataWithGetlist, data).get(name, [])
         return value if isinstance(value, list) else [value]
 
     def render(self, name, value, attrs=None, renderer=None):
@@ -173,8 +182,10 @@ class RoleAdminForm(forms.ModelForm):
             "content_type__model",
             "codename",
         )
-        self.fields["permissions"].queryset = permissions
-        self.fields["permissions"].widget.grouped_permissions = build_permission_groups(
+        permissions_field = self.fields["permissions"]
+        assert isinstance(permissions_field, forms.ModelMultipleChoiceField)
+        permissions_field.queryset = permissions
+        permissions_field.widget.grouped_permissions = build_permission_groups(
             permissions
         )
 
@@ -237,7 +248,7 @@ def build_grouped_permission(
         action=action,
         action_label=str(ACTION_LABELS.get(action, capfirst(action))),
         description=permission.name,
-        id=permission.id,
+        id=int(permission.pk),
     )
 
 

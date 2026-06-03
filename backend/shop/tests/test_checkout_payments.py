@@ -193,6 +193,45 @@ class CheckoutPaymentsTest(TestCase):
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
     )
+    def test_liqpay_sandbox_callback_does_not_notify_before_return_sync(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="pending",
+            status="pending",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+        )
+        data = encode_data(
+            {
+                "order_id": order.liqpay_order_id,
+                "status": "sandbox",
+                "payment_id": 123456,
+            }
+        )
+
+        with patch(
+            "shop.views.orders.send_order_paid_telegram_notification"
+        ) as enqueue_notification:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    "/payments/liqpay/callback",
+                    data={
+                        "data": data,
+                        "signature": create_signature(data),
+                    },
+                )
+
+        self.assertEqual(response.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.payment_status, "pending")
+        self.assertEqual(order.status, "pending")
+        enqueue_notification.assert_not_called()
+
+    @override_settings(
+        LIQPAY_PUBLIC_KEY="sandbox_public_key",
+        LIQPAY_PRIVATE_KEY="sandbox_private_key",
+    )
     def test_liqpay_callback_does_not_duplicate_paid_notification(self):
         order = create_order(
             payment_provider="liqpay",

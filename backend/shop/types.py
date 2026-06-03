@@ -1,0 +1,40 @@
+from collections.abc import Mapping
+from math import isfinite
+from typing import TypeGuard
+
+type JsonPrimitive = str | int | float | bool | None
+type JsonValue = JsonPrimitive | list[JsonValue] | dict[str, JsonValue]
+type JsonObject = dict[str, JsonValue]
+type JsonMapping = Mapping[str, JsonValue]
+
+type StringKeyedObjectDict = dict[str, object]
+type StringKeyedObjectMapping = Mapping[str, object]
+
+type DjangoWidgetAttrs = StringKeyedObjectDict
+type ModelFactoryAttrs = StringKeyedObjectDict
+type DatabaseConfig = StringKeyedObjectDict
+
+type PaymentProviderPayload = JsonObject
+type TelegramMessagePayload = dict[str, str | bool]
+
+
+def is_json_object(value: object) -> TypeGuard[JsonObject]:
+    return isinstance(value, dict) and all(
+        isinstance(key, str) and is_json_value(item) for key, item in value.items()
+    )
+
+
+def is_json_value(value: object) -> TypeGuard[JsonValue]:
+    if value is None or isinstance(value, str | bool):
+        return True
+
+    if isinstance(value, int):
+        return True
+
+    if isinstance(value, float):
+        return isfinite(value)
+
+    if isinstance(value, list):
+        return all(is_json_value(item) for item in value)
+
+    return is_json_object(value)

@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from parler.admin import TranslatableAdmin
 
-from shop.models.product import Product
+from shop.models.product import Product, get_product_translation_text
 
 
 def get_product_image_url(product: Product) -> str:
@@ -81,7 +81,7 @@ class ProductAdmin(TranslatableAdmin):
         return format_html(
             '<img class="bloomify-thumb" src="{}" alt="{}">',
             image_url,
-            obj.safe_translation_getter("name", any_language=True),
+            get_product_translation_text(obj, "name"),
         )
 
     @admin.display(description=_("Preview"))
@@ -94,7 +94,7 @@ class ProductAdmin(TranslatableAdmin):
         return format_html(
             '<img class="bloomify-preview" src="{}" alt="{}">',
             image_url,
-            obj.safe_translation_getter("name", any_language=True),
+            get_product_translation_text(obj, "name"),
         )
 
     @admin.display(description=_("Actions"))

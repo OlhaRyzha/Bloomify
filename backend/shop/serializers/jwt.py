@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, EmailStr
 
 
 class Token(BaseModel):
@@ -13,7 +13,7 @@ class AccessTokenPayload(BaseModel):
 
 
 class Auth0AccessTokenPayload(AccessTokenPayload):
-    model_config = ConfigDict(extra="allow")
+    model_config = {"extra": "allow"}
 
     iss: str
     aud: str | list[str]

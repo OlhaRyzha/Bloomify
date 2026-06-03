@@ -1,20 +1,22 @@
 from decimal import Decimal
-from typing import Any
 
 from shop.models.order import Order
 from shop.models.product import Product
+from shop.types import ModelFactoryAttrs
 
 
-def create_product(**overrides: Any) -> Product:
-    defaults = {
+def create_product(**overrides: object) -> Product:
+    defaults: ModelFactoryAttrs = {
         "price": Decimal("100.00"),
     }
     defaults.update(overrides)
-    return Product.objects.create(**defaults)
+    product = Product.objects.create(**defaults)
+    assert isinstance(product, Product)
+    return product
 
 
-def create_order(**overrides: Any) -> Order:
-    defaults = {
+def create_order(**overrides: object) -> Order:
+    defaults: ModelFactoryAttrs = {
         "payment_provider": "",
         "payment_method": "cash_on_delivery",
         "payment_status": "not_required",
@@ -22,4 +24,6 @@ def create_order(**overrides: Any) -> Order:
         "total": Decimal("100.00"),
     }
     defaults.update(overrides)
-    return Order.objects.create(**defaults)
+    order = Order.objects.create(**defaults)
+    assert isinstance(order, Order)
+    return order

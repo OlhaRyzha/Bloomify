@@ -2,7 +2,7 @@ import base64
 import hashlib
 import hmac
 from decimal import Decimal
-from typing import Any
+from typing import TypedDict
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import requests
@@ -10,6 +10,7 @@ from django.conf import settings
 
 from shop.models.order import Order
 from shop.security.encoding import decode_json_payload, encode_json_payload
+from shop.types import JsonMapping, JsonObject, is_json_object
 
 PAYTYPE_BY_PAYMENT_METHOD = {
     "apple_pay": "apay",
@@ -26,6 +27,12 @@ class LiqPayStatusError(RuntimeError):
     pass
 
 
+class LiqPayCheckoutPayload(TypedDict):
+    checkoutUrl: str
+    data: str
+    signature: str
+
+
 def create_signature(data: str) -> str:
     private_key = settings.LIQPAY_PRIVATE_KEY
     if not private_key:
@@ -35,20 +42,20 @@ def create_signature(data: str) -> str:
     return base64.b64encode(digest).decode()
 
 
-def encode_data(payload: dict[str, Any]) -> str:
+def encode_data(payload: JsonMapping) -> str:
     return encode_json_payload(payload)
 
 
-def decode_data(data: str) -> dict[str, Any]:
+def decode_data(data: str) -> JsonObject:
     return decode_json_payload(data)
 
 
-def create_checkout_payload(order: Order) -> dict[str, str]:
+def create_checkout_payload(order: Order) -> LiqPayCheckoutPayload:
     public_key = settings.LIQPAY_PUBLIC_KEY
     if not public_key:
         raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
 
-    payload: dict[str, Any] = {
+    payload: JsonObject = {
         "version": 7,
         "public_key": public_key,
         "action": "pay",
@@ -91,7 +98,7 @@ def build_result_url(order: Order) -> str:
     )
 
 
-def fetch_payment_status(order: Order) -> dict[str, Any]:
+def fetch_payment_status(order: Order) -> JsonObject:
     public_key = settings.LIQPAY_PUBLIC_KEY
     if not public_key:
         raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
@@ -125,9 +132,8 @@ def fetch_payment_status(order: Order) -> dict[str, Any]:
     except ValueError as exc:
         raise LiqPayStatusError("LiqPay status response is not JSON") from exc
 
-    if not isinstance(payload, dict):
+    if not is_json_object(payload):
         raise LiqPayStatusError("LiqPay status response is not an object")
-
     return payload
 
 

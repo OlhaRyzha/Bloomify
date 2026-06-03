@@ -3,6 +3,7 @@ FRONTEND_DIR=frontend
 BACKEND_PORT=8000
 FRONTEND_PORT=3000
 DOCKER_COMPOSE=docker-compose --env-file $(BACKEND_DIR)/.env -f $(BACKEND_DIR)/docker-compose.yml
+MYPY_FLAGS=--enable-incomplete-feature=NewGenericSyntax
 
 # ---------- Frontend ----------
 
@@ -131,10 +132,20 @@ format:
 	cd $(BACKEND_DIR) && uv run black .
 
 lint:
+	$(MAKE) no-any
 	cd $(BACKEND_DIR) && uv run ruff check .
-	cd $(BACKEND_DIR) && uv run mypy .
+	cd $(BACKEND_DIR) && uv run mypy . $(MYPY_FLAGS)
+	$(MAKE) backend-pyright
 
 check: format lint
+
+no-any:
+	! rg -n '\bAny\b|from typing import .*Any' $(BACKEND_DIR) --glob '*.py'
+	! rg -n 'dict\[str, object\]|Mapping\[str, object\]|dict\[str, str \| bool\]|list\[dict\[str, int\]\]' $(BACKEND_DIR) --glob '*.py' --glob '!backend/shop/types.py'
+	! rg -n '\bany\b' $(FRONTEND_DIR)/src --glob '*.ts' --glob '*.tsx'
+
+backend-pyright:
+	cd $(FRONTEND_DIR) && npx pyright --project ../pyrightconfig.json
 
 
 # ---------- pre-commit ----------

@@ -1,9 +1,9 @@
 import logging
-from typing import Any, cast
 
 from django.conf import settings
 from django.utils.html import escape
-from drf_spectacular.utils import OpenApiTypes, extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -11,12 +11,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from notifications.telegram import TelegramNotificationError, send_telegram_message
+from shop.types import JsonMapping
 
 logger = logging.getLogger(__name__)
 
 
-def get_nested_value(payload: dict[str, Any], *keys: str) -> Any:
-    value: Any = payload
+def get_nested_value(payload: JsonMapping, *keys: str) -> object | None:
+    value: object | None = dict(payload)
     for key in keys:
         if not isinstance(value, dict):
             return None
@@ -24,18 +25,18 @@ def get_nested_value(payload: dict[str, Any], *keys: str) -> Any:
     return value
 
 
-def first_present(*values: Any) -> str:
+def first_present(*values: object | None) -> str:
     for value in values:
         if value not in (None, ""):
             return str(value)
     return ""
 
 
-def build_sentry_alert_message(payload: dict[str, Any]) -> str:
+def build_sentry_alert_message(payload: JsonMapping) -> str:
     event_raw = payload.get("event")
     issue_raw = payload.get("issue")
-    event = cast(dict[str, Any], event_raw) if isinstance(event_raw, dict) else {}
-    issue = cast(dict[str, Any], issue_raw) if isinstance(issue_raw, dict) else {}
+    event: JsonMapping = event_raw if isinstance(event_raw, dict) else {}
+    issue: JsonMapping = issue_raw if isinstance(issue_raw, dict) else {}
 
     title = first_present(
         payload.get("title"),
@@ -108,7 +109,7 @@ class SentryAlertWebhookView(APIView):
         try:
             send_telegram_message(
                 settings.TELEGRAM_ADMIN_CHAT_ID,
-                build_sentry_alert_message(request.data),
+                build_sentry_alert_message(dict(request.data)),
             )
         except TelegramNotificationError:
             logger.exception("Failed to send Sentry alert Telegram notification")
