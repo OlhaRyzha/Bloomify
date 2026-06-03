@@ -70,7 +70,7 @@ class CheckoutPaymentsTest(TestCase):
 
         self.assertEqual(
             create_signature(data),
-            "CZQ2WPZ4+rJnKdg5BT9lSsJtXZk=",
+            "0adgJ8F2Ds5HCVkcz4AlmdLMRoIJf7IxsL3QmeFRz/s=",
         )
 
     def test_checkout_creates_cash_on_delivery_order_without_liqpay_payload(self):

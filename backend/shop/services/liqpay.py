@@ -31,7 +31,7 @@ def create_signature(data: str) -> str:
     if not private_key:
         raise LiqPayConfigurationError("LIQPAY_PRIVATE_KEY is not configured")
 
-    digest = hashlib.sha1(f"{private_key}{data}{private_key}".encode()).digest()
+    digest = hashlib.sha3_256(f"{private_key}{data}{private_key}".encode()).digest()
     return base64.b64encode(digest).decode()
 
 
