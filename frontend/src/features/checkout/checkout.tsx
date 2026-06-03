@@ -121,10 +121,18 @@ export const buildTelegramOrderTrackingUrl = (
   botUrl: string,
   orderId: number
 ) => {
-  const url = new URL(botUrl);
-  url.searchParams.set('start', `order_${orderId}`);
+  try {
+    const url = new URL(botUrl);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return null;
+    }
 
-  return url.toString();
+    url.searchParams.set('start', `order_${orderId}`);
+
+    return url.toString();
+  } catch {
+    return null;
+  }
 };
 
 type CheckoutFieldName = keyof CheckoutFormValues;
@@ -405,7 +413,7 @@ export default function CheckoutFeature() {
     const telegramOrderTrackingUrl =
       TELEGRAM_BOT_URL && completedOrderId
         ? buildTelegramOrderTrackingUrl(TELEGRAM_BOT_URL, completedOrderId)
-        : '';
+        : null;
 
     return (
       <FeedbackState
