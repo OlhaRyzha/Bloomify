@@ -4,9 +4,11 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 import sentry_sdk
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
+
+from shop.types import DatabaseConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env")
@@ -14,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 
 class EnvironmentSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ENV_FILE,
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config = {
+        "env_file": BASE_DIR / ENV_FILE,
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",
+    }
 
     DJANGO_DEBUG: bool
     DJANGO_SECRET_KEY: str
@@ -82,7 +84,7 @@ def parse_postgres_port(port: str) -> int:
         return 5432
 
 
-def build_database_config() -> dict[str, object]:
+def build_database_config() -> DatabaseConfig:
     database_url = env.DATABASE_URL or env.POSTGRES_URL
     postgres_port = parse_postgres_port(env.POSTGRES_PORT)
     if database_url:
@@ -91,7 +93,7 @@ def build_database_config() -> dict[str, object]:
         sslmode = query_params.get("sslmode", [env.POSTGRES_SSLMODE])[0]
         database_options = {"sslmode": sslmode} if sslmode else {}
 
-        config: dict[str, object] = {
+        config: DatabaseConfig = {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": parsed_url.path.lstrip("/"),
             "USER": unquote(parsed_url.username or ""),

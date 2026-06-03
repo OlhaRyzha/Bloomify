@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { AlertTriangle, Inbox } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -18,6 +19,7 @@ type FeedbackStateProps = {
   secondaryActionHref?: string;
   tone?: FeedbackStateTone;
   className?: string;
+  children?: ReactNode;
 };
 
 const toneClassName: Record<FeedbackStateTone, string> = {
@@ -40,6 +42,7 @@ export default function FeedbackState({
   secondaryActionLabel,
   tone = 'neutral',
   className,
+  children,
 }: FeedbackStateProps) {
   const Icon = tone === 'error' ? AlertTriangle : Inbox;
   const role = tone === 'error' ? 'alert' : 'status';
@@ -74,6 +77,7 @@ export default function FeedbackState({
       <p className='mx-auto mt-2 max-w-xl text-sm text-muted-foreground'>
         {description}
       </p>
+      {children ? <div className='mt-5'>{children}</div> : null}
 
       {hasAction || hasSecondaryAction ? (
         <div className='mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row'>

@@ -1,7 +1,7 @@
-from typing import Any
-
 import requests
 from django.conf import settings
+
+from shop.types import TelegramMessagePayload
 
 
 class TelegramNotificationError(Exception):
@@ -17,7 +17,7 @@ def send_telegram_message(chat_id: str, text: str) -> None:
 
     url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
 
-    payload: dict[str, Any] = {
+    payload: TelegramMessagePayload = {
         "chat_id": chat_id,
         "text": text,
         "parse_mode": "HTML",

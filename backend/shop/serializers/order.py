@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Any
+from typing import NotRequired, TypedDict
 
 from rest_framework import serializers
 
@@ -9,6 +9,22 @@ from shop.models.product import Product
 PAYMENT_METHODS_WITH_LIQPAY = {"apple_pay", "google_pay", "card"}
 STANDARD_DELIVERY_FEE = Decimal("150.00")
 FREE_DELIVERY_THRESHOLD = Decimal("1500.00")
+
+
+class CheckoutItemData(TypedDict):
+    id: int
+    quantity: int
+
+
+class CheckoutOrderPayload(TypedDict):
+    customerName: str
+    email: str
+    phone: str
+    city: str
+    address: str
+    paymentMethod: str
+    items: list[CheckoutItemData]
+    deliveryNote: NotRequired[str]
 
 
 class CheckoutItemSerializer(serializers.Serializer):
@@ -28,14 +44,14 @@ class CheckoutCreateSerializer(serializers.Serializer):
     )
     items = CheckoutItemSerializer(many=True)
 
-    def validate_items(self, value: list[dict[str, int]]) -> list[dict[str, int]]:
+    def validate_items(self, value: list[CheckoutItemData]) -> list[CheckoutItemData]:
         if not value:
             raise serializers.ValidationError("Cart must contain at least one item.")
 
         return value
 
 
-def create_checkout_order(payload: dict[str, Any]) -> Order:
+def create_checkout_order(payload: CheckoutOrderPayload) -> Order:
     product_ids = [item["id"] for item in payload["items"]]
     products = Product.objects.in_bulk(product_ids)
 

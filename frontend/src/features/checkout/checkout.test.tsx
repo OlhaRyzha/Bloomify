@@ -218,7 +218,7 @@ describe('CheckoutFeature', () => {
     );
 
     expect(liqPayForm).toBeDefined();
-    expect(liqPayForm?.target).toBe('_blank');
+    expect(liqPayForm?.target).toBe('');
     expect(liqPayForm?.querySelector<HTMLInputElement>('input[name="data"]'))
       .toHaveValue('encoded-data');
     expect(
@@ -247,7 +247,7 @@ describe('CheckoutFeature', () => {
       await screen.findByRole('heading', { name: /order created/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/payment confirmed\. your order is now being prepared/i)
+      screen.getByText(/payment for order #10 is confirmed/i)
     ).toBeInTheDocument();
     expect(window.localStorage.getItem(pendingLiqPayOrderKey)).toBeNull();
     expect(useCartStore.getState().items).toEqual([]);
@@ -268,7 +268,7 @@ describe('CheckoutFeature', () => {
       await screen.findByRole('heading', { name: /order created/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/subscribe to the telegram bot or return to the catalog/i)
+      screen.getByText(/payment for order #10 is confirmed/i)
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /continue shopping/i })

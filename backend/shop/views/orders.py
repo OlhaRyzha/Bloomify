@@ -1,12 +1,15 @@
 import logging
+from typing import TypedDict, cast
 
 from django.db import transaction
-from drf_spectacular.utils import OpenApiTypes, extend_schema, inline_serializer
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, inline_serializer
 from notifications.tasks import (
     send_order_cash_on_delivery_telegram_notification,
     send_order_paid_telegram_notification,
 )
 from rest_framework import permissions, serializers, status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,6 +17,7 @@ from shop.models.order import Order
 from shop.serializers.order import (
     PAYMENT_METHODS_WITH_LIQPAY,
     CheckoutCreateSerializer,
+    CheckoutOrderPayload,
     create_checkout_order,
 )
 from shop.services.liqpay import (
@@ -24,8 +28,17 @@ from shop.services.liqpay import (
     fetch_payment_status,
     verify_signature,
 )
+from shop.types import PaymentProviderPayload
 
 logger = logging.getLogger(__name__)
+
+
+class PaymentStatusResponse(TypedDict):
+    orderId: int
+    status: str
+    paymentStatus: str
+    paymentProvider: str
+    paymentMethod: str
 
 
 def send_order_paid_notification_safely(order_id: int) -> None:
@@ -42,13 +55,21 @@ def send_cash_on_delivery_notification_safely(order_id: int) -> None:
         logger.exception("Failed to send cash-on-delivery order Telegram notification")
 
 
-def apply_liqpay_payment_payload(order: Order, payload: dict) -> bool:
+def apply_liqpay_payment_payload(
+    order: Order,
+    payload: PaymentProviderPayload,
+    *,
+    sandbox_is_paid: bool = True,
+) -> bool:
     payment_status = str(payload.get("status", "")).lower()
     was_paid_before = order.payment_status == "paid"
+    paid_statuses = {"success"}
+    if sandbox_is_paid:
+        paid_statuses.add("sandbox")
 
     order.payment_payload = payload
     order.liqpay_payment_id = str(payload.get("payment_id", ""))
-    if payment_status in {"success", "sandbox"}:
+    if payment_status in paid_statuses:
         order.payment_status = "paid"
         order.status = "paid"
     elif payment_status in {"failure", "error", "reversed"}:
@@ -69,7 +90,7 @@ def apply_liqpay_payment_payload(order: Order, payload: dict) -> bool:
     return order.payment_status == "paid" and not was_paid_before
 
 
-def build_payment_status_response(order: Order) -> dict[str, str | int]:
+def build_payment_status_response(order: Order) -> PaymentStatusResponse:
     return {
         "orderId": order.pk,
         "status": order.status,
@@ -86,10 +107,11 @@ class CheckoutCreateView(APIView):
         request=CheckoutCreateSerializer,
         responses={201: OpenApiTypes.OBJECT},
     )
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         serializer = CheckoutCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order = create_checkout_order(serializer.validated_data)
+        payload = cast(CheckoutOrderPayload, serializer.validated_data)
+        order = create_checkout_order(payload)
 
         liqpay_payload = None
         if order.payment_method in PAYMENT_METHODS_WITH_LIQPAY:
@@ -138,11 +160,11 @@ class LiqPayCallbackView(APIView):
         ),
         responses={200: OpenApiTypes.OBJECT},
     )
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         data = request.data.get("data")
         signature = request.data.get("signature")
 
-        if not data or not signature:
+        if not isinstance(data, str) or not isinstance(signature, str):
             return Response(
                 {"detail": "Missing LiqPay data or signature."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -156,6 +178,11 @@ class LiqPayCallbackView(APIView):
 
         payload = decode_data(data)
         order_id = payload.get("order_id")
+        if not isinstance(order_id, str):
+            return Response(
+                {"detail": "Missing LiqPay order id."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             order = Order.objects.get(liqpay_order_id=order_id)
@@ -170,7 +197,7 @@ class LiqPayCallbackView(APIView):
             order.pk,
             payload.get("status"),
         )
-        if apply_liqpay_payment_payload(order, payload):
+        if apply_liqpay_payment_payload(order, payload, sandbox_is_paid=False):
             transaction.on_commit(lambda: send_order_paid_notification_safely(order.id))
         return Response({"status": "ok"})
 
@@ -180,7 +207,7 @@ class LiqPayPaymentStatusView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def post(self, request, pk: int):
+    def post(self, request: Request, pk: int) -> Response:
         try:
             order = Order.objects.get(pk=pk, payment_provider="liqpay")
         except Order.DoesNotExist:

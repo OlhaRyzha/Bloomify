@@ -1,13 +1,25 @@
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from shop.types import JsonObject
+
 from .product import Product
 
 
 class Order(models.Model):
+    if TYPE_CHECKING:
+        id: int
+        product_id: int | None
+        items: models.Manager["OrderItem"]
+
+        def get_status_display(self) -> str: ...
+
+        def get_payment_method_display(self) -> str: ...
+
     STATUS_CHOICES = [
         ("pending", _("Pending payment")),
         ("paid", _("Paid")),
@@ -46,48 +58,60 @@ class Order(models.Model):
         verbose_name=_("Bouquet"),
     )
     quantity = models.PositiveIntegerField(_("Quantity"), default=1)
-    status = models.CharField(
+    status: "models.CharField[str, str]" = models.CharField(
         _("Status"), max_length=20, choices=STATUS_CHOICES, default="pending"
     )
-    customer_name = models.CharField(_("Customer name"), max_length=200, blank=True)
-    customer_email = models.EmailField(_("Customer email"), blank=True)
-    customer_phone = models.CharField(_("Customer phone"), max_length=40, blank=True)
-    delivery_city = models.CharField(_("Delivery city"), max_length=120, blank=True)
-    delivery_address = models.CharField(
+    customer_name: "models.CharField[str, str]" = models.CharField(
+        _("Customer name"), max_length=200, blank=True
+    )
+    customer_email: "models.EmailField[str, str]" = models.EmailField(
+        _("Customer email"), blank=True
+    )
+    customer_phone: "models.CharField[str, str]" = models.CharField(
+        _("Customer phone"), max_length=40, blank=True
+    )
+    delivery_city: "models.CharField[str, str]" = models.CharField(
+        _("Delivery city"), max_length=120, blank=True
+    )
+    delivery_address: "models.CharField[str, str]" = models.CharField(
         _("Delivery address"), max_length=255, blank=True
     )
-    delivery_note = models.TextField(_("Delivery note"), blank=True)
-    payment_provider = models.CharField(
+    delivery_note: "models.TextField[str, str]" = models.TextField(
+        _("Delivery note"), blank=True
+    )
+    payment_provider: "models.CharField[str, str]" = models.CharField(
         _("Payment provider"), max_length=40, blank=True
     )
-    payment_method = models.CharField(
+    payment_method: "models.CharField[str, str]" = models.CharField(
         _("Payment method"),
         max_length=32,
         choices=PAYMENT_METHOD_CHOICES,
         blank=True,
     )
-    payment_status = models.CharField(
+    payment_status: "models.CharField[str, str]" = models.CharField(
         _("Payment status"),
         max_length=20,
         choices=PAYMENT_STATUS_CHOICES,
         default="pending",
     )
-    liqpay_order_id = models.CharField(
+    liqpay_order_id: "models.CharField[str | None, str | None]" = models.CharField(
         _("LiqPay order id"), max_length=80, blank=True, unique=True, null=True
     )
-    liqpay_payment_id = models.CharField(
+    liqpay_payment_id: "models.CharField[str, str]" = models.CharField(
         _("LiqPay payment id"), max_length=120, blank=True
     )
-    subtotal = models.DecimalField(
+    subtotal: "models.DecimalField[Decimal, Decimal]" = models.DecimalField(
         _("Subtotal"), max_digits=10, decimal_places=2, default=Decimal("0.00")
     )
-    delivery_cost = models.DecimalField(
+    delivery_cost: "models.DecimalField[Decimal, Decimal]" = models.DecimalField(
         _("Delivery cost"), max_digits=10, decimal_places=2, default=Decimal("0.00")
     )
-    total = models.DecimalField(
+    total: "models.DecimalField[Decimal, Decimal]" = models.DecimalField(
         _("Total"), max_digits=10, decimal_places=2, default=Decimal("0.00")
     )
-    payment_payload = models.JSONField(_("Payment payload"), default=dict, blank=True)
+    payment_payload: "models.JSONField[JsonObject, JsonObject]" = models.JSONField(
+        _("Payment payload"), default=dict, blank=True
+    )
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated"), auto_now=True)
 

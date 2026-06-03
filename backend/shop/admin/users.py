@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Protocol, cast
 
 from django import forms
 from django.contrib import admin
@@ -10,6 +10,14 @@ from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from shop.admin.roles import GroupedPermissionsWidget, build_permission_groups
+from shop.types import DjangoWidgetAttrs
+
+
+class FormDataWithGetlist(Protocol):
+    def getlist(self, key: str) -> list[str]: ...
+
+    def get(self, key: str, default: object = None) -> object: ...
+
 
 if User in admin.site._registry:
     admin.site.unregister(User)
@@ -18,15 +26,15 @@ if User in admin.site._registry:
 class RoleGroupsWidget(forms.Widget):
     groups: list[Group]
 
-    def __init__(self, attrs: dict[str, Any] | None = None):
+    def __init__(self, attrs: DjangoWidgetAttrs | None = None):
         super().__init__(attrs)
         self.groups = []
 
     def value_from_datadict(self, data, files, name):
         if hasattr(data, "getlist"):
-            return data.getlist(name)
+            return cast(FormDataWithGetlist, data).getlist(name)
 
-        value = data.get(name, [])
+        value = cast(FormDataWithGetlist, data).get(name, [])
         return value if isinstance(value, list) else [value]
 
     def render(self, name, value, attrs=None, renderer=None):
@@ -69,8 +77,8 @@ class RoleGroupsWidget(forms.Widget):
                 "</label>"
             ),
             name,
-            group.id,
-            mark_safe("checked") if str(group.id) in selected_values else "",
+            int(group.pk),
+            mark_safe("checked") if str(int(group.pk)) in selected_values else "",
             group.name,
             _("{count} permissions").format(count=group.permissions.count()),
         )
@@ -89,13 +97,18 @@ class UserAdminForm(UserChangeForm):
             "content_type__model",
             "codename",
         )
-        self.fields["groups"].queryset = Group.objects.order_by("name")
-        self.fields["groups"].widget = RoleGroupsWidget()
-        self.fields["groups"].widget.groups = groups
-        self.fields["user_permissions"].queryset = permissions
-        self.fields["user_permissions"].widget = GroupedPermissionsWidget()
-        self.fields["user_permissions"].widget.grouped_permissions = (
-            build_permission_groups(permissions)
+        groups_field = self.fields["groups"]
+        assert isinstance(groups_field, forms.ModelMultipleChoiceField)
+        groups_field.queryset = Group.objects.order_by("name")
+        groups_field.widget = RoleGroupsWidget()
+        groups_field.widget.groups = groups
+
+        permissions_field = self.fields["user_permissions"]
+        assert isinstance(permissions_field, forms.ModelMultipleChoiceField)
+        permissions_field.queryset = permissions
+        permissions_field.widget = GroupedPermissionsWidget()
+        permissions_field.widget.grouped_permissions = build_permission_groups(
+            permissions
         )
 
 

@@ -194,7 +194,6 @@ function submitLiqPayCheckout(payload: LiqPayCheckoutPayload) {
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = payload.checkoutUrl;
-  form.target = '_blank';
 
   const dataInput = document.createElement('input');
   dataInput.type = 'hidden';
@@ -347,7 +346,9 @@ export default function CheckoutFeature() {
             });
           }
           setCompletedOrderId(response.orderId);
-          setCompletedOrderMessage(t('checkout_submit_paid_status'));
+          setCompletedOrderMessage(
+            t('checkout_submit_paid_status', { orderId: response.orderId })
+          );
           clearCart();
         } else if (response.paymentStatus === 'failed') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
@@ -428,8 +429,28 @@ export default function CheckoutFeature() {
               ? getLocalizedPath('/catalog', locale)
               : undefined
           }
-          className='bg-gradient-card shadow-card'
-        />
+          className='bg-gradient-card shadow-card'>
+          {completedOrderId ? (
+            <dl className='mx-auto grid max-w-sm gap-3 rounded-xl border border-border bg-background/70 p-4 text-left text-sm sm:grid-cols-2'>
+              <div>
+                <dt className='text-muted-foreground'>
+                  {t('checkout_success_order_label')}
+                </dt>
+                <dd className='mt-1 font-semibold text-foreground'>
+                  #{completedOrderId}
+                </dd>
+              </div>
+              <div>
+                <dt className='text-muted-foreground'>
+                  {t('checkout_success_payment_status_label')}
+                </dt>
+                <dd className='mt-1 font-semibold text-primary'>
+                  {t('checkout_success_payment_status_paid')}
+                </dd>
+              </div>
+            </dl>
+          ) : null}
+        </FeedbackState>
       );
     }
 
