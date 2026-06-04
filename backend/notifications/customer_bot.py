@@ -17,6 +17,26 @@ ORDER_START_PATTERN = re.compile(
     r"^/start\s+order_(?P<order_id>\d+)$|^order_(?P<plain_order_id>\d+)$"
 )
 
+CUSTOMER_ORDER_STATUS_LABELS = {
+    "pending": "Очікує оплати",
+    "paid": "Оплачено",
+    "processing": "Готується",
+    "ready_for_delivery": "Готове до доставки",
+    "out_for_delivery": "Кур'єр вже в дорозі до вас",
+    "delivered": "Доставлено",
+    "failed": "Не вдалося оплатити",
+    "fulfilled": "Виконано",
+    "canceled": "Скасовано",
+}
+
+CUSTOMER_PAYMENT_STATUS_LABELS = {
+    "not_required": "Оплата при отриманні",
+    "pending": "Очікує оплати",
+    "paid": "Оплачено",
+    "failed": "Оплата не пройшла",
+    "canceled": "Скасовано",
+}
+
 
 @dataclass(frozen=True)
 class TelegramCustomerChat:
@@ -144,10 +164,13 @@ def build_customer_order_status_message(
         f"🌸 <b>{prefix}</b>",
         "",
         f"<b>Замовлення:</b> #{order.id}",
-        f"<b>Статус замовлення:</b> {escape(order.get_status_display())}",
-        f"<b>Статус оплати:</b> {escape(order.get_payment_status_display())}",
+        f"<b>Статус замовлення:</b> {escape(get_customer_order_status_label(order))}",
+        f"<b>Статус оплати:</b> {escape(get_customer_payment_status_label(order))}",
         f"<b>Сума:</b> {order.total:.2f} ₴",
     ]
+
+    if order.status_note:
+        lines.append(f"<b>Коментар:</b> {escape(order.status_note)}")
 
     if order.delivery_city or order.delivery_address:
         lines.extend(
@@ -160,6 +183,17 @@ def build_customer_order_status_message(
         )
 
     return "\n".join(lines)
+
+
+def get_customer_order_status_label(order: Order) -> str:
+    return CUSTOMER_ORDER_STATUS_LABELS.get(order.status, order.get_status_display())
+
+
+def get_customer_payment_status_label(order: Order) -> str:
+    return CUSTOMER_PAYMENT_STATUS_LABELS.get(
+        order.payment_status,
+        order.get_payment_status_display(),
+    )
 
 
 def send_customer_message(chat_id: str, text: str) -> None:

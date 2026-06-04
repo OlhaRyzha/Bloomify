@@ -14,6 +14,8 @@ type FeedbackStateProps = {
   description: string;
   actionLabel?: string;
   actionHref?: string;
+  actionRel?: string;
+  actionTarget?: string;
   onAction?: () => void | Promise<void>;
   secondaryActionLabel?: string;
   secondaryActionHref?: string;
@@ -37,6 +39,8 @@ export default function FeedbackState({
   description,
   actionLabel,
   actionHref,
+  actionRel,
+  actionTarget,
   onAction,
   secondaryActionHref,
   secondaryActionLabel,
@@ -85,7 +89,12 @@ export default function FeedbackState({
             <Button
               asChild
               size='lg'>
-              <Link href={actionHref}>{actionLabel}</Link>
+              <Link
+                href={actionHref}
+                rel={actionRel}
+                target={actionTarget}>
+                {actionLabel}
+              </Link>
             </Button>
           ) : hasAction ? (
             <Button

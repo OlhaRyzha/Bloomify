@@ -30,6 +30,51 @@ class OrderAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("status", "payment_status", "payment_method", "created_at")
+    list_editable = ("status",)
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "user",
+                    "product",
+                    "quantity",
+                    "status",
+                    "status_note",
+                    "payment_method",
+                    "payment_status",
+                )
+            },
+        ),
+        (
+            _("Customer and delivery"),
+            {
+                "fields": (
+                    "customer_name",
+                    "customer_email",
+                    "customer_phone",
+                    "delivery_city",
+                    "delivery_address",
+                    "delivery_note",
+                )
+            },
+        ),
+        (
+            _("Payment details"),
+            {
+                "fields": (
+                    "payment_provider",
+                    "liqpay_order_id",
+                    "liqpay_payment_id",
+                    "subtotal",
+                    "delivery_cost",
+                    "total",
+                    "payment_payload",
+                )
+            },
+        ),
+        (_("System"), {"fields": ("created_at", "updated_at")}),
+    )
     search_fields = (
         "user__username",
         "user__email",
@@ -69,9 +114,14 @@ class OrderAdmin(admin.ModelAdmin):
     ) -> None:
         should_notify_customer = False
         if change and obj.pk:
-            previous = Order.objects.only("status", "payment_status").get(pk=obj.pk)
+            previous = Order.objects.only(
+                "status",
+                "status_note",
+                "payment_status",
+            ).get(pk=obj.pk)
             should_notify_customer = (
                 previous.status != obj.status
+                or previous.status_note != obj.status_note
                 or previous.payment_status != obj.payment_status
             )
 

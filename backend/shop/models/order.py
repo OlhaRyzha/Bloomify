@@ -25,6 +25,10 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ("pending", _("Pending payment")),
         ("paid", _("Paid")),
+        ("processing", _("Processing")),
+        ("ready_for_delivery", _("Ready for delivery")),
+        ("out_for_delivery", _("Courier is on the way")),
+        ("delivered", _("Delivered")),
         ("failed", _("Failed")),
         ("fulfilled", _("Fulfilled")),
         ("canceled", _("Canceled")),
@@ -80,6 +84,11 @@ class Order(models.Model):
     )
     delivery_note: "models.TextField[str, str]" = models.TextField(
         _("Delivery note"), blank=True
+    )
+    status_note: "models.TextField[str, str]" = models.TextField(
+        _("Status note"),
+        blank=True,
+        help_text=_("Visible to customers in Telegram status updates."),
     )
     payment_provider: "models.CharField[str, str]" = models.CharField(
         _("Payment provider"), max_length=40, blank=True

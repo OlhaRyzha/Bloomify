@@ -444,6 +444,8 @@ export default function CheckoutFeature() {
         actionHref={
           telegramOrderTrackingUrl || getLocalizedPath('/catalog', locale)
         }
+        actionRel={telegramOrderTrackingUrl ? 'noopener noreferrer' : undefined}
+        actionTarget={telegramOrderTrackingUrl ? '_blank' : undefined}
         secondaryActionLabel={
           telegramOrderTrackingUrl ? t('checkout_success_cta') : undefined
         }

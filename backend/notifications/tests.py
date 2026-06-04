@@ -286,15 +286,19 @@ class TelegramCustomerBotTest(TestCase):
         notify_customer_order_subscribers(order)
         send_message.assert_not_called()
 
-        order.status = "paid"
+        order.status = "out_for_delivery"
+        order.status_note = "Кур'єр вже в дорозі до вас."
         order.payment_status = "paid"
-        order.save(update_fields=["status", "payment_status"])
+        order.save(update_fields=["status", "status_note", "payment_status"])
 
         notify_customer_order_subscribers(order)
 
         send_message.assert_called_once()
+        message = send_message.call_args.args[1]
+        self.assertIn("Кур&#x27;єр вже в дорозі до вас", message)
+        self.assertIn("Кур&#x27;єр вже в дорозі до вас.", message)
         subscription = TelegramOrderSubscription.objects.get(order=order)
-        self.assertEqual(subscription.last_notified_status, "paid")
+        self.assertEqual(subscription.last_notified_status, "out_for_delivery")
         self.assertEqual(subscription.last_notified_payment_status, "paid")
 
     @override_settings(TELEGRAM_CUSTOMER_BOT_TOKEN="customer-token")
@@ -311,7 +315,8 @@ class TelegramCustomerBotTest(TestCase):
             last_notified_status="pending",
             last_notified_payment_status="pending",
         )
-        order.status = "fulfilled"
+        order.status = "delivered"
+        order.status_note = "Доставлено отримувачу."
         form = EmptyOrderForm(instance=order)
         request = RequestFactory().post("/admin/shop/order/")
         order_admin = OrderAdmin(Order, AdminSite())
@@ -321,4 +326,4 @@ class TelegramCustomerBotTest(TestCase):
 
         send_message.assert_called_once()
         subscription = TelegramOrderSubscription.objects.get(order=order)
-        self.assertEqual(subscription.last_notified_status, "fulfilled")
+        self.assertEqual(subscription.last_notified_status, "delivered")
