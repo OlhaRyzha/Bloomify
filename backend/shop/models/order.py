@@ -20,6 +20,8 @@ class Order(models.Model):
 
         def get_payment_method_display(self) -> str: ...
 
+        def get_payment_status_display(self) -> str: ...
+
     STATUS_CHOICES = [
         ("pending", _("Pending payment")),
         ("paid", _("Paid")),

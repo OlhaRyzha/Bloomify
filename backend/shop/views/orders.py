@@ -4,6 +4,7 @@ from typing import TypedDict, cast
 from django.db import transaction
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, inline_serializer
+from notifications.customer_bot import notify_customer_order_subscribers
 from notifications.messages import (
     build_order_cash_on_delivery_message,
     build_order_paid_message,
@@ -91,6 +92,7 @@ def schedule_paid_notification_after_checkout_return(order: Order) -> None:
 
     mark_paid_notification_as_sent(order)
     transaction.on_commit(lambda: publish_order_paid_notification_safely(order.id))
+    transaction.on_commit(lambda: notify_customer_order_subscribers(order))
 
 
 def apply_liqpay_payment_payload(

@@ -1,5 +1,9 @@
 from django.contrib import admin
+from django.db import transaction
+from django.forms import ModelForm
+from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
+from notifications.customer_bot import notify_customer_order_subscribers
 
 from shop.models.order import Order, OrderItem
 
@@ -55,3 +59,28 @@ class OrderAdmin(admin.ModelAdmin):
     @admin.display(description=_("Total price"))
     def total_price_display(self, obj: Order) -> str:
         return str(obj.total_price)
+
+    def save_model(
+        self,
+        request: HttpRequest,
+        obj: Order,
+        form: "ModelForm[Order]",
+        change: bool,
+    ) -> None:
+        should_notify_customer = False
+        if change and obj.pk:
+            previous = Order.objects.only("status", "payment_status").get(pk=obj.pk)
+            should_notify_customer = (
+                previous.status != obj.status
+                or previous.payment_status != obj.payment_status
+            )
+
+        super().save_model(request, obj, form, change)
+
+        if should_notify_customer:
+            order_id = obj.pk
+            transaction.on_commit(
+                lambda: notify_customer_order_subscribers(
+                    Order.objects.get(pk=order_id)
+                )
+            )

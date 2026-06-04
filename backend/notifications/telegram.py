@@ -8,14 +8,20 @@ class TelegramNotificationError(Exception):
     pass
 
 
-def send_telegram_message(chat_id: str, text: str) -> None:
-    if not settings.TELEGRAM_BOT_TOKEN:
+def send_telegram_message(
+    chat_id: str,
+    text: str,
+    *,
+    bot_token: str | None = None,
+) -> None:
+    token = bot_token or settings.TELEGRAM_BOT_TOKEN
+    if not token:
         raise TelegramNotificationError("TELEGRAM_BOT_TOKEN is not configured")
 
     if not chat_id:
         raise TelegramNotificationError("Telegram chat_id is required")
 
-    url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
 
     payload: TelegramMessagePayload = {
         "chat_id": chat_id,

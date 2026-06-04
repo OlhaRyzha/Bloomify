@@ -11,6 +11,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from notifications.customer_bot import (
+    CustomerTelegramBotError,
+    handle_customer_bot_update,
+)
 from notifications.queue import NotificationQueueError, publish_telegram_notification
 from notifications.telegram import TelegramNotificationError
 from shop.types import JsonMapping, is_json_object
@@ -146,6 +150,46 @@ class SentryAlertWebhookView(APIView):
             or request.query_params.get("token")
         )
         return provided_secret == expected_secret
+
+
+class TelegramCustomerWebhookView(APIView):
+    authentication_classes: list[type] = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        request=OpenApiTypes.OBJECT,
+        responses={200: OpenApiTypes.OBJECT},
+    )
+    def post(self, request: Request) -> Response:
+        if not settings.TELEGRAM_CUSTOMER_WEBHOOK_SECRET:
+            return Response(
+                {"detail": "Telegram customer webhook is not configured."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
+        if secret != settings.TELEGRAM_CUSTOMER_WEBHOOK_SECRET:
+            return Response(
+                {"detail": "Invalid webhook token."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if not is_json_object(request.data):
+            return Response(
+                {"detail": "Invalid webhook payload."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            handle_customer_bot_update(request.data)
+        except (CustomerTelegramBotError, TelegramNotificationError):
+            logger.exception("Failed to handle Telegram customer webhook")
+            return Response(
+                {"detail": "Telegram customer webhook failed."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        return Response({"status": "ok"})
 
 
 def build_sentry_alert_idempotency_key(payload: JsonMapping) -> str:

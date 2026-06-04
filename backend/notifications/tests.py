@@ -1,18 +1,35 @@
 from decimal import Decimal
 from unittest.mock import patch
 
+from django.contrib.admin.sites import AdminSite
+from django.forms import ModelForm
 from django.test import Client, TestCase, override_settings
+from django.test.client import RequestFactory
 
+from notifications.customer_bot import (
+    TelegramCustomerChat,
+    notify_customer_order_subscribers,
+    parse_order_start_parameter,
+    subscribe_customer_to_order,
+)
 from notifications.messages import (
     build_order_cash_on_delivery_message,
     build_order_paid_message,
 )
+from notifications.models import TelegramOrderSubscription
 from notifications.views import (
     build_sentry_alert_idempotency_key,
     build_sentry_alert_message,
 )
-from shop.models.order import OrderItem
+from shop.admin.orders import OrderAdmin
+from shop.models.order import Order, OrderItem
 from shop.tests.factories import create_order, create_product
+
+
+class EmptyOrderForm(ModelForm):
+    class Meta:
+        model = Order
+        fields: list[str] = []
 
 
 class TelegramOrderMessageTest(TestCase):
@@ -157,3 +174,151 @@ class SentryAlertWebhookTest(TestCase):
             build_sentry_alert_idempotency_key(payload),
             build_sentry_alert_idempotency_key(payload),
         )
+
+
+class TelegramCustomerBotTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_parse_order_start_parameter_accepts_deep_link_payload(self):
+        self.assertEqual(parse_order_start_parameter("/start order_28"), 28)
+        self.assertEqual(parse_order_start_parameter("order_28"), 28)
+        self.assertIsNone(parse_order_start_parameter("/start"))
+        self.assertIsNone(parse_order_start_parameter("/start other_28"))
+
+    @override_settings(TELEGRAM_CUSTOMER_BOT_TOKEN="customer-token")
+    @patch("notifications.customer_bot.send_telegram_message")
+    def test_subscribe_customer_to_order_creates_subscription(self, send_message):
+        order = create_order(
+            payment_status="paid",
+            status="paid",
+            total=Decimal("4300.00"),
+            delivery_city="Kyiv",
+            delivery_address="Urlivska",
+        )
+        chat = TelegramCustomerChat(
+            chat_id="12345",
+            user_id=99,
+            username="olha",
+            first_name="Olha",
+        )
+
+        subscribe_customer_to_order(chat, order.id)
+
+        subscription = TelegramOrderSubscription.objects.get(order=order)
+        self.assertEqual(subscription.telegram_chat_id, "12345")
+        self.assertEqual(subscription.telegram_user_id, 99)
+        self.assertEqual(subscription.telegram_username, "olha")
+        self.assertEqual(subscription.last_notified_status, "paid")
+        self.assertEqual(subscription.last_notified_payment_status, "paid")
+        send_message.assert_called_once()
+        args = send_message.call_args.args
+        kwargs = send_message.call_args.kwargs
+        self.assertEqual(args[0], "12345")
+        self.assertIn(f"Замовлення:</b> #{order.id}", args[1])
+        self.assertEqual(kwargs["bot_token"], "customer-token")
+
+    @override_settings(
+        TELEGRAM_CUSTOMER_BOT_TOKEN="customer-token",
+        TELEGRAM_CUSTOMER_WEBHOOK_SECRET="telegram-secret",
+    )
+    @patch("notifications.customer_bot.send_telegram_message")
+    def test_customer_webhook_subscribes_user_from_start_payload(self, send_message):
+        order = create_order(payment_status="paid", status="paid")
+
+        response = self.client.post(
+            "/notifications/telegram/customer",
+            {
+                "message": {
+                    "text": f"/start order_{order.id}",
+                    "chat": {"id": 12345},
+                    "from": {
+                        "id": 99,
+                        "username": "olha",
+                        "first_name": "Olha",
+                    },
+                }
+            },
+            content_type="application/json",
+            headers={"X-Telegram-Bot-Api-Secret-Token": "telegram-secret"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            TelegramOrderSubscription.objects.filter(
+                order=order,
+                telegram_chat_id="12345",
+            ).exists()
+        )
+        send_message.assert_called_once()
+
+    @override_settings(
+        TELEGRAM_CUSTOMER_BOT_TOKEN="customer-token",
+        TELEGRAM_CUSTOMER_WEBHOOK_SECRET="telegram-secret",
+    )
+    @patch("notifications.customer_bot.send_telegram_message")
+    def test_customer_webhook_rejects_invalid_secret(self, send_message):
+        response = self.client.post(
+            "/notifications/telegram/customer",
+            {"message": {"text": "/start order_1", "chat": {"id": 12345}}},
+            content_type="application/json",
+            headers={"X-Telegram-Bot-Api-Secret-Token": "wrong"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        send_message.assert_not_called()
+
+    @override_settings(TELEGRAM_CUSTOMER_BOT_TOKEN="customer-token")
+    @patch("notifications.customer_bot.send_telegram_message")
+    def test_notify_customer_order_subscribers_sends_only_changed_status(
+        self,
+        send_message,
+    ):
+        order = create_order(payment_status="pending", status="pending")
+        TelegramOrderSubscription.objects.create(
+            order=order,
+            telegram_chat_id="12345",
+            telegram_user_id=99,
+            last_notified_status="pending",
+            last_notified_payment_status="pending",
+        )
+
+        notify_customer_order_subscribers(order)
+        send_message.assert_not_called()
+
+        order.status = "paid"
+        order.payment_status = "paid"
+        order.save(update_fields=["status", "payment_status"])
+
+        notify_customer_order_subscribers(order)
+
+        send_message.assert_called_once()
+        subscription = TelegramOrderSubscription.objects.get(order=order)
+        self.assertEqual(subscription.last_notified_status, "paid")
+        self.assertEqual(subscription.last_notified_payment_status, "paid")
+
+    @override_settings(TELEGRAM_CUSTOMER_BOT_TOKEN="customer-token")
+    @patch("notifications.customer_bot.send_telegram_message")
+    def test_order_admin_status_change_notifies_customer_subscribers(
+        self,
+        send_message,
+    ):
+        order = create_order(payment_status="pending", status="pending")
+        TelegramOrderSubscription.objects.create(
+            order=order,
+            telegram_chat_id="12345",
+            telegram_user_id=99,
+            last_notified_status="pending",
+            last_notified_payment_status="pending",
+        )
+        order.status = "fulfilled"
+        form = EmptyOrderForm(instance=order)
+        request = RequestFactory().post("/admin/shop/order/")
+        order_admin = OrderAdmin(Order, AdminSite())
+
+        with self.captureOnCommitCallbacks(execute=True):
+            order_admin.save_model(request, order, form, change=True)
+
+        send_message.assert_called_once()
+        subscription = TelegramOrderSubscription.objects.get(order=order)
+        self.assertEqual(subscription.last_notified_status, "fulfilled")
