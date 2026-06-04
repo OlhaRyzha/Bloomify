@@ -137,6 +137,13 @@ export const buildTelegramOrderTrackingUrl = (
       return null;
     }
 
+    if (['t.me', 'telegram.me'].includes(url.hostname)) {
+      const botUsername = url.pathname.replace(/^\/@?/, '').replace(/\/$/, '');
+      if (!botUsername) return null;
+
+      url.pathname = `/${botUsername}`;
+    }
+
     url.searchParams.set('start', `order_${orderId}`);
 
     return url.toString();

@@ -338,9 +338,13 @@ describe('CheckoutFeature', () => {
     expect(buildTelegramOrderTrackingUrl('@bloomify_support_bot', 10)).toBe(
       'https://t.me/bloomify_support_bot?start=order_10'
     );
+    expect(
+      buildTelegramOrderTrackingUrl('https://t.me/@bloomify_support_bot', 10)
+    ).toBe('https://t.me/bloomify_support_bot?start=order_10');
     expect(buildTelegramOrderTrackingUrl('bloomify_orders_bot', 10)).toBe(
       'https://t.me/bloomify_orders_bot?start=order_10'
     );
+    expect(buildTelegramOrderTrackingUrl('https://t.me', 10)).toBeNull();
     expect(buildTelegramOrderTrackingUrl('', 10)).toBeNull();
   });
 
