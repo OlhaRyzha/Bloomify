@@ -101,6 +101,7 @@ docker-data/
 
 # Misc
 AGENTS.md
+.codex/
 *.lock.bak
 *.local
 *.secret
