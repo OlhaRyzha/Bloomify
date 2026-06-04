@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 from django.conf import settings
@@ -10,8 +11,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from notifications.telegram import TelegramNotificationError, send_telegram_message
-from shop.types import JsonMapping
+from notifications.queue import NotificationQueueError, publish_telegram_notification
+from notifications.telegram import TelegramNotificationError
+from shop.types import JsonMapping, is_json_object
 
 logger = logging.getLogger(__name__)
 
@@ -106,13 +108,22 @@ class SentryAlertWebhookView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        try:
-            send_telegram_message(
-                settings.TELEGRAM_ADMIN_CHAT_ID,
-                build_sentry_alert_message(dict(request.data)),
+        if not is_json_object(request.data):
+            return Response(
+                {"detail": "Invalid webhook payload."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        except TelegramNotificationError:
-            logger.exception("Failed to send Sentry alert Telegram notification")
+
+        payload = request.data
+        message = build_sentry_alert_message(payload)
+        try:
+            publish_telegram_notification(
+                event_type="sentry.alert",
+                idempotency_key=build_sentry_alert_idempotency_key(payload),
+                text=message,
+            )
+        except (NotificationQueueError, TelegramNotificationError):
+            logger.exception("Failed to publish Sentry alert Telegram notification")
             return Response(
                 {"detail": "Telegram notification failed."},
                 status=status.HTTP_502_BAD_GATEWAY,
@@ -135,3 +146,19 @@ class SentryAlertWebhookView(APIView):
             or request.query_params.get("token")
         )
         return provided_secret == expected_secret
+
+
+def build_sentry_alert_idempotency_key(payload: JsonMapping) -> str:
+    url = first_present(
+        payload.get("url"),
+        payload.get("web_url"),
+        get_nested_value(payload, "issue", "url"),
+        get_nested_value(payload, "event", "url"),
+    )
+    title = first_present(
+        payload.get("title"),
+        get_nested_value(payload, "event", "title"),
+    )
+    raw_key = url or title or str(payload)
+    digest = hashlib.sha256(raw_key.encode()).hexdigest()
+    return f"sentry-alert:{digest}"

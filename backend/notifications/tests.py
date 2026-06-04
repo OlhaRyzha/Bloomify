@@ -3,11 +3,14 @@ from unittest.mock import patch
 
 from django.test import Client, TestCase, override_settings
 
-from notifications.tasks import (
+from notifications.messages import (
     build_order_cash_on_delivery_message,
     build_order_paid_message,
 )
-from notifications.views import build_sentry_alert_message
+from notifications.views import (
+    build_sentry_alert_idempotency_key,
+    build_sentry_alert_message,
+)
 from shop.models.order import OrderItem
 from shop.tests.factories import create_order, create_product
 
@@ -106,8 +109,10 @@ class SentryAlertWebhookTest(TestCase):
         TELEGRAM_ADMIN_CHAT_ID="telegram-chat",
         TELEGRAM_BOT_TOKEN="telegram-token",
     )
-    @patch("notifications.views.send_telegram_message")
-    def test_sentry_alert_webhook_sends_telegram_message(self, send_message):
+    @patch("notifications.views.publish_telegram_notification")
+    def test_sentry_alert_webhook_publishes_telegram_notification(
+        self, publish_notification
+    ):
         response = self.client.post(
             "/notifications/sentry-alert?token=sentry-secret",
             {
@@ -121,9 +126,11 @@ class SentryAlertWebhookTest(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        send_message.assert_called_once()
-        chat_id, text = send_message.call_args.args
-        self.assertEqual(chat_id, "telegram-chat")
+        publish_notification.assert_called_once()
+        kwargs = publish_notification.call_args.kwargs
+        self.assertEqual(kwargs["event_type"], "sentry.alert")
+        self.assertTrue(kwargs["idempotency_key"].startswith("sentry-alert:"))
+        text = kwargs["text"]
         self.assertIn("Backend error", text)
         self.assertIn("https://sentry.io/issues/123", text)
 
@@ -132,8 +139,8 @@ class SentryAlertWebhookTest(TestCase):
         TELEGRAM_ADMIN_CHAT_ID="telegram-chat",
         TELEGRAM_BOT_TOKEN="telegram-token",
     )
-    @patch("notifications.views.send_telegram_message")
-    def test_sentry_alert_webhook_rejects_invalid_secret(self, send_message):
+    @patch("notifications.views.publish_telegram_notification")
+    def test_sentry_alert_webhook_rejects_invalid_secret(self, publish_notification):
         response = self.client.post(
             "/notifications/sentry-alert?token=wrong",
             {"title": "Backend error"},
@@ -141,4 +148,12 @@ class SentryAlertWebhookTest(TestCase):
         )
 
         self.assertEqual(response.status_code, 403)
-        send_message.assert_not_called()
+        publish_notification.assert_not_called()
+
+    def test_build_sentry_alert_idempotency_key_is_stable(self):
+        payload = {"url": "https://sentry.io/issues/123", "title": "Backend error"}
+
+        self.assertEqual(
+            build_sentry_alert_idempotency_key(payload),
+            build_sentry_alert_idempotency_key(payload),
+        )

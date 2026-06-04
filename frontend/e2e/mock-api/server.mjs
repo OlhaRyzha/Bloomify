@@ -23,11 +23,19 @@ const catalogItems = [
   },
 ];
 
-const json = (response, statusCode, body) => {
+const getCorsOrigin = (request) => {
+  const origin = request.headers.origin;
+
+  return origin || apiUrl.origin;
+};
+
+const json = (request, response, statusCode, body) => {
   response.writeHead(statusCode, {
     'Access-Control-Allow-Headers': 'content-type',
+    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': getCorsOrigin(request),
+    Vary: 'Origin',
     'Content-Type': 'application/json',
   });
   response.end(JSON.stringify(body));
@@ -50,17 +58,17 @@ const server = createServer(async (request, response) => {
   const pathname = requestUrl.pathname.replace(/\/+$/, '') || '/';
 
   if (request.method === 'OPTIONS') {
-    json(response, 204, {});
+    json(request, response, 204, {});
     return;
   }
 
   if (request.method === 'GET' && pathname === '/site/languages') {
-    json(response, 200, { enabledLocales: ['uk', 'en', 'pl'] });
+    json(request, response, 200, { enabledLocales: ['uk', 'en', 'pl'] });
     return;
   }
 
   if (request.method === 'GET' && pathname === '/products') {
-    json(response, 200, catalogItems);
+    json(request, response, 200, catalogItems);
     return;
   }
 
@@ -68,14 +76,19 @@ const server = createServer(async (request, response) => {
     const productId = pathname.split('/').at(-1);
     const product = catalogItems.find((item) => item.id === productId);
 
-    json(response, product ? 200 : 404, product ?? { detail: 'Not found' });
+    json(
+      request,
+      response,
+      product ? 200 : 404,
+      product ?? { detail: 'Not found' }
+    );
     return;
   }
 
   if (request.method === 'POST' && pathname === '/orders/checkout') {
     const payload = await readRequestBody(request);
 
-    json(response, 201, {
+    json(request, response, 201, {
       orderId: 42,
       status: 'pending',
       paymentStatus: 'pending',
@@ -86,7 +99,7 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  json(response, 404, { detail: 'Not found' });
+  json(request, response, 404, { detail: 'Not found' });
 });
 
 server.listen(port, hostname, () => {

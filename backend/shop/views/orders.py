@@ -4,10 +4,11 @@ from typing import TypedDict, cast
 from django.db import transaction
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, inline_serializer
-from notifications.tasks import (
-    send_order_cash_on_delivery_telegram_notification,
-    send_order_paid_telegram_notification,
+from notifications.messages import (
+    build_order_cash_on_delivery_message,
+    build_order_paid_message,
 )
+from notifications.queue import publish_telegram_notification_safely
 from rest_framework import permissions, serializers, status
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -42,18 +43,34 @@ class PaymentStatusResponse(TypedDict):
     paymentMethod: str
 
 
-def send_order_paid_notification_safely(order_id: int) -> None:
+def publish_order_paid_notification_safely(order_id: int) -> None:
     try:
-        send_order_paid_telegram_notification(order_id)
-    except Exception:
-        logger.exception("Failed to send paid order Telegram notification")
+        order = Order.objects.get(id=order_id)
+    except Order.DoesNotExist:
+        logger.exception("Failed to load paid order for Telegram notification")
+        return
+
+    publish_telegram_notification_safely(
+        event_type="order.paid",
+        idempotency_key=f"order:{order_id}:paid",
+        text=build_order_paid_message(order),
+    )
 
 
-def send_cash_on_delivery_notification_safely(order_id: int) -> None:
+def publish_cash_on_delivery_notification_safely(order_id: int) -> None:
     try:
-        send_order_cash_on_delivery_telegram_notification(order_id)
-    except Exception:
-        logger.exception("Failed to send cash-on-delivery order Telegram notification")
+        order = Order.objects.get(id=order_id)
+    except Order.DoesNotExist:
+        logger.exception(
+            "Failed to load cash-on-delivery order for Telegram notification"
+        )
+        return
+
+    publish_telegram_notification_safely(
+        event_type="order.cash_on_delivery",
+        idempotency_key=f"order:{order_id}:cash_on_delivery",
+        text=build_order_cash_on_delivery_message(order),
+    )
 
 
 def has_paid_notification_been_sent(order: Order) -> bool:
@@ -73,7 +90,7 @@ def schedule_paid_notification_after_checkout_return(order: Order) -> None:
         return
 
     mark_paid_notification_as_sent(order)
-    transaction.on_commit(lambda: send_order_paid_notification_safely(order.id))
+    transaction.on_commit(lambda: publish_order_paid_notification_safely(order.id))
 
 
 def apply_liqpay_payment_payload(
@@ -154,7 +171,7 @@ class CheckoutCreateView(APIView):
                 )
         elif order.payment_method == "cash_on_delivery":
             transaction.on_commit(
-                lambda: send_cash_on_delivery_notification_safely(order.id)
+                lambda: publish_cash_on_delivery_notification_safely(order.id)
             )
 
         return Response(

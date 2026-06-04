@@ -1,4 +1,16 @@
 {
+  "functions": {
+    "frontend/src/app/queues/telegram/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "telegram-notifications",
+          "retryAfterSeconds": 60,
+          "initialDelaySeconds": 0
+        }
+      ]
+    }
+  },
   "experimentalServices": {
     "web": {
       "entrypoint": "frontend",

@@ -5,7 +5,6 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import sentry_sdk
 from pydantic_settings import BaseSettings
-from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from shop.types import DatabaseConfig
@@ -48,14 +47,11 @@ class EnvironmentSettings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_SSLMODE: str = ""
 
-    REDIS_PORT: int = 6379
-    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
-    CELERY_TASK_ALWAYS_EAGER: bool = False
-    CELERY_TASK_EAGER_PROPAGATES: bool = False
-
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_ADMIN_CHAT_ID: str = ""
+    NOTIFICATION_QUEUE_WEBHOOK_URL: str = ""
+    NOTIFICATION_QUEUE_SECRET: str = ""
+    NOTIFICATION_QUEUE_TIMEOUT_SECONDS: int = 10
 
     SENTRY_DSN: str = ""
     SENTRY_ENVIRONMENT: str = ""
@@ -136,7 +132,6 @@ def init_sentry() -> None:
             or ("development" if DEBUG else "production"),
             integrations=[
                 DjangoIntegration(),
-                CeleryIntegration(),
             ],
             traces_sample_rate=env.SENTRY_TRACES_SAMPLE_RATE,
             send_default_pii=env.SENTRY_SEND_DEFAULT_PII,
@@ -338,19 +333,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {"default": build_database_config()}
 
 
-CELERY_BROKER_URL = env.CELERY_BROKER_URL
-CELERY_RESULT_BACKEND = env.CELERY_RESULT_BACKEND
-CELERY_TASK_ALWAYS_EAGER = env.CELERY_TASK_ALWAYS_EAGER
-CELERY_TASK_EAGER_PROPAGATES = env.CELERY_TASK_EAGER_PROPAGATES
-
-
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TIMEZONE = "Europe/Kyiv"
-
 TELEGRAM_BOT_TOKEN = env.TELEGRAM_BOT_TOKEN
 TELEGRAM_ADMIN_CHAT_ID = env.TELEGRAM_ADMIN_CHAT_ID
+NOTIFICATION_QUEUE_WEBHOOK_URL = env.NOTIFICATION_QUEUE_WEBHOOK_URL
+NOTIFICATION_QUEUE_SECRET = env.NOTIFICATION_QUEUE_SECRET
+NOTIFICATION_QUEUE_TIMEOUT_SECONDS = env.NOTIFICATION_QUEUE_TIMEOUT_SECONDS
 SENTRY_ALERT_WEBHOOK_SECRET = env.SENTRY_ALERT_WEBHOOK_SECRET
 
 

@@ -1,37 +1,8 @@
-from celery import shared_task
-from django.conf import settings
+from decimal import Decimal
+
 from django.utils.html import escape
 
-from notifications.telegram import send_telegram_message
 from shop.models import Order
-
-
-@shared_task
-def send_order_paid_telegram_notification(order_id: int) -> str:
-    order = Order.objects.get(id=order_id)
-
-    message = build_order_paid_message(order)
-
-    send_telegram_message(
-        chat_id=settings.TELEGRAM_ADMIN_CHAT_ID,
-        text=message,
-    )
-
-    return f"Telegram paid order notification sent for order #{order.id}"
-
-
-@shared_task
-def send_order_cash_on_delivery_telegram_notification(order_id: int) -> str:
-    order = Order.objects.get(id=order_id)
-
-    message = build_order_cash_on_delivery_message(order)
-
-    send_telegram_message(
-        chat_id=settings.TELEGRAM_ADMIN_CHAT_ID,
-        text=message,
-    )
-
-    return f"Telegram cash-on-delivery order notification sent for order #{order.id}"
 
 
 def build_order_paid_message(order: Order) -> str:
@@ -95,5 +66,5 @@ def build_order_message(order: Order, *, title: str) -> str:
     return "\n".join(lines)
 
 
-def format_money(value) -> str:
+def format_money(value: Decimal) -> str:
     return f"{value:.2f} ₴"

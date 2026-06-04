@@ -121,8 +121,18 @@ export const buildTelegramOrderTrackingUrl = (
   botUrl: string,
   orderId: number
 ) => {
+  const normalizedBotUrl = botUrl.trim();
+  if (!normalizedBotUrl) return null;
+
+  const urlCandidate = normalizedBotUrl.startsWith('@')
+    ? `https://t.me/${normalizedBotUrl.slice(1)}`
+    : normalizedBotUrl.startsWith('http://') ||
+        normalizedBotUrl.startsWith('https://')
+      ? normalizedBotUrl
+      : `https://t.me/${normalizedBotUrl}`;
+
   try {
-    const url = new URL(botUrl);
+    const url = new URL(urlCandidate);
     if (!['http:', 'https:'].includes(url.protocol)) {
       return null;
     }

@@ -3,7 +3,6 @@ FRONTEND_DIR=frontend
 BACKEND_PORT=8000
 FRONTEND_PORT=3000
 DOCKER_COMPOSE=docker-compose --env-file $(BACKEND_DIR)/.env -f $(BACKEND_DIR)/docker-compose.yml
-MYPY_FLAGS=--enable-incomplete-feature=NewGenericSyntax
 
 # ---------- Frontend ----------
 
@@ -76,22 +75,16 @@ frontend-check-unused:
 # ---------- Docker services ----------
 
 services-up:
-	$(DOCKER_COMPOSE) up -d postgres redis
+	$(DOCKER_COMPOSE) up -d postgres
 
 services-down:
 	$(DOCKER_COMPOSE) down
 
 services-logs:
-	$(DOCKER_COMPOSE) logs -f postgres redis
+	$(DOCKER_COMPOSE) logs -f postgres
 
 postgres-up:
 	$(DOCKER_COMPOSE) up -d postgres
-
-redis-up:
-	$(DOCKER_COMPOSE) up -d redis
-
-redis-ping:
-	docker exec -it bloomify_redis redis-cli ping
 
 
 # ---------- Backend ----------
@@ -108,15 +101,8 @@ run:
 backend-run: services-up
 	cd $(BACKEND_DIR) && uv run python manage.py runserver
 
-celery:
-	cd $(BACKEND_DIR) && uv run celery -A config.celery worker -l info
-
 dev: services-up
-	@echo "Starting Django and Celery..."
-	cd $(BACKEND_DIR) && \
-	trap 'kill 0' INT TERM EXIT; \
-	uv run celery -A config.celery worker -l info & \
-	uv run python manage.py runserver
+	cd $(BACKEND_DIR) && uv run python manage.py runserver
 	
 migrate:
 	cd $(BACKEND_DIR) && uv run python manage.py migrate
@@ -134,7 +120,7 @@ format:
 lint:
 	$(MAKE) no-any
 	cd $(BACKEND_DIR) && uv run ruff check .
-	cd $(BACKEND_DIR) && uv run mypy . $(MYPY_FLAGS)
+	cd $(BACKEND_DIR) && uv run mypy .
 	$(MAKE) backend-pyright
 
 check: format lint

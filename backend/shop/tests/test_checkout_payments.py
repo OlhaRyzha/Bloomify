@@ -107,7 +107,7 @@ class CheckoutPaymentsTest(TestCase):
 
     def test_checkout_creates_cash_on_delivery_order_without_liqpay_payload(self):
         with patch(
-            "shop.views.orders.send_order_cash_on_delivery_telegram_notification"
+            "shop.views.orders.publish_cash_on_delivery_notification_safely"
         ) as enqueue_notification:
             with self.captureOnCommitCallbacks(execute=True):
                 response = self.client.post(
@@ -137,10 +137,10 @@ class CheckoutPaymentsTest(TestCase):
     )
     def test_checkout_does_not_notify_before_payment(self):
         with patch(
-            "shop.views.orders.send_order_paid_telegram_notification"
+            "shop.views.orders.publish_order_paid_notification_safely"
         ) as enqueue_paid_notification:
             with patch(
-                "shop.views.orders.send_order_cash_on_delivery_telegram_notification"
+                "shop.views.orders.publish_cash_on_delivery_notification_safely"
             ) as enqueue_cash_notification:
                 response = self.client.post(
                     "/orders/checkout",
@@ -162,7 +162,7 @@ class CheckoutPaymentsTest(TestCase):
 
     def test_checkout_does_not_notify_cash_on_delivery_when_create_fails(self):
         with patch(
-            "shop.views.orders.send_order_cash_on_delivery_telegram_notification"
+            "shop.views.orders.publish_cash_on_delivery_notification_safely"
         ) as enqueue_notification:
             response = self.client.post(
                 "/orders/checkout",
@@ -203,7 +203,7 @@ class CheckoutPaymentsTest(TestCase):
         )
 
         with patch(
-            "shop.views.orders.send_order_paid_telegram_notification"
+            "shop.views.orders.publish_order_paid_notification_safely"
         ) as enqueue_notification:
             with self.captureOnCommitCallbacks(execute=True):
                 response = self.client.post(
@@ -243,7 +243,7 @@ class CheckoutPaymentsTest(TestCase):
         )
 
         with patch(
-            "shop.views.orders.send_order_paid_telegram_notification"
+            "shop.views.orders.publish_order_paid_notification_safely"
         ) as enqueue_notification:
             with self.captureOnCommitCallbacks(execute=True):
                 response = self.client.post(
@@ -282,7 +282,7 @@ class CheckoutPaymentsTest(TestCase):
         )
 
         with patch(
-            "shop.views.orders.send_order_paid_telegram_notification"
+            "shop.views.orders.publish_order_paid_notification_safely"
         ) as enqueue_notification:
             with self.captureOnCommitCallbacks(execute=True):
                 response = self.client.post(
@@ -319,7 +319,7 @@ class CheckoutPaymentsTest(TestCase):
             },
         ):
             with patch(
-                "shop.views.orders.send_order_paid_telegram_notification"
+                "shop.views.orders.publish_order_paid_notification_safely"
             ) as enqueue_notification:
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
@@ -348,7 +348,7 @@ class CheckoutPaymentsTest(TestCase):
 
         with patch("shop.views.orders.fetch_payment_status") as fetch_payment_status:
             with patch(
-                "shop.views.orders.send_order_paid_telegram_notification"
+                "shop.views.orders.publish_order_paid_notification_safely"
             ) as enqueue_notification:
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
@@ -375,7 +375,7 @@ class CheckoutPaymentsTest(TestCase):
 
         with patch("shop.views.orders.fetch_payment_status") as fetch_payment_status:
             with patch(
-                "shop.views.orders.send_order_paid_telegram_notification"
+                "shop.views.orders.publish_order_paid_notification_safely"
             ) as enqueue_notification:
                 response = self.client.post(
                     f"/orders/{order.pk}/payment-status",

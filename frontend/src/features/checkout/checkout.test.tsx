@@ -335,7 +335,12 @@ describe('CheckoutFeature', () => {
         10
       )
     ).toBe('https://t.me/bloomify_orders_bot?source=checkout&start=order_10');
-    expect(buildTelegramOrderTrackingUrl('bloomify_orders_bot', 10)).toBeNull();
+    expect(buildTelegramOrderTrackingUrl('@bloomify_support_bot', 10)).toBe(
+      'https://t.me/bloomify_support_bot?start=order_10'
+    );
+    expect(buildTelegramOrderTrackingUrl('bloomify_orders_bot', 10)).toBe(
+      'https://t.me/bloomify_orders_bot?start=order_10'
+    );
     expect(buildTelegramOrderTrackingUrl('', 10)).toBeNull();
   });
 
