@@ -1,9 +1,9 @@
+import { after } from 'next/server';
 import { ZodError } from 'zod';
 
 import {
-  TELEGRAM_NOTIFICATIONS_TOPIC,
   hasValidQueueSignature,
-  sendQueueMessage,
+  sendTelegramNotification,
   telegramNotificationSchema,
 } from '@/services/notifications/telegram-queue';
 
@@ -26,16 +26,15 @@ export const POST = async (request: Request): Promise<Response> => {
 
   try {
     const payload = telegramNotificationSchema.parse(JSON.parse(body));
-    const { messageId } = await sendQueueMessage(
-      TELEGRAM_NOTIFICATIONS_TOPIC,
-      payload,
-      {
-        idempotencyKey: payload.idempotencyKey,
-        retentionSeconds: 86_400,
+    after(async () => {
+      try {
+        await sendTelegramNotification(payload);
+      } catch (error) {
+        console.error('Failed to send Telegram notification', error);
       }
-    );
+    });
 
-    return Response.json({ status: 'queued', messageId });
+    return Response.json({ status: 'accepted' });
   } catch (error) {
     if (error instanceof SyntaxError || error instanceof ZodError) {
       return Response.json(
@@ -44,9 +43,9 @@ export const POST = async (request: Request): Promise<Response> => {
       );
     }
 
-    console.error('Failed to queue Telegram notification', error);
+    console.error('Failed to accept Telegram notification', error);
     return Response.json(
-      { detail: 'Unable to queue Telegram notification.' },
+      { detail: 'Unable to accept Telegram notification.' },
       { status: 502 }
     );
   }

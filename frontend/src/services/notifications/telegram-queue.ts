@@ -1,14 +1,6 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 
-import { QueueClient } from '@vercel/queue';
 import { z } from 'zod';
-
-export const TELEGRAM_NOTIFICATIONS_TOPIC = 'telegram-notifications';
-const QUEUE_REGION = process.env.VERCEL_REGION ?? 'iad1';
-const queueClient = new QueueClient({ region: QUEUE_REGION });
-
-export const sendQueueMessage = queueClient.send;
-export const handleQueueCallback = queueClient.handleCallback;
 
 export const telegramNotificationSchema = z.object({
   eventType: z.enum([
