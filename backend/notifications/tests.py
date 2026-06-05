@@ -17,6 +17,10 @@ from notifications.messages import (
     build_order_paid_message,
 )
 from notifications.models import TelegramOrderSubscription
+from notifications.publisher import (
+    NotificationPublisherError,
+    publish_telegram_notification,
+)
 from notifications.views import (
     build_sentry_alert_idempotency_key,
     build_sentry_alert_message,
@@ -174,6 +178,49 @@ class SentryAlertWebhookTest(TestCase):
             build_sentry_alert_idempotency_key(payload),
             build_sentry_alert_idempotency_key(payload),
         )
+
+
+class NotificationPublisherTest(TestCase):
+    @override_settings(
+        NOTIFICATION_PUBLISHER_WEBHOOK_URL="https://example.com/notify",
+        NOTIFICATION_PUBLISHER_SECRET="secret",
+        TELEGRAM_ADMIN_CHAT_ID="telegram-chat",
+        TELEGRAM_BOT_TOKEN="telegram-token",
+    )
+    @patch("notifications.publisher.send_telegram_message")
+    @patch("notifications.publisher.publish_to_notification_webhook")
+    def test_publish_telegram_notification_falls_back_to_direct_send(
+        self,
+        publish_webhook,
+        send_message,
+    ):
+        publish_webhook.side_effect = NotificationPublisherError("webhook down")
+
+        publish_telegram_notification(
+            event_type="order.paid",
+            idempotency_key="order:1:paid",
+            text="Test message",
+        )
+
+        publish_webhook.assert_called_once()
+        send_message.assert_called_once_with("telegram-chat", "Test message")
+
+    @override_settings(
+        TELEGRAM_ADMIN_CHAT_ID="telegram-chat",
+        TELEGRAM_BOT_TOKEN="telegram-token",
+    )
+    @patch("notifications.publisher.send_telegram_message")
+    def test_publish_telegram_notification_sends_directly_when_no_webhook(
+        self,
+        send_message,
+    ):
+        publish_telegram_notification(
+            event_type="order.paid",
+            idempotency_key="order:1:paid",
+            text="Test message",
+        )
+
+        send_message.assert_called_once_with("telegram-chat", "Test message")
 
 
 class TelegramCustomerBotTest(TestCase):

@@ -28,6 +28,13 @@ class NotificationPublisherError(Exception):
     pass
 
 
+def send_telegram_notification_directly(text: str) -> None:
+    if not settings.TELEGRAM_ADMIN_CHAT_ID:
+        raise TelegramNotificationError("TELEGRAM_ADMIN_CHAT_ID is not configured")
+
+    send_telegram_message(settings.TELEGRAM_ADMIN_CHAT_ID, text)
+
+
 def publish_telegram_notification(
     *,
     event_type: TelegramNotificationEvent,
@@ -41,14 +48,22 @@ def publish_telegram_notification(
     }
 
     if settings.NOTIFICATION_PUBLISHER_WEBHOOK_URL:
-        publish_to_notification_webhook(payload)
-        return
+        try:
+            publish_to_notification_webhook(payload)
+            return
+        except NotificationPublisherError as exc:
+            logger.warning(
+                "Notification webhook failed; falling back to direct Telegram send: %s",
+                exc,
+            )
+            send_telegram_notification_directly(text)
+            return
 
     logger.info(
         "NOTIFICATION_PUBLISHER_WEBHOOK_URL is not configured; sending Telegram "
         "notification synchronously."
     )
-    send_telegram_message(settings.TELEGRAM_ADMIN_CHAT_ID, text)
+    send_telegram_notification_directly(text)
 
 
 def publish_to_notification_webhook(payload: TelegramNotificationPayload) -> None:
