@@ -26,6 +26,7 @@ describe('i18n routing', () => {
   test.each([
     ['/_next/static/chunk.js'],
     ['/api/products'],
+    ['/internal/notifications/telegram'],
     ['/favicon.ico'],
     ['/images/hero.jpg'],
     ['/robots.txt'],

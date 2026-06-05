@@ -12,6 +12,7 @@ const pathHasFileExtension = (pathname: string) => /\.[^/]+$/.test(pathname);
 export const isPublicAssetPath = (pathname: string) =>
   pathname.startsWith('/_next') ||
   pathname.startsWith('/api') ||
+  pathname.startsWith('/internal') ||
   pathname === '/favicon.ico' ||
   pathHasFileExtension(pathname);
 
