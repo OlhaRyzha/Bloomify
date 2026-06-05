@@ -333,6 +333,7 @@
   "checkout_success_order_label": "Замовлення",
   "checkout_success_payment_status_label": "Статус оплати",
   "checkout_success_payment_status_paid": "Оплачено",
+  "checkout_success_payment_status_cash_on_delivery": "Оплата при отриманні",
   "checkout_error_title": "Не вдалося підготувати оформлення",
   "checkout_error_description": "Не вдалося завантажити деталі букетів для замовлення. Спробуйте ще раз перед оплатою.",
   "checkout_contact_title": "Дані доставки",

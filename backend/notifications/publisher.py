@@ -24,7 +24,7 @@ class TelegramNotificationPayload(TypedDict):
     text: str
 
 
-class NotificationQueueError(Exception):
+class NotificationPublisherError(Exception):
     pass
 
 
@@ -40,44 +40,49 @@ def publish_telegram_notification(
         "text": text,
     }
 
-    if settings.NOTIFICATION_QUEUE_WEBHOOK_URL:
-        publish_to_vercel_queue(payload)
+    if settings.NOTIFICATION_PUBLISHER_WEBHOOK_URL:
+        publish_to_notification_webhook(payload)
         return
 
     logger.info(
-        "NOTIFICATION_QUEUE_WEBHOOK_URL is not configured; sending Telegram "
+        "NOTIFICATION_PUBLISHER_WEBHOOK_URL is not configured; sending Telegram "
         "notification synchronously."
     )
     send_telegram_message(settings.TELEGRAM_ADMIN_CHAT_ID, text)
 
 
-def publish_to_vercel_queue(payload: TelegramNotificationPayload) -> None:
-    if not settings.NOTIFICATION_QUEUE_SECRET:
-        raise NotificationQueueError("NOTIFICATION_QUEUE_SECRET is not configured")
+def publish_to_notification_webhook(payload: TelegramNotificationPayload) -> None:
+    if not settings.NOTIFICATION_PUBLISHER_SECRET:
+        raise NotificationPublisherError(
+            "NOTIFICATION_PUBLISHER_SECRET is not configured"
+        )
 
     body = json.dumps(payload, separators=(",", ":"), sort_keys=True)
-    signature = build_queue_signature(body, settings.NOTIFICATION_QUEUE_SECRET)
+    signature = build_publisher_signature(
+        body,
+        settings.NOTIFICATION_PUBLISHER_SECRET,
+    )
 
     try:
         response = requests.post(
-            settings.NOTIFICATION_QUEUE_WEBHOOK_URL,
+            settings.NOTIFICATION_PUBLISHER_WEBHOOK_URL,
             data=body,
             headers={
                 "Content-Type": "application/json",
                 "X-Bloomify-Signature": signature,
             },
-            timeout=settings.NOTIFICATION_QUEUE_TIMEOUT_SECONDS,
+            timeout=settings.NOTIFICATION_PUBLISHER_TIMEOUT_SECONDS,
         )
     except requests.RequestException as exc:
-        raise NotificationQueueError("Notification queue request failed") from exc
+        raise NotificationPublisherError("Notification webhook request failed") from exc
 
     if not response.ok:
-        raise NotificationQueueError(
-            f"Notification queue request failed with HTTP {response.status_code}"
+        raise NotificationPublisherError(
+            f"Notification webhook request failed with HTTP {response.status_code}"
         )
 
 
-def build_queue_signature(body: str, secret: str) -> str:
+def build_publisher_signature(body: str, secret: str) -> str:
     digest = hmac.new(secret.encode(), body.encode(), hashlib.sha256).hexdigest()
     return f"sha256={digest}"
 
@@ -94,5 +99,5 @@ def publish_telegram_notification_safely(
             idempotency_key=idempotency_key,
             text=text,
         )
-    except (NotificationQueueError, TelegramNotificationError):
+    except (NotificationPublisherError, TelegramNotificationError):
         logger.exception("Failed to publish Telegram notification")

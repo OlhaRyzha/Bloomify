@@ -333,6 +333,7 @@
   "checkout_success_order_label": "Zamówienie",
   "checkout_success_payment_status_label": "Status płatności",
   "checkout_success_payment_status_paid": "Opłacone",
+  "checkout_success_payment_status_cash_on_delivery": "Płatność przy odbiorze",
   "checkout_error_title": "Nie udało się przygotować zamówienia",
   "checkout_error_description": "Nie udało się załadować szczegółów bukietów dla zamówienia. Spróbuj ponownie przed płatnością.",
   "checkout_contact_title": "Dane dostawy",

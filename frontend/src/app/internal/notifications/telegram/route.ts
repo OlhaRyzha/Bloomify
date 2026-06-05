@@ -2,25 +2,28 @@ import { after } from 'next/server';
 import { ZodError } from 'zod';
 
 import {
-  hasValidQueueSignature,
+  hasValidPublisherSignature,
   sendTelegramNotification,
   telegramNotificationSchema,
-} from '@/services/notifications/telegram-queue';
+} from '@/services/notifications/telegram-publisher';
 
 export const runtime = 'nodejs';
 
 export const POST = async (request: Request): Promise<Response> => {
-  const secret = process.env.NOTIFICATION_QUEUE_SECRET ?? '';
+  const secret =
+    process.env.NOTIFICATION_PUBLISHER_SECRET ??
+    process.env.NOTIFICATION_QUEUE_SECRET ??
+    '';
   if (!secret) {
     return Response.json(
-      { detail: 'Notification queue is not configured.' },
+      { detail: 'Notification publisher is not configured.' },
       { status: 404 }
     );
   }
 
   const body = await request.text();
   const signature = request.headers.get('x-bloomify-signature');
-  if (!hasValidQueueSignature(body, signature, secret)) {
+  if (!hasValidPublisherSignature(body, signature, secret)) {
     return Response.json({ detail: 'Invalid signature.' }, { status: 403 });
   }
 

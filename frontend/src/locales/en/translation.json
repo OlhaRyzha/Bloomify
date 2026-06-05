@@ -333,6 +333,7 @@
   "checkout_success_order_label": "Order",
   "checkout_success_payment_status_label": "Payment status",
   "checkout_success_payment_status_paid": "Paid",
+  "checkout_success_payment_status_cash_on_delivery": "Payment on delivery",
   "checkout_error_title": "Could not prepare checkout",
   "checkout_error_description": "We could not load bouquet details for your order. Try again before continuing to payment.",
   "checkout_contact_title": "Delivery details",

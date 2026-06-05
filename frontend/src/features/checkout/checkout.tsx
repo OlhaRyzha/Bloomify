@@ -295,6 +295,8 @@ export default function CheckoutFeature() {
   const [completedOrderMessage, setCompletedOrderMessage] = useState<
     string | null
   >(null);
+  const [completedPaymentStatusLabel, setCompletedPaymentStatusLabel] =
+    useState<string | null>(null);
   const [paymentReturnSyncState, setPaymentReturnSyncState] =
     useState<PaymentReturnSyncState>('idle');
   const checkoutSchema = useMemo(
@@ -376,12 +378,16 @@ export default function CheckoutFeature() {
           setCompletedOrderMessage(
             t('checkout_submit_paid_status', { orderId: response.orderId })
           );
+          setCompletedPaymentStatusLabel(
+            t('checkout_success_payment_status_paid')
+          );
           setPaymentReturnSyncState('idle');
           clearCart();
         } else if (response.paymentStatus === 'failed') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
           setCompletedOrderId(null);
           setCompletedOrderMessage(null);
+          setCompletedPaymentStatusLabel(null);
           setPaymentReturnSyncState('idle');
         } else if (attempt < PAYMENT_STATUS_SYNC_RETRY_LIMIT) {
           window.setTimeout(() => {
@@ -392,6 +398,7 @@ export default function CheckoutFeature() {
         }
       } catch {
         setCompletedOrderMessage(null);
+        setCompletedPaymentStatusLabel(null);
         setPaymentReturnSyncState('idle');
         syncedPaymentOrderRef.current = null;
       }
@@ -470,7 +477,7 @@ export default function CheckoutFeature() {
                 {t('checkout_success_payment_status_label')}
               </dt>
               <dd className='mt-1 font-semibold text-primary'>
-                {t('checkout_success_payment_status_paid')}
+                {completedPaymentStatusLabel}
               </dd>
             </div>
           </dl>
@@ -511,6 +518,7 @@ export default function CheckoutFeature() {
       onSubmit={async (values, actions) => {
         actions.setStatus(undefined);
         setCompletedOrderId(null);
+        setCompletedPaymentStatusLabel(null);
         trackCheckoutSubmitted({
           itemCount: summary.itemCount,
           paymentMethod: values.paymentMethod,
@@ -556,6 +564,9 @@ export default function CheckoutFeature() {
           const message = t('checkout_submit_cash_status');
 
           setCompletedOrderId(response.orderId);
+          setCompletedPaymentStatusLabel(
+            t('checkout_success_payment_status_cash_on_delivery')
+          );
           clearCart();
           setCompletedOrderMessage(message);
           actions.setStatus(message);

@@ -15,7 +15,10 @@ from notifications.customer_bot import (
     CustomerTelegramBotError,
     handle_customer_bot_update,
 )
-from notifications.queue import NotificationQueueError, publish_telegram_notification
+from notifications.publisher import (
+    NotificationPublisherError,
+    publish_telegram_notification,
+)
 from notifications.telegram import TelegramNotificationError
 from shop.types import JsonMapping, is_json_object
 
@@ -126,7 +129,7 @@ class SentryAlertWebhookView(APIView):
                 idempotency_key=build_sentry_alert_idempotency_key(payload),
                 text=message,
             )
-        except (NotificationQueueError, TelegramNotificationError):
+        except (NotificationPublisherError, TelegramNotificationError):
             logger.exception("Failed to publish Sentry alert Telegram notification")
             return Response(
                 {"detail": "Telegram notification failed."},

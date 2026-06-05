@@ -382,6 +382,7 @@ describe('CheckoutFeature', () => {
         'Order created. We will confirm payment on delivery after processing it.'
       )
     ).toBeInTheDocument();
+    expect(screen.getByText('Payment on delivery')).toBeInTheDocument();
     expect(HTMLFormElement.prototype.submit).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(useCartStore.getState().items).toEqual([]);

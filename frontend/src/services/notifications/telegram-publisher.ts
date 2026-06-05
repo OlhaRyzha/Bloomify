@@ -16,19 +16,19 @@ export type TelegramNotificationPayload = z.infer<
   typeof telegramNotificationSchema
 >;
 
-export const buildQueueSignature = (body: string, secret: string): string => {
+export const buildPublisherSignature = (body: string, secret: string): string => {
   const digest = createHmac('sha256', secret).update(body).digest('hex');
   return `sha256=${digest}`;
 };
 
-export const hasValidQueueSignature = (
+export const hasValidPublisherSignature = (
   body: string,
   signature: string | null,
   secret: string
 ): boolean => {
   if (!signature || !signature.startsWith('sha256=')) return false;
 
-  const expected = buildQueueSignature(body, secret);
+  const expected = buildPublisherSignature(body, secret);
   const providedBuffer = Buffer.from(signature);
   const expectedBuffer = Buffer.from(expected);
 

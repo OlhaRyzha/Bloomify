@@ -53,6 +53,14 @@ Makefile          Shared development commands
 | Analytics | ecommerce funnel events without customer PII |
 | Quality | unit, coverage, e2e, a11y, visual regression, lint, typecheck, build |
 
+## Backend Notifications
+
+Bloomify does not use Celery or a durable worker queue. Backend order and Sentry
+events call `publish_telegram_notification()`, which posts a signed payload to
+`NOTIFICATION_PUBLISHER_WEBHOOK_URL` when that webhook is configured. If the
+webhook is not configured, Django sends the Telegram message synchronously as a
+lightweight fallback.
+
 ## Quick Start
 
 Create local env files:

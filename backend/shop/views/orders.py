@@ -9,7 +9,7 @@ from notifications.messages import (
     build_order_cash_on_delivery_message,
     build_order_paid_message,
 )
-from notifications.queue import publish_telegram_notification_safely
+from notifications.publisher import publish_telegram_notification_safely
 from rest_framework import permissions, serializers, status
 from rest_framework.request import Request
 from rest_framework.response import Response
