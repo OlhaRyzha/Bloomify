@@ -9,7 +9,7 @@ class ProductSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     tag = serializers.SerializerMethodField()
-    price = serializers.FloatField()
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
     imageUrl = serializers.SerializerMethodField()
 
     class Meta:

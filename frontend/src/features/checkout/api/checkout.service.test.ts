@@ -56,13 +56,17 @@ describe('CheckoutService', () => {
 
   test('syncs checkout payment status', async () => {
     server.use(
-      http.post(apiUrl('orders/10/payment-status'), () =>
-        HttpResponse.json(createCheckoutPaymentStatusResponse())
-      )
+      http.post(apiUrl('orders/10/payment-status'), async ({ request }) => {
+        await expect(request.json()).resolves.toEqual({
+          token: 'payment-status-token',
+        });
+
+        return HttpResponse.json(createCheckoutPaymentStatusResponse());
+      })
     );
 
-    await expect(CheckoutService.syncPaymentStatus(10)).resolves.toEqual(
-      createCheckoutPaymentStatusResponse()
-    );
+    await expect(
+      CheckoutService.syncPaymentStatus(10, 'payment-status-token')
+    ).resolves.toEqual(createCheckoutPaymentStatusResponse());
   });
 });

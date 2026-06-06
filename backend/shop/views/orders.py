@@ -13,13 +13,16 @@ from notifications.publisher import publish_telegram_notification_safely
 from rest_framework import permissions, serializers, status
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from shop.models.order import Order
+from shop.security.order_access import hash_order_access_token
 from shop.serializers.order import (
     PAYMENT_METHODS_WITH_LIQPAY,
     CheckoutCreateSerializer,
     CheckoutOrderPayload,
+    PaymentStatusRequestSerializer,
     create_checkout_order,
 )
 from shop.services.liqpay import (
@@ -42,6 +45,16 @@ class PaymentStatusResponse(TypedDict):
     paymentStatus: str
     paymentProvider: str
     paymentMethod: str
+    paymentStatusToken: str
+
+
+class PaymentStatusResponseSerializer(serializers.Serializer):
+    orderId = serializers.IntegerField()
+    status = serializers.CharField()
+    paymentStatus = serializers.CharField()
+    paymentProvider = serializers.CharField(allow_blank=True)
+    paymentMethod = serializers.CharField(allow_blank=True)
+    paymentStatusToken = serializers.CharField()
 
 
 def publish_order_paid_notification_safely(order_id: int) -> None:
@@ -130,18 +143,25 @@ def apply_liqpay_payment_payload(
     return order.payment_status == "paid" and not was_paid_before
 
 
-def build_payment_status_response(order: Order) -> PaymentStatusResponse:
+def build_payment_status_response(
+    order: Order,
+    *,
+    payment_status_token: str,
+) -> PaymentStatusResponse:
     return {
         "orderId": order.pk,
         "status": order.status,
         "paymentStatus": order.payment_status,
         "paymentProvider": order.payment_provider,
         "paymentMethod": order.payment_method,
+        "paymentStatusToken": payment_status_token,
     }
 
 
 class CheckoutCreateView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "checkout"
 
     @extend_schema(
         request=CheckoutCreateSerializer,
@@ -151,7 +171,9 @@ class CheckoutCreateView(APIView):
         serializer = CheckoutCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payload = cast(CheckoutOrderPayload, serializer.validated_data)
-        order = create_checkout_order(payload)
+        checkout_result = create_checkout_order(payload)
+        order = checkout_result["order"]
+        payment_status_token = checkout_result["payment_status_token"]
 
         liqpay_payload = None
         if order.payment_method in PAYMENT_METHODS_WITH_LIQPAY:
@@ -159,6 +181,7 @@ class CheckoutCreateView(APIView):
                 liqpay_payload = create_checkout_payload(
                     order,
                     locale=payload.get("locale"),
+                    payment_status_token=payment_status_token,
                 )
             except LiqPayConfigurationError as exc:
                 order.payment_status = "failed"
@@ -183,6 +206,7 @@ class CheckoutCreateView(APIView):
                 "paymentStatus": order.payment_status,
                 "paymentProvider": order.payment_provider,
                 "paymentMethod": order.payment_method,
+                "paymentStatusToken": payment_status_token,
                 "liqpay": liqpay_payload,
             },
             status=status.HTTP_201_CREATED,
@@ -247,9 +271,18 @@ class LiqPayCallbackView(APIView):
 class LiqPayPaymentStatusView(APIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "payment_status"
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(
+        request=PaymentStatusRequestSerializer,
+        responses={200: PaymentStatusResponseSerializer},
+    )
     def post(self, request: Request, pk: int) -> Response:
+        serializer = PaymentStatusRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data["token"]
+
         try:
             order = Order.objects.get(pk=pk, payment_provider="liqpay")
         except Order.DoesNotExist:
@@ -258,9 +291,23 @@ class LiqPayPaymentStatusView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        if (
+            not token
+            or hash_order_access_token(token) != order.payment_status_token_hash
+        ):
+            return Response(
+                {"detail": "Invalid payment status token."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         if order.payment_status == "paid":
             schedule_paid_notification_after_checkout_return(order)
-            return Response(build_payment_status_response(order))
+            return Response(
+                build_payment_status_response(
+                    order,
+                    payment_status_token=token,
+                )
+            )
 
         try:
             payload = fetch_payment_status(order)
@@ -279,4 +326,9 @@ class LiqPayPaymentStatusView(APIView):
         if apply_liqpay_payment_payload(order, payload):
             schedule_paid_notification_after_checkout_return(order)
 
-        return Response(build_payment_status_response(order))
+        return Response(
+            build_payment_status_response(
+                order,
+                payment_status_token=token,
+            )
+        )

@@ -2,10 +2,22 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
+from rest_framework.throttling import ScopedRateThrottle
 
 from shop.models.order import Order
+from shop.security.order_access import (
+    create_order_access_token,
+    hash_order_access_token,
+)
 from shop.services.liqpay import create_signature, decode_data, encode_data
 from shop.tests.factories import create_order, create_product
+
+
+def authorize_payment_status(order: Order) -> str:
+    token = create_order_access_token()
+    order.payment_status_token_hash = hash_order_access_token(token)
+    order.save(update_fields=["payment_status_token_hash"])
+    return token
 
 
 class CheckoutPaymentsTest(TestCase):
@@ -40,6 +52,8 @@ class CheckoutPaymentsTest(TestCase):
         self.assertEqual(body["paymentProvider"], "liqpay")
         self.assertEqual(body["paymentStatus"], "pending")
         self.assertEqual(body["paymentMethod"], "card")
+        self.assertIsInstance(body["paymentStatusToken"], str)
+        self.assertGreater(len(body["paymentStatusToken"]), 20)
         self.assertIn("data", body["liqpay"])
         self.assertIn("signature", body["liqpay"])
 
@@ -57,7 +71,8 @@ class CheckoutPaymentsTest(TestCase):
         self.assertEqual(liqpay_payload["order_id"], order.liqpay_order_id)
         self.assertEqual(
             liqpay_payload["result_url"],
-            f"http://localhost:3000/uk/checkout?orderId={order.pk}",
+            "http://localhost:3000/uk/checkout?"
+            f"orderId={order.pk}&orderToken={body['paymentStatusToken']}",
         )
         self.assertEqual(liqpay_payload["paytypes"], "card")
 
@@ -89,7 +104,8 @@ class CheckoutPaymentsTest(TestCase):
         liqpay_payload = decode_data(body["liqpay"]["data"])
         self.assertEqual(
             liqpay_payload["result_url"],
-            f"http://localhost:3000/en/checkout?orderId={order.pk}",
+            "http://localhost:3000/en/checkout?"
+            f"orderId={order.pk}&orderToken={body['paymentStatusToken']}",
         )
 
     @override_settings(LIQPAY_PRIVATE_KEY="a4825234f4bae72a0be04eafe9e8e2bada209255")
@@ -201,7 +217,6 @@ class CheckoutPaymentsTest(TestCase):
                 "payment_id": 123456,
             }
         )
-
         with patch(
             "shop.views.orders.publish_order_paid_notification_safely"
         ) as enqueue_notification:
@@ -309,6 +324,7 @@ class CheckoutPaymentsTest(TestCase):
             liqpay_order_id="bloomify-1",
             total=Decimal("1750.00"),
         )
+        token = authorize_payment_status(order)
 
         with patch(
             "shop.views.orders.fetch_payment_status",
@@ -324,6 +340,8 @@ class CheckoutPaymentsTest(TestCase):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
                         f"/orders/{order.pk}/payment-status",
+                        data={"token": token},
+                        content_type="application/json",
                     )
 
         self.assertEqual(response.status_code, 200)
@@ -345,6 +363,7 @@ class CheckoutPaymentsTest(TestCase):
             total=Decimal("1750.00"),
             payment_payload={"status": "success"},
         )
+        token = authorize_payment_status(order)
 
         with patch("shop.views.orders.fetch_payment_status") as fetch_payment_status:
             with patch(
@@ -353,6 +372,8 @@ class CheckoutPaymentsTest(TestCase):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
                         f"/orders/{order.pk}/payment-status",
+                        data={"token": token},
+                        content_type="application/json",
                     )
 
         self.assertEqual(response.status_code, 200)
@@ -372,6 +393,7 @@ class CheckoutPaymentsTest(TestCase):
             total=Decimal("1750.00"),
             payment_payload={"paid_telegram_notification_sent": True},
         )
+        token = authorize_payment_status(order)
 
         with patch("shop.views.orders.fetch_payment_status") as fetch_payment_status:
             with patch(
@@ -379,12 +401,112 @@ class CheckoutPaymentsTest(TestCase):
             ) as enqueue_notification:
                 response = self.client.post(
                     f"/orders/{order.pk}/payment-status",
+                    data={"token": token},
+                    content_type="application/json",
                 )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["paymentStatus"], "paid")
         fetch_payment_status.assert_not_called()
         enqueue_notification.assert_not_called()
+
+    def test_liqpay_status_sync_rejects_missing_token(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="pending",
+            status="pending",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+        )
+
+        response = self.client.post(f"/orders/{order.pk}/payment-status")
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_liqpay_status_sync_rejects_invalid_token(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="pending",
+            status="pending",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+        )
+        authorize_payment_status(order)
+
+        response = self.client.post(
+            f"/orders/{order.pk}/payment-status",
+            data={"token": "wrong-token"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_checkout_endpoint_is_rate_limited(self):
+        payload = {
+            "customerName": "Tom Smith",
+            "email": "tom@example.com",
+            "phone": "+380671234567",
+            "city": "Kyiv",
+            "address": "Khreshchatyk 1",
+            "paymentMethod": "cash_on_delivery",
+            "items": [{"id": self.product.pk, "quantity": 1}],
+        }
+
+        with patch.object(
+            ScopedRateThrottle,
+            "THROTTLE_RATES",
+            {"checkout": "1/minute", "payment_status": "60/hour"},
+        ):
+            first_response = self.client.post(
+                "/orders/checkout",
+                data=payload,
+                content_type="application/json",
+                REMOTE_ADDR="203.0.113.10",
+            )
+            second_response = self.client.post(
+                "/orders/checkout",
+                data=payload,
+                content_type="application/json",
+                REMOTE_ADDR="203.0.113.10",
+            )
+
+        self.assertEqual(first_response.status_code, 201)
+        self.assertEqual(second_response.status_code, 429)
+
+    def test_payment_status_endpoint_is_rate_limited(self):
+        order = create_order(
+            payment_provider="liqpay",
+            payment_method="card",
+            payment_status="paid",
+            status="paid",
+            liqpay_order_id="bloomify-1",
+            total=Decimal("1750.00"),
+            payment_payload={"paid_telegram_notification_sent": True},
+        )
+        token = authorize_payment_status(order)
+
+        with patch.object(
+            ScopedRateThrottle,
+            "THROTTLE_RATES",
+            {"checkout": "20/hour", "payment_status": "1/minute"},
+        ):
+            first_response = self.client.post(
+                f"/orders/{order.pk}/payment-status",
+                data={"token": token},
+                content_type="application/json",
+                REMOTE_ADDR="203.0.113.11",
+            )
+            second_response = self.client.post(
+                f"/orders/{order.pk}/payment-status",
+                data={"token": token},
+                content_type="application/json",
+                REMOTE_ADDR="203.0.113.11",
+            )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 429)
 
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",

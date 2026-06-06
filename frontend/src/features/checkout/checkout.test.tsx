@@ -31,6 +31,7 @@ const resetCheckoutDraftStore = () => {
 };
 
 const pendingLiqPayOrderKey = 'bloomify.pendingLiqPayOrderId';
+const pendingLiqPayOrderTokenKey = 'bloomify.pendingLiqPayOrderToken';
 
 const mockProducts = () => {
   server.use(
@@ -244,6 +245,9 @@ describe('CheckoutFeature', () => {
       })
     );
     expect(window.localStorage.getItem(pendingLiqPayOrderKey)).toBe('1');
+    expect(window.localStorage.getItem(pendingLiqPayOrderTokenKey)).toBe(
+      'payment-status-token'
+    );
     expect(useCartStore.getState().items).toEqual([
       { id: 'rose-bouquet', quantity: 1 },
     ]);
@@ -252,11 +256,19 @@ describe('CheckoutFeature', () => {
   test('clears cart after pending LiqPay order is confirmed paid', async () => {
     mockProducts();
     window.localStorage.setItem(pendingLiqPayOrderKey, '10');
+    window.localStorage.setItem(
+      pendingLiqPayOrderTokenKey,
+      'stored-payment-status-token'
+    );
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
     server.use(
-      http.post(apiUrl('orders/10/payment-status'), () =>
-        HttpResponse.json(createCheckoutPaymentStatusResponse())
-      )
+      http.post(apiUrl('orders/10/payment-status'), async ({ request }) => {
+        await expect(request.json()).resolves.toEqual({
+          token: 'stored-payment-status-token',
+        });
+
+        return HttpResponse.json(createCheckoutPaymentStatusResponse());
+      })
     );
 
     renderWithProviders(<CheckoutFeature />, { locale: 'en' });
@@ -268,16 +280,25 @@ describe('CheckoutFeature', () => {
       screen.getByText(/payment for order #10 is confirmed/i)
     ).toBeInTheDocument();
     expect(window.localStorage.getItem(pendingLiqPayOrderKey)).toBeNull();
+    expect(window.localStorage.getItem(pendingLiqPayOrderTokenKey)).toBeNull();
     expect(useCartStore.getState().items).toEqual([]);
   });
 
   test('shows paid LiqPay success from result URL without cart items', async () => {
     mockProducts();
-    window.history.pushState(null, '', '/en/checkout?orderId=10');
+    window.history.pushState(
+      null,
+      '',
+      '/en/checkout?orderId=10&orderToken=query-payment-status-token'
+    );
     server.use(
-      http.post(apiUrl('orders/10/payment-status'), () =>
-        HttpResponse.json(createCheckoutPaymentStatusResponse())
-      )
+      http.post(apiUrl('orders/10/payment-status'), async ({ request }) => {
+        await expect(request.json()).resolves.toEqual({
+          token: 'query-payment-status-token',
+        });
+
+        return HttpResponse.json(createCheckoutPaymentStatusResponse());
+      })
     );
 
     renderWithProviders(<CheckoutFeature />, { locale: 'en' });
@@ -295,23 +316,44 @@ describe('CheckoutFeature', () => {
 
   test('prefers LiqPay result URL order id over stale pending storage', async () => {
     mockProducts();
-    window.history.pushState(null, '', '/en/checkout?orderId=11');
+    window.history.pushState(
+      null,
+      '',
+      '/en/checkout?orderId=11&orderToken=query-payment-status-token'
+    );
     window.localStorage.setItem(pendingLiqPayOrderKey, '10');
+    window.localStorage.setItem(
+      pendingLiqPayOrderTokenKey,
+      'stored-payment-status-token'
+    );
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
 
     const syncedOrderIds: number[] = [];
+    const syncedTokens: string[] = [];
     server.use(
-      http.post(apiUrl('orders/:orderId/payment-status'), ({ params }) => {
+      http.post(
+        apiUrl('orders/:orderId/payment-status'),
+        async ({ params, request }) => {
         const rawOrderId = params.orderId;
         const orderId = Number(
           Array.isArray(rawOrderId) ? rawOrderId[0] : rawOrderId
         );
+        const payload = await request.json();
         syncedOrderIds.push(orderId);
+        syncedTokens.push(
+          typeof payload === 'object' &&
+            payload !== null &&
+            'token' in payload &&
+            typeof payload.token === 'string'
+            ? payload.token
+            : ''
+        );
 
         return HttpResponse.json(
           createCheckoutPaymentStatusResponse({ orderId })
         );
-      })
+        }
+      )
     );
 
     renderWithProviders(<CheckoutFeature />, { locale: 'en' });
@@ -323,6 +365,7 @@ describe('CheckoutFeature', () => {
       screen.getByText(/payment for order #11 is confirmed/i)
     ).toBeInTheDocument();
     expect(syncedOrderIds).toEqual([11]);
+    expect(syncedTokens).toEqual(['query-payment-status-token']);
   });
 
   test('builds Telegram order tracking deep link', () => {

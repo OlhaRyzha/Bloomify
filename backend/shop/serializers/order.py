@@ -2,10 +2,15 @@ from decimal import Decimal
 from typing import NotRequired, TypedDict
 
 from django.conf import settings
+from django.db import transaction
 from rest_framework import serializers
 
 from shop.models.order import Order
 from shop.models.product import Product
+from shop.security.order_access import (
+    create_order_access_token,
+    hash_order_access_token,
+)
 
 PAYMENT_METHODS_WITH_LIQPAY = {"apple_pay", "google_pay", "card"}
 STANDARD_DELIVERY_FEE = Decimal("150.00")
@@ -15,6 +20,11 @@ FREE_DELIVERY_THRESHOLD = Decimal("1500.00")
 class CheckoutItemData(TypedDict):
     id: int
     quantity: int
+
+
+class CheckoutOrderResult(TypedDict):
+    order: Order
+    payment_status_token: str
 
 
 class CheckoutOrderPayload(TypedDict):
@@ -57,7 +67,11 @@ class CheckoutCreateSerializer(serializers.Serializer):
         return value
 
 
-def create_checkout_order(payload: CheckoutOrderPayload) -> Order:
+class PaymentStatusRequestSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=128)
+
+
+def create_checkout_order(payload: CheckoutOrderPayload) -> CheckoutOrderResult:
     product_ids = [item["id"] for item in payload["items"]]
     products = Product.objects.in_bulk(product_ids)
 
@@ -87,37 +101,43 @@ def create_checkout_order(payload: CheckoutOrderPayload) -> Order:
     total = subtotal + delivery_cost
     payment_method = payload["paymentMethod"]
     uses_liqpay = payment_method in PAYMENT_METHODS_WITH_LIQPAY
+    payment_status_token = create_order_access_token()
 
-    order = Order.objects.create(
-        customer_name=payload["customerName"],
-        customer_email=payload["email"],
-        customer_phone=payload["phone"],
-        delivery_city=payload["city"],
-        delivery_address=payload["address"],
-        delivery_note=payload.get("deliveryNote", ""),
-        payment_provider="liqpay" if uses_liqpay else "",
-        payment_method=payment_method,
-        payment_status="pending" if uses_liqpay else "not_required",
-        status="pending",
-        subtotal=subtotal,
-        delivery_cost=delivery_cost,
-        total=total,
-    )
+    with transaction.atomic():
+        order = Order.objects.create(
+            customer_name=payload["customerName"],
+            customer_email=payload["email"],
+            customer_phone=payload["phone"],
+            delivery_city=payload["city"],
+            delivery_address=payload["address"],
+            delivery_note=payload.get("deliveryNote", ""),
+            payment_provider="liqpay" if uses_liqpay else "",
+            payment_method=payment_method,
+            payment_status="pending" if uses_liqpay else "not_required",
+            status="pending",
+            subtotal=subtotal,
+            delivery_cost=delivery_cost,
+            total=total,
+            payment_status_token_hash=hash_order_access_token(payment_status_token),
+        )
 
-    order.liqpay_order_id = f"bloomify-{order.pk}"
-    order.save(update_fields=["liqpay_order_id"])
+        order.liqpay_order_id = f"bloomify-{order.pk}"
+        order.save(update_fields=["liqpay_order_id"])
 
-    order.items.bulk_create(
-        [
-            order.items.model(
-                order=order,
-                product=product,
-                quantity=quantity,
-                unit_price=unit_price,
-                total=item_total,
-            )
-            for product, quantity, unit_price, item_total in order_items
-        ]
-    )
+        order.items.bulk_create(
+            [
+                order.items.model(
+                    order=order,
+                    product=product,
+                    quantity=quantity,
+                    unit_price=unit_price,
+                    total=item_total,
+                )
+                for product, quantity, unit_price, item_total in order_items
+            ]
+        )
 
-    return order
+    return {
+        "order": order,
+        "payment_status_token": payment_status_token,
+    }

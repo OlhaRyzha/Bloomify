@@ -38,6 +38,7 @@ export type CheckoutResponse = {
   paymentStatus: string;
   paymentProvider: string;
   paymentMethod: CheckoutPaymentMethod;
+  paymentStatusToken: string;
   liqpay?: LiqPayCheckoutPayload | null;
 };
 
@@ -60,6 +61,7 @@ const checkoutResponseSchema = z.object({
     'card',
     'cash_on_delivery',
   ]),
+  paymentStatusToken: z.string(),
   liqpay: liqPayCheckoutPayloadSchema.nullish(),
 });
 
@@ -82,11 +84,12 @@ const CheckoutService = {
     ) as CheckoutResponse;
   },
   syncPaymentStatus: async (
-    orderId: number
+    orderId: number,
+    token: string
   ): Promise<CheckoutPaymentStatusResponse> => {
-    const response = await apiClient.post<unknown, undefined>(
+    const response = await apiClient.post<unknown, { token: string }>(
       API_ROUTES.CHECKOUT_PAYMENT_STATUS(orderId),
-      undefined
+      { token }
     );
 
     return parseResponseWithSchema(

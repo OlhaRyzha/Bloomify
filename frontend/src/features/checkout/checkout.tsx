@@ -100,6 +100,7 @@ const paymentOptions: PaymentOption[] = [
 ];
 
 const PENDING_LIQPAY_ORDER_KEY = 'bloomify.pendingLiqPayOrderId';
+const PENDING_LIQPAY_ORDER_TOKEN_KEY = 'bloomify.pendingLiqPayOrderToken';
 const PAYMENT_STATUS_SYNC_RETRY_LIMIT = 5;
 const PAYMENT_STATUS_SYNC_RETRY_DELAY_MS = 1500;
 
@@ -115,6 +116,14 @@ const getOrderIdFromCheckoutSearch = () => {
   );
 
   return Number.isInteger(orderId) && orderId > 0 ? orderId : null;
+};
+
+const getOrderTokenFromCheckoutSearch = () => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  return new URLSearchParams(window.location.search).get('orderToken') ?? '';
 };
 
 export const buildTelegramOrderTrackingUrl = (
@@ -344,15 +353,19 @@ export default function CheckoutFeature() {
     }
 
     const rawOrderId = window.localStorage.getItem(PENDING_LIQPAY_ORDER_KEY);
+    const storedOrderToken =
+      window.localStorage.getItem(PENDING_LIQPAY_ORDER_TOKEN_KEY) ?? '';
     const storedOrderId = Number(rawOrderId);
     const searchOrderId = getOrderIdFromCheckoutSearch();
+    const searchOrderToken = getOrderTokenFromCheckoutSearch();
     const orderId =
       searchOrderId ??
       (Number.isInteger(storedOrderId) && storedOrderId > 0
         ? storedOrderId
         : null);
+    const orderToken = searchOrderToken || storedOrderToken;
 
-    if (!orderId || syncedPaymentOrderRef.current === orderId) {
+    if (!orderId || !orderToken || syncedPaymentOrderRef.current === orderId) {
       return;
     }
 
@@ -361,10 +374,14 @@ export default function CheckoutFeature() {
 
     const syncPaymentStatus = async (attempt = 0) => {
       try {
-        const response = await CheckoutService.syncPaymentStatus(orderId);
+        const response = await CheckoutService.syncPaymentStatus(
+          orderId,
+          orderToken
+        );
 
         if (response.paymentStatus === 'paid') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
+          window.localStorage.removeItem(PENDING_LIQPAY_ORDER_TOKEN_KEY);
           if (summary.itemCount > 0) {
             trackPurchaseCompleted({
               itemCount: summary.itemCount,
@@ -385,6 +402,7 @@ export default function CheckoutFeature() {
           clearCart();
         } else if (response.paymentStatus === 'failed') {
           window.localStorage.removeItem(PENDING_LIQPAY_ORDER_KEY);
+          window.localStorage.removeItem(PENDING_LIQPAY_ORDER_TOKEN_KEY);
           setCompletedOrderId(null);
           setCompletedOrderMessage(null);
           setCompletedPaymentStatusLabel(null);
@@ -548,6 +566,10 @@ export default function CheckoutFeature() {
             window.localStorage.setItem(
               PENDING_LIQPAY_ORDER_KEY,
               String(response.orderId)
+            );
+            window.localStorage.setItem(
+              PENDING_LIQPAY_ORDER_TOKEN_KEY,
+              response.paymentStatusToken
             );
             actions.setStatus(message);
             submitLiqPayCheckout(response.liqpay);

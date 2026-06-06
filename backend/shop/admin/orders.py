@@ -37,8 +37,6 @@ class OrderAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "user",
-                    "product",
-                    "quantity",
                     "status",
                     "status_note",
                     "payment_method",
@@ -81,12 +79,11 @@ class OrderAdmin(admin.ModelAdmin):
         "customer_name",
         "customer_email",
         "customer_phone",
-        "product__translations__name",
         "items__product__translations__name",
         "liqpay_order_id",
         "liqpay_payment_id",
     )
-    autocomplete_fields = ("user", "product")
+    autocomplete_fields = ("user",)
     ordering = ("-created_at",)
     readonly_fields = (
         "subtotal",

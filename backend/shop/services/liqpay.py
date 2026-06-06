@@ -55,6 +55,7 @@ def create_checkout_payload(
     order: Order,
     *,
     locale: str | None = None,
+    payment_status_token: str,
 ) -> LiqPayCheckoutPayload:
     public_key = settings.LIQPAY_PUBLIC_KEY
     if not public_key:
@@ -68,7 +69,11 @@ def create_checkout_payload(
         "currency": "UAH",
         "description": f"Bloomify order #{order.pk}",
         "order_id": order.liqpay_order_id,
-        "result_url": build_result_url(order, locale=locale),
+        "result_url": build_result_url(
+            order,
+            locale=locale,
+            payment_status_token=payment_status_token,
+        ),
         "sandbox": 1 if public_key.startswith("sandbox_") else 0,
     }
 
@@ -87,10 +92,16 @@ def create_checkout_payload(
     }
 
 
-def build_result_url(order: Order, *, locale: str | None = None) -> str:
+def build_result_url(
+    order: Order,
+    *,
+    locale: str | None = None,
+    payment_status_token: str,
+) -> str:
     parts = urlsplit(settings.LIQPAY_RESULT_URL)
     query_params = dict(parse_qsl(parts.query, keep_blank_values=True))
     query_params["orderId"] = str(order.pk)
+    query_params["orderToken"] = payment_status_token
     path = parts.path
     if locale is not None and locale in SUPPORTED_LANGUAGE_CODES:
         path = _localize_result_path(path, locale)

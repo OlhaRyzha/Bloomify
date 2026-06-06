@@ -37,6 +37,7 @@ export const createCheckoutResponse = (
   paymentStatus: 'pending',
   paymentProvider: 'liqpay',
   paymentMethod: 'card',
+  paymentStatusToken: 'payment-status-token',
   liqpay: createLiqPayCheckoutPayload(),
   ...overrides,
 });
@@ -49,5 +50,6 @@ export const createCheckoutPaymentStatusResponse = (
   paymentStatus: 'paid',
   paymentProvider: 'liqpay',
   paymentMethod: 'card',
+  paymentStatusToken: 'payment-status-token',
   ...overrides,
 });

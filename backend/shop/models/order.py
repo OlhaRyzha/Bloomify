@@ -13,7 +13,6 @@ from .product import Product
 class Order(models.Model):
     if TYPE_CHECKING:
         id: int
-        product_id: int | None
         items: models.Manager["OrderItem"]
 
         def get_status_display(self) -> str: ...
@@ -55,15 +54,6 @@ class Order(models.Model):
         blank=True,
         verbose_name=_("User"),
     )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.PROTECT,
-        related_name="orders",
-        null=True,
-        blank=True,
-        verbose_name=_("Bouquet"),
-    )
-    quantity = models.PositiveIntegerField(_("Quantity"), default=1)
     status: "models.CharField[str, str]" = models.CharField(
         _("Status"), max_length=20, choices=STATUS_CHOICES, default="pending"
     )
@@ -123,6 +113,12 @@ class Order(models.Model):
     payment_payload: "models.JSONField[JsonObject, JsonObject]" = models.JSONField(
         _("Payment payload"), default=dict, blank=True
     )
+    payment_status_token_hash: "models.CharField[str, str]" = models.CharField(
+        _("Payment status token hash"),
+        max_length=64,
+        blank=True,
+        editable=False,
+    )
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated"), auto_now=True)
 
@@ -138,10 +134,9 @@ class Order(models.Model):
     def total_price(self) -> Decimal:
         if self.total:
             return self.total
-        if not self.product_id:
-            return Decimal("0.00")
-        assert self.product is not None
-        return self.product.price * self.quantity
+
+        item_total = sum((item.total for item in self.items.all()), Decimal("0.00"))
+        return item_total
 
 
 class OrderItem(models.Model):
