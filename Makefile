@@ -72,11 +72,6 @@ frontend-check-unimported:
 frontend-check-unused:
 	cd $(FRONTEND_DIR) && npx ts-prune
 
-# ---------- Codex skills ----------
-
-validate-skills:
-	python3 scripts/validate_skills.py
-
 # ---------- Docker services ----------
 
 services-up:
