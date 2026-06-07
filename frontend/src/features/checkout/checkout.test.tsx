@@ -8,7 +8,7 @@ import { apiUrl } from '@/test/api-url';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 
-import CheckoutFeature, { buildTelegramOrderTrackingUrl } from './checkout';
+import { buildTelegramOrderTrackingUrl } from './components/checkout.helpers';
 import {
   createCheckoutPaymentStatusResponse,
   createCheckoutResponse,
@@ -18,6 +18,7 @@ import {
   checkoutDeliveryDraftInitialValues,
   useCheckoutDraftStore,
 } from './store/checkout-draft.store';
+import CheckoutFeature from './checkout';
 
 const resetCartStore = () => {
   localStorage.clear();
@@ -96,10 +97,13 @@ describe('CheckoutFeature', () => {
     vi.restoreAllMocks();
     resetCartStore();
     resetCheckoutDraftStore();
+
     window.history.pushState(null, '', '/en/checkout');
+
     document.body
       .querySelectorAll('form[action="https://www.liqpay.ua/api/3/checkout"]')
       .forEach((form) => form.remove());
+
     vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {});
   });
 
@@ -194,7 +198,9 @@ describe('CheckoutFeature', () => {
 
   test('redirects card payments to hosted LiqPay checkout', async () => {
     mockProducts();
+
     let checkoutPayload: unknown = null;
+
     server.use(
       http.post(apiUrl('orders/checkout'), async ({ request }) => {
         checkoutPayload = await request.json();
@@ -208,11 +214,13 @@ describe('CheckoutFeature', () => {
         );
       })
     );
+
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
 
     const { user } = renderWithProviders(<CheckoutFeature />, { locale: 'en' });
 
     await screen.findByText('Rose bouquet');
+
     await user.type(screen.getByLabelText(/full name/i), 'Tom Smith');
     await user.type(screen.getByLabelText(/phone/i), '+380671234567');
     await user.type(screen.getByLabelText(/email/i), 'tom@example.com');
@@ -258,12 +266,15 @@ describe('CheckoutFeature', () => {
 
   test('clears cart after pending LiqPay order is confirmed paid', async () => {
     mockProducts();
+
     window.localStorage.setItem(pendingLiqPayOrderKey, '10');
     window.localStorage.setItem(
       pendingLiqPayOrderTokenKey,
       'stored-payment-status-token'
     );
+
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
+
     server.use(
       http.post(apiUrl('orders/10/payment-status'), async ({ request }) => {
         await expect(request.json()).resolves.toEqual({
@@ -289,11 +300,13 @@ describe('CheckoutFeature', () => {
 
   test('shows paid LiqPay success from result URL without cart items', async () => {
     mockProducts();
+
     window.history.pushState(
       null,
       '',
       '/en/checkout?orderId=10&orderToken=query-payment-status-token'
     );
+
     server.use(
       http.post(apiUrl('orders/10/payment-status'), async ({ request }) => {
         await expect(request.json()).resolves.toEqual({
@@ -319,20 +332,24 @@ describe('CheckoutFeature', () => {
 
   test('prefers LiqPay result URL order id over stale pending storage', async () => {
     mockProducts();
+
     window.history.pushState(
       null,
       '',
       '/en/checkout?orderId=11&orderToken=query-payment-status-token'
     );
+
     window.localStorage.setItem(pendingLiqPayOrderKey, '10');
     window.localStorage.setItem(
       pendingLiqPayOrderTokenKey,
       'stored-payment-status-token'
     );
+
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
 
     const syncedOrderIds: number[] = [];
     const syncedTokens: string[] = [];
+
     server.use(
       http.post(
         apiUrl('orders/:orderId/payment-status'),
@@ -342,6 +359,7 @@ describe('CheckoutFeature', () => {
             Array.isArray(rawOrderId) ? rawOrderId[0] : rawOrderId
           );
           const payload = await request.json();
+
           syncedOrderIds.push(orderId);
           syncedTokens.push(
             typeof payload === 'object' &&
@@ -405,6 +423,7 @@ describe('CheckoutFeature', () => {
     const { user } = renderWithProviders(<CheckoutFeature />, { locale: 'en' });
 
     await screen.findByText('Rose bouquet');
+
     await user.type(screen.getByLabelText(/full name/i), 'Tom Smith');
     await user.type(screen.getByLabelText(/phone/i), '+380671234567');
     await user.type(screen.getByLabelText(/email/i), 'tom@example.com');
@@ -417,6 +436,7 @@ describe('CheckoutFeature', () => {
     await user.click(
       screen.getByRole('radio', { name: /payment on delivery/i })
     );
+
     expect(
       screen.getByRole('button', { name: /place order/i })
     ).toBeInTheDocument();
@@ -430,6 +450,7 @@ describe('CheckoutFeature', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Payment on delivery')).toBeInTheDocument();
     expect(HTMLFormElement.prototype.submit).not.toHaveBeenCalled();
+
     await waitFor(() => {
       expect(useCartStore.getState().items).toEqual([]);
     });
@@ -437,11 +458,13 @@ describe('CheckoutFeature', () => {
 
   test('shows API errors and preserves delivery input', async () => {
     mockProducts();
+
     server.use(
       http.post(apiUrl('orders/checkout'), () =>
         HttpResponse.json({ error: 'Checkout failed' }, { status: 500 })
       )
     );
+
     useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
 
     const { user } = renderWithProviders(<CheckoutFeature />, { locale: 'en' });
@@ -462,6 +485,7 @@ describe('CheckoutFeature', () => {
     await waitFor(() => {
       expect(screen.getByRole('status')).toHaveTextContent('Checkout failed');
     });
+
     expect(nameInput).toHaveValue('Tom Smith');
     expect(useCartStore.getState().items).toEqual([
       { id: 'rose-bouquet', quantity: 1 },
