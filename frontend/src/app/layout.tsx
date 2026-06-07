@@ -13,6 +13,8 @@ import type { ReactNode } from 'react';
 import { LOCALE_HEADER } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
 

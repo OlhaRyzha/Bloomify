@@ -347,7 +347,13 @@ class OrderListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request: Request) -> Response:
-        user = cast(User, request.user)
+        user = request.user
+
+        if not isinstance(user, User):
+            return Response(
+                {"detail": "Authentication credentials were not provided."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
         orders = (
             Order.objects.filter(user=user)

@@ -5,6 +5,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Formik, Form } from 'formik';
 import { Chrome } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -39,12 +40,14 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { loginWithRedirect, isLoading: isAuth0Loading } = useAuth0();
+
   const fields = getAuthFields({ mode, t });
   const schema = mode === 'login' ? loginSchema : registerSchema;
   const redirectPath = getPostAuthRedirectPath(
     searchParams.get('next'),
     locale
   );
+
   const handleGoogleSignIn = async () => {
     await loginWithRedirect({
       authorizationParams: {
@@ -67,6 +70,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
         <CardTitle className='font-display text-3xl'>
           {t(`auth_form_${mode}_title`)}
         </CardTitle>
+
         <CardDescription className='text-base'>
           {t(`auth_form_${mode}_subtitle`)}
         </CardDescription>
@@ -95,7 +99,10 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
 
               const trackAuth =
                 mode === 'login' ? trackAuthSignedIn : trackAuthSignedUp;
+
               trackAuth({ locale });
+
+              router.refresh();
               router.replace(redirectPath);
             } catch (error) {
               actions.setStatus(ApiError.fromUnknown(error).userMessage);
@@ -154,6 +161,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                       className='text-sm font-medium text-foreground'>
                       {field.label}
                     </label>
+
                     <div className='relative'>
                       <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'>
                         <Icon
@@ -161,6 +169,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                           aria-hidden
                         />
                       </span>
+
                       <Input
                         id={field.name}
                         name={field.name}
@@ -181,6 +190,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                         className='mt-0.5 h-11 bg-background/70 pl-10'
                       />
                     </div>
+
                     {field.helper && !isInvalid && (
                       <p
                         id={helperId}
@@ -188,6 +198,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                         {field.helper}
                       </p>
                     )}
+
                     {isInvalid && (
                       <p
                         id={errorId}
