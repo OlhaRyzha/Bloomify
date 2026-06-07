@@ -1,5 +1,5 @@
 import { TIMEOUT } from '@/constants/network.constants';
-import { cleanParams } from '@/utils/api/clean-params';
+import { cleanParams } from '@/services/api/request/clean-params';
 import { AxiosRequestConfig } from 'axios';
 import qs from 'qs';
 

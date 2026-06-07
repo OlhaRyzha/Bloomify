@@ -1,4 +1,4 @@
-import { ApiError, ApiErrorType } from '../api/api-error';
+import { ApiError, ApiErrorType } from '../../services/api/errors/api-error';
 import { isString } from '../guards/is-string';
 
 export function invariant(

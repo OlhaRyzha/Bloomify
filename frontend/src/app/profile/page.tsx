@@ -12,8 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { getSignInPathWithNext } from '@/features/auth/auth-redirect';
-import { hasAuthSessionCookie } from '@/features/auth/auth-session.server';
+import { getSignInPathWithNext } from '@/features/auth/lib/shared/auth-redirect';
+import { hasAuthSessionCookie } from '@/features/auth/lib/server/auth-session.server';
 import { getLocalizedPath } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
 

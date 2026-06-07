@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import AuthForm from '@/features/auth/forms/auth-form';
-import AuthShell from '@/features/auth/auth-shell';
+import AuthShell from '@/features/auth/components/auth-shell';
 import { getServerTranslator } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {

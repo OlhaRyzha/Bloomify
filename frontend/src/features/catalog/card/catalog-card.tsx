@@ -7,7 +7,7 @@ import AddToCartButton from '@/components/ui/add-to-cart-button';
 import FallbackImage from '@/components/ui/fallback-image';
 import { useHydrated } from '@/hooks/use-hydrated';
 import type { CatalogItem } from '@/types/catalog';
-import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
+import { getCatalogItemImage } from '@/features/catalog/lib/get-catalog-item-image';
 import {
   selectIsFavorite,
   selectToggleFavorite,

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { ApiError, ApiErrorType } from './api-error';
+import { ApiError, ApiErrorType } from '../errors/api-error';
 import { safeRequest, safeVoidRequest } from './safe-request';
 
 const toastMock = vi.fn();

@@ -3,8 +3,8 @@ import {
   STANDARD_DELIVERY_FEE,
 } from '@/constants/delivery.constants';
 import type { CatalogItem } from '@/types/catalog';
-import type { CartItem } from './store/cart.store';
-import type { CartItemWithDetails, CartSummaryModel } from './cart.types';
+import type { CartItem } from '../store/cart.store';
+import type { CartItemWithDetails, CartSummaryModel } from '../cart.types';
 
 export const getCartItemsWithDetails = (
   items: CartItem[],

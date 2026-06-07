@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { type FormikHelpers } from 'formik';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { ApiError } from '@/utils/api/api-error';
+import { ApiError } from '@/services/api/errors/api-error';
 import {
   trackCheckoutSubmitted,
   trackPaymentFailed,

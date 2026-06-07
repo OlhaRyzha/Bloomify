@@ -1,4 +1,4 @@
-import { isNonEmptyArray } from '../guards/is-non-empty-array';
+import { isNonEmptyArray } from '../../../utils/guards/is-non-empty-array';
 
 export function cleanParams(
   params: Record<string, unknown>

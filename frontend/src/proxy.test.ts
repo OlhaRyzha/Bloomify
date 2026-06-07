@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { describe, expect, test } from 'vitest';
 
-import { AUTH_SESSION_COOKIE_NAME } from './features/auth/auth-routing';
+import { AUTH_SESSION_COOKIE_NAME } from './features/auth/lib/shared/auth-routing';
 import { LOCALE_HEADER } from './i18n/routing';
 import { proxy } from './proxy';
 import { appUrl } from './test/app-url';
@@ -39,10 +39,7 @@ describe('proxy auth routing', () => {
 
   test('rewrites authenticated localized profile requests', () => {
     const response = proxy(
-      createRequest(
-        appUrl('/uk/profile'),
-        `${AUTH_SESSION_COOKIE_NAME}=1`
-      )
+      createRequest(appUrl('/uk/profile'), `${AUTH_SESSION_COOKIE_NAME}=1`)
     );
 
     expect(response.status).toBe(200);

@@ -1,6 +1,6 @@
 import { API_ROUTES } from '@/constants/api.constant';
 import apiClient from '@/services/api/clients/api-client';
-import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
+import { parseResponseWithSchema } from '@/services/api/request/safe-fetch';
 import {
   ordersPaginatedSchema,
   type OrdersPaginatedResponse,

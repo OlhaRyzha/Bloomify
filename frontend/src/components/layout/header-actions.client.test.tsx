@@ -5,7 +5,7 @@ import { renderWithProviders } from '@/test/render';
 
 import HeaderActions from './header-actions.client';
 import { CLOSE_MOBILE_MENU_EVENT } from './header-events';
-import { AUTH_SESSION_COOKIE_NAME } from '@/features/auth/auth-routing';
+import { AUTH_SESSION_COOKIE_NAME } from '@/features/auth/lib/shared/auth-routing';
 
 let pathnameMock = '/uk/catalog';
 

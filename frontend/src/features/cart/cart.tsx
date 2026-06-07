@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
+
 import { Button } from '@/components/ui/button';
 import ConfirmationDialog from '@/components/ui/confirmation-dialog';
 import {
@@ -9,21 +10,22 @@ import {
   type ConfirmationCopyRequest,
 } from '@/components/ui/confirmation-copy';
 import FeedbackState from '@/components/ui/feedback-state';
+import { useLocale } from '@/components/providers/locale-provider';
 import { useHydrated } from '@/hooks/use-hydrated';
+import { useTranslation } from '@/hooks/use-translation';
 import { formatTemplate, getBouquetCountLabel } from '@/utils/i18n';
+import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { useGetProducts } from '@/features/catalog/api/use-products';
+
+import CartEmptyState from './components/cart-empty-state';
+import CartInfoCards from './components/cart-info-cards';
+import CartLineItem from './components/cart-line-item';
+import CartLoadingState from './components/cart-loading-state';
+import CartSummary from './components/cart-summary';
+import { getCartSummary } from './components/cart.helpers';
+import CartPromoCodeForm from './forms/cart-promo-code-form';
 import { selectCartViewState } from './store/cart.selectors';
 import { useCartStore } from './store/cart.store';
-import { useTranslation } from '@/hooks/use-translation';
-import CartEmptyState from './cart-empty-state';
-import CartInfoCards from './cart-info-cards';
-import CartLineItem from './cart-line-item';
-import CartLoadingState from './cart-loading-state';
-import CartPromoCodeForm from './forms/cart-promo-code-form';
-import CartSummary from './cart-summary';
-import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
-import { getCartSummary } from './cart.helpers';
-import { useLocale } from '@/components/providers/locale-provider';
 import type { CartItemWithDetails } from './cart.types';
 import {
   trackCartItemAdded,
@@ -31,22 +33,24 @@ import {
   trackCartViewed,
 } from '@/services/analytics/analytics.events';
 
-type CartConfirmation =
-  | {
-      request: ConfirmationCopyRequest;
-      onConfirm: () => void;
-    }
-  | null;
+type CartConfirmation = {
+  request: ConfirmationCopyRequest;
+  onConfirm: () => void;
+} | null;
 
 export default function CartFeature() {
   const isHydrated = useHydrated();
   const [confirmation, setConfirmation] = useState<CartConfirmation>(null);
+
   const { items, removeItem, updateQuantity, clearCart } = useCartStore(
     useShallow(selectCartViewState)
   );
+
   const { t } = useTranslation();
   const { locale } = useLocale();
+
   const trackedCartKeyRef = useRef<string | null>(null);
+
   const {
     data: catalogItems = [],
     isError: isCatalogError,
@@ -54,13 +58,14 @@ export default function CartFeature() {
     refetch: refetchCatalogItems,
   } = useGetProducts();
 
-  const { cartItems, deliveryCost, itemCount, subtotal, total } = useMemo(() => {
-    if (!isHydrated) {
-      return getCartSummary([], []);
-    }
+  const { cartItems, deliveryCost, itemCount, subtotal, total } =
+    useMemo(() => {
+      if (!isHydrated) {
+        return getCartSummary([], []);
+      }
 
-    return getCartSummary(items, catalogItems);
-  }, [items, isHydrated, catalogItems]);
+      return getCartSummary(items, catalogItems);
+    }, [items, catalogItems, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated || !isNonEmptyArray(cartItems)) {
@@ -68,13 +73,15 @@ export default function CartFeature() {
     }
 
     const cartKey = cartItems
-      .map((item) => `${item.id}:${item.quantity}`)
+      .map((item) => `${item.id}:${item.quantity}:${item.price}`)
       .join('|');
+
     if (trackedCartKeyRef.current === cartKey) {
       return;
     }
 
     trackedCartKeyRef.current = cartKey;
+
     trackCartViewed({
       itemCount,
       value: total,
@@ -82,40 +89,59 @@ export default function CartFeature() {
     });
   }, [cartItems, isHydrated, itemCount, locale, total]);
 
-  const trackQuantityChange = (
-    item: CartItemWithDetails,
-    nextQuantity: number
-  ) => {
-    const delta = nextQuantity - item.quantity;
-    if (delta === 0) {
-      return;
-    }
+  const trackQuantityChange = useCallback(
+    (item: CartItemWithDetails, nextQuantity: number) => {
+      const delta = nextQuantity - item.quantity;
 
-    const quantity = Math.abs(delta);
-    const track = delta > 0 ? trackCartItemAdded : trackCartItemRemoved;
-    track({ item, quantity, source: 'cart', locale });
-  };
+      if (delta === 0) {
+        return;
+      }
 
-  const requestRemoveItem = (item: CartItemWithDetails) => {
-    setConfirmation({
-      request: {
-        action: 'delete',
-        entity: 'cartItem',
-        entityName: item.name,
-      },
-      onConfirm: () => {
-        removeItem(item.id);
-        trackCartItemRemoved({
-          item,
-          quantity: item.quantity,
-          source: 'cart',
-          locale,
-        });
-      },
-    });
-  };
+      const quantity = Math.abs(delta);
+      const track = delta > 0 ? trackCartItemAdded : trackCartItemRemoved;
 
-  const requestClearCart = () => {
+      track({
+        item,
+        quantity,
+        source: 'cart',
+        locale,
+      });
+    },
+    [locale]
+  );
+
+  const handleUpdateQuantity = useCallback(
+    (item: CartItemWithDetails, quantity: number) => {
+      trackQuantityChange(item, quantity);
+      updateQuantity(item.id, quantity);
+    },
+    [trackQuantityChange, updateQuantity]
+  );
+
+  const requestRemoveItem = useCallback(
+    (item: CartItemWithDetails) => {
+      setConfirmation({
+        request: {
+          action: 'delete',
+          entity: 'cartItem',
+          entityName: item.name,
+        },
+        onConfirm: () => {
+          removeItem(item.id);
+
+          trackCartItemRemoved({
+            item,
+            quantity: item.quantity,
+            source: 'cart',
+            locale,
+          });
+        },
+      });
+    },
+    [locale, removeItem]
+  );
+
+  const requestClearCart = useCallback(() => {
     setConfirmation({
       request: {
         action: 'clear',
@@ -130,15 +156,34 @@ export default function CartFeature() {
             locale,
           });
         });
+
         clearCart();
       },
     });
-  };
+  }, [cartItems, clearCart, locale]);
 
-  const activeConfirmation = confirmation;
-  const confirmationCopy = activeConfirmation
-    ? getConfirmationCopy(t, activeConfirmation.request)
-    : null;
+  const handleRetryCatalog = useCallback(async () => {
+    await refetchCatalogItems();
+  }, [refetchCatalogItems]);
+
+  const handleConfirm = useCallback(() => {
+    confirmation?.onConfirm();
+    setConfirmation(null);
+  }, [confirmation]);
+
+  const handleConfirmationOpenChange = useCallback((open: boolean) => {
+    if (!open) {
+      setConfirmation(null);
+    }
+  }, []);
+
+  const confirmationCopy = useMemo(() => {
+    if (!confirmation) {
+      return null;
+    }
+
+    return getConfirmationCopy(t, confirmation.request);
+  }, [confirmation, t]);
 
   if (!isHydrated) {
     return null;
@@ -157,9 +202,7 @@ export default function CartFeature() {
         title={t('cart_error_title')}
         description={t('cart_error_description')}
         actionLabel={t('common_try_again')}
-        onAction={async () => {
-          await refetchCatalogItems();
-        }}
+        onAction={handleRetryCatalog}
       />
     );
   }
@@ -178,6 +221,7 @@ export default function CartFeature() {
               item: getBouquetCountLabel(itemCount, locale),
             })}
           </p>
+
           <Button
             variant='ghost'
             size='sm'
@@ -192,10 +236,7 @@ export default function CartFeature() {
             key={item.id}
             item={item}
             onRemove={requestRemoveItem}
-            onUpdateQuantity={(id, quantity) => {
-              trackQuantityChange(item, quantity);
-              updateQuantity(id, quantity);
-            }}
+            onUpdateQuantity={handleUpdateQuantity}
           />
         ))}
 
@@ -210,6 +251,7 @@ export default function CartFeature() {
           deliveryCost={deliveryCost}
           total={total}
         />
+
         <CartPromoCodeForm />
         <CartInfoCards />
       </aside>
@@ -223,12 +265,8 @@ export default function CartFeature() {
           confirmLabel={confirmationCopy.confirmLabel}
           cancelLabel={confirmationCopy.cancelLabel}
           closeLabel={confirmationCopy.closeLabel}
-          onConfirm={() => activeConfirmation?.onConfirm()}
-          onOpenChange={(open) => {
-            if (!open) {
-              setConfirmation(null);
-            }
-          }}
+          onConfirm={handleConfirm}
+          onOpenChange={handleConfirmationOpenChange}
         />
       ) : null}
     </div>

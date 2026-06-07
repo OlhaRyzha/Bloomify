@@ -10,7 +10,7 @@ import {
   type ConfirmationCopy,
 } from '@/components/ui/confirmation-copy';
 import ConfirmationDialog from '@/components/ui/confirmation-dialog';
-import AuthSessionService from '@/features/auth/auth-session.service';
+import AuthSessionService from '@/features/auth/lib/shared/auth-session.service';
 import { getLocalizedPath } from '@/i18n/routing';
 import { useTranslation } from '@/hooks/use-translation';
 import { trackAuthSignedOut } from '@/services/analytics/analytics.events';

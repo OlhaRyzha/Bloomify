@@ -3,7 +3,7 @@ import {
   useQueryClient,
   type QueryKey,
 } from '@tanstack/react-query';
-import { ApiError } from '@/utils/api/api-error';
+import { ApiError } from '@/services/api/errors/api-error';
 import { useToast } from '@/hooks/use-toast';
 import type { IdType } from '@/types/ids';
 
@@ -181,7 +181,9 @@ const defaultUpdateFromResponse = <
     return currentData;
   }
 
-  const hasItem = currentData.some((item) => getItemId(item) === responseItemId);
+  const hasItem = currentData.some(
+    (item) => getItemId(item) === responseItemId
+  );
 
   if (!hasItem && action === OPTIMISTIC_LIST_MUTATION_ACTIONS.CREATE) {
     return [responseItem, ...currentData];

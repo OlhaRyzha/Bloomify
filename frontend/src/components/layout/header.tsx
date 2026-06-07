@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
-import { hasAuthSessionCookie } from '@/features/auth/auth-session.server';
+import { hasAuthSessionCookie } from '@/features/auth/lib/server/auth-session.server';
 import { getLocalizedPath } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
 

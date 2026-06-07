@@ -13,8 +13,8 @@ import {
 import {
   AUTH_COOKIE_NAMES,
   isProtectedAuthPath,
-} from '@/features/auth/auth-routing';
-import { getSignInPathWithNext } from '@/features/auth/auth-redirect';
+} from '@/features/auth/lib/shared/auth-routing';
+import { getSignInPathWithNext } from '@/features/auth/lib/shared/auth-redirect';
 
 const getPreferredLocale = (request: NextRequest): Locale => {
   const acceptLanguage = request.headers.get('accept-language') ?? '';

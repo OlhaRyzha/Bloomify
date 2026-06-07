@@ -1,6 +1,6 @@
 import z from 'zod';
 
-import { ApiError } from './api-error';
+import { ApiError } from '../errors/api-error';
 import { validationMessages } from '@/constants/message.constants';
 
 export function parseResponseWithSchema<T>(

@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, test } from 'vitest';
 
 import { API_ROUTES } from '@/constants/api.constant';
 import { ALLOWED_EXTERNAL_HOSTS } from '@/constants/network.constants';
-import { AUTH_SESSION_COOKIE_NAME } from '@/features/auth/auth-routing';
+import { AUTH_SESSION_COOKIE_NAME } from '@/features/auth/lib/shared/auth-routing';
 import { useAuthTokenStore } from '@/features/auth/store/auth-token.store';
 import { apiUrl } from '@/test/api-url';
 import { server } from '@/test/msw/server';
-import { ApiErrorType } from '@/utils/api/api-error';
+import { ApiErrorType } from '@/services/api/errors/api-error';
 
 import { ApiClient } from './api-client';
 
@@ -71,9 +71,7 @@ describe('ApiClient auth headers', () => {
           return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        expect(request.headers.get('authorization')).toBe(
-          'Bearer fresh-token'
-        );
+        expect(request.headers.get('authorization')).toBe('Bearer fresh-token');
 
         return HttpResponse.json({ ok: true });
       }),

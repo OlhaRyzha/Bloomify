@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import { server } from '@/test/msw/server';
 import { apiUrl } from '@/test/api-url';
-import { ApiError, ApiErrorType } from '@/utils/api/api-error';
+import { ApiError, ApiErrorType } from '@/services/api/errors/api-error';
 
 import CheckoutService from './checkout.service';
 import {
@@ -20,16 +20,13 @@ describe('CheckoutService', () => {
       http.post(apiUrl('orders/checkout'), async ({ request }) => {
         await expect(request.json()).resolves.toEqual(checkoutPayload);
 
-        return HttpResponse.json(
-          createCheckoutResponse(),
-          { status: 201 }
-        );
+        return HttpResponse.json(createCheckoutResponse(), { status: 201 });
       })
     );
 
-    await expect(CheckoutService.createCheckout(checkoutPayload)).resolves.toEqual(
-      createCheckoutResponse()
-    );
+    await expect(
+      CheckoutService.createCheckout(checkoutPayload)
+    ).resolves.toEqual(createCheckoutResponse());
   });
 
   test('normalizes invalid checkout response into ApiError', async () => {

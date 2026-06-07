@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'vitest';
 
-import { ApiError, ApiErrorType } from './api-error';
+import { ApiError, ApiErrorType } from '../errors/api-error';
 import { cleanParams } from './clean-params';
-import { isNumber, isValueGreaterThanZero } from '../guards/is-number';
-import { invariant } from '../invariant/invariant';
-import { getHost } from '../url/get-host';
+import {
+  isNumber,
+  isValueGreaterThanZero,
+} from '../../../utils/guards/is-number';
+import { invariant } from '../../../utils/invariant/invariant';
+import { getHost } from '../../../utils/url/get-host';
 
 describe('api and guard helpers', () => {
   test('cleanParams removes empty values and serializes arrays', () => {

@@ -1,7 +1,7 @@
 import { pipe, R } from '@mobily/ts-belt';
 import type { Result } from '@mobily/ts-belt';
 import { toast } from '@/hooks/use-toast';
-import { ApiError } from './api-error';
+import { ApiError } from '../errors/api-error';
 
 export type SafeRequestOptions = {
   showErrorToast?: boolean;

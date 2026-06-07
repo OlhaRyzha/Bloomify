@@ -7,7 +7,7 @@ import {
   type ProductItem,
   type Products,
 } from '@/features/catalog/api/products.shemas';
-import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
+import { parseResponseWithSchema } from '@/services/api/request/safe-fetch';
 
 type ProductsRequestParams = {
   lang?: Locale;

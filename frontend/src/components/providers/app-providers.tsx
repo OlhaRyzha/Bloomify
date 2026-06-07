@@ -5,8 +5,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import QueryLoader from '@/components/ui/query-loader';
 import Toaster from '@/components/ui/toaster';
-import Auth0ProviderClient from '@/features/auth/auth0-provider.client';
-import queryClient from '@/services/queryClient';
+import Auth0ProviderClient from '@/features/auth/components/auth0-provider.client';
+import queryClient from '@/services/api/query/query-сlient';
 import AuthSessionBootstrap from './auth-session-bootstrap';
 
 type AppProvidersProps = {

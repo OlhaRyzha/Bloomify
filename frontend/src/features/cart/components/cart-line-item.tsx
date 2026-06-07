@@ -1,25 +1,27 @@
+import { memo } from 'react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import FallbackImage from '@/components/ui/fallback-image';
 import { useLocale } from '@/components/providers/locale-provider';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCurrency } from '@/utils/i18n';
-import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
-import type { CartItemWithDetails } from './cart.types';
+import { getCatalogItemImage } from '@/features/catalog/lib/get-catalog-item-image';
+
+import type { CartItemWithDetails } from '../cart.types';
 
 type CartLineItemProps = {
   item: CartItemWithDetails;
   onRemove: (item: CartItemWithDetails) => void;
-  onUpdateQuantity: (id: string, quantity: number) => void;
+  onUpdateQuantity: (item: CartItemWithDetails, quantity: number) => void;
 };
 
-export default function CartLineItem({
-  item,
-  onRemove,
-  onUpdateQuantity,
-}: CartLineItemProps) {
+function CartLineItem({ item, onRemove, onUpdateQuantity }: CartLineItemProps) {
   const { t } = useTranslation();
   const { locale } = useLocale();
+
+  const itemPrice = Number(item.price);
+  const itemTotal = itemPrice * item.quantity;
 
   return (
     <article className='relative grid gap-5 rounded-3xl bg-gradient-card p-5 pt-8 pr-12 text-center shadow-card sm:grid-cols-[7rem_1fr] sm:text-left lg:grid-cols-[7rem_minmax(0,1fr)_auto] lg:items-center lg:gap-6 lg:p-6 lg:pt-10 lg:pr-16'>
@@ -49,7 +51,9 @@ export default function CartLineItem({
         <span className='text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground'>
           {item.tag}
         </span>
+
         <h3 className='font-display text-xl font-semibold'>{item.name}</h3>
+
         <p className='text-sm text-muted-foreground'>{item.description}</p>
       </div>
 
@@ -58,20 +62,22 @@ export default function CartLineItem({
           <Button
             variant='outline'
             size='icon-sm'
-            onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+            onClick={() => onUpdateQuantity(item, item.quantity - 1)}
             aria-label={t('cart_decrease_quantity_label', { name: item.name })}>
             <Minus
               className='h-4 w-4'
               aria-hidden
             />
           </Button>
+
           <span className='text-center text-base font-semibold'>
             {item.quantity}
           </span>
+
           <Button
             variant='outline'
             size='icon-sm'
-            onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+            onClick={() => onUpdateQuantity(item, item.quantity + 1)}
             aria-label={t('cart_increase_quantity_label', { name: item.name })}>
             <Plus
               className='h-4 w-4'
@@ -84,14 +90,18 @@ export default function CartLineItem({
           <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
             {t('cart_sum')}
           </p>
+
           <p className='font-display text-2xl text-primary'>
-            {formatCurrency(Number(item.price) * item.quantity, locale)}
+            {formatCurrency(itemTotal, locale)}
           </p>
+
           <p className='text-xs text-muted-foreground'>
-            {formatCurrency(Number(item.price), locale)} / {t('common_bouquet')}
+            {formatCurrency(itemPrice, locale)} / {t('common_bouquet')}
           </p>
         </div>
       </div>
     </article>
   );
 }
+
+export default memo(CartLineItem);

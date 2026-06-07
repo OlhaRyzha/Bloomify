@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-import AuthSessionService from '@/features/auth/auth-session.service';
+import AuthSessionService from '@/features/auth/lib/shared/auth-session.service';
 import { useAuthSessionMarker } from '@/features/auth/hooks/use-auth-session-marker';
 import { useAuthTokenStore } from '@/features/auth/store/auth-token.store';
 

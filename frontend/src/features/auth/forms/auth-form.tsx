@@ -27,9 +27,9 @@ import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import { useTranslation } from '@/hooks/use-translation';
 import { getLocalizedPath } from '@/i18n/routing';
-import { ApiError } from '@/utils/api/api-error';
-import { getPostAuthRedirectPath } from '../auth-redirect';
-import AuthSessionService from '../auth-session.service';
+import { ApiError } from '@/services/api/errors/api-error';
+import { getPostAuthRedirectPath } from '../lib/shared/auth-redirect';
+import AuthSessionService from '../lib/shared/auth-session.service';
 import {
   trackAuthSignedIn,
   trackAuthSignedUp,
@@ -37,7 +37,7 @@ import {
 import {
   navigateAfterAuth,
   rememberPostAuthRedirectPath,
-} from '../auth-navigation.client';
+} from '../lib/client/auth-navigation.client';
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { locale, t } = useTranslation();

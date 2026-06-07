@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation';
 
 import FeedbackState from '@/components/ui/feedback-state';
 import { useLocale } from '@/components/providers/locale-provider';
-import AuthSessionService from '@/features/auth/auth-session.service';
+import AuthSessionService from '@/features/auth/lib/shared/auth-session.service';
 import {
   getRememberedPostAuthRedirectPath,
   navigateAfterAuth,
-} from '@/features/auth/auth-navigation.client';
+} from '@/features/auth/lib/client/auth-navigation.client';
 import { getLocalizedPath } from '@/i18n/routing';
 import { useTranslation } from '@/hooks/use-translation';
 

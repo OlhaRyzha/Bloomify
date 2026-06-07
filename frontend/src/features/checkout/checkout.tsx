@@ -16,7 +16,7 @@ import {
   selectClearCart,
 } from '@/features/cart/store/cart.selectors';
 import { useCartStore } from '@/features/cart/store/cart.store';
-import { getCartSummary } from '@/features/cart/cart.helpers';
+import { getCartSummary } from '@/features/cart/components/cart.helpers';
 import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { trackCheckoutStarted } from '@/services/analytics/analytics.events';
 

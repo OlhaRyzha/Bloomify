@@ -4,13 +4,16 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { validationMessages } from '@/constants/message.constants';
 import { createDeferred } from '@/test/deferred';
 import { renderWithProviders } from '@/test/render';
-import { ApiError, ApiErrorType } from '@/utils/api/api-error';
+import { ApiError, ApiErrorType } from '@/services/api/errors/api-error';
 
 import AuthForm from './auth-form';
-import AuthSessionService from '../auth-session.service';
-import { createSignInPayload, createSignUpPayload } from '../auth.factory';
+import AuthSessionService from '../lib/shared/auth-session.service';
+import {
+  createSignInPayload,
+  createSignUpPayload,
+} from '../lib/shared/auth.factory';
 import { useAuthTokenStore } from '../store/auth-token.store';
-import { AUTH_SESSION_COOKIE_NAME } from '../auth-routing';
+import { AUTH_SESSION_COOKIE_NAME } from '../lib/shared/auth-routing';
 
 const {
   loginWithRedirectMock,
@@ -35,16 +38,17 @@ vi.mock('@auth0/auth0-react', () => ({
   }),
 }));
 
-vi.mock('../auth-navigation.client', () => ({
+vi.mock('../lib/client/auth-navigation.client', () => ({
   navigateAfterAuth: navigateAfterAuthMock,
   rememberPostAuthRedirectPath: rememberPostAuthRedirectPathMock,
 }));
 
-vi.mock('../auth-session.service', () => ({
+vi.mock('../lib/shared/auth-session.service', () => ({
   default: {
     signIn: vi.fn(),
     signUp: vi.fn(),
     refresh: vi.fn(),
+    signInWithAuth0: vi.fn(),
     signOut: vi.fn(),
   },
 }));
@@ -53,6 +57,8 @@ describe('AuthForm', () => {
   beforeEach(() => {
     vi.mocked(AuthSessionService.signIn).mockReset();
     vi.mocked(AuthSessionService.signUp).mockReset();
+    vi.mocked(AuthSessionService.refresh).mockReset();
+    vi.mocked(AuthSessionService.signOut).mockReset();
 
     loginWithRedirectMock.mockReset();
     navigateAfterAuthMock.mockReset();

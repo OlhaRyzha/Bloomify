@@ -2,7 +2,7 @@ import AddToCartButton from '@/components/ui/add-to-cart-button';
 import FallbackImage from '@/components/ui/fallback-image';
 import InfoCard from '@/components/ui/info-card';
 import type { CatalogItem } from '@/types/catalog';
-import { getCatalogItemImage } from '@/utils/get-catalog-item-image';
+import { getCatalogItemImage } from '@/features/catalog/lib/get-catalog-item-image';
 import ProductAnalytics from './product-analytics.client';
 
 export type ProductFeatureCopy = {

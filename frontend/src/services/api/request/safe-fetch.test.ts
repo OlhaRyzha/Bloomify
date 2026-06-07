@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 
-import { ApiError, ApiErrorType } from './api-error';
+import { ApiError, ApiErrorType } from '../errors/api-error';
 import { parseResponseWithSchema, safeFetchJson } from './safe-fetch';
 
 describe('safe-fetch utilities', () => {

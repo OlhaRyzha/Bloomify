@@ -10,19 +10,22 @@ import { createAxiosConfig } from './axios.config';
 import { BASE_URL } from '@/components/config/env';
 import { isAbsoluteUrl } from '@/utils/guards/is-absolute-url';
 import { getHost } from '@/utils/url/get-host';
-import { safeRequest, safeVoidRequest } from '@/utils/api/safe-request';
-import type { SafeRequestOptions } from '@/utils/api/safe-request';
-import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
+import {
+  safeRequest,
+  safeVoidRequest,
+} from '@/services/api/request/safe-request';
+import type { SafeRequestOptions } from '@/services/api/request/safe-request';
+import { parseResponseWithSchema } from '@/services/api/request/safe-fetch';
 import { getLocaleFromPathname } from '@/i18n/routing';
 import { isObject } from '@/utils/guards/is-object';
 import {
   clearClientAuthSession,
   startClientAuthSession,
-} from '@/features/auth/auth-session.client';
+} from '@/features/auth/lib/client/auth-session.client';
 import {
   authTokenResponseSchema,
   type AuthTokenResponse,
-} from '@/features/auth/api/auth.schemas';
+} from '@/features/auth/lib/server/api/auth.schemas';
 import { useAuthTokenStore } from '@/features/auth/store/auth-token.store';
 import { isWindowUndefined } from '@/utils/guards/is-window-undefined';
 

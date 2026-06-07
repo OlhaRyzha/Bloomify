@@ -3,13 +3,13 @@ import { useLocale } from '@/components/providers/locale-provider';
 import {
   OPTIMISTIC_LIST_MUTATION_ACTIONS,
   useOptimisticListMutation,
-} from '@/shared/query/use-optimistic-list-mutation';
+} from '@/services/api/query/use-optimistic-list-mutation';
 import { useTranslation } from '@/hooks/use-translation';
 import type {
   ProductItem,
   Products,
 } from '@/features/catalog/api/products.shemas';
-import type { ApiError } from '@/utils/api/api-error';
+import type { ApiError } from '@/services/api/errors/api-error';
 import ProductsService from './products.service';
 import { productsQueryKeys } from './query-keys';
 

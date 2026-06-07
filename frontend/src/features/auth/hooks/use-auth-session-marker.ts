@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 
-import { AUTH_SESSION_COOKIE_NAME } from '../auth-routing';
+import { AUTH_SESSION_COOKIE_NAME } from '../lib/shared/auth-routing';
 
 const hasSessionMarkerCookie = () =>
   document.cookie
