@@ -247,6 +247,8 @@
   "metadata_profile_description": "Керуйте своїми замовленнями, улюбленими букетами та налаштуваннями Bloomify.",
   "metadata_register_title": "Реєстрація",
   "metadata_register_description": "Створіть акаунт Bloomify, щоб отримувати бонуси, зберігати улюблені композиції та швидше оформлювати замовлення.",
+  "metadata_orders_title": "Замовлення",
+  "metadata_orders_description": "Переглядайте історію замовлень Bloomify, статус оплати та деталі доставки.",
   "not_found_status": "Помилка 404",
   "not_found_title": "Сторінку не знайдено",
   "not_found_description": "Схоже, що цієї сторінки більше немає або адреса введена некоректно.",

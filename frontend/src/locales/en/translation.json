@@ -301,6 +301,8 @@
   "metadata_profile_description": "Manage your Bloomify orders, favorite bouquets, and account settings.",
   "metadata_register_title": "Create account",
   "metadata_register_description": "Create a Bloomify account to receive bonuses, save favorite arrangements, and place orders faster.",
+  "metadata_orders_title": "Orders",
+  "metadata_orders_description": "View your Bloomify order history, payment status, and delivery details.",
   "feature_fast_delivery_title": "Speedy delivery",
   "feature_fast_delivery_description": "We deliver across Ukraine within 1–3 days. Rush delivery in Kyiv arrives within 3 hours.",
   "feature_fresh_guarantee_title": "Freshness guarantee",
