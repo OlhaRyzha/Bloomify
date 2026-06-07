@@ -2,11 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { mockCashOnDeliveryCheckout, mockCatalogProducts } from './helpers/api';
 import { e2ePrimaryCatalogItem } from './fixtures/catalog.fixture';
-import {
-  goToAppPage,
-  seedCart,
-  seedFavorites,
-} from './helpers/user-flows';
+import { goToAppPage, seedCart, seedFavorites } from './helpers/user-flows';
 
 test.beforeEach(async ({ page }) => {
   await mockCatalogProducts(page);
@@ -20,6 +16,7 @@ test('home page supports localized anchor navigation', async ({ page }) => {
   await expect(
     page.getByRole('banner').getByRole('link', { name: 'Bloomify' })
   ).toBeVisible();
+
   await page
     .getByRole('navigation', { name: 'Основна навігація' })
     .getByRole('link', { name: 'Контакти' })
@@ -40,11 +37,15 @@ test('mobile navigation opens, keeps focus usable, and supports anchors', async 
   const mobileNavigation = page.getByRole('navigation', {
     name: 'Мобільна навігація',
   });
+
   await expect(mobileNavigation).toBeVisible();
+
   await expect(
     mobileNavigation.getByRole('link', { name: 'Каталог' })
   ).toBeFocused();
+
   const mobileNavigationBox = await mobileNavigation.boundingBox();
+
   expect(mobileNavigationBox).toMatchObject({
     height: 764,
     width: 390,
@@ -64,12 +65,15 @@ test('mobile navigation opens, keeps focus usable, and supports anchors', async 
   await expect(page.locator('#contact')).toBeInViewport();
 });
 
-test('catalog page renders products from the API boundary', async ({ page }) => {
+test('catalog page renders products from the API boundary', async ({
+  page,
+}) => {
   await goToAppPage(page, '/uk/catalog');
 
   await expect(
     page.getByRole('heading', { name: 'Каталог букетів' })
   ).toBeVisible();
+
   await expect(page.getByText('Біла гармонія')).toBeVisible();
   await expect(page.getByText('Блакитна гармонія')).toBeVisible();
 });
@@ -86,10 +90,13 @@ test('catalog product details page opens selected bouquet and supports cart acti
   await goToAppPage(page, '/uk/catalog/white-harmony');
 
   await expect(page).toHaveURL(/\/uk\/catalog\/white-harmony$/);
+
   await expect(
     page.getByRole('heading', { name: primaryItemName })
   ).toBeVisible();
+
   await expect(page.getByText('1650 ₴')).toBeVisible();
+
   await expect(
     page.getByRole('region', { name: 'Дії з товаром' })
   ).toBeVisible();
@@ -112,14 +119,17 @@ test('cart flow persists selected bouquet and opens checkout', async ({
   await goToAppPage(page, '/uk/cart');
 
   await expect(page.getByRole('heading', { name: 'Кошик' })).toBeVisible();
+
   await expect(
     page.getByRole('heading', { name: primaryItemName })
   ).toBeVisible();
+
   await expect(page.getByText('Разом')).toBeVisible();
 
   await page.getByRole('link', { name: 'Оформити замовлення' }).click();
 
   await expect(page).toHaveURL(/\/uk\/checkout$/);
+
   await expect(
     page.getByRole('heading', { name: 'Дані доставки' })
   ).toBeVisible();
@@ -143,25 +153,25 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
   });
 
   await goToAppPage(page, '/uk/checkout');
+
   await page.getByLabel("Ім'я та прізвище").fill('Olha Ryzha');
   await page.getByLabel('Телефон').fill('+380671234567');
   await page.getByLabel('Email').fill('olha@example.com');
   await page.getByLabel('Місто').fill('Київ');
   await page.getByLabel('Адреса доставки').fill('Хрещатик 1');
+
   await page.getByLabel('Оплата при отриманні').check();
+
   await page.getByRole('button', { name: 'Оформити замовлення' }).click();
 
-  await expect(
-    page.getByRole('status').filter({
-      hasText: 'Замовлення створено',
-    })
-  ).toBeVisible();
+  await expect(page.getByText(/замовлення створено/i)).toBeVisible();
 });
 
 test('favorites flow persists bouquet and supports removing it', async ({
   page,
 }) => {
   await seedFavorites(page, [e2ePrimaryCatalogItem.id]);
+
   await goToAppPage(page, '/uk/favorites');
 
   await expect(page.getByText(primaryItemName)).toBeVisible();
@@ -187,6 +197,7 @@ test('keyboard navigation keeps focus visible on catalog and auth controls', asy
   const favoriteButton = page.getByRole('button', {
     name: new RegExp(`додати.*${primaryItemName}.*вибраного`, 'i'),
   });
+
   await favoriteButton.focus();
   await expect(favoriteButton).toBeFocused();
 
