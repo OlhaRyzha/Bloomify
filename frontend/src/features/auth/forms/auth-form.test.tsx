@@ -119,10 +119,7 @@ describe('AuthForm', () => {
     await user.type(screen.getByLabelText(/name/i), 'Olha Ryzha');
     await user.type(screen.getByLabelText(/email/i), 'olha@example.com');
     await user.type(screen.getByLabelText(/^password$/i), 'password123');
-    await user.type(
-      screen.getByLabelText(/confirm password/i),
-      'password123'
-    );
+    await user.type(screen.getByLabelText(/confirm password/i), 'password123');
     await user.click(screen.getByRole('button', { name: /^register$/i }));
 
     await waitFor(() => {
@@ -191,9 +188,9 @@ describe('AuthForm', () => {
     await user.type(passwordInput, 'wrong-password');
     await user.click(screen.getByRole('button', { name: /^log in$/i }));
 
-    expect(
-      await screen.findByRole('alert', { name: '' })
-    ).toHaveTextContent('Invalid email or password');
+    expect(await screen.findByRole('alert', { name: '' })).toHaveTextContent(
+      'Invalid email or password'
+    );
     expect(emailInput).toHaveValue('olha@example.com');
     expect(passwordInput).toHaveValue('wrong-password');
     expect(replaceMock).not.toHaveBeenCalled();
@@ -225,6 +222,8 @@ describe('AuthForm', () => {
   });
 
   test('starts Google login through Auth0', async () => {
+    vi.stubEnv('NEXT_PUBLIC_AUTH0_AUDIENCE', 'https://bloomify-api');
+
     const { user } = renderWithProviders(<AuthForm mode='login' />, {
       locale: 'en',
     });
@@ -234,10 +233,15 @@ describe('AuthForm', () => {
     expect(loginWithRedirectMock).toHaveBeenCalledWith({
       authorizationParams: {
         connection: 'google-oauth2',
+        prompt: 'select_account',
+        audience: 'https://bloomify-api',
+        scope: 'openid profile email',
       },
       appState: {
         returnTo: '/en/profile',
       },
     });
+
+    vi.unstubAllEnvs();
   });
 });

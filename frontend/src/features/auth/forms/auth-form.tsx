@@ -49,6 +49,9 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
     await loginWithRedirect({
       authorizationParams: {
         connection: 'google-oauth2',
+        prompt: 'select_account',
+        audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE,
+        scope: 'openid profile email',
       },
       appState: {
         returnTo: redirectPath,
