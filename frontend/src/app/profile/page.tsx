@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Heart, PackageCheck, ShoppingBag } from 'lucide-react';
+
 import { PageShell } from '@/components/layout/page-layout';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +16,7 @@ import { getSignInPathWithNext } from '@/features/auth/auth-redirect';
 import { hasAuthSessionCookie } from '@/features/auth/auth-session.server';
 import { getLocalizedPath } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
+
 import ProfileSignOutButton from './profile-sign-out-button.client';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,10 +30,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ProfilePage() {
   const { locale, t } = await getServerTranslator();
-  const cookieStore = await cookies();
 
-  if (!hasAuthSessionCookie(cookieStore)) {
-    redirect(getSignInPathWithNext(getLocalizedPath('/profile', locale), locale));
+  const isAuthorized = await hasAuthSessionCookie();
+
+  if (!isAuthorized) {
+    redirect(
+      getSignInPathWithNext(getLocalizedPath('/profile', locale), locale)
+    );
   }
 
   const profileCards = [
@@ -40,11 +44,13 @@ export default async function ProfilePage() {
       title: t('profile_orders_title'),
       description: t('profile_orders_description'),
       icon: PackageCheck,
+      href: getLocalizedPath('/orders', locale),
     },
     {
       title: t('profile_favorites_title'),
       description: t('profile_favorites_description'),
       icon: Heart,
+      href: getLocalizedPath('/favorites', locale),
     },
   ];
 
@@ -60,20 +66,27 @@ export default async function ProfilePage() {
           const Icon = item.icon;
 
           return (
-            <Card
+            <Link
               key={item.title}
-              className='border-border/70 bg-card/80 shadow-card'>
-              <CardHeader>
-                <div className='mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-secondary-foreground'>
-                  <Icon
-                    className='h-5 w-5'
-                    aria-hidden
-                  />
-                </div>
-                <CardTitle>{item.title}</CardTitle>
-                <CardDescription>{item.description}</CardDescription>
-              </CardHeader>
-            </Card>
+              href={item.href}
+              className='group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'>
+              <Card className='h-full border-border/70 bg-card/80 shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg'>
+                <CardHeader>
+                  <div className='mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition group-hover:bg-primary group-hover:text-primary-foreground'>
+                    <Icon
+                      className='h-5 w-5'
+                      aria-hidden
+                    />
+                  </div>
+
+                  <CardTitle className='transition group-hover:text-primary'>
+                    {item.title}
+                  </CardTitle>
+
+                  <CardDescription>{item.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
           );
         })}
       </div>
@@ -84,6 +97,7 @@ export default async function ProfilePage() {
             <h2 className='font-display text-2xl font-semibold'>
               {t('profile_continue_shopping_title')}
             </h2>
+
             <p className='mt-1 text-sm text-muted-foreground'>
               {t('profile_continue_shopping_description')}
             </p>
@@ -91,6 +105,7 @@ export default async function ProfilePage() {
 
           <div className='flex flex-col gap-3 sm:flex-row'>
             <ProfileSignOutButton />
+
             <Button asChild>
               <Link href={getLocalizedPath('/catalog', locale)}>
                 <ShoppingBag

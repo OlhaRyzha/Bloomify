@@ -21,3 +21,11 @@ export const authTokenResponseSchema = z
   });
 
 export type AuthTokenResponse = z.infer<typeof authTokenResponseSchema>;
+
+export const currentUserSchema = z.object({
+  id: z.number(),
+  email: z.string().email(),
+  name: z.string(),
+});
+
+export type CurrentUser = z.infer<typeof currentUserSchema>;

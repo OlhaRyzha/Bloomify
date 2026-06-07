@@ -58,7 +58,7 @@ export const createProductFixture = (
 ): ProductItem => ({
   id: 'blue-harmony',
   name: 'Blue harmony',
-  price: 1750,
+  price: '1750',
   ...overrides,
 });
 ```

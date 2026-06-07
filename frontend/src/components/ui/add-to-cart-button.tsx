@@ -29,7 +29,7 @@ type AddToCartButtonProps = Omit<
   itemId?: string;
   itemName?: string;
   itemCategory?: string;
-  itemPrice?: number;
+  itemPrice?: string;
   source?: string;
 };
 
@@ -93,7 +93,7 @@ export default function AddToCartButton({
         id: itemId,
         name: itemLabel,
         tag: itemCategory,
-        price: itemPrice ?? 0,
+        price: itemPrice?.toString() ?? '0',
       },
       source,
       locale,
@@ -124,7 +124,7 @@ export default function AddToCartButton({
                 id: itemId,
                 name: itemLabel,
                 tag: itemCategory,
-                price: itemPrice ?? 0,
+                price: itemPrice?.toString() ?? '0',
               },
               source,
               locale,
@@ -151,7 +151,7 @@ export default function AddToCartButton({
                 id: itemId,
                 name: itemLabel,
                 tag: itemCategory,
-                price: itemPrice ?? 0,
+                price: itemPrice?.toString() ?? '0',
               },
               source,
               locale,

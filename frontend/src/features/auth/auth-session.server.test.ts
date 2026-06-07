@@ -1,20 +1,54 @@
-import { describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { AUTH_SESSION_COOKIE_NAME } from './auth-routing';
 import { hasAuthSessionCookie } from './auth-session.server';
 
-const createCookieReader = (cookieNames: string[]) => ({
-  has: (name: string) => cookieNames.includes(name),
-});
+const { cookiesMock } = vi.hoisted(() => ({
+  cookiesMock: vi.fn(),
+}));
+
+vi.mock('next/headers', () => ({
+  cookies: cookiesMock,
+}));
 
 describe('server auth session', () => {
-  test('detects session marker cookie', () => {
-    expect(
-      hasAuthSessionCookie(createCookieReader([AUTH_SESSION_COOKIE_NAME]))
-    ).toBe(true);
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  test('rejects requests without known auth cookies', () => {
-    expect(hasAuthSessionCookie(createCookieReader(['other']))).toBe(false);
+  test('detects session marker cookie', async () => {
+    cookiesMock.mockResolvedValue({
+      get: (name: string) => {
+        if (name === AUTH_SESSION_COOKIE_NAME) {
+          return { value: '1' };
+        }
+
+        return undefined;
+      },
+    });
+
+    await expect(hasAuthSessionCookie()).resolves.toBe(true);
+  });
+
+  test('rejects requests without known auth cookies', async () => {
+    cookiesMock.mockResolvedValue({
+      get: () => undefined,
+    });
+
+    await expect(hasAuthSessionCookie()).resolves.toBe(false);
+  });
+
+  test('rejects empty session marker cookie', async () => {
+    cookiesMock.mockResolvedValue({
+      get: (name: string) => {
+        if (name === AUTH_SESSION_COOKIE_NAME) {
+          return { value: '' };
+        }
+
+        return undefined;
+      },
+    });
+
+    await expect(hasAuthSessionCookie()).resolves.toBe(false);
   });
 });

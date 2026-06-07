@@ -1,15 +1,12 @@
 import z from 'zod';
 import { validationMessages } from '@/constants/message.constants';
-import {
-  ABSOLUTE_URL_REGEX,
-  RELATIVE_URL_REGEX,
-} from '@/utils/patterns/regex';
+import { ABSOLUTE_URL_REGEX, RELATIVE_URL_REGEX } from '@/utils/patterns/regex';
 
 export const catalogItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  price: z.number(),
+  price: z.string(),
   imageUrl: z
     .string()
     .optional()

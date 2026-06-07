@@ -1,6 +1,6 @@
 'use client';
 
-import CatalogGrid from '@/features/catalog/catalog-grid';
+import CatalogGrid from '@/features/catalog/list/catalog-grid';
 import { MotionDiv } from '../ui/motion-div';
 
 const containerVariants = {

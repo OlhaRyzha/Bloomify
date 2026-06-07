@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { PageShell } from '@/components/layout/page-layout';
-import CatalogGrid from '@/features/catalog/catalog-grid';
+import CatalogGrid from '@/features/catalog/list/catalog-grid';
 import { getServerTranslator } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {

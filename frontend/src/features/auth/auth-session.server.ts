@@ -1,8 +1,11 @@
+import { cookies } from 'next/headers';
+
 import { AUTH_COOKIE_NAMES } from './auth-routing';
 
-type CookieReader = {
-  has: (name: string) => boolean;
-};
+export const hasAuthSessionCookie = async (): Promise<boolean> => {
+  const cookieStore = await cookies();
 
-export const hasAuthSessionCookie = (cookies: CookieReader) =>
-  AUTH_COOKIE_NAMES.some((cookieName) => cookies.has(cookieName));
+  return AUTH_COOKIE_NAMES.some((cookieName) =>
+    Boolean(cookieStore.get(cookieName)?.value)
+  );
+};

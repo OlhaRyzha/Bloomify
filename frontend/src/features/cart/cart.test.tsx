@@ -22,7 +22,7 @@ const mockProducts = () => {
         createProductItem({
           id: 'rose-bouquet',
           name: 'Rose bouquet',
-          price: 1750,
+          price: '1750',
         }),
       ])
     )

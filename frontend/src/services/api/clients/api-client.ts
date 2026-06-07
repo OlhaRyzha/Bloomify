@@ -24,6 +24,7 @@ import {
   type AuthTokenResponse,
 } from '@/features/auth/api/auth.schemas';
 import { useAuthTokenStore } from '@/features/auth/store/auth-token.store';
+import { isWindowUndefined } from '@/utils/guards/is-window-undefined';
 
 type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
@@ -138,7 +139,7 @@ export class ApiClient {
   }
 
   private getCurrentLocale(): string | null {
-    if (typeof window === 'undefined') return null;
+    if (isWindowUndefined()) return null;
 
     const fromPathname = getLocaleFromPathname(window.location.pathname);
     if (fromPathname) return fromPathname;
@@ -164,7 +165,7 @@ export class ApiClient {
     config.params = withLocaleParam(config.params, locale);
 
     return config;
-  }
+  };
 
   private handleExternalRequest(
     config: InternalAxiosRequestConfig

@@ -71,7 +71,11 @@ class PaymentStatusRequestSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=128)
 
 
-def create_checkout_order(payload: CheckoutOrderPayload) -> CheckoutOrderResult:
+def create_checkout_order(
+    payload: CheckoutOrderPayload,
+    *,
+    user=None,
+) -> CheckoutOrderResult:
     product_ids = [item["id"] for item in payload["items"]]
     products = Product.objects.in_bulk(product_ids)
 
@@ -105,6 +109,7 @@ def create_checkout_order(payload: CheckoutOrderPayload) -> CheckoutOrderResult:
 
     with transaction.atomic():
         order = Order.objects.create(
+            user=user,
             customer_name=payload["customerName"],
             customer_email=payload["email"],
             customer_phone=payload["phone"],

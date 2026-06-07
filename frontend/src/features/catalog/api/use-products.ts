@@ -5,7 +5,10 @@ import {
   useOptimisticListMutation,
 } from '@/shared/query/use-optimistic-list-mutation';
 import { useTranslation } from '@/hooks/use-translation';
-import type { ProductItem, Products } from '@/schemas/products.shemas';
+import type {
+  ProductItem,
+  Products,
+} from '@/features/catalog/api/products.shemas';
 import type { ApiError } from '@/utils/api/api-error';
 import ProductsService from './products.service';
 import { productsQueryKeys } from './query-keys';

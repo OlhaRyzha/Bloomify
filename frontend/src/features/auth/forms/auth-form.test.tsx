@@ -22,6 +22,15 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => searchParams,
 }));
 
+const loginWithRedirectMock = vi.fn();
+
+vi.mock('@auth0/auth0-react', () => ({
+  useAuth0: () => ({
+    isLoading: false,
+    loginWithRedirect: loginWithRedirectMock,
+  }),
+}));
+
 vi.mock('../auth-session.service', () => ({
   default: {
     signIn: vi.fn(),
@@ -36,6 +45,7 @@ describe('AuthForm', () => {
     replaceMock.mockReset();
     vi.mocked(AuthSessionService.signIn).mockReset();
     vi.mocked(AuthSessionService.signUp).mockReset();
+    loginWithRedirectMock.mockReset();
     useAuthTokenStore.getState().clearAccessToken();
     document.cookie = `${AUTH_SESSION_COOKIE_NAME}=; Path=/; Max-Age=0`;
     searchParams = new URLSearchParams();
@@ -211,6 +221,23 @@ describe('AuthForm', () => {
 
     await waitFor(() => {
       expect(replaceMock).toHaveBeenCalledWith('/en/profile');
+    });
+  });
+
+  test('starts Google login through Auth0', async () => {
+    const { user } = renderWithProviders(<AuthForm mode='login' />, {
+      locale: 'en',
+    });
+
+    await user.click(screen.getByRole('button', { name: /google/i }));
+
+    expect(loginWithRedirectMock).toHaveBeenCalledWith({
+      authorizationParams: {
+        connection: 'google-oauth2',
+      },
+      appState: {
+        returnTo: '/en/profile',
+      },
     });
   });
 });

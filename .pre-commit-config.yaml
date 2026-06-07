@@ -21,7 +21,8 @@ repos:
       - id: mypy
         name: mypy (backend)
         files: ^backend/.*\.py$
-        entry: bash -c 'PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings mypy --config-file mypy.ini "$@"' --
+        pass_filenames: false
+        entry: bash -c 'PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings mypy --config-file mypy.ini backend'
         additional_dependencies:
           - django-stubs
           - djangorestframework-stubs

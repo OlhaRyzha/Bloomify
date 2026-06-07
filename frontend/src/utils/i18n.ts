@@ -1,4 +1,8 @@
-import { type Locale, supportedLocales, defaultLocale } from '@/locales/translations';
+import {
+  type Locale,
+  supportedLocales,
+  defaultLocale,
+} from '@/locales/translations';
 
 const numberLocales: Record<Locale, string> = {
   uk: 'uk-UA',
@@ -28,12 +32,18 @@ const bouquetCountLabels: Record<
   },
 };
 
-export function formatCurrency(value: number, locale: Locale = defaultLocale) {
-  const formatter = new Intl.NumberFormat(numberLocales[locale] ?? numberLocales[defaultLocale], {
-    maximumFractionDigits: 0,
-  });
+export function formatCurrency(
+  value: string | number,
+  locale: Locale = defaultLocale
+) {
+  const formatter = new Intl.NumberFormat(
+    numberLocales[locale] ?? numberLocales[defaultLocale],
+    {
+      maximumFractionDigits: 0,
+    }
+  );
 
-  return `${formatter.format(value)} ₴`;
+  return `${formatter.format(Number(value))} ₴`;
 }
 
 export function formatTemplate(
@@ -55,7 +65,8 @@ export function getBouquetCountLabel(
   const pluralCategory = new Intl.PluralRules(numberLocales[locale]).select(
     count
   );
-  const labels = bouquetCountLabels[locale] ?? bouquetCountLabels[defaultLocale];
+  const labels =
+    bouquetCountLabels[locale] ?? bouquetCountLabels[defaultLocale];
 
   return labels[pluralCategory] ?? labels.other ?? labels.many ?? 'bouquets';
 }

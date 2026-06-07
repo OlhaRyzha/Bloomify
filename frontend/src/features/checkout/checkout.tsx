@@ -64,6 +64,7 @@ import {
   trackPaymentFailed,
   trackPurchaseCompleted,
 } from '@/services/analytics/analytics.events';
+import { isWindowUndefined } from '@/utils/guards/is-window-undefined';
 
 type PaymentOption = {
   descriptionKey: string;
@@ -107,7 +108,7 @@ const PAYMENT_STATUS_SYNC_RETRY_DELAY_MS = 1500;
 type PaymentReturnSyncState = 'idle' | 'syncing';
 
 const getOrderIdFromCheckoutSearch = () => {
-  if (typeof window === 'undefined') {
+  if (isWindowUndefined()) {
     return null;
   }
 
@@ -119,7 +120,7 @@ const getOrderIdFromCheckoutSearch = () => {
 };
 
 const getOrderTokenFromCheckoutSearch = () => {
-  if (typeof window === 'undefined') {
+  if (isWindowUndefined()) {
     return '';
   }
 
@@ -289,7 +290,9 @@ export default function CheckoutFeature() {
   const cartItems = useCartStore(useShallow(selectCartItems));
   const clearCart = useCartStore(selectClearCart);
   const deliveryDraft = useCheckoutDraftStore(selectCheckoutDeliveryDraft);
-  const setDeliveryDraft = useCheckoutDraftStore(selectSetCheckoutDeliveryDraft);
+  const setDeliveryDraft = useCheckoutDraftStore(
+    selectSetCheckoutDeliveryDraft
+  );
   const {
     data: catalogItems = [],
     isError,
@@ -385,7 +388,7 @@ export default function CheckoutFeature() {
           if (summary.itemCount > 0) {
             trackPurchaseCompleted({
               itemCount: summary.itemCount,
-              orderId: String(response.orderId),
+              orderId: response.orderId,
               paymentMethod: response.paymentMethod,
               value: summary.total,
               locale,
@@ -578,7 +581,7 @@ export default function CheckoutFeature() {
 
           trackPurchaseCompleted({
             itemCount: summary.itemCount,
-            orderId: String(response.orderId),
+            orderId: response.orderId,
             paymentMethod: response.paymentMethod,
             value: summary.total,
             locale,
@@ -722,7 +725,9 @@ export default function CheckoutFeature() {
               </div>
 
               <fieldset className='grid gap-3'>
-                <legend className='sr-only'>{t('checkout_payment_title')}</legend>
+                <legend className='sr-only'>
+                  {t('checkout_payment_title')}
+                </legend>
                 {paymentOptions.map((option) => {
                   const Icon = option.icon;
                   const isSelected = values.paymentMethod === option.id;
@@ -787,7 +792,10 @@ export default function CheckoutFeature() {
                       </p>
                     </div>
                     <p className='font-semibold text-foreground'>
-                      {formatCurrency(item.price * item.quantity, locale)}
+                      {formatCurrency(
+                        Number(item.price) * item.quantity,
+                        locale
+                      )}
                     </p>
                   </li>
                 ))}

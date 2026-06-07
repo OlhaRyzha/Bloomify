@@ -32,6 +32,14 @@ const AuthSessionService = {
     return session;
   },
 
+  signInWithAuth0: async (accessToken: string, idToken: string) => {
+    const session = await AuthService.signInWithAuth0({ accessToken, idToken });
+
+    startClientAuthSession({ accessToken: session.accessToken });
+
+    return session;
+  },
+
   signOut: async () => {
     try {
       await AuthService.signOut();

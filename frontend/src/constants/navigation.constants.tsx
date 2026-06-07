@@ -1,17 +1,37 @@
 import type { LucideIcon } from 'lucide-react';
 import { Facebook, Instagram, Mail, MapPin, Phone, Send } from 'lucide-react';
 
-export type NavigationKey = 'catalog' | 'favorites' | 'subscription' | 'about' | 'contact';
+export type NavigationKey =
+  | 'catalog'
+  | 'favorites'
+  | 'subscription'
+  | 'about'
+  | 'contact'
+  | 'orders';
 
-export const NAVIGATION_LINKS: { key: NavigationKey; href: string }[] = [
-  { key: 'catalog', href: '/catalog' },
-  { key: 'favorites', href: '/favorites' },
-  { key: 'subscription', href: '/#subscription' },
-  { key: 'about', href: '/#about' },
-  { key: 'contact', href: '/#contact' },
+export type NavigationVisibility = 'all' | 'authorized' | 'guest';
+
+type NavigationLink = {
+  key: NavigationKey;
+  href: string;
+  visibility: NavigationVisibility;
+};
+
+export const NAVIGATION_LINKS: NavigationLink[] = [
+  { key: 'catalog', href: '/catalog', visibility: 'all' },
+  { key: 'favorites', href: '/favorites', visibility: 'authorized' },
+  { key: 'subscription', href: '/#subscription', visibility: 'all' },
+  { key: 'about', href: '/#about', visibility: 'all' },
+  { key: 'orders', href: '/orders', visibility: 'authorized' },
+  { key: 'contact', href: '/#contact', visibility: 'all' },
 ];
 
-export type ServiceKey = 'wedding' | 'corporate' | 'events' | 'gifts' | 'delivery';
+export type ServiceKey =
+  | 'wedding'
+  | 'corporate'
+  | 'events'
+  | 'gifts'
+  | 'delivery';
 
 export const SERVICE_LINKS: { key: ServiceKey; href: string }[] = [
   { key: 'wedding', href: '/#services' },

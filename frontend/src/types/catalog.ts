@@ -4,7 +4,7 @@ export type CatalogItem = {
   id: string;
   name: string;
   description?: string;
-  price: number;
+  price: string;
   image?: StaticImageData | string;
   imageUrl?: string | null;
   tag?: string;

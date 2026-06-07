@@ -6,7 +6,7 @@ import {
   catalogSchema,
   type ProductItem,
   type Products,
-} from '@/schemas/products.shemas';
+} from '@/features/catalog/api/products.shemas';
 import { parseResponseWithSchema } from '@/utils/api/safe-fetch';
 
 type ProductsRequestParams = {

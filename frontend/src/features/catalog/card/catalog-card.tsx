@@ -105,7 +105,7 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
         </p>
         <div className='mt-auto flex items-center justify-between'>
           <span className='font-display text-2xl font-bold text-primary'>
-            {item.price} ₴
+            {Number(item.price)} ₴
           </span>
           <AddToCartButton
             size='sm'

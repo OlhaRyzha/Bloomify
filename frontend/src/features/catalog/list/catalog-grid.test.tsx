@@ -6,7 +6,7 @@ import { server } from '@/test/msw/server';
 import { apiUrl } from '@/test/api-url';
 import { http, HttpResponse } from 'msw';
 
-import { createProductItem } from './api/products.factory';
+import { createProductItem } from '../api/products.factory';
 import CatalogGrid from './catalog-grid';
 import { resetCatalogStore } from './catalog.test-utils';
 
@@ -76,12 +76,12 @@ describe('CatalogGrid', () => {
       createProductItem({
         id: 'premium-rose',
         name: 'Premium rose',
-        price: 2500,
+        price: '2500',
       }),
       createProductItem({
         id: 'white-harmony',
         name: 'White harmony',
-        price: 1200,
+        price: '1200',
       }),
     ];
 
@@ -95,7 +95,9 @@ describe('CatalogGrid', () => {
       await screen.findByRole('option', { name: /price: low to high/i })
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole('option', { name: /price: low to high/i }));
+    await user.click(
+      screen.getByRole('option', { name: /price: low to high/i })
+    );
 
     await waitFor(() => {
       const productHeadings = screen.getAllByRole('heading', { level: 3 });

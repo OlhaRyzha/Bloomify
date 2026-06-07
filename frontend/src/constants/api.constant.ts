@@ -1,5 +1,6 @@
 export const API_ROUTES = {
   PRODUCTS: 'products',
+  ORDERS: 'orders',
   CHECKOUT: 'orders/checkout',
   CHECKOUT_PAYMENT_STATUS: (orderId: number) =>
     `orders/${orderId}/payment-status`,
@@ -10,6 +11,7 @@ export const API_ROUTES = {
   AUTH_REFRESH_TOKEN: 'auth/refresh/',
   AUTH_SIGN_OUT: 'auth/logout/',
   AUTH_ME: 'auth/me/',
+  AUTH_AUTH0: 'auth/oauth/auth0/',
   ROLES: 'roles',
   SUBSCRIPTIONS: 'subscriptions',
   SUBSCRIBE: 'subscriptions/subscribe',

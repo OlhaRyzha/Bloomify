@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import type { CatalogQueryParams, SortOption } from '../catalog.types';
+import type { CatalogQueryParams, SortOption } from '../list/catalog.types';
 
 export type CatalogState = CatalogQueryParams & {
   setPage: (page: number) => void;
