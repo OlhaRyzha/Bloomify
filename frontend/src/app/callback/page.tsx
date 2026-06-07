@@ -3,9 +3,14 @@
 import { useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useRouter } from 'next/navigation';
+
 import FeedbackState from '@/components/ui/feedback-state';
 import { useLocale } from '@/components/providers/locale-provider';
 import AuthSessionService from '@/features/auth/auth-session.service';
+import {
+  getRememberedPostAuthRedirectPath,
+  navigateAfterAuth,
+} from '@/features/auth/auth-navigation.client';
 import { getLocalizedPath } from '@/i18n/routing';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -26,19 +31,31 @@ export default function AuthCallbackPage() {
         const accessToken = await getAccessTokenSilently();
         const idTokenClaims = await getIdTokenClaims();
         const idToken = idTokenClaims?.__raw;
+
         if (!idToken) {
           throw new Error('Missing Auth0 ID token');
         }
 
         await AuthSessionService.signInWithAuth0(accessToken, idToken);
-        router.replace(getLocalizedPath('/profile', locale));
+
+        const fallbackPath = getLocalizedPath('/profile', locale);
+        const returnTo = getRememberedPostAuthRedirectPath(fallbackPath);
+
+        navigateAfterAuth(returnTo);
       } catch {
         router.replace(getLocalizedPath('/sign-in', locale));
       }
     };
 
     void completeAuth0SignIn();
-  }, [error, getAccessTokenSilently, getIdTokenClaims, isLoading, locale, router]);
+  }, [
+    error,
+    getAccessTokenSilently,
+    getIdTokenClaims,
+    isLoading,
+    locale,
+    router,
+  ]);
 
   if (error) {
     return (

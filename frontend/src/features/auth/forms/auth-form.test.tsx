@@ -12,26 +12,32 @@ import { createSignInPayload, createSignUpPayload } from '../auth.factory';
 import { useAuthTokenStore } from '../store/auth-token.store';
 import { AUTH_SESSION_COOKIE_NAME } from '../auth-routing';
 
-const replaceMock = vi.fn();
-const refreshMock = vi.fn();
+const {
+  loginWithRedirectMock,
+  navigateAfterAuthMock,
+  rememberPostAuthRedirectPathMock,
+} = vi.hoisted(() => ({
+  loginWithRedirectMock: vi.fn(),
+  navigateAfterAuthMock: vi.fn(),
+  rememberPostAuthRedirectPathMock: vi.fn(),
+}));
 
 let searchParams = new URLSearchParams();
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({
-    replace: replaceMock,
-    refresh: refreshMock,
-  }),
   useSearchParams: () => searchParams,
 }));
-
-const loginWithRedirectMock = vi.fn();
 
 vi.mock('@auth0/auth0-react', () => ({
   useAuth0: () => ({
     isLoading: false,
     loginWithRedirect: loginWithRedirectMock,
   }),
+}));
+
+vi.mock('../auth-navigation.client', () => ({
+  navigateAfterAuth: navigateAfterAuthMock,
+  rememberPostAuthRedirectPath: rememberPostAuthRedirectPathMock,
 }));
 
 vi.mock('../auth-session.service', () => ({
@@ -45,13 +51,16 @@ vi.mock('../auth-session.service', () => ({
 
 describe('AuthForm', () => {
   beforeEach(() => {
-    replaceMock.mockReset();
-    refreshMock.mockReset();
     vi.mocked(AuthSessionService.signIn).mockReset();
     vi.mocked(AuthSessionService.signUp).mockReset();
+
     loginWithRedirectMock.mockReset();
+    navigateAfterAuthMock.mockReset();
+    rememberPostAuthRedirectPathMock.mockReset();
+
     useAuthTokenStore.getState().clearAccessToken();
     document.cookie = `${AUTH_SESSION_COOKIE_NAME}=; Path=/; Max-Age=0`;
+
     searchParams = new URLSearchParams();
     vi.unstubAllEnvs();
   });
@@ -105,8 +114,7 @@ describe('AuthForm', () => {
     );
     expect(useAuthTokenStore.getState().accessToken).toBe('access-token');
     expect(document.cookie).toContain(`${AUTH_SESSION_COOKIE_NAME}=1`);
-    expect(refreshMock).toHaveBeenCalled();
-    expect(replaceMock).toHaveBeenCalledWith('/en/profile');
+    expect(navigateAfterAuthMock).toHaveBeenCalledWith('/en/profile');
   });
 
   test('submits sign up without confirmPassword payload', async () => {
@@ -137,8 +145,7 @@ describe('AuthForm', () => {
     expect(useAuthTokenStore.getState().accessToken).toBe(
       'registered-access-token'
     );
-    expect(refreshMock).toHaveBeenCalled();
-    expect(replaceMock).toHaveBeenCalledWith('/en/profile');
+    expect(navigateAfterAuthMock).toHaveBeenCalledWith('/en/profile');
   });
 
   test('redirects to safe next path after login', async () => {
@@ -156,8 +163,7 @@ describe('AuthForm', () => {
     await user.click(screen.getByRole('button', { name: /^увійти$/i }));
 
     await waitFor(() => {
-      expect(refreshMock).toHaveBeenCalled();
-      expect(replaceMock).toHaveBeenCalledWith('/uk/checkout');
+      expect(navigateAfterAuthMock).toHaveBeenCalledWith('/uk/checkout');
     });
   });
 
@@ -176,8 +182,7 @@ describe('AuthForm', () => {
     await user.click(screen.getByRole('button', { name: /^log in$/i }));
 
     await waitFor(() => {
-      expect(refreshMock).toHaveBeenCalled();
-      expect(replaceMock).toHaveBeenCalledWith('/en/profile');
+      expect(navigateAfterAuthMock).toHaveBeenCalledWith('/en/profile');
     });
   });
 
@@ -202,8 +207,7 @@ describe('AuthForm', () => {
     );
     expect(emailInput).toHaveValue('olha@example.com');
     expect(passwordInput).toHaveValue('wrong-password');
-    expect(refreshMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
+    expect(navigateAfterAuthMock).not.toHaveBeenCalled();
   });
 
   test('disables submit button while auth request is pending', async () => {
@@ -227,8 +231,7 @@ describe('AuthForm', () => {
     deferred.resolve({ accessToken: 'access-token' });
 
     await waitFor(() => {
-      expect(refreshMock).toHaveBeenCalled();
-      expect(replaceMock).toHaveBeenCalledWith('/en/profile');
+      expect(navigateAfterAuthMock).toHaveBeenCalledWith('/en/profile');
     });
   });
 
@@ -240,6 +243,10 @@ describe('AuthForm', () => {
     });
 
     await user.click(screen.getByRole('button', { name: /google/i }));
+
+    expect(rememberPostAuthRedirectPathMock).toHaveBeenCalledWith(
+      '/en/profile'
+    );
 
     expect(loginWithRedirectMock).toHaveBeenCalledWith({
       authorizationParams: {
@@ -253,7 +260,6 @@ describe('AuthForm', () => {
       },
     });
 
-    expect(refreshMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
+    expect(navigateAfterAuthMock).not.toHaveBeenCalled();
   });
 });

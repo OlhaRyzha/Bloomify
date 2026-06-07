@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Formik, Form } from 'formik';
 import { Chrome } from 'lucide-react';
 
@@ -34,10 +34,13 @@ import {
   trackAuthSignedIn,
   trackAuthSignedUp,
 } from '@/services/analytics/analytics.events';
+import {
+  navigateAfterAuth,
+  rememberPostAuthRedirectPath,
+} from '../auth-navigation.client';
 
 export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { locale, t } = useTranslation();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { loginWithRedirect, isLoading: isAuth0Loading } = useAuth0();
 
@@ -49,6 +52,8 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
   );
 
   const handleGoogleSignIn = async () => {
+    rememberPostAuthRedirectPath(redirectPath);
+
     await loginWithRedirect({
       authorizationParams: {
         connection: 'google-oauth2',
@@ -102,8 +107,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
 
               trackAuth({ locale });
 
-              router.refresh();
-              router.replace(redirectPath);
+              navigateAfterAuth(redirectPath);
             } catch (error) {
               actions.setStatus(ApiError.fromUnknown(error).userMessage);
             } finally {
