@@ -162,9 +162,26 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
 
   await page.getByLabel('Оплата при отриманні').check();
 
+  const checkoutResponsePromise = page.waitForResponse((response) => {
+    return (
+      response.url().includes('/checkout') &&
+      response.request().method() === 'POST'
+    );
+  });
+
   await page.getByRole('button', { name: 'Оформити замовлення' }).click();
 
-  await expect(page.getByText(/замовлення створено/i)).toBeVisible();
+  const checkoutResponse = await checkoutResponsePromise;
+
+  expect(checkoutResponse.ok()).toBe(true);
+
+  await expect(
+    page.getByRole('heading', {
+      name: /дякуємо|замовлення|оформлено|створено/i,
+    })
+  ).toBeVisible();
+
+  await expect(page).not.toHaveURL(/liqpay/i);
 });
 
 test('favorites flow persists bouquet and supports removing it', async ({
