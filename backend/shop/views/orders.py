@@ -1,6 +1,11 @@
 import logging
 from typing import TypedDict, cast
 
+from common.pagination import (
+    build_paginated_response,
+    paginate_items,
+)
+from django.contrib.auth.models import User
 from django.db import transaction
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, inline_serializer
@@ -25,6 +30,7 @@ from shop.serializers.order import (
     PaymentStatusRequestSerializer,
     create_checkout_order,
 )
+from shop.serializers.order_list import serialize_order
 from shop.services.liqpay import (
     LiqPayConfigurationError,
     LiqPayStatusError,
@@ -171,7 +177,10 @@ class CheckoutCreateView(APIView):
         serializer = CheckoutCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payload = cast(CheckoutOrderPayload, serializer.validated_data)
-        checkout_result = create_checkout_order(payload)
+        checkout_result = create_checkout_order(
+            payload,
+            user=request.user if request.user.is_authenticated else None,
+        )
         order = checkout_result["order"]
         payment_status_token = checkout_result["payment_status_token"]
 
@@ -330,5 +339,35 @@ class LiqPayPaymentStatusView(APIView):
             build_payment_status_response(
                 order,
                 payment_status_token=token,
+            )
+        )
+
+
+class OrderListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request: Request) -> Response:
+        user = cast(User, request.user)
+
+        orders = (
+            Order.objects.filter(user=user)
+            .prefetch_related("items__product")
+            .order_by("-created_at")
+        )
+
+        paginated = paginate_items(
+            request=request,
+            items=orders,
+            default_page_size=6,
+        )
+
+        serialized_items = [
+            serialize_order(order, request=request) for order in paginated.items
+        ]
+
+        return Response(
+            build_paginated_response(
+                paginated=paginated,
+                serialized_items=serialized_items,
             )
         )

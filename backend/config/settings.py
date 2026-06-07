@@ -64,6 +64,11 @@ class EnvironmentSettings(BaseSettings):
     SENTRY_SEND_DEFAULT_PII: bool = False
     SENTRY_ALERT_WEBHOOK_SECRET: str = ""
 
+    AUTH0_DOMAIN: str = ""
+    AUTH0_CLIENT_ID: str = ""
+    AUTH0_AUDIENCE: str = ""
+    AUTH0_ISSUER: str = ""
+
     LIQPAY_DEV_BACKEND_LOCAL_URL: str = ""
     LIQPAY_CALLBACK_PATH: str = "/payments/liqpay/callback"
     LIQPAY_RESULT_PATH: str = "/checkout"
@@ -355,6 +360,11 @@ NOTIFICATION_PUBLISHER_TIMEOUT_SECONDS = (
 )
 SENTRY_ALERT_WEBHOOK_SECRET = env.SENTRY_ALERT_WEBHOOK_SECRET
 
+AUTH0_DOMAIN = env.AUTH0_DOMAIN
+AUTH0_CLIENT_ID = env.AUTH0_CLIENT_ID
+AUTH0_AUDIENCE = env.AUTH0_AUDIENCE
+AUTH0_ISSUER = env.AUTH0_ISSUER
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -377,6 +387,9 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_RATES": {
+        "auth_login": "20/hour",
+        "auth_register": "10/hour",
+        "auth_refresh": "60/hour",
         "checkout": "20/hour",
         "payment_status": "60/hour",
     },

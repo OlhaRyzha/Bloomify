@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useAuth0 } from '@auth0/auth0-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Formik, Form } from 'formik';
 import { Chrome } from 'lucide-react';
@@ -37,12 +38,23 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { locale, t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { loginWithRedirect, isLoading: isAuth0Loading } = useAuth0();
   const fields = getAuthFields({ mode, t });
   const schema = mode === 'login' ? loginSchema : registerSchema;
   const redirectPath = getPostAuthRedirectPath(
     searchParams.get('next'),
     locale
   );
+  const handleGoogleSignIn = async () => {
+    await loginWithRedirect({
+      authorizationParams: {
+        connection: 'google-oauth2',
+      },
+      appState: {
+        returnTo: redirectPath,
+      },
+    });
+  };
 
   return (
     <Card
@@ -101,7 +113,9 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
               <Button
                 type='button'
                 variant='outline'
-                className='h-11 w-full justify-center gap-3 border-border/80 bg-background/60'>
+                className='h-11 w-full justify-center gap-3 border-border/80 bg-background/60'
+                disabled={isAuth0Loading}
+                onClick={handleGoogleSignIn}>
                 <span className='flex h-8 w-8 items-center justify-center rounded-full bg-muted'>
                   <Chrome
                     className='h-4 w-4 text-primary'

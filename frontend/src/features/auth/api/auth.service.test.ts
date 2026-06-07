@@ -59,6 +59,44 @@ describe('AuthService', () => {
     await expect(AuthService.signOut()).resolves.toBeUndefined();
   });
 
+  test('loads current user profile', async () => {
+    server.use(
+      http.get(apiUrl('auth/me/'), () =>
+        HttpResponse.json({
+          id: 7,
+          email: 'olha@example.com',
+          name: 'Olha Ryzha',
+        })
+      )
+    );
+
+    await expect(AuthService.getCurrentUser()).resolves.toEqual({
+      id: 7,
+      email: 'olha@example.com',
+      name: 'Olha Ryzha',
+    });
+  });
+
+  test('exchanges Auth0 access token for Bloomify session', async () => {
+    server.use(
+      http.post(apiUrl('auth/oauth/auth0/'), async ({ request }) => {
+        await expect(request.json()).resolves.toEqual({
+          accessToken: 'auth0-access-token',
+          idToken: 'auth0-id-token',
+        });
+
+        return HttpResponse.json({ access_token: 'bloomify-access-token' });
+      })
+    );
+
+    await expect(
+      AuthService.signInWithAuth0({
+        accessToken: 'auth0-access-token',
+        idToken: 'auth0-id-token',
+      })
+    ).resolves.toEqual({ accessToken: 'bloomify-access-token' });
+  });
+
   test('normalizes missing token response into ApiError', async () => {
     const consoleErrorSpy = vi
       .spyOn(console, 'error')

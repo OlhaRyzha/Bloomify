@@ -21,7 +21,7 @@ vi.mock('./analytics.service', () => ({
 const catalogItem: CatalogItem = {
   id: 'bouquet-1',
   name: 'Біла гармонія',
-  price: 1650,
+  price: '1650',
   tag: 'Класика',
 };
 
@@ -71,7 +71,7 @@ describe('analytics event helpers', () => {
         itemId: 'bouquet-1',
         itemName: 'Біла гармонія',
         itemCategory: 'Класика',
-        price: 1650,
+        price: '1650',
         quantity: 2,
       },
       currency: 'UAH',
@@ -113,7 +113,7 @@ describe('analytics event helpers', () => {
     expect(trackMock).toHaveBeenCalledWith('purchase', {
       currency: 'UAH',
       itemCount: 1,
-      orderId: '42',
+      orderId: 42,
       paymentMethod: 'cash_on_delivery',
       value: 1650,
       locale: 'uk',

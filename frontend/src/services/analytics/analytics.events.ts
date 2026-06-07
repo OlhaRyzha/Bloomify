@@ -1,22 +1,83 @@
 import type { CartItemWithDetails } from '@/features/cart/cart.types';
-import type { CheckoutPaymentMethod } from '@/features/checkout/api/checkout.service';
 import type { CatalogItem } from '@/types/catalog';
 
 import { toAnalyticsItem } from './analytics.helpers';
 import Analytics from './analytics.service';
+import type { AnalyticsEventPayload } from './analytics.types';
 
 type LocalePayload = {
   locale?: string;
+};
+
+type CatalogAnalyticsItem = CatalogItem;
+type CartAnalyticsItem = CatalogItem | CartItemWithDetails;
+
+type ProductItemPayload = LocalePayload & {
+  item: CatalogAnalyticsItem;
+};
+
+type CartItemPayload = LocalePayload & {
+  item: CartAnalyticsItem;
+  quantity?: number;
+  source?: string;
+};
+
+type CatalogViewedPayload = AnalyticsEventPayload<'view_item_list'>;
+
+type CatalogSearchPayload = LocalePayload & {
+  query: string;
+  resultCount: number;
+};
+
+type CatalogSortPayload = AnalyticsEventPayload<'sort_catalog'>;
+
+type CatalogTagFilterPayload = LocalePayload & {
+  resultCount: number;
+  tag: string;
+};
+
+type ProductSelectedPayload = ProductItemPayload & {
+  itemListName?: AnalyticsEventPayload<'select_item'>['itemListName'];
+};
+
+type CartViewedPayload = Omit<AnalyticsEventPayload<'view_cart'>, 'currency'>;
+
+type CheckoutStartedPayload = Omit<
+  AnalyticsEventPayload<'begin_checkout'>,
+  'currency'
+>;
+
+type CheckoutSubmittedPayload = Omit<
+  AnalyticsEventPayload<'checkout_submit'>,
+  'currency'
+>;
+
+type PurchaseCompletedPayload = Omit<
+  AnalyticsEventPayload<'purchase'>,
+  'currency'
+>;
+
+type PaymentFailedPayload = AnalyticsEventPayload<'payment_failed'>;
+
+type NewsletterSubscribedPayload =
+  AnalyticsEventPayload<'newsletter_subscribe'>;
+
+const CURRENCY = 'UAH' as const;
+
+const getCartItemValue = (
+  item: CartAnalyticsItem,
+  quantity: number
+): number | undefined => {
+  if (!item.price) return undefined;
+
+  return Number(item.price) * quantity;
 };
 
 export const trackCatalogViewed = ({
   itemCount,
   itemListName,
   locale,
-}: LocalePayload & {
-  itemCount: number;
-  itemListName: string;
-}) => {
+}: CatalogViewedPayload) => {
   Analytics.track('view_item_list', {
     itemListName,
     itemCount,
@@ -28,11 +89,9 @@ export const trackCatalogSearch = ({
   query,
   resultCount,
   locale,
-}: LocalePayload & {
-  query: string;
-  resultCount: number;
-}) => {
+}: CatalogSearchPayload) => {
   const normalizedQuery = query.trim();
+
   if (!normalizedQuery) return;
 
   Analytics.track('search', {
@@ -47,10 +106,7 @@ export const trackCatalogSort = ({
   resultCount,
   sort,
   locale,
-}: LocalePayload & {
-  resultCount: number;
-  sort: string;
-}) => {
+}: CatalogSortPayload) => {
   Analytics.track('sort_catalog', {
     sort,
     resultCount,
@@ -62,10 +118,7 @@ export const trackCatalogTagFilter = ({
   resultCount,
   tag,
   locale,
-}: LocalePayload & {
-  resultCount: number;
-  tag: string;
-}) => {
+}: CatalogTagFilterPayload) => {
   Analytics.track('filter_catalog', {
     filterName: 'tag',
     filterValue: tag,
@@ -78,10 +131,7 @@ export const trackProductSelected = ({
   item,
   itemListName = 'catalog',
   locale,
-}: LocalePayload & {
-  item: CatalogItem;
-  itemListName?: string;
-}) => {
+}: ProductSelectedPayload) => {
   Analytics.track('select_item', {
     item: toAnalyticsItem(item),
     itemListName,
@@ -89,12 +139,7 @@ export const trackProductSelected = ({
   });
 };
 
-export const trackProductViewed = ({
-  item,
-  locale,
-}: LocalePayload & {
-  item: CatalogItem;
-}) => {
+export const trackProductViewed = ({ item, locale }: ProductItemPayload) => {
   Analytics.track('view_item', {
     item: toAnalyticsItem(item),
     locale,
@@ -106,15 +151,11 @@ export const trackCartItemAdded = ({
   locale,
   quantity = 1,
   source,
-}: LocalePayload & {
-  item: CatalogItem | CartItemWithDetails;
-  quantity?: number;
-  source?: string;
-}) => {
+}: CartItemPayload) => {
   Analytics.track('add_to_cart', {
     item: toAnalyticsItem(item, quantity),
-    currency: 'UAH',
-    value: item.price ? item.price * quantity : undefined,
+    currency: CURRENCY,
+    value: getCartItemValue(item, quantity),
     source,
     locale,
   });
@@ -125,15 +166,11 @@ export const trackCartItemRemoved = ({
   locale,
   quantity = 1,
   source,
-}: LocalePayload & {
-  item: CatalogItem | CartItemWithDetails;
-  quantity?: number;
-  source?: string;
-}) => {
+}: CartItemPayload) => {
   Analytics.track('remove_from_cart', {
     item: toAnalyticsItem(item, quantity),
-    currency: 'UAH',
-    value: item.price ? item.price * quantity : undefined,
+    currency: CURRENCY,
+    value: getCartItemValue(item, quantity),
     source,
     locale,
   });
@@ -143,12 +180,9 @@ export const trackCartViewed = ({
   itemCount,
   locale,
   value,
-}: LocalePayload & {
-  itemCount: number;
-  value: number;
-}) => {
+}: CartViewedPayload) => {
   Analytics.track('view_cart', {
-    currency: 'UAH',
+    currency: CURRENCY,
     itemCount,
     value,
     locale,
@@ -160,13 +194,9 @@ export const trackCheckoutStarted = ({
   locale,
   paymentMethod,
   value,
-}: LocalePayload & {
-  itemCount: number;
-  paymentMethod?: CheckoutPaymentMethod;
-  value: number;
-}) => {
+}: CheckoutStartedPayload) => {
   Analytics.track('begin_checkout', {
-    currency: 'UAH',
+    currency: CURRENCY,
     itemCount,
     paymentMethod,
     value,
@@ -179,13 +209,9 @@ export const trackCheckoutSubmitted = ({
   locale,
   paymentMethod,
   value,
-}: LocalePayload & {
-  itemCount: number;
-  paymentMethod: CheckoutPaymentMethod;
-  value: number;
-}) => {
+}: CheckoutSubmittedPayload) => {
   Analytics.track('checkout_submit', {
-    currency: 'UAH',
+    currency: CURRENCY,
     itemCount,
     paymentMethod,
     value,
@@ -199,16 +225,11 @@ export const trackPurchaseCompleted = ({
   orderId,
   paymentMethod,
   value,
-}: LocalePayload & {
-  itemCount: number;
-  orderId: string | number;
-  paymentMethod: CheckoutPaymentMethod;
-  value: number;
-}) => {
+}: PurchaseCompletedPayload) => {
   Analytics.track('purchase', {
-    currency: 'UAH',
+    currency: CURRENCY,
     itemCount,
-    orderId: String(orderId),
+    orderId,
     paymentMethod,
     value,
     locale,
@@ -219,10 +240,7 @@ export const trackPaymentFailed = ({
   locale,
   paymentMethod,
   reason,
-}: LocalePayload & {
-  paymentMethod: CheckoutPaymentMethod;
-  reason: string;
-}) => {
+}: PaymentFailedPayload) => {
   Analytics.track('payment_failed', {
     paymentMethod,
     reason,
@@ -233,9 +251,7 @@ export const trackPaymentFailed = ({
 export const trackNewsletterSubscribed = ({
   locale,
   source = 'footer',
-}: LocalePayload & {
-  source?: string;
-}) => {
+}: NewsletterSubscribedPayload) => {
   Analytics.track('newsletter_subscribe', {
     source,
     locale,

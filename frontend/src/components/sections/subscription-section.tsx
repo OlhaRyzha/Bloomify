@@ -11,7 +11,7 @@ import HomeSectionHeader from './home-section-header';
 
 type Plan = {
   name: string;
-  price: number;
+  price: string;
   period: string;
   icon: LucideIcon;
   description: string;
@@ -21,13 +21,13 @@ type Plan = {
 
 const planConfig: Array<{
   key: 'base' | 'premium' | 'luxe';
-  price: number;
+  price: string;
   icon: LucideIcon;
   popular: boolean;
 }> = [
-  { key: 'base', price: 999, icon: Gift, popular: false },
-  { key: 'premium', price: 1799, icon: Sparkles, popular: true },
-  { key: 'luxe', price: 2999, icon: Crown, popular: false },
+  { key: 'base', price: '999', icon: Gift, popular: false },
+  { key: 'premium', price: '1799', icon: Sparkles, popular: true },
+  { key: 'luxe', price: '2999', icon: Crown, popular: false },
 ];
 
 export default async function SubscriptionSection() {

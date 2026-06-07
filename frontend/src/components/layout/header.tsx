@@ -1,16 +1,22 @@
 import Link from 'next/link';
+
 import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
+import { hasAuthSessionCookie } from '@/features/auth/auth-session.server';
+import { getLocalizedPath } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
+
 import HeaderActions from './header-actions.client';
 import HeaderLogo from './header-logo.client';
-import { getLocalizedPath } from '@/i18n/routing';
 import { Container } from './page-layout';
 
 export default async function Header() {
   const mobileNavId = 'mobile-navigation';
   const { locale, t } = await getServerTranslator();
+  const isAuthorized = await hasAuthSessionCookie();
 
-  const navigationLinks = NAVIGATION_LINKS.map((link) => ({
+  const navigationLinks = NAVIGATION_LINKS.filter(
+    (link) => link.visibility === 'all' || isAuthorized
+  ).map((link) => ({
     ...link,
     href: getLocalizedPath(link.href, locale),
     label: t(`navigation_main_${link.key}`),
@@ -28,12 +34,12 @@ export default async function Header() {
           <nav
             className='hidden min-w-0 flex-1 items-center justify-center gap-5 lg:flex xl:gap-8'
             aria-label={t('header_primary_navigation_label')}>
-            {navigationLinks.map((link) => (
+            {navigationLinks.map(({ key, href, label }) => (
               <Link
-                key={link.key}
-                href={link.href}
+                key={key}
+                href={href}
                 className='text-sm font-medium leading-tight text-muted-foreground transition-colors hover:text-primary'>
-                {link.label}
+                {label}
               </Link>
             ))}
           </nav>

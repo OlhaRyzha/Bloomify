@@ -85,10 +85,10 @@ export default function CartLineItem({
             {t('cart_sum')}
           </p>
           <p className='font-display text-2xl text-primary'>
-            {formatCurrency(item.price * item.quantity, locale)}
+            {formatCurrency(Number(item.price) * item.quantity, locale)}
           </p>
           <p className='text-xs text-muted-foreground'>
-            {formatCurrency(item.price, locale)} / {t('common_bouquet')}
+            {formatCurrency(Number(item.price), locale)} / {t('common_bouquet')}
           </p>
         </div>
       </div>

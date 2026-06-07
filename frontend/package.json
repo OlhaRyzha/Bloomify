@@ -21,6 +21,7 @@
     "test:unit:watch": "vitest"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.17.0",
     "@mobily/ts-belt": "^3.13.1",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.8",

@@ -22,5 +22,7 @@
   "reportUnknownArgumentType": "none",
   "reportUnknownMemberType": "none",
   "reportUnknownVariableType": "none",
-  "reportIncompatibleVariableOverride": "none"
+  "reportIncompatibleVariableOverride": "none",
+  "reportInvalidTypeForm": "none",
+  "reportDeprecated": "none"
 }

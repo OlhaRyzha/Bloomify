@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 import { useFavoritesStore } from '@/features/favorites/store/favorites.store';
 
-import { createProductItem } from './api/products.factory';
+import { createProductItem } from '../api/products.factory';
 import CatalogCard from './catalog-card';
 
 const resetFavoritesStore = () => {

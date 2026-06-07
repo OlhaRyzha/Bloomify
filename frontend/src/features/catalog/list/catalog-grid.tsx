@@ -16,11 +16,11 @@ import {
   trackCatalogViewed,
 } from '@/services/analytics/analytics.events';
 
-import { useGetProducts } from './api/use-products';
-import CatalogCard from './catalog-card';
-import CatalogCardSkeleton from './catalog-card-skeleton';
+import { useGetProducts } from '../api/use-products';
+import CatalogCard from '../card/catalog-card';
+import CatalogCardSkeleton from '../card/catalog-card-skeleton';
 import { CatalogControls } from './catalog-controls';
-import { useCatalogGridState } from './use-catalog-grid-state';
+import { useCatalogGridState } from './hooks/use-catalog-grid-state';
 
 const CatalogCardWithSkeleton = withSkeleton(CatalogCard, {
   skeleton: <CatalogCardSkeleton />,

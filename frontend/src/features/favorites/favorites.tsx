@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import FeedbackState from '@/components/ui/feedback-state';
-import CatalogGrid from '@/features/catalog/catalog-grid';
+import CatalogGrid from '@/features/catalog/list/catalog-grid';
 import { useGetProducts } from '@/features/catalog/api/use-products';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { selectFavoriteIds } from './store/favorites.selectors';

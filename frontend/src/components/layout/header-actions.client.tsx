@@ -21,7 +21,7 @@ import { selectCartCount } from '@/features/cart/store/cart.selectors';
 import { useCartStore } from '@/features/cart/store/cart.store';
 import { useLocale } from '@/components/providers/locale-provider';
 import { getLocalizedPath, stripLocaleFromPathname } from '@/i18n/routing';
-import { useAuthSessionMarker } from '@/features/auth/use-auth-session-marker';
+import { useAuthSessionMarker } from '@/features/auth/hooks/use-auth-session-marker';
 import { CLOSE_MOBILE_MENU_EVENT } from './header-events';
 
 type HeaderNavLink = {
@@ -188,9 +188,8 @@ export default function HeaderActions({
                 const isCurrent =
                   pathnameWithoutLocale === stripLocaleFromPathname(link.href);
                 const Icon =
-                  mobileNavIcons[
-                    link.key as keyof typeof mobileNavIcons
-                  ] ?? Sparkles;
+                  mobileNavIcons[link.key as keyof typeof mobileNavIcons] ??
+                  Sparkles;
 
                 return (
                   <Link

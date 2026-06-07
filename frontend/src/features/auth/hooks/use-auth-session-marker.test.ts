@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
 
-import { AUTH_SESSION_COOKIE_NAME } from './auth-routing';
+import { AUTH_SESSION_COOKIE_NAME } from '../auth-routing';
 import { useAuthSessionMarker } from './use-auth-session-marker';
 
 describe('useAuthSessionMarker', () => {

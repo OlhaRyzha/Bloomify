@@ -1,11 +1,11 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { createProductItem } from './api/products.factory';
+import { createProductItem } from '../../api/products.factory';
 import {
   createCatalogGridItems,
   resetCatalogStore,
-} from './catalog.test-utils';
+} from '../catalog.test-utils';
 import { useCatalogGridState } from './use-catalog-grid-state';
 
 const items = createCatalogGridItems();
@@ -23,14 +23,14 @@ describe('useCatalogGridState', () => {
         id: 'rose-box',
         name: 'Rose box',
         description: 'Classic rose box',
-        price: 1800,
+        price: '1800',
         tag: 'classic',
       }),
       createProductItem({
         id: 'rose-cloud',
         name: 'Rose cloud',
         description: 'Classic rose cloud',
-        price: 1700,
+        price: '1700',
         tag: 'classic',
       }),
     ];
@@ -110,9 +110,12 @@ describe('useCatalogGridState', () => {
       result.current.updateSearch('white');
     });
 
-    await waitFor(() => {
-      expect(result.current.page).toBe(1);
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(result.current.page).toBe(1);
+      },
+      { timeout: 1000 }
+    );
 
     expect(window.location.search).toContain('search=white');
   });

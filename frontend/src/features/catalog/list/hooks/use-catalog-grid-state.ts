@@ -7,10 +7,10 @@ import { useDebounce } from '@/hooks/use-debounce';
 import {
   getCatalogQueryParams,
   setCatalogQueryParams,
-} from './catalog-query-params';
-import { selectCatalogGridState } from './store/catalog.selectors';
-import { useCatalogStore } from './store/catalog.store';
-import type { SortOption } from './catalog.types';
+} from '../catalog-query-params';
+import { selectCatalogGridState } from '../../store/catalog.selectors';
+import { useCatalogStore } from '../../store/catalog.store';
+import type { SortOption } from '../catalog.types';
 
 type UseCatalogGridStateProps = {
   items: CatalogItem[];
@@ -108,9 +108,9 @@ export function useCatalogGridState({
     const itemsToSort = [...filteredItems];
     switch (sort) {
       case 'price-asc':
-        return itemsToSort.sort((a, b) => a.price - b.price);
+        return itemsToSort.sort((a, b) => Number(a.price) - Number(b.price));
       case 'price-desc':
-        return itemsToSort.sort((a, b) => b.price - a.price);
+        return itemsToSort.sort((a, b) => Number(b.price) - Number(a.price));
       case 'name-asc':
         return itemsToSort.sort((a, b) => a.name.localeCompare(b.name));
       default:
@@ -131,7 +131,7 @@ export function useCatalogGridState({
       Array.from({ length: perPage }, (_, idx) => ({
         id: `skeleton-${idx}`,
         name: '',
-        price: 0,
+        price: '0',
       })) as CatalogItem[],
     [perPage]
   );

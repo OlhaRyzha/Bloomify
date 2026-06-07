@@ -1,10 +1,18 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from shop.views.auth import (
+    Auth0LoginView,
+    CurrentUserView,
+    LoginView,
+    LogoutView,
+    RefreshView,
+    RegisterView,
+)
 from shop.views.orders import (
     CheckoutCreateView,
     LiqPayCallbackView,
     LiqPayPaymentStatusView,
+    OrderListView,
 )
 from shop.views.products import ProductDetailView, ProductListView
 from shop.views.site_languages import SiteLanguagesView
@@ -13,6 +21,7 @@ urlpatterns = [
     path("products", ProductListView.as_view(), name="products"),
     path("favorites-products", ProductListView.as_view(), name="favorites_products"),
     path("products/<int:pk>", ProductDetailView.as_view(), name="product"),
+    path("orders", OrderListView.as_view(), name="orders"),
     path("orders/checkout", CheckoutCreateView.as_view(), name="orders_checkout"),
     path(
         "orders/<int:pk>/payment-status",
@@ -25,6 +34,10 @@ urlpatterns = [
         name="liqpay_callback",
     ),
     path("site/languages", SiteLanguagesView.as_view(), name="site_languages"),
-    path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("auth/register/", RegisterView.as_view(), name="auth_register"),
+    path("auth/token/", LoginView.as_view(), name="token_obtain_pair"),
+    path("auth/refresh/", RefreshView.as_view(), name="token_refresh"),
+    path("auth/logout/", LogoutView.as_view(), name="auth_logout"),
+    path("auth/me/", CurrentUserView.as_view(), name="auth_me"),
+    path("auth/oauth/auth0/", Auth0LoginView.as_view(), name="auth_auth0"),
 ]

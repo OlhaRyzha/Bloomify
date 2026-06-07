@@ -40,7 +40,7 @@ const mockProducts = () => {
         createProductItem({
           id: 'rose-bouquet',
           name: 'Rose bouquet',
-          price: 1750,
+          price: '1750',
         }),
       ])
     )
@@ -56,7 +56,7 @@ const mockDelayedProducts = () => {
         createProductItem({
           id: 'rose-bouquet',
           name: 'Rose bouquet',
-          price: 1750,
+          price: '1750',
         }),
       ]);
     })
@@ -165,7 +165,9 @@ describe('CheckoutFeature', () => {
         name: /could not prepare checkout/i,
       })
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /try again/i })
+    ).toBeInTheDocument();
   });
 
   test('restores delivery draft values', async () => {
@@ -233,8 +235,9 @@ describe('CheckoutFeature', () => {
 
     expect(liqPayForm).toBeDefined();
     expect(liqPayForm?.target).toBe('');
-    expect(liqPayForm?.querySelector<HTMLInputElement>('input[name="data"]'))
-      .toHaveValue('encoded-data');
+    expect(
+      liqPayForm?.querySelector<HTMLInputElement>('input[name="data"]')
+    ).toHaveValue('encoded-data');
     expect(
       liqPayForm?.querySelector<HTMLInputElement>('input[name="signature"]')
     ).toHaveValue('encoded-signature');
@@ -334,24 +337,24 @@ describe('CheckoutFeature', () => {
       http.post(
         apiUrl('orders/:orderId/payment-status'),
         async ({ params, request }) => {
-        const rawOrderId = params.orderId;
-        const orderId = Number(
-          Array.isArray(rawOrderId) ? rawOrderId[0] : rawOrderId
-        );
-        const payload = await request.json();
-        syncedOrderIds.push(orderId);
-        syncedTokens.push(
-          typeof payload === 'object' &&
-            payload !== null &&
-            'token' in payload &&
-            typeof payload.token === 'string'
-            ? payload.token
-            : ''
-        );
+          const rawOrderId = params.orderId;
+          const orderId = Number(
+            Array.isArray(rawOrderId) ? rawOrderId[0] : rawOrderId
+          );
+          const payload = await request.json();
+          syncedOrderIds.push(orderId);
+          syncedTokens.push(
+            typeof payload === 'object' &&
+              payload !== null &&
+              'token' in payload &&
+              typeof payload.token === 'string'
+              ? payload.token
+              : ''
+          );
 
-        return HttpResponse.json(
-          createCheckoutPaymentStatusResponse({ orderId })
-        );
+          return HttpResponse.json(
+            createCheckoutPaymentStatusResponse({ orderId })
+          );
         }
       )
     );

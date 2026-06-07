@@ -27,7 +27,7 @@ export const getCartItemsWithDetails = (
 };
 
 export const getCartSubtotal = (items: CartItemWithDetails[]) =>
-  items.reduce((total, item) => total + item.price * item.quantity, 0);
+  items.reduce((total, item) => total + Number(item.price) * item.quantity, 0);
 
 export const getCartItemCount = (items: CartItemWithDetails[]) =>
   items.reduce((total, item) => total + item.quantity, 0);

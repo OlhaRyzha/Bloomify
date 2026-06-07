@@ -1,6 +1,8 @@
 import { createServer } from 'node:http';
 
-const apiUrl = new URL(process.env.PLAYWRIGHT_API_URL ?? 'http://127.0.0.1:8010');
+const apiUrl = new URL(
+  process.env.PLAYWRIGHT_API_URL ?? 'http://127.0.0.1:8010'
+);
 const port = Number(apiUrl.port || (apiUrl.protocol === 'https:' ? 443 : 80));
 const hostname = apiUrl.hostname;
 
@@ -9,7 +11,7 @@ const catalogItems = [
     id: 'white-harmony',
     name: 'Біла гармонія',
     description: 'Класична композиція з білих лілій та троянд',
-    price: 1650,
+    price: '1650',
     imageUrl: '/images/white-harmony.jpg',
     tag: 'Класика',
   },
@@ -17,7 +19,7 @@ const catalogItems = [
     id: 'blue-harmony',
     name: 'Блакитна гармонія',
     description: 'Витончений букет із білих лілій та гортензії',
-    price: 1750,
+    price: '1750',
     imageUrl: '/images/blue-harmony.jpg',
     tag: 'Класика',
   },
