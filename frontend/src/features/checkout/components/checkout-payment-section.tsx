@@ -46,6 +46,7 @@ export default function CheckoutPaymentSection({
           return (
             <label
               key={option.id}
+              data-testid={`checkout-payment-method-${option.id}`}
               className={cn(
                 'flex cursor-pointer items-start gap-4 rounded-2xl border bg-background/70 p-4 transition',
                 isSelected
