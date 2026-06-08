@@ -134,7 +134,7 @@ export function useCheckoutPaymentSync({
             message: t('checkout_submit_paid_status', {
               orderId: response.orderId,
             }),
-            paymentStatusLabel: t('checkout_success_payment_status_paid'),
+            paymentStatusLabel: t('status_paid'),
           });
 
           setPaymentReturnSyncState('idle');

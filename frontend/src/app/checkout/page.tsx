@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
 
   return {
-    title: t('metadata_checkout_title'),
+    title: t('label_checkout'),
     description: t('metadata_checkout_description'),
   };
 }
@@ -19,7 +19,7 @@ export default async function CheckoutPage() {
     <PageShell
       header={{
         label: t('checkout_page_label'),
-        title: t('checkout_page_title'),
+        title: t('label_checkout'),
         description: t('checkout_page_description'),
       }}>
       <CheckoutFeature />

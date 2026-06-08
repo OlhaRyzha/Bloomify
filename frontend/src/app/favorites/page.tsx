@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
 
   return {
-    title: t('metadata_favorites_title'),
+    title: t('label_favorites'),
     description: t('metadata_favorites_description'),
   };
 }
@@ -19,7 +19,7 @@ export default async function FavoritesPage() {
     <PageShell
       header={{
         label: t('favorites_page_label'),
-        title: t('favorites_page_title'),
+        title: t('label_favorites'),
         description: t('favorites_page_description'),
       }}>
       <FavoritesFeature />

@@ -27,6 +27,11 @@ const authAssets = {
   },
 } as const;
 
+const AUTH_SHELL_LABEL_KEYS = {
+  login: 'label_account',
+  register: 'action_create_account',
+} as const;
+
 type AuthVariant = keyof typeof authAssets;
 
 type AuthShellProps = {
@@ -57,7 +62,7 @@ export default async function AuthShell({ variant, children }: AuthShellProps) {
         <div className='grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]'>
           <div className='order-2 space-y-8 lg:order-1'>
             <span className='inline-flex items-center gap-2 rounded-full bg-secondary/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground'>
-              {t(`auth_shell_${variant}_label`)}
+              {t(AUTH_SHELL_LABEL_KEYS[variant])}
             </span>
 
             <div className='space-y-4'>

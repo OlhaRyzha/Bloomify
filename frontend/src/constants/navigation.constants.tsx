@@ -11,19 +11,58 @@ export type NavigationKey =
 
 export type NavigationVisibility = 'all' | 'authorized' | 'guest';
 
+export type NavigationLabelKey =
+  | 'label_catalog'
+  | 'label_favorites'
+  | 'label_subscription'
+  | 'label_about'
+  | 'label_contact'
+  | 'label_orders';
+
 type NavigationLink = {
   key: NavigationKey;
   href: string;
+  labelKey: NavigationLabelKey;
   visibility: NavigationVisibility;
 };
 
 export const NAVIGATION_LINKS: NavigationLink[] = [
-  { key: 'catalog', href: '/catalog', visibility: 'all' },
-  { key: 'favorites', href: '/favorites', visibility: 'authorized' },
-  { key: 'subscription', href: '/#subscription', visibility: 'all' },
-  { key: 'about', href: '/#about', visibility: 'all' },
-  { key: 'orders', href: '/orders', visibility: 'authorized' },
-  { key: 'contact', href: '/#contact', visibility: 'all' },
+  {
+    key: 'catalog',
+    href: '/catalog',
+    labelKey: 'label_catalog',
+    visibility: 'all',
+  },
+  {
+    key: 'favorites',
+    href: '/favorites',
+    labelKey: 'label_favorites',
+    visibility: 'authorized',
+  },
+  {
+    key: 'subscription',
+    href: '/#subscription',
+    labelKey: 'label_subscription',
+    visibility: 'all',
+  },
+  {
+    key: 'about',
+    href: '/#about',
+    labelKey: 'label_about',
+    visibility: 'all',
+  },
+  {
+    key: 'orders',
+    href: '/orders',
+    labelKey: 'label_orders',
+    visibility: 'authorized',
+  },
+  {
+    key: 'contact',
+    href: '/#contact',
+    labelKey: 'label_contact',
+    visibility: 'all',
+  },
 ];
 
 export type ServiceKey =

@@ -1,21 +1,15 @@
 import { describe, expect, test } from 'vitest';
 
+import { getValidationMessages } from '@/constants/message.constants';
+import { testT } from '@/test/translation';
+
 import {
   CHECKOUT_PAYMENT_METHODS,
   createCheckoutSchema,
 } from './checkout-form.schemas';
 
-const messages = {
-  address: 'Address is required',
-  city: 'City is required',
-  email: 'Email is required',
-  invalidEmail: 'Email is invalid',
-  minName: 'Name is too short',
-  name: 'Name is required',
-  phone: 'Phone is required',
-};
-
-const schema = createCheckoutSchema(messages);
+const validationMessages = getValidationMessages(testT);
+const schema = createCheckoutSchema(testT);
 
 const validCheckoutValues = {
   customerName: 'Olha Ryzha',
@@ -47,7 +41,7 @@ describe('checkout schema', () => {
     }
   );
 
-  test('returns delivery validation messages for empty required fields', () => {
+  test('returns validation messages for empty required fields', () => {
     const result = schema.safeParse({
       customerName: '',
       email: '',
@@ -59,15 +53,32 @@ describe('checkout schema', () => {
     });
 
     expect(result.success).toBe(false);
-    if (result.success) throw new Error('Expected checkout validation to fail');
+
+    if (result.success) {
+      throw new Error('Expected checkout validation to fail');
+    }
 
     const fieldErrors = result.error.flatten().fieldErrors;
 
-    expect(fieldErrors.address).toContain(messages.address);
-    expect(fieldErrors.city).toContain(messages.city);
-    expect(fieldErrors.customerName).toContain(messages.name);
-    expect(fieldErrors.email).toContain(messages.email);
-    expect(fieldErrors.phone).toContain(messages.phone);
+    expect(fieldErrors.customerName).toContain(
+      testT('checkout_validation_name_required')
+    );
+
+    expect(fieldErrors.email).toContain(
+      testT('checkout_validation_email_required')
+    );
+
+    expect(fieldErrors.phone).toContain(
+      testT('checkout_validation_phone_required')
+    );
+
+    expect(fieldErrors.city).toContain(
+      testT('checkout_validation_city_required')
+    );
+
+    expect(fieldErrors.address).toContain(
+      testT('checkout_validation_address_required')
+    );
   });
 
   test('rejects invalid email and unsupported payment method', () => {
@@ -78,11 +89,51 @@ describe('checkout schema', () => {
     });
 
     expect(result.success).toBe(false);
-    if (result.success) throw new Error('Expected checkout validation to fail');
+
+    if (result.success) {
+      throw new Error('Expected checkout validation to fail');
+    }
 
     const fieldErrors = result.error.flatten().fieldErrors;
 
-    expect(fieldErrors.email).toEqual([messages.invalidEmail]);
+    expect(fieldErrors.email).toEqual([
+      testT('checkout_validation_email_invalid'),
+    ]);
+
     expect(fieldErrors.paymentMethod).toBeDefined();
+  });
+
+  test.each(['abcdefg', 'phone123', '+++++++', '123', '+38 (---)'])(
+    'rejects invalid phone value: %s',
+    (phone) => {
+      const result = schema.safeParse({
+        ...validCheckoutValues,
+        phone,
+      });
+
+      expect(result.success).toBe(false);
+
+      if (result.success) {
+        throw new Error('Expected checkout validation to fail');
+      }
+
+      expect(result.error.flatten().fieldErrors.phone).toContain(
+        validationMessages.invalidPhone
+      );
+    }
+  );
+
+  test.each([
+    '+380671234567',
+    '0671234567',
+    '+38 (067) 123-45-67',
+    '067 123 45 67',
+  ])('accepts valid phone value: %s', (phone) => {
+    expect(
+      schema.safeParse({
+        ...validCheckoutValues,
+        phone,
+      }).success
+    ).toBe(true);
   });
 });

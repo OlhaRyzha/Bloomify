@@ -1,6 +1,6 @@
 import {
   apiErrorMessages,
-  validationMessages,
+  technicalMessages,
 } from '@/constants/message.constants';
 import axios, { isAxiosError } from 'axios';
 import { ZodError } from 'zod';
@@ -110,13 +110,13 @@ export class ApiError extends Error {
       return new ApiError(ApiErrorType.Network, error.message, data);
     }
 
-    return new ApiError(ApiErrorType.Unknown, validationMessages.unknownError);
+    return new ApiError(ApiErrorType.Unknown, technicalMessages.unknownError);
   }
 
   static fromZod(zodErr: ZodError): ApiError {
     return new ApiError(
       ApiErrorType.Validation,
-      validationMessages.zodError,
+      technicalMessages.zodError,
       zodErr.issues
     );
   }
@@ -126,6 +126,6 @@ export class ApiError extends Error {
     if (err instanceof ZodError) return ApiError.fromZod(err);
     if (err instanceof Error)
       return new ApiError(ApiErrorType.Unknown, err.message);
-    return new ApiError(ApiErrorType.Unknown, validationMessages.unknownError);
+    return new ApiError(ApiErrorType.Unknown, technicalMessages.unknownError);
   }
 }

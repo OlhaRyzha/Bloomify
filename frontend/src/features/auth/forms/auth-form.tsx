@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { loginSchema, registerSchema } from './auth.schemas';
+import { createLoginSchema, createRegisterSchema } from './auth.schemas';
 import {
   authInitialValuesByMode,
   getAuthFields,
@@ -39,13 +39,36 @@ import {
   rememberPostAuthRedirectPath,
 } from '../lib/client/auth-navigation.client';
 
+const AUTH_FORM_COPY_KEYS = {
+  login: {
+    title: 'action_log_in',
+    subtitle: 'auth_form_login_subtitle',
+    googleLabel: 'auth_form_login_google_label',
+    submitLabel: 'action_log_in',
+    switchText: 'auth_form_login_switch_text',
+    switchHref: 'auth_form_login_switch_href',
+    switchLinkLabel: 'action_register',
+  },
+  register: {
+    title: 'action_create_account',
+    subtitle: 'auth_form_register_subtitle',
+    googleLabel: 'auth_form_register_google_label',
+    submitLabel: 'action_register',
+    switchText: 'auth_form_register_switch_text',
+    switchHref: 'auth_form_register_switch_href',
+    switchLinkLabel: 'action_log_in',
+  },
+} as const;
+
 export default function AuthForm({ mode }: { mode: AuthMode }) {
   const { locale, t } = useTranslation();
   const searchParams = useSearchParams();
   const { loginWithRedirect, isLoading: isAuth0Loading } = useAuth0();
 
+  const copyKeys = AUTH_FORM_COPY_KEYS[mode];
   const fields = getAuthFields({ mode, t });
-  const schema = mode === 'login' ? loginSchema : registerSchema;
+  const schema =
+    mode === 'login' ? createLoginSchema(t) : createRegisterSchema(t);
   const redirectPath = getPostAuthRedirectPath(
     searchParams.get('next'),
     locale
@@ -73,11 +96,11 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
       style={{ animationDelay: '0.1s' }}>
       <CardHeader className='pb-4'>
         <CardTitle className='font-display text-3xl'>
-          {t(`auth_form_${mode}_title`)}
+          {t(copyKeys.title)}
         </CardTitle>
 
         <CardDescription className='text-base'>
-          {t(`auth_form_${mode}_subtitle`)}
+          {t(copyKeys.subtitle)}
         </CardDescription>
       </CardHeader>
 
@@ -136,7 +159,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                     aria-hidden
                   />
                 </span>
-                {t(`auth_form_${mode}_google_label`)}
+                {t(copyKeys.googleLabel)}
               </Button>
 
               <div className='flex items-center gap-3 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
@@ -227,7 +250,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
                 size='lg'
                 className='mt-2 w-full'
                 disabled={isSubmitting}>
-                {t(`auth_form_${mode}_submit_label`)}
+                {t(copyKeys.submitLabel)}
               </Button>
 
               {mode === 'register' && (
@@ -249,14 +272,11 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
               )}
 
               <p className='text-sm text-muted-foreground'>
-                {t(`auth_form_${mode}_switch_text`) + ' '}
+                {t(copyKeys.switchText) + ' '}
                 <Link
-                  href={getLocalizedPath(
-                    t(`auth_form_${mode}_switch_href`),
-                    locale
-                  )}
+                  href={getLocalizedPath(t(copyKeys.switchHref), locale)}
                   className='font-semibold text-primary underline-offset-4 hover:underline'>
-                  {t(`auth_form_${mode}_switch_link_label`)}
+                  {t(copyKeys.switchLinkLabel)}
                 </Link>
               </p>
             </Form>

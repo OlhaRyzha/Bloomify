@@ -20,8 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: t('metadata_default_title'),
-      template: `%s | ${t('common_brand')}`,
+      default: t('brand_name'),
+      template: `%s | ${t('brand_name')}`,
     },
     description: t('metadata_default_description'),
   };

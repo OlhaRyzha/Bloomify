@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
 
   return {
-    title: t('metadata_catalog_title'),
+    title: t('label_bouquet_catalog'),
     description: t('metadata_catalog_description'),
   };
 }
@@ -19,7 +19,7 @@ export default async function CatalogPage() {
     <PageShell
       header={{
         label: t('sections_catalog_label'),
-        title: t('sections_catalog_title'),
+        title: t('label_bouquet_catalog'),
         description: t('sections_catalog_description'),
       }}>
       <CatalogGrid />

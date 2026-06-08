@@ -2,20 +2,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import heroImage from '@/assets/hero-flowers.jpg';
-import { Button } from '../ui/button';
+import { Button } from '../../../components/ui/button';
 import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { formatCurrency, formatTemplate } from '@/utils/i18n';
 import { getServerTranslator } from '@/i18n/server';
 import { getLocalizedPath } from '@/i18n/routing';
-import { Container } from '../layout/page-layout';
+import { Container } from '../../../components/layout/page-layout';
 
 export default async function HeroSection() {
   const { t, locale } = await getServerTranslator();
+
   const stats = [
     { value: '5000+', label: t('hero_stats_satisfied_customers') },
     { value: '50+', label: t('hero_stats_flower_varieties') },
     { value: '24/7', label: t('hero_stats_support') },
   ];
+
   const freeDeliveryMessage = formatTemplate(
     t('delivery_free_delivery_message'),
     {

@@ -1,7 +1,7 @@
 'use client';
 
 import CatalogGrid from '@/features/catalog/list/catalog-grid';
-import { MotionDiv } from '../ui/motion-div';
+import { MotionDiv } from '../../../components/ui/motion-div';
 
 const containerVariants = {
   hidden: { opacity: 0 },

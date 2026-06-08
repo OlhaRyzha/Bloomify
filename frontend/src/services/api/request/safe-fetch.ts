@@ -1,7 +1,7 @@
 import z from 'zod';
 
 import { ApiError } from '../errors/api-error';
-import { validationMessages } from '@/constants/message.constants';
+import { technicalMessages } from '@/constants/message.constants';
 
 export function parseResponseWithSchema<T>(
   response: T,
@@ -13,7 +13,7 @@ export function parseResponseWithSchema<T>(
     return parsed.data;
   }
 
-  console.error(validationMessages.zodError, parsed.error, response);
+  console.error(technicalMessages.zodError, parsed.error, response);
   throw ApiError.fromZod(parsed.error);
 }
 

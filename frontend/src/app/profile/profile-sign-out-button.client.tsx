@@ -55,7 +55,7 @@ export default function ProfileSignOutButton() {
           className='mr-2 h-4 w-4'
           aria-hidden
         />
-        {t('profile_sign_out_cta')}
+        {t('action_sign_out')}
       </Button>
 
       {confirmationCopy ? (

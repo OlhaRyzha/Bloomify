@@ -46,7 +46,7 @@ export default function FavoritesFeature() {
       <FeedbackState
         title={t('sections_favorites_empty_title')}
         description={t('sections_favorites_empty_description')}
-        actionLabel={t('sections_favorites_empty_cta')}
+        actionLabel={t('action_go_to_catalog')}
         actionHref={getLocalizedPath('/catalog', locale)}
         className='bg-gradient-card shadow-card'
       />

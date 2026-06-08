@@ -1,11 +1,18 @@
 import z from 'zod';
-import { validationMessages } from '@/constants/message.constants';
 
-export const cartPromoCodeSchema = z.object({
-  promoCode: z
-    .string()
-    .trim()
-    .min(1, validationMessages.requiredField()),
-});
+import {
+  getValidationMessages,
+  type TranslationFn,
+} from '@/constants/message.constants';
 
-export type CartPromoCodeValues = z.infer<typeof cartPromoCodeSchema>;
+export const createCartPromoCodeSchema = (t: TranslationFn) => {
+  const validationMessages = getValidationMessages(t);
+
+  return z.object({
+    promoCode: z.string().trim().min(1, validationMessages.requiredField()),
+  });
+};
+
+export type CartPromoCodeValues = z.infer<
+  ReturnType<typeof createCartPromoCodeSchema>
+>;

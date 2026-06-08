@@ -34,7 +34,7 @@ export default function CartSummary({
           </span>
         </div>
         <div className='flex items-center justify-between'>
-          <span>{t('cart_delivery')}</span>
+          <span>{t('label_delivery')}</span>
           <span className='font-semibold text-foreground'>
             {deliveryCost === 0
               ? t('common_free')
@@ -63,7 +63,7 @@ export default function CartSummary({
         variant='outline'
         className='mt-3 w-full'>
         <Link href={getLocalizedPath('/catalog', locale)}>
-          {t('cart_continue_shopping')}
+          {t('action_continue_shopping')}
         </Link>
       </Button>
     </SurfacePanel>

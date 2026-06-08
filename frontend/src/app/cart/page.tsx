@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
 
   return {
-    title: t('metadata_cart_title'),
+    title: t('label_cart'),
     description: t('metadata_cart_description'),
   };
 }
@@ -19,7 +19,7 @@ export default async function CartPage() {
     <PageShell
       header={{
         label: t('cart_page_label'),
-        title: t('cart_page_title'),
+        title: t('label_cart'),
         description: t('cart_page_description'),
       }}>
       <CartFeature />

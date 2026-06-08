@@ -2,7 +2,10 @@ import { AxiosError, type AxiosResponse } from 'axios';
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 
-import { apiErrorMessages, validationMessages } from '@/constants/message.constants';
+import {
+  apiErrorMessages,
+  technicalMessages,
+} from '@/constants/message.constants';
 
 import { ApiError, ApiErrorType } from './api-error';
 
@@ -111,7 +114,7 @@ describe('ApiError', () => {
     expect(ApiError.fromUnknown(zodResult.error)).toEqual(
       expect.objectContaining({
         type: ApiErrorType.Validation,
-        userMessage: validationMessages.zodError,
+        userMessage: technicalMessages.zodError,
       })
     );
 
@@ -125,7 +128,7 @@ describe('ApiError', () => {
     expect(ApiError.fromUnknown(null)).toEqual(
       expect.objectContaining({
         type: ApiErrorType.Unknown,
-        userMessage: validationMessages.unknownError,
+        userMessage: technicalMessages.unknownError,
       })
     );
   });

@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { validationMessages } from '@/constants/message.constants';
+import { getValidationMessages } from '@/constants/message.constants';
 import { createDeferred } from '@/test/deferred';
 import { renderWithProviders } from '@/test/render';
 import { ApiError, ApiErrorType } from '@/services/api/errors/api-error';
@@ -14,6 +14,7 @@ import {
 } from '../lib/shared/auth.factory';
 import { useAuthTokenStore } from '../store/auth-token.store';
 import { AUTH_SESSION_COOKIE_NAME } from '../lib/shared/auth-routing';
+import { testT } from '@/test/translation';
 
 const {
   loginWithRedirectMock,
@@ -53,11 +54,14 @@ vi.mock('../lib/shared/auth-session.service', () => ({
   },
 }));
 
+const validationMessages = getValidationMessages(testT);
+
 describe('AuthForm', () => {
   beforeEach(() => {
     vi.mocked(AuthSessionService.signIn).mockReset();
     vi.mocked(AuthSessionService.signUp).mockReset();
     vi.mocked(AuthSessionService.refresh).mockReset();
+    vi.mocked(AuthSessionService.signInWithAuth0).mockReset();
     vi.mocked(AuthSessionService.signOut).mockReset();
 
     loginWithRedirectMock.mockReset();

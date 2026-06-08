@@ -1,33 +1,35 @@
-export const validationMessages = {
-  requiredField: (fieldName: string = 'Це поле') =>
-    `${fieldName} є обов'язковим.`,
-  invalidEmail: 'Вкажіть коректну електронну адресу.',
-  invalidImageUrl: 'Вкажіть коректне посилання на зображення.',
-  passwordMin: (minSize: number) =>
-    `Пароль має містити щонайменше ${minSize} символів.`,
-  passwordRules: 'Пароль має містити принаймні одну літеру та цифру.',
-  passwordMismatch: 'Паролі не збігаються.',
-  nameMin: (minSize: number) =>
-    `Ім'я має містити щонайменше ${minSize} символи.`,
-  lengthMax: (maxSize: string) =>
-    `The selected file must be smaller than ${maxSize}.`,
-  invalidScheme: 'Only HTTP and HTTPS links are supported.',
-  invalidHost:
-    'The provided image host is not allowed. Please use a trusted source.',
-  error: 'An error occurred',
-  zodError: '[ZOD PARSE ERROR]:',
-  unknownError: 'An unknown error occurred',
+export type TranslationFn = (
+  key: string,
+  values?: Record<string, string | number>
+) => string;
+
+export const getValidationMessages = (t: TranslationFn) => ({
+  requiredField: (fieldName: string = t('validation_field_default')) =>
+    t('validation_required_field', { fieldName }),
+
+  invalidEmail: t('validation_invalid_email'),
+  invalidPhone: t('validation_invalid_phone'),
+
+  invalidImageUrl: t('validation_invalid_image_url'),
+  passwordMin: (minSize: number) => t('validation_password_min', { minSize }),
+  passwordRules: t('validation_password_rules'),
+  passwordMismatch: t('validation_password_mismatch'),
+  nameMin: (minSize: number) => t('validation_name_min', { minSize }),
+  lengthMax: (maxSize: string) => t('validation_length_max', { maxSize }),
+  invalidScheme: t('validation_invalid_scheme'),
+  invalidHost: t('validation_invalid_host'),
+  error: t('error_generic'),
+  unknownError: t('error_unknown'),
   errorUploading: 'Error uploading audio:',
   responseIsNull: 'Response is null or undefined',
-};
+});
 
-export const dialogMessages = {
-  cannotBeUndone: 'This action cannot be undone.',
-  areYouSure: 'Are you absolutely sure?',
-  delete: (value: string) => `Delete ${value}? `,
-  deleteAll: (value: string) =>
-    `This will permanently delete all selected ${value}? `,
-};
+export const getDialogMessages = (t: TranslationFn) => ({
+  cannotBeUndone: t('dialog_cannot_be_undone'),
+  areYouSure: t('dialog_are_you_sure'),
+  delete: (value: string) => t('dialog_delete', { value }),
+  deleteAll: (value: string) => t('dialog_delete_all', { value }),
+});
 
 export const apiErrorMessages = {
   badRequest: 'Bad Request',
@@ -48,3 +50,9 @@ export const apiErrorMessages = {
   serverErrorStatus: 'Server error',
   networkError: 'Network error',
 };
+
+export const technicalMessages = {
+  zodError: '[ZOD PARSE ERROR]:',
+  binanceFetchError: '[Binance] fetch error',
+  unknownError: 'An unknown error occurred.',
+} as const;

@@ -40,18 +40,18 @@ export function getAuthFields({
   const fieldConfig: Record<AuthFieldName, AuthFieldConfig> = {
     name: {
       name: 'name',
-      label: t('auth_form_fields_name_label'),
+      label: t('label_full_name'),
       type: 'text',
-      placeholder: t('auth_form_fields_name_placeholder'),
+      placeholder: t('placeholder_full_name'),
       autoComplete: 'name',
       helper: t('auth_form_fields_name_helper') || undefined,
       icon: User,
     },
     email: {
       name: 'email',
-      label: t('auth_form_fields_email_label'),
+      label: t('label_email'),
       type: 'email',
-      placeholder: t('auth_form_fields_email_placeholder'),
+      placeholder: t('label_email_example'),
       autoComplete: 'email',
       icon: Mail,
     },

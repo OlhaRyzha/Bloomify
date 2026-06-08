@@ -1,9 +1,13 @@
 import { describe, expect, test } from 'vitest';
 
-import { validationMessages } from '@/constants/message.constants';
+import { getValidationMessages } from '@/constants/message.constants';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 
-import { newsletterSubscribeSchema } from './footer-newsletter-form.schemas';
+import { createNewsletterSubscribeSchema } from './footer-newsletter-form.schemas';
+import { testT } from '@/test/translation';
+
+const validationMessages = getValidationMessages(testT);
+const newsletterSubscribeSchema = createNewsletterSubscribeSchema(testT);
 
 describe('newsletterSubscribeSchema', () => {
   test('accepts a valid email', () => {

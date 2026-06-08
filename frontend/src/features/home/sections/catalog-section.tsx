@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Container } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
-import { Button } from '../ui/button';
+import { Button } from '../../../components/ui/button';
 import CatalogSectionPreview from './catalog-section-preview.client';
 import { getLocalizedPath } from '@/i18n/routing';
 import HomeSectionHeader from './home-section-header';

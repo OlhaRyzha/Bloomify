@@ -70,7 +70,7 @@ export default function CheckoutSummaryPanel({
         </div>
 
         <div className='flex items-center justify-between text-muted-foreground'>
-          <span>{t('cart_delivery')}</span>
+          <span>{t('label_delivery')}</span>
           <span>
             {deliveryCost === 0
               ? t('common_free')

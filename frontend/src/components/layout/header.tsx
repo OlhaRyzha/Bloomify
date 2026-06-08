@@ -19,7 +19,7 @@ export default async function Header() {
   ).map((link) => ({
     ...link,
     href: getLocalizedPath(link.href, locale),
-    label: t(`navigation_main_${link.key}`),
+    label: t(link.labelKey),
   }));
 
   return (
@@ -28,7 +28,7 @@ export default async function Header() {
         <div className='flex h-20 min-w-0 items-center justify-between gap-3'>
           <HeaderLogo
             href={getLocalizedPath('/', locale)}
-            brand={t('common_brand')}
+            brand={t('brand_name')}
           />
 
           <nav
@@ -48,12 +48,12 @@ export default async function Header() {
             mobileNavId={mobileNavId}
             navigationLinks={navigationLinks}
             copy={{
-              cartLabel: t('header_cart_label'),
+              cartLabel: t('label_cart'),
               closeMenuLabel: t('header_close_menu_label'),
-              loginLabel: t('auth_form_login_submit_label'),
+              loginLabel: t('action_log_in'),
               mobileNavigationLabel: t('header_mobile_navigation_label'),
               openMenuLabel: t('header_open_menu_label'),
-              profileLabel: t('header_profile_label'),
+              profileLabel: t('label_profile'),
             }}
           />
         </div>

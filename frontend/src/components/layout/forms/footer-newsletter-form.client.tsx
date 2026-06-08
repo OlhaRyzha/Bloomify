@@ -2,21 +2,23 @@
 
 import { Form, Formik } from 'formik';
 import { Send } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { API_ROUTES } from '@/constants/api.constant';
-import { newsletterSubscribeInitialValues } from './footer-newsletter-form.config';
-import {
-  newsletterSubscribeSchema,
-  type NewsletterSubscribeValues,
-} from './footer-newsletter-form.schemas';
-import apiClient from '@/services/api/clients/api-client';
 import { useFormActionStatus } from '@/hooks/use-form-action-status';
+import { useTranslation } from '@/hooks/use-translation';
+import apiClient from '@/services/api/clients/api-client';
+import { trackNewsletterSubscribed } from '@/services/analytics/analytics.events';
 import { getErrorMessage } from '@/utils/errors/get-error-message';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
-import { useTranslation } from '@/hooks/use-translation';
-import { trackNewsletterSubscribed } from '@/services/analytics/analytics.events';
+
+import { newsletterSubscribeInitialValues } from './footer-newsletter-form.config';
+import {
+  createNewsletterSubscribeSchema,
+  type NewsletterSubscribeValues,
+} from './footer-newsletter-form.schemas';
 
 type FooterNewsletterFormProps = {
   inputId: string;
@@ -35,7 +37,10 @@ export default function FooterNewsletterForm({
   successMessage: successMessageText,
   errorMessage: fallbackErrorMessage,
 }: FooterNewsletterFormProps) {
-  const { locale } = useTranslation();
+  const { t, locale } = useTranslation();
+
+  const newsletterSubscribeSchema = createNewsletterSubscribeSchema(t);
+
   const {
     clearStatus,
     errorMessage,
@@ -49,20 +54,25 @@ export default function FooterNewsletterForm({
       <Formik<NewsletterSubscribeValues>
         initialValues={newsletterSubscribeInitialValues}
         validateOnMount
-        validate={(values) => validateWithZod(newsletterSubscribeSchema, values)}
+        validate={(values) =>
+          validateWithZod(newsletterSubscribeSchema, values)
+        }
         onSubmit={async (values, actions) => {
           clearStatus();
 
           try {
             const payload = newsletterSubscribeSchema.parse(values);
+
             await apiClient.post<unknown, NewsletterSubscribeValues>(
               API_ROUTES.SUBSCRIBE,
               payload
             );
+
             trackNewsletterSubscribed({
               source: 'footer',
               locale,
             });
+
             setSuccessStatus(successMessageText);
             actions.resetForm();
           } catch (error) {
@@ -84,6 +94,7 @@ export default function FooterNewsletterForm({
             name: 'email',
             touched,
           });
+
           const statusMessage = emailError || errorMessage || successMessage;
 
           return (
@@ -94,6 +105,7 @@ export default function FooterNewsletterForm({
                   className='sr-only'>
                   {label}
                 </label>
+
                 <Input
                   id={inputId}
                   name='email'
@@ -111,6 +123,7 @@ export default function FooterNewsletterForm({
                   aria-describedby={`${inputId}-status`}
                   className='w-full min-w-0 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/70 sm:min-w-0 lg:w-72'
                 />
+
                 <Button
                   className='h-10 w-full shrink-0 bg-gold px-5 py-2 text-forest hover:bg-gold/90 sm:w-auto'
                   type='submit'

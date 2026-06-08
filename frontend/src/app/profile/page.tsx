@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
 
   return {
-    title: t('metadata_profile_title'),
+    title: t('label_profile'),
     description: t('metadata_profile_description'),
   };
 }
@@ -41,13 +41,13 @@ export default async function ProfilePage() {
 
   const profileCards = [
     {
-      title: t('profile_orders_title'),
+      title: t('label_orders'),
       description: t('profile_orders_description'),
       icon: PackageCheck,
       href: getLocalizedPath('/orders', locale),
     },
     {
-      title: t('profile_favorites_title'),
+      title: t('label_favorites'),
       description: t('profile_favorites_description'),
       icon: Heart,
       href: getLocalizedPath('/favorites', locale),
@@ -57,8 +57,8 @@ export default async function ProfilePage() {
   return (
     <PageShell
       header={{
-        label: t('profile_page_label'),
-        title: t('profile_page_title'),
+        label: t('label_account'),
+        title: t('label_profile'),
         description: t('profile_page_description'),
       }}>
       <div className='grid gap-4 md:grid-cols-2'>

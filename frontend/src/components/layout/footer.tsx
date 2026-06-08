@@ -17,7 +17,7 @@ export default async function Footer() {
   const navLinks = NAVIGATION_LINKS.map((link) => ({
     ...link,
     href: getLocalizedPath(link.href, locale),
-    label: t(`navigation_main_${link.key}`),
+    label: t(link.labelKey),
   }));
   const serviceLinks = SERVICE_LINKS.map((link) => ({
     ...link,
@@ -62,7 +62,7 @@ export default async function Footer() {
             <Link
               href={getLocalizedPath('/', locale)}
               className='text-3xl font-bold'>
-              {t('common_brand')}
+              {t('brand_name')}
             </Link>
             <p className='mt-4 text-sm text-primary-foreground/90'>
               {t('footer_tagline')}

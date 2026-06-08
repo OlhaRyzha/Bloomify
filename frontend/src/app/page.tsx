@@ -1,7 +1,7 @@
-import HeroSection from '@/components/sections/hero-section';
-import CatalogSection from '@/components/sections/catalog-section';
-import SubscriptionSection from '@/components/sections/subscription-section';
-import FeaturesSection from '@/components/sections/features-section';
+import HeroSection from '@/features/home/sections/hero-section';
+import CatalogSection from '@/features/home/sections/catalog-section';
+import SubscriptionSection from '@/features/home/sections/subscription-section';
+import FeaturesSection from '@/features/home/sections/features-section';
 
 export default function Home() {
   return (

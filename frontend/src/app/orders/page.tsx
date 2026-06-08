@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
 
   return {
-    title: t('metadata_orders_title'),
+    title: t('label_orders'),
     description: t('metadata_orders_description'),
   };
 }
@@ -18,8 +18,8 @@ export default async function OrdersPage() {
   return (
     <PageShell
       header={{
-        label: t('orders_page_label'),
-        title: t('orders_page_title'),
+        label: t('label_orders'),
+        title: t('label_orders'),
         description: t('orders_page_description'),
       }}>
       <OrdersFeature />

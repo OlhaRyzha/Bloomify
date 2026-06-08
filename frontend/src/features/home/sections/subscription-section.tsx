@@ -3,8 +3,8 @@ import { Check, Crown, Sparkles, Gift, type LucideIcon } from 'lucide-react';
 import subscriptionImage from '@/assets/subscription-box.jpg';
 import { Container } from '@/components/layout/page-layout';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardHeader } from '../ui/card';
-import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
 import { formatTemplate } from '@/utils/i18n';
 import { getServerTranslator } from '@/i18n/server';
 import HomeSectionHeader from './home-section-header';
@@ -37,7 +37,7 @@ export default async function SubscriptionSection() {
     return {
       name: t(`${base}_name`),
       description: t(`${base}_description`),
-      period: t(`${base}_period`),
+      period: t('label_month'),
       price: config.price,
       icon: config.icon,
       features: t(`${base}_features`, {
@@ -52,7 +52,7 @@ export default async function SubscriptionSection() {
       className='scroll-mt-24 bg-gradient-hero py-24'>
       <Container>
         <HomeSectionHeader
-          label={t('sections_subscription_label')}
+          label={t('label_subscription')}
           title={t('sections_subscription_title')}
           description={t('sections_subscription_description')}
         />

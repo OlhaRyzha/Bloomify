@@ -1,11 +1,47 @@
 import Image from 'next/image';
 
-import { Order } from '../api/orders.shemas';
+import type { Order } from '../api/orders.shemas';
 
 type OrderCardProps = {
   order: Order;
   t: (key: string) => string;
 };
+
+const ORDER_STATUS_LABEL_KEYS: Record<string, string> = {
+  pending: 'order_status_pending',
+  processing: 'order_status_processing',
+  ready_for_delivery: 'order_status_ready_for_delivery',
+  out_for_delivery: 'order_status_out_for_delivery',
+  delivered: 'order_status_delivered',
+  failed: 'order_status_failed',
+  fulfilled: 'order_status_fulfilled',
+  canceled: 'order_status_canceled',
+  paid: 'status_paid',
+};
+
+const PAYMENT_STATUS_LABEL_KEYS: Record<string, string> = {
+  not_required: 'payment_status_not_required',
+  pending: 'payment_status_pending',
+  paid: 'status_paid',
+  failed: 'payment_status_failed',
+  canceled: 'payment_status_canceled',
+};
+
+const PAYMENT_METHOD_LABEL_KEYS: Record<string, string> = {
+  apple_pay: 'label_apple_pay',
+  google_pay: 'label_google_pay',
+  card: 'label_card',
+  cash_on_delivery: 'status_payment_on_delivery',
+};
+
+const getOrderStatusLabelKey = (status: string) =>
+  ORDER_STATUS_LABEL_KEYS[status] ?? `order_status_${status}`;
+
+const getPaymentStatusLabelKey = (status: string) =>
+  PAYMENT_STATUS_LABEL_KEYS[status] ?? `payment_status_${status}`;
+
+const getPaymentMethodLabelKey = (paymentMethod: string) =>
+  PAYMENT_METHOD_LABEL_KEYS[paymentMethod] ?? `payment_method_${paymentMethod}`;
 
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat('uk-UA', {
@@ -38,11 +74,11 @@ export default function OrderCard({ order, t }: OrderCardProps) {
           <div className='min-w-0'>
             <div className='mb-2 flex flex-wrap items-center gap-2'>
               <h3 className='text-base font-semibold text-foreground'>
-                {t('orders_order_number')} #{order.id}
+                {t('label_order')} #{order.id}
               </h3>
 
               <span className='rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground'>
-                {t(`order_status_${order.status}`)}
+                {t(getOrderStatusLabelKey(order.status))}
               </span>
             </div>
 
@@ -70,11 +106,12 @@ export default function OrderCard({ order, t }: OrderCardProps) {
           </p>
 
           <p className='text-sm text-muted-foreground'>
-            {t(`payment_method_${order.paymentMethod}`)}
+            {t(getPaymentMethodLabelKey(order.paymentMethod))}
           </p>
 
           <p className='text-sm text-muted-foreground'>
-            {t('orders_payment')}: {t(`payment_status_${order.paymentStatus}`)}
+            {t('orders_payment')}:{' '}
+            {t(getPaymentStatusLabelKey(order.paymentStatus))}
           </p>
         </div>
       </div>

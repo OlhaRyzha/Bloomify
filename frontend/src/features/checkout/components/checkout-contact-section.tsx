@@ -43,8 +43,8 @@ export default function CheckoutContactSection({
       <div className='grid gap-4 md:grid-cols-2'>
         <CheckoutField
           name='customerName'
-          label={t('checkout_field_name')}
-          placeholder={t('checkout_field_name_placeholder')}
+          label={t('label_full_name')}
+          placeholder={t('placeholder_full_name')}
           autoComplete='name'
           values={values}
           errors={errors}
@@ -65,8 +65,8 @@ export default function CheckoutContactSection({
         />
         <CheckoutField
           name='email'
-          label={t('checkout_field_email')}
-          placeholder={t('checkout_field_email_placeholder')}
+          label={t('label_email')}
+          placeholder={t('placeholder_email')}
           type='email'
           autoComplete='email'
           values={values}

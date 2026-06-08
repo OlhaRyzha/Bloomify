@@ -1,26 +1,34 @@
 import { Form, Formik } from 'formik';
 import { TicketPercent } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { useLocale } from '@/components/providers/locale-provider';
+import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { useTranslation } from '@/hooks/use-translation';
-import { formatCurrency, formatTemplate } from '@/utils/i18n';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
+import { formatCurrency, formatTemplate } from '@/utils/i18n';
+
 import { cartPromoCodeInitialValues } from './cart-promo-code-form.config';
 import {
-  cartPromoCodeSchema,
+  createCartPromoCodeSchema,
   type CartPromoCodeValues,
 } from './cart-promo-code-form.schemas';
 
 export default function CartPromoCodeForm() {
   const { t } = useTranslation();
   const { locale } = useLocale();
+
+  const cartPromoCodeSchema = createCartPromoCodeSchema(t);
+
   const promoCodeInputId = 'cart-promo-code';
-  const freeDeliveryMessage = formatTemplate(t('delivery_free_delivery_message'), {
-    threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
-  });
+  const freeDeliveryMessage = formatTemplate(
+    t('delivery_free_delivery_message'),
+    {
+      threshold: formatCurrency(FREE_DELIVERY_THRESHOLD, locale),
+    }
+  );
 
   return (
     <Formik<CartPromoCodeValues>
@@ -54,6 +62,7 @@ export default function CartPromoCodeForm() {
               />
               {t('cart_promo_title')}
             </label>
+
             <div className='mt-4 flex flex-col gap-3 sm:flex-row'>
               <Input
                 id={promoCodeInputId}
@@ -67,6 +76,7 @@ export default function CartPromoCodeForm() {
                 aria-describedby={`${promoCodeInputId}-message`}
                 className='bg-background'
               />
+
               <Button
                 type='submit'
                 variant='secondary'
@@ -74,6 +84,7 @@ export default function CartPromoCodeForm() {
                 {t('cart_promo_button')}
               </Button>
             </div>
+
             <p
               id={`${promoCodeInputId}-message`}
               className='mt-3 text-xs text-muted-foreground'>

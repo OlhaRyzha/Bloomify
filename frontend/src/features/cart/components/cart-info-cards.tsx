@@ -6,13 +6,13 @@ export default function CartInfoCards() {
 
   return (
     <div className='grid gap-3'>
-      <InfoCard title={t('cart_info_cards_delivery_title')}>
+      <InfoCard title={t('label_delivery')}>
         {t('cart_info_cards_delivery_description')}
       </InfoCard>
       <InfoCard title={t('cart_info_cards_packaging_title')}>
         {t('cart_info_cards_packaging_description')}
       </InfoCard>
-      <InfoCard title={t('cart_info_cards_support_title')}>
+      <InfoCard title={t('label_support')}>
         {t('cart_info_cards_support_description')}
       </InfoCard>
     </div>

@@ -62,19 +62,7 @@ export default function CheckoutFeature() {
 
   const trackedBeginCheckoutRef = useRef(false);
 
-  const checkoutSchema = useMemo(
-    () =>
-      createCheckoutSchema({
-        address: t('checkout_validation_address_required'),
-        city: t('checkout_validation_city_required'),
-        email: t('checkout_validation_email_required'),
-        invalidEmail: t('checkout_validation_email_invalid'),
-        minName: t('checkout_validation_name_min'),
-        name: t('checkout_validation_name_required'),
-        phone: t('checkout_validation_phone_required'),
-      }),
-    [t]
-  );
+  const checkoutSchema = createCheckoutSchema(t);
 
   const summary = useMemo(() => {
     if (!isHydrated) {
@@ -172,7 +160,7 @@ export default function CheckoutFeature() {
       <FeedbackState
         title={t('checkout_empty_title')}
         description={t('checkout_empty_description')}
-        actionLabel={t('checkout_empty_cta')}
+        actionLabel={t('action_go_to_catalog')}
         actionHref={getLocalizedPath('/catalog', locale)}
         className='bg-gradient-card shadow-card'
       />

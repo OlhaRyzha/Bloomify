@@ -123,7 +123,7 @@ export function useCheckoutSubmit({
           orderId,
           message,
           paymentStatusLabel: t(
-            'checkout_success_payment_status_cash_on_delivery'
+            'status_payment_on_delivery'
           ),
         });
 

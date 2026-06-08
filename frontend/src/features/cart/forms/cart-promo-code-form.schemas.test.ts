@@ -1,9 +1,13 @@
 import { describe, expect, test } from 'vitest';
 
-import { validationMessages } from '@/constants/message.constants';
+import { getValidationMessages } from '@/constants/message.constants';
+import { testT } from '@/test/translation';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 
-import { cartPromoCodeSchema } from './cart-promo-code-form.schemas';
+import { createCartPromoCodeSchema } from './cart-promo-code-form.schemas';
+
+const validationMessages = getValidationMessages(testT);
+const cartPromoCodeSchema = createCartPromoCodeSchema(testT);
 
 describe('cartPromoCodeSchema', () => {
   test('accepts a non-empty promo code', () => {

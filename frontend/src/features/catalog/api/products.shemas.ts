@@ -1,6 +1,9 @@
 import z from 'zod';
-import { validationMessages } from '@/constants/message.constants';
+import { getValidationMessages } from '@/constants/message.constants';
 import { ABSOLUTE_URL_REGEX, RELATIVE_URL_REGEX } from '@/utils/patterns/regex';
+import { testT } from '@/test/translation';
+
+const validationMessages = getValidationMessages(testT);
 
 export const catalogItemSchema = z.object({
   id: z.string(),

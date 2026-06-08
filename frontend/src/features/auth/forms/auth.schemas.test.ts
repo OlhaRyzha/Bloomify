@@ -1,9 +1,15 @@
 import { describe, expect, test } from 'vitest';
 
-import { validationMessages } from '@/constants/message.constants';
+import { getValidationMessages } from '@/constants/message.constants';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 
-import { loginSchema, registerSchema } from './auth.schemas';
+import { createLoginSchema, createRegisterSchema } from './auth.schemas';
+import { testT } from '@/test/translation';
+
+const validationMessages = getValidationMessages(testT);
+
+const loginSchema = createLoginSchema(testT);
+const registerSchema = createRegisterSchema(testT);
 
 describe('loginSchema', () => {
   test('accepts valid login values', () => {

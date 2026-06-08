@@ -63,7 +63,7 @@ export default async function CatalogItemPage({
             ),
             compositionTitle: t('product_info_cards_composition_title'),
             deliveryDescription: t('product_info_cards_delivery_description'),
-            deliveryTitle: t('product_info_cards_delivery_title'),
+            deliveryTitle: t('label_delivery'),
             infoLabel: t('product_info_label'),
           }}
         />

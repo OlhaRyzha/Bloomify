@@ -31,7 +31,7 @@ export default function CheckoutSuccessState({
       actionLabel={
         telegramOrderTrackingUrl
           ? t('checkout_success_telegram_cta')
-          : t('checkout_success_cta')
+          : t('action_continue_shopping')
       }
       actionHref={
         telegramOrderTrackingUrl || getLocalizedPath('/catalog', locale)
@@ -39,7 +39,7 @@ export default function CheckoutSuccessState({
       actionRel={telegramOrderTrackingUrl ? 'noopener noreferrer' : undefined}
       actionTarget={telegramOrderTrackingUrl ? '_blank' : undefined}
       secondaryActionLabel={
-        telegramOrderTrackingUrl ? t('checkout_success_cta') : undefined
+        telegramOrderTrackingUrl ? t('action_continue_shopping') : undefined
       }
       secondaryActionHref={
         telegramOrderTrackingUrl
@@ -51,7 +51,7 @@ export default function CheckoutSuccessState({
         <dl className='mx-auto grid max-w-sm gap-3 rounded-xl border border-border bg-background/70 p-4 text-left text-sm sm:grid-cols-2'>
           <div>
             <dt className='text-muted-foreground'>
-              {t('checkout_success_order_label')}
+              {t('label_order')}
             </dt>
             <dd className='mt-1 font-semibold text-foreground'>
               #{completedOrderId}

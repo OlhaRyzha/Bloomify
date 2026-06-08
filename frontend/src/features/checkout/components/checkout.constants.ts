@@ -22,25 +22,25 @@ export const paymentOptions: PaymentOption[] = [
   {
     id: CHECKOUT_PAYMENT_METHODS.APPLE_PAY,
     icon: Apple,
-    titleKey: 'checkout_payment_apple_pay_title',
+    titleKey: 'label_apple_pay',
     descriptionKey: 'checkout_payment_apple_pay_description',
   },
   {
     id: CHECKOUT_PAYMENT_METHODS.GOOGLE_PAY,
     icon: Smartphone,
-    titleKey: 'checkout_payment_google_pay_title',
+    titleKey: 'label_google_pay',
     descriptionKey: 'checkout_payment_google_pay_description',
   },
   {
     id: CHECKOUT_PAYMENT_METHODS.CARD,
     icon: CreditCard,
-    titleKey: 'checkout_payment_card_title',
+    titleKey: 'label_card',
     descriptionKey: 'checkout_payment_card_description',
   },
   {
     id: CHECKOUT_PAYMENT_METHODS.CASH_ON_DELIVERY,
     icon: WalletCards,
-    titleKey: 'checkout_payment_cash_title',
+    titleKey: 'status_payment_on_delivery',
     descriptionKey: 'checkout_payment_cash_description',
   },
 ];

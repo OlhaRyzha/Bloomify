@@ -2,11 +2,7 @@ import type { useTranslation } from '@/hooks/use-translation';
 
 type Translation = ReturnType<typeof useTranslation>['t'];
 
-export type ConfirmationAction =
-  | 'clear'
-  | 'delete'
-  | 'signOut'
-  | 'unsubscribe';
+export type ConfirmationAction = 'clear' | 'delete' | 'signOut' | 'unsubscribe';
 
 export type ConfirmationEntity =
   | 'account'
@@ -26,6 +22,13 @@ export type ConfirmationCopy = {
   confirmLabel: string;
   cancelLabel: string;
   closeLabel: string;
+};
+
+const CONFIRM_LABEL_KEYS: Record<ConfirmationAction, string> = {
+  clear: 'action_clear',
+  delete: 'action_delete',
+  signOut: 'action_sign_out',
+  unsubscribe: 'action_cancel_subscription',
 };
 
 const getOptionalTranslation = (
@@ -58,8 +61,8 @@ export const getConfirmationCopy = (
   return {
     title: t(`confirmation_${action}_title`),
     description,
-    confirmLabel: t(`confirmation_confirm_${action}`),
-    cancelLabel: t('confirmation_cancel'),
+    confirmLabel: t(CONFIRM_LABEL_KEYS[action]),
+    cancelLabel: t('action_cancel'),
     closeLabel: t('confirmation_close'),
   };
 };
