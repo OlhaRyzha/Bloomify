@@ -10,6 +10,7 @@ import ProductsService from '@/features/catalog/api/products.service';
 import ProductFeature from '@/features/product/product';
 import { getServerTranslator } from '@/i18n/server';
 import { getLocalizedPath } from '@/i18n/routing';
+import { getServerApiBaseUrl } from '@/services/api/server/server-api-url';
 
 type CatalogItemPageProps = {
   params: Promise<{ id: string }>;
@@ -20,10 +21,15 @@ export default async function CatalogItemPage({
 }: CatalogItemPageProps) {
   const { id } = await params;
   const { locale, t } = await getServerTranslator();
+  const serverApiBaseUrl = await getServerApiBaseUrl();
 
-  const product = await ProductsService.getProductById(id, {
-    lang: locale,
-  }).catch(() => null);
+  const product = await ProductsService.getProductById(
+    id,
+    {
+      lang: locale,
+    },
+    serverApiBaseUrl ? { baseURL: serverApiBaseUrl } : undefined
+  ).catch(() => null);
 
   if (!product) {
     return (

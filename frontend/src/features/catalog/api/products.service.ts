@@ -1,6 +1,7 @@
 import { API_ROUTES } from '@/constants/api.constant';
 import type { Locale } from '@/locales/translations';
 import apiClient from '@/services/api/clients/api-client';
+import type { AxiosRequestConfig } from 'axios';
 import {
   catalogItemSchema,
   catalogSchema,
@@ -13,6 +14,8 @@ type ProductsRequestParams = {
   lang?: Locale;
 };
 
+type ProductsRequestConfig = Omit<AxiosRequestConfig, 'params'>;
+
 const ProductsService = {
   getProducts: async (params?: ProductsRequestParams): Promise<Products> => {
     const response = await apiClient.get<Products>(API_ROUTES.PRODUCTS, {
@@ -24,10 +27,14 @@ const ProductsService = {
 
   getProductById: (
     id: string,
-    params?: ProductsRequestParams
+    params?: ProductsRequestParams,
+    config?: ProductsRequestConfig
   ): Promise<ProductItem> =>
     apiClient
-      .get<ProductItem>(`${API_ROUTES.PRODUCTS}/${id}`, { params })
+      .get<ProductItem>(`${API_ROUTES.PRODUCTS}/${id}`, {
+        ...config,
+        params,
+      })
       .then((response) => parseResponseWithSchema(response, catalogItemSchema)),
 
   createProduct: (payload: ProductItem): Promise<ProductItem> =>
