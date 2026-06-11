@@ -390,6 +390,41 @@ describe('CheckoutFeature', () => {
     ).toBeInTheDocument();
   });
 
+  test('keeps LiqPay return sync active across checkout rerenders', async () => {
+    mockProducts();
+
+    window.history.pushState(
+      null,
+      '',
+      '/en/checkout?orderId=10&orderToken=query-payment-status-token'
+    );
+
+    useCartStore.setState({ items: [{ id: 'rose-bouquet', quantity: 1 }] });
+
+    server.use(
+      http.post(apiUrl('orders/10/payment-status'), async () => {
+        await new Promise((resolve) => window.setTimeout(resolve, 10));
+
+        return HttpResponse.json(
+          createCheckoutPaymentStatusResponse({
+            paymentStatus: 'sandbox',
+          })
+        );
+      })
+    );
+
+    const { rerender } = renderWithProviders(<CheckoutFeature />, {
+      locale: 'en',
+    });
+
+    rerender(<CheckoutFeature />);
+
+    expect(
+      await screen.findByRole('heading', { name: /order created/i })
+    ).toBeInTheDocument();
+    expect(useCartStore.getState().items).toEqual([]);
+  });
+
   test('prefers LiqPay result URL order id over stale pending storage', async () => {
     mockProducts();
 

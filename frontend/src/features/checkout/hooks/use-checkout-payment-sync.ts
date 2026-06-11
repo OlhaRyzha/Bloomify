@@ -53,7 +53,8 @@ export function useCheckoutPaymentSync({
   t,
 }: UseCheckoutPaymentSyncParams) {
   const queryClient = useQueryClient();
-  const syncedPaymentOrderRef = useRef<number | null>(null);
+  const activePaymentSyncKeyRef = useRef<string | null>(null);
+  const latestSyncContextRef = useRef({ locale, summary, t });
 
   const [completedOrderId, setCompletedOrderId] = useState<number | null>(null);
   const [completedOrderMessage, setCompletedOrderMessage] = useState<
@@ -80,24 +81,29 @@ export function useCheckoutPaymentSync({
   );
 
   useEffect(() => {
+    latestSyncContextRef.current = { locale, summary, t };
+  }, [locale, summary, t]);
+
+  useEffect(() => {
     if (!isHydrated) {
       return;
     }
 
     const { orderId, orderToken } = getPendingLiqPayOrder();
+    const paymentSyncKey = orderId && orderToken ? `${orderId}:${orderToken}` : null;
 
-    if (!orderId || !orderToken || syncedPaymentOrderRef.current === orderId) {
+    if (!orderId || !orderToken || !paymentSyncKey) {
       return;
     }
 
-    let isActive = true;
-
-    syncedPaymentOrderRef.current = orderId;
+    if (activePaymentSyncKeyRef.current === paymentSyncKey) {
+      return;
+    }
 
     const syncPaymentStatus = async (attempt = 0): Promise<void> => {
       await Promise.resolve();
 
-      if (!isActive) {
+      if (activePaymentSyncKeyRef.current !== paymentSyncKey) {
         return;
       }
 
@@ -109,29 +115,36 @@ export function useCheckoutPaymentSync({
           orderToken
         );
 
-        if (!isActive) {
+        if (activePaymentSyncKeyRef.current !== paymentSyncKey) {
           return;
         }
 
         if (isPaidPaymentStatus(response.paymentStatus)) {
           clearPendingLiqPayOrder();
+          activePaymentSyncKeyRef.current = null;
 
-          if (summary.itemCount > 0) {
+          const {
+            locale: currentLocale,
+            summary: currentSummary,
+            t: currentT,
+          } = latestSyncContextRef.current;
+
+          if (currentSummary.itemCount > 0) {
             trackPurchaseCompleted({
-              itemCount: summary.itemCount,
+              itemCount: currentSummary.itemCount,
               orderId: response.orderId,
               paymentMethod: response.paymentMethod,
-              value: summary.total,
-              locale,
+              value: currentSummary.total,
+              locale: currentLocale,
             });
           }
 
           completeOrder({
             orderId: response.orderId,
-            message: t('checkout_submit_paid_status', {
+            message: currentT('checkout_submit_paid_status', {
               orderId: response.orderId,
             }),
-            paymentStatusLabel: t('status_paid'),
+            paymentStatusLabel: currentT('status_paid'),
           });
 
           setPaymentReturnSyncState('idle');
@@ -146,6 +159,7 @@ export function useCheckoutPaymentSync({
 
         if (response.paymentStatus === 'failed') {
           clearPendingLiqPayOrder();
+          activePaymentSyncKeyRef.current = null;
           resetCompletedOrderState();
           setPaymentReturnSyncState('idle');
 
@@ -162,31 +176,24 @@ export function useCheckoutPaymentSync({
 
         setPaymentReturnSyncState('idle');
       } catch {
-        if (!isActive) {
+        if (activePaymentSyncKeyRef.current !== paymentSyncKey) {
           return;
         }
 
         resetCompletedOrderState();
         setPaymentReturnSyncState('idle');
-        syncedPaymentOrderRef.current = null;
+        activePaymentSyncKeyRef.current = null;
       }
     };
 
+    activePaymentSyncKeyRef.current = paymentSyncKey;
     void syncPaymentStatus();
-
-    return () => {
-      isActive = false;
-    };
   }, [
     clearCart,
     completeOrder,
     isHydrated,
-    locale,
     queryClient,
     resetCompletedOrderState,
-    summary.itemCount,
-    summary.total,
-    t,
   ]);
 
   return {
