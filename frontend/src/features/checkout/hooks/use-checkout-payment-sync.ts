@@ -116,14 +116,6 @@ export function useCheckoutPaymentSync({
         if (isPaidPaymentStatus(response.paymentStatus)) {
           clearPendingLiqPayOrder();
 
-          await queryClient.invalidateQueries({
-            queryKey: ordersQueryKeys.all,
-          });
-
-          if (!isActive) {
-            return;
-          }
-
           if (summary.itemCount > 0) {
             trackPurchaseCompleted({
               itemCount: summary.itemCount,
@@ -144,6 +136,10 @@ export function useCheckoutPaymentSync({
 
           setPaymentReturnSyncState('idle');
           clearCart();
+
+          void queryClient.invalidateQueries({
+            queryKey: ordersQueryKeys.all,
+          });
 
           return;
         }

@@ -6,7 +6,7 @@ import { createProductItem } from '@/features/catalog/api/products.factory';
 import { useCartStore } from '@/features/cart/store/cart.store';
 import { apiUrl } from '@/test/api-url';
 import { server } from '@/test/msw/server';
-import { renderWithProviders } from '@/test/render';
+import { createTestQueryClient, renderWithProviders } from '@/test/render';
 
 import { buildTelegramOrderTrackingUrl } from './components/checkout.helpers';
 import {
@@ -351,6 +351,36 @@ describe('CheckoutFeature', () => {
     );
 
     renderWithProviders(<CheckoutFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', { name: /order created/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/payment for order #10 is confirmed/i)
+    ).toBeInTheDocument();
+  });
+
+  test('shows LiqPay success without waiting for orders cache refresh', async () => {
+    mockProducts();
+
+    window.history.pushState(
+      null,
+      '',
+      '/en/checkout?orderId=10&orderToken=query-payment-status-token'
+    );
+
+    const queryClient = createTestQueryClient();
+    vi.spyOn(queryClient, 'invalidateQueries').mockImplementation(
+      () => new Promise(() => undefined)
+    );
+
+    server.use(
+      http.post(apiUrl('orders/10/payment-status'), () =>
+        HttpResponse.json(createCheckoutPaymentStatusResponse())
+      )
+    );
+
+    renderWithProviders(<CheckoutFeature />, { locale: 'en', queryClient });
 
     expect(
       await screen.findByRole('heading', { name: /order created/i })
