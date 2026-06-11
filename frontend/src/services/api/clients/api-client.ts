@@ -99,6 +99,18 @@ const isAuthSessionRoute = (url: string) => {
   return authSessionRoutes.has(normalizeApiPath(url));
 };
 
+const getServerApiBaseUrl = (): string => {
+  if (!BASE_URL.startsWith('/')) {
+    return BASE_URL;
+  }
+
+  const deploymentHost = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000';
+
+  return `${deploymentHost}${BASE_URL}`;
+};
+
 export class ApiClient {
   private axiosBase: AxiosInstance;
   private axiosExternal: AxiosInstance;
@@ -114,7 +126,10 @@ export class ApiClient {
 
     this.axiosNext = axios.create({
       ...createAxiosConfig(),
-      baseURL: BASE_URL,
+      baseURL:
+        typeof window === 'undefined' && BASE_URL.startsWith('/')
+          ? getServerApiBaseUrl()
+          : BASE_URL,
       withCredentials: true,
     });
 
