@@ -114,6 +114,7 @@ export class ApiClient {
 
     this.axiosNext = axios.create({
       ...createAxiosConfig(),
+      baseURL: BASE_URL,
       withCredentials: true,
     });
 
