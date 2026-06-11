@@ -40,6 +40,11 @@ type UseCheckoutPaymentSyncParams = {
   t: TranslationFunction;
 };
 
+const PAID_PAYMENT_STATUSES = new Set(['paid', 'sandbox']);
+
+const isPaidPaymentStatus = (paymentStatus: string) =>
+  PAID_PAYMENT_STATUSES.has(paymentStatus.toLowerCase());
+
 export function useCheckoutPaymentSync({
   clearCart,
   isHydrated,
@@ -108,7 +113,7 @@ export function useCheckoutPaymentSync({
           return;
         }
 
-        if (response.paymentStatus === 'paid') {
+        if (isPaidPaymentStatus(response.paymentStatus)) {
           clearPendingLiqPayOrder();
 
           await queryClient.invalidateQueries({

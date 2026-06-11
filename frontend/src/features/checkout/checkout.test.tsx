@@ -330,6 +330,36 @@ describe('CheckoutFeature', () => {
     ).toHaveAttribute('href', '/en/catalog');
   });
 
+  test('treats LiqPay sandbox return status as paid', async () => {
+    mockProducts();
+
+    window.history.pushState(
+      null,
+      '',
+      '/en/checkout?orderId=10&orderToken=query-payment-status-token'
+    );
+
+    server.use(
+      http.post(apiUrl('orders/10/payment-status'), () =>
+        HttpResponse.json(
+          createCheckoutPaymentStatusResponse({
+            status: 'paid',
+            paymentStatus: 'sandbox',
+          })
+        )
+      )
+    );
+
+    renderWithProviders(<CheckoutFeature />, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', { name: /order created/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/payment for order #10 is confirmed/i)
+    ).toBeInTheDocument();
+  });
+
   test('prefers LiqPay result URL order id over stale pending storage', async () => {
     mockProducts();
 

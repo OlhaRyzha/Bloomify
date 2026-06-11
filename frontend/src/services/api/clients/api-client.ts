@@ -7,7 +7,7 @@ import axios, {
 import { API_ROUTES } from '@/constants/api.constant';
 import { ALLOWED_EXTERNAL_HOSTS } from '@/constants/network.constants';
 import { createAxiosConfig } from './axios.config';
-import { BASE_URL } from '@/components/config/env';
+import { BASE_URL, SITE_URL } from '@/components/config/env';
 import { isAbsoluteUrl } from '@/utils/guards/is-absolute-url';
 import { getHost } from '@/utils/url/get-host';
 import {
@@ -45,6 +45,35 @@ type RequestParams<TBody = unknown> = {
 
 const silentRequestOptions: SafeRequestOptions = {
   showErrorToast: false,
+};
+
+const SERVER_LOCAL_BASE_URL = 'http://127.0.0.1:8000';
+const ABSOLUTE_API_BASE_URL_PATTERN = /^https?:\/\//i;
+
+const hasBrowserWindow = () =>
+  typeof globalThis === 'object' && 'window' in globalThis;
+
+const getApiBaseUrl = () => {
+  const baseUrl: string = BASE_URL;
+
+  if (ABSOLUTE_API_BASE_URL_PATTERN.test(baseUrl) || hasBrowserWindow()) {
+    return baseUrl;
+  }
+
+  if (!baseUrl.startsWith('/')) {
+    return baseUrl;
+  }
+
+  const siteUrl = SITE_URL.trim().replace(/\/$/, '');
+  if (siteUrl) {
+    return `${siteUrl}${baseUrl}`;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    return baseUrl;
+  }
+
+  return SERVER_LOCAL_BASE_URL;
 };
 
 const withLocaleParam = (
@@ -108,12 +137,13 @@ export class ApiClient {
   constructor() {
     this.axiosBase = axios.create({
       ...createAxiosConfig(),
-      baseURL: BASE_URL,
+      baseURL: getApiBaseUrl(),
       withCredentials: true,
     });
 
     this.axiosNext = axios.create({
       ...createAxiosConfig(),
+      baseURL: isWindowUndefined() ? getApiBaseUrl() : undefined,
       withCredentials: true,
     });
 
