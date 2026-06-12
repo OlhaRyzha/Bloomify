@@ -47,7 +47,7 @@ export default async function RootLayout({
             <div className='flex min-h-screen flex-col bg-background'>
               <HashScrollHandler />
               <Header />
-              <main className='flex-1'>{children}</main>
+              <main className='min-h-svh flex-1'>{children}</main>
               <Footer />
               <AnalyticsReporter />
             </div>

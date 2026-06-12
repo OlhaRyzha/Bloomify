@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Container } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
 import { Button } from '../../../components/ui/button';
-import CatalogSectionPreview from './catalog-section-preview.client';
+import CatalogSectionPreview from './catalog-section-preview';
 import { getLocalizedPath } from '@/i18n/routing';
 import HomeSectionHeader from './home-section-header';
 
