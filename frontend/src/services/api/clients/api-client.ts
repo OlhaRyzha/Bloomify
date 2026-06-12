@@ -34,6 +34,7 @@ type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 type AuthRetryRequestConfig = InternalAxiosRequestConfig & {
   _authRetry?: boolean;
   _skipAuthRefresh?: boolean;
+  _skipErrorLog?: boolean;
 };
 
 type RequestParams<TBody = unknown> = {
@@ -211,7 +212,11 @@ export class ApiClient {
   }
 
   private handleResponseError(error: AxiosError): Promise<never> {
-    console.error('[API ERROR]', error);
+    const config = error.config as AuthRetryRequestConfig | undefined;
+    if (!config?._skipErrorLog) {
+      console.error('[API ERROR]', error);
+    }
+
     return Promise.reject(error);
   }
 
@@ -226,7 +231,11 @@ export class ApiClient {
 
       const accessToken = await this.refreshAccessToken();
 
-      if (!accessToken || !config) {
+      if (!accessToken) {
+        return Promise.reject(error);
+      }
+
+      if (!config) {
         return this.handleResponseError(error);
       }
 
@@ -265,6 +274,7 @@ export class ApiClient {
         method: 'post',
         url: API_ROUTES.AUTH_REFRESH_TOKEN,
         _skipAuthRefresh: true,
+        _skipErrorLog: true,
       } as AuthRetryRequestConfig);
 
       const { accessToken } = parseResponseWithSchema(
