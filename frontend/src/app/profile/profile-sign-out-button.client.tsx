@@ -3,7 +3,6 @@
 import { LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from '@/components/providers/locale-provider';
 import { Button } from '@/components/ui/button';
 import {
   getConfirmationCopy,
@@ -19,8 +18,7 @@ export default function ProfileSignOutButton() {
   const [confirmationCopy, setConfirmationCopy] =
     useState<ConfirmationCopy | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const { t } = useTranslation();
-  const { locale } = useLocale();
+  const { locale, t } = useTranslation();
   const router = useRouter();
 
   const handleConfirm = async () => {

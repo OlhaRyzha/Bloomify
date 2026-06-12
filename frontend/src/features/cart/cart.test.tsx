@@ -43,7 +43,7 @@ describe('CartFeature', () => {
       await screen.findByRole('heading', { name: /your cart is still empty/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /visit the catalog/i })
+      screen.getByRole('link', { name: /go to catalog/i })
     ).toHaveAttribute('href', '/en/catalog');
   });
 

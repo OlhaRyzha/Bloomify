@@ -5,10 +5,12 @@ import { Form, Formik } from 'formik';
 import { useShallow } from 'zustand/react/shallow';
 
 import FeedbackState from '@/components/ui/feedback-state';
-import { useLocale } from '@/components/providers/locale-provider';
+import {
+  CatalogActionFeedbackState,
+  RetryFeedbackState,
+} from '@/components/ui/translated-feedback-state';
 import { useTranslation } from '@/hooks/use-translation';
 import { useHydrated } from '@/hooks/use-hydrated';
-import { getLocalizedPath } from '@/i18n/routing';
 import { useGetProducts } from '@/features/catalog/api/use-products';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import {
@@ -57,8 +59,7 @@ export default function CheckoutFeature() {
     refetch,
   } = useGetProducts();
 
-  const { t } = useTranslation();
-  const { locale } = useLocale();
+  const { locale, t } = useTranslation();
 
   const trackedBeginCheckoutRef = useRef(false);
 
@@ -121,12 +122,9 @@ export default function CheckoutFeature() {
 
   if (isError) {
     return (
-      <FeedbackState
-        tone='error'
-        title={t('checkout_error_title')}
-        description={t('checkout_error_description')}
-        actionLabel={t('common_try_again')}
-        onAction={async () => {
+      <RetryFeedbackState
+        translationKeyPrefix='checkout'
+        onRetry={async () => {
           await refetch();
         }}
       />
@@ -156,15 +154,7 @@ export default function CheckoutFeature() {
   }
 
   if (!isNonEmptyArray(summary.cartItems)) {
-    return (
-      <FeedbackState
-        title={t('checkout_empty_title')}
-        description={t('checkout_empty_description')}
-        actionLabel={t('action_go_to_catalog')}
-        actionHref={getLocalizedPath('/catalog', locale)}
-        className='bg-gradient-card shadow-card'
-      />
-    );
+    return <CatalogActionFeedbackState translationKeyPrefix='checkout' />;
   }
 
   return (

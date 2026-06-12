@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
-import { useLocale } from '@/components/providers/locale-provider';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCurrency } from '@/utils/i18n';
 import { getLocalizedPath } from '@/i18n/routing';
@@ -17,8 +16,7 @@ export default function CartSummary({
   deliveryCost,
   total,
 }: CartSummaryProps) {
-  const { t } = useTranslation();
-  const { locale } = useLocale();
+  const { locale, t } = useTranslation();
 
   return (
     <SurfacePanel as='div'>

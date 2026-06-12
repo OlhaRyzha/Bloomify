@@ -3,7 +3,6 @@ import { TicketPercent } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useLocale } from '@/components/providers/locale-provider';
 import { FREE_DELIVERY_THRESHOLD } from '@/constants/delivery.constants';
 import { useTranslation } from '@/hooks/use-translation';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
@@ -17,8 +16,7 @@ import {
 } from './cart-promo-code-form.schemas';
 
 export default function CartPromoCodeForm() {
-  const { t } = useTranslation();
-  const { locale } = useLocale();
+  const { locale, t } = useTranslation();
 
   const cartPromoCodeSchema = createCartPromoCodeSchema(t);
 

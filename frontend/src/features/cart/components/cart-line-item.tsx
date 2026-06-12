@@ -3,7 +3,6 @@ import { Minus, Plus, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import FallbackImage from '@/components/ui/fallback-image';
-import { useLocale } from '@/components/providers/locale-provider';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCurrency } from '@/utils/i18n';
 import { getCatalogItemImage } from '@/features/catalog/lib/get-catalog-item-image';
@@ -17,8 +16,7 @@ type CartLineItemProps = {
 };
 
 function CartLineItem({ item, onRemove, onUpdateQuantity }: CartLineItemProps) {
-  const { t } = useTranslation();
-  const { locale } = useLocale();
+  const { locale, t } = useTranslation();
 
   const itemPrice = Number(item.price);
   const itemTotal = itemPrice * item.quantity;

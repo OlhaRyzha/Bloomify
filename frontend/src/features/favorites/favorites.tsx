@@ -1,22 +1,22 @@
 'use client';
 
 import { useMemo } from 'react';
-import FeedbackState from '@/components/ui/feedback-state';
+import {
+  CatalogActionFeedbackState,
+  RetryFeedbackState,
+} from '@/components/ui/translated-feedback-state';
 import CatalogGrid from '@/features/catalog/list/catalog-grid';
 import { useGetProducts } from '@/features/catalog/api/use-products';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { selectFavoriteIds } from './store/favorites.selectors';
 import { useFavoritesStore } from './store/favorites.store';
-import { useTranslation } from '@/hooks/use-translation';
 import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
 import { getFavoriteCatalogItems } from './favorites.helpers';
-import { getLocalizedPath } from '@/i18n/routing';
 
 export default function FavoritesFeature() {
   const isHydrated = useHydrated();
   const favoriteIds = useFavoritesStore(selectFavoriteIds);
   const { data, isError, isLoading, refetch } = useGetProducts();
-  const { locale, t } = useTranslation();
 
   const favoriteItems = useMemo(
     () => (isHydrated ? getFavoriteCatalogItems(data ?? [], favoriteIds) : []),
@@ -29,12 +29,9 @@ export default function FavoritesFeature() {
 
   if (isError) {
     return (
-      <FeedbackState
-        tone='error'
-        title={t('sections_favorites_error_title')}
-        description={t('sections_favorites_error_description')}
-        actionLabel={t('common_try_again')}
-        onAction={async () => {
+      <RetryFeedbackState
+        translationKeyPrefix='sections_favorites'
+        onRetry={async () => {
           await refetch();
         }}
       />
@@ -43,13 +40,7 @@ export default function FavoritesFeature() {
 
   if (!isNonEmptyArray(favoriteItems) && !isLoading) {
     return (
-      <FeedbackState
-        title={t('sections_favorites_empty_title')}
-        description={t('sections_favorites_empty_description')}
-        actionLabel={t('action_go_to_catalog')}
-        actionHref={getLocalizedPath('/catalog', locale)}
-        className='bg-gradient-card shadow-card'
-      />
+      <CatalogActionFeedbackState translationKeyPrefix='sections_favorites' />
     );
   }
 

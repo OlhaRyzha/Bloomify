@@ -4,11 +4,13 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import { withSkeleton } from '@/components/hoc/with-skeleton';
 import { PaginationContainer } from '@/components/pagination/pagination';
-import FeedbackState from '@/components/ui/feedback-state';
+import {
+  RetryFeedbackState,
+  TranslatedFeedbackState,
+} from '@/components/ui/translated-feedback-state';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CatalogItem } from '@/types/catalog';
 import { getBouquetCountLabel } from '@/utils/i18n';
-import { useLocale } from '@/components/providers/locale-provider';
 import {
   trackCatalogSearch,
   trackCatalogSort,
@@ -70,8 +72,7 @@ export default function CatalogGrid({
   maxItems,
   perPageOptions = [6, 9, 12],
 }: CatalogGridProps) {
-  const { t } = useTranslation();
-  const { locale } = useLocale();
+  const { locale, t } = useTranslation();
 
   const shouldFetchCatalogItems = items === undefined;
   const {
@@ -179,19 +180,16 @@ export default function CatalogGrid({
       )}
 
       {isCatalogError && shouldFetchCatalogItems ? (
-        <FeedbackState
-          tone='error'
-          title={t('catalog_error_title')}
-          description={t('catalog_error_description')}
-          actionLabel={t('common_try_again')}
-          onAction={async () => {
+        <RetryFeedbackState
+          translationKeyPrefix='catalog'
+          onRetry={async () => {
             await refetchCatalogItems();
           }}
         />
       ) : !loading && sortedItems.length === 0 ? (
-        <FeedbackState
-          title={t('catalog_empty_title')}
-          description={t('catalog_empty_description')}
+        <TranslatedFeedbackState
+          kind='empty'
+          translationKeyPrefix='catalog'
         />
       ) : (
         <PaginationContainer

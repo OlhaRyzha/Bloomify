@@ -5,7 +5,6 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useRouter } from 'next/navigation';
 
 import FeedbackState from '@/components/ui/feedback-state';
-import { useLocale } from '@/components/providers/locale-provider';
 import AuthSessionService from '@/features/auth/lib/shared/auth-session.service';
 import {
   getRememberedPostAuthRedirectPath,
@@ -18,8 +17,7 @@ export default function AuthCallbackPage() {
   const { error, getAccessTokenSilently, getIdTokenClaims, isLoading } =
     useAuth0();
   const router = useRouter();
-  const { locale } = useLocale();
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
 
   useEffect(() => {
     if (isLoading || error) {

@@ -45,8 +45,7 @@ export const useGetProductById = (id: string, options?: GetProductOptions) => {
 };
 
 export const useCreateProduct = () => {
-  const { locale } = useLocale();
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
 
   return useOptimisticListMutation<
     ProductItem,
@@ -66,8 +65,7 @@ export const useCreateProduct = () => {
 };
 
 export const useUpdateProduct = () => {
-  const { locale } = useLocale();
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
 
   return useOptimisticListMutation<
     ProductItem,
@@ -87,8 +85,7 @@ export const useUpdateProduct = () => {
 };
 
 export const useDeleteProduct = () => {
-  const { locale } = useLocale();
-  const { t } = useTranslation();
+  const { locale, t } = useTranslation();
 
   return useOptimisticListMutation<ProductItem, { id: string }, void>({
     queryKey: productsQueryKeys.list(locale),

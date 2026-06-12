@@ -2,8 +2,7 @@
 
 import { useMemo, useRef } from 'react';
 
-import FeedbackState from '@/components/ui/feedback-state';
-import { getLocalizedPath } from '@/i18n/routing';
+import { CatalogActionFeedbackState } from '@/components/ui/translated-feedback-state';
 import { useTranslation } from '@/hooks/use-translation';
 import { getInfiniteQueryItems } from '@/services/api/query/get-infinite-query-items';
 import { isNonEmptyArray } from '@/utils/guards/is-non-empty-array';
@@ -14,7 +13,7 @@ import { useInfiniteScroll } from '@/services/api/query/use-infinite-scroll';
 
 export default function OrdersFeature() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const { locale, t } = useTranslation();
+  const { t } = useTranslation();
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useInfiniteOrders();
@@ -32,15 +31,7 @@ export default function OrdersFeature() {
   });
 
   if (!isNonEmptyArray(orders) && !isLoading) {
-    return (
-      <FeedbackState
-        title={t('orders_empty_title')}
-        description={t('orders_empty_description')}
-        actionLabel={t('orders_empty_cta')}
-        actionHref={getLocalizedPath('/catalog', locale)}
-        className='bg-gradient-card shadow-card'
-      />
-    );
+    return <CatalogActionFeedbackState translationKeyPrefix='orders' />;
   }
 
   return (

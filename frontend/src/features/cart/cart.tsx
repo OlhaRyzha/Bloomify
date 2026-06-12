@@ -9,8 +9,7 @@ import {
   getConfirmationCopy,
   type ConfirmationCopyRequest,
 } from '@/components/ui/confirmation-copy';
-import FeedbackState from '@/components/ui/feedback-state';
-import { useLocale } from '@/components/providers/locale-provider';
+import { RetryFeedbackState } from '@/components/ui/translated-feedback-state';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatTemplate, getBouquetCountLabel } from '@/utils/i18n';
@@ -46,8 +45,7 @@ export default function CartFeature() {
     useShallow(selectCartViewState)
   );
 
-  const { t } = useTranslation();
-  const { locale } = useLocale();
+  const { locale, t } = useTranslation();
 
   const trackedCartKeyRef = useRef<string | null>(null);
 
@@ -197,12 +195,9 @@ export default function CartFeature() {
 
   if (isCatalogError) {
     return (
-      <FeedbackState
-        tone='error'
-        title={t('cart_error_title')}
-        description={t('cart_error_description')}
-        actionLabel={t('common_try_again')}
-        onAction={handleRetryCatalog}
+      <RetryFeedbackState
+        translationKeyPrefix='cart'
+        onRetry={handleRetryCatalog}
       />
     );
   }
