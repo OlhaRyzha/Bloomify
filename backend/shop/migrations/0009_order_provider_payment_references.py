@@ -19,6 +19,8 @@ def clear_provider_references(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
+
     dependencies = [
         ("shop", "0008_order_payment_status_token_hash"),
     ]
