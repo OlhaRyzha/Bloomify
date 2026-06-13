@@ -42,7 +42,7 @@ This screen supports the public catalog part of Bloomify. Products that customer
 
 The right sidebar contains filters by **Active** status and **Tag**. This allows an admin to quickly find enabled/disabled products or browse groups such as Classic, Premium, New Arrival, Easter Bouquet, Exotic, and localized Polish/Ukrainian tag values. The table also has search and pagination, which makes catalog management practical when the product list grows.
 
-![Bouquets list](docs/admin-screenshots/01-bouquets-list.png)
+![Bouquets list](./admin-screenshots/01-bouquets-list.png)
 
 ### 2. Orders list
 
@@ -52,7 +52,7 @@ This screen is connected to the checkout flow in the storefront. It helps the ad
 
 The right sidebar includes filters for **Status** and **Payment status**. These filters make it easier to separate operational queues: pending payment, paid, processing, ready for delivery, courier delivery, delivered, failed, fulfilled, and canceled. The table also includes search and pagination, so the admin can work with a larger number of orders without losing context.
 
-![Orders list](docs/admin-screenshots/02-orders-list.png)
+![Orders list](./admin-screenshots/02-orders-list.png)
 
 ### 3. Inline order status update
 
@@ -62,7 +62,7 @@ This is useful for a real store workflow because an operator does not need to op
 
 The screenshot demonstrates an admin-friendly workflow for order lifecycle management. It turns the list table into a lightweight dispatch dashboard where order state can be adjusted quickly.
 
-![Inline order status update](docs/admin-screenshots/03-order-status-inline-edit.png)
+![Inline order status update](./admin-screenshots/03-order-status-inline-edit.png)
 
 ### 4. Users list
 
@@ -72,7 +72,7 @@ This screen belongs to the access-control part of the admin panel. Since the adm
 
 The right sidebar provides filters by staff status, superuser status, active status, and group. This makes it easier to audit who can enter the admin panel and which role group is assigned to each account. In the screenshot, one user has staff access and another does not, which demonstrates how different access levels can be reviewed from the list page.
 
-![Users list](docs/admin-screenshots/04-users-list.png)
+![Users list](./admin-screenshots/04-users-list.png)
 
 ### 5. User creation form
 
@@ -82,7 +82,7 @@ The form keeps Django's standard password validation guidance visible: the passw
 
 This screen is important because Bloomify does not expose public admin credentials. Admin users should be created intentionally, with controlled authentication and permissions. After a user is created, additional options such as permissions, role groups, staff status, and superuser status can be configured.
 
-![User creation form](docs/admin-screenshots/05-user-creation-form.png)
+![User creation form](./admin-screenshots/05-user-creation-form.png)
 
 ### 6. Bulk order actions
 
@@ -92,7 +92,7 @@ The selected action is **Delete selected Orders**, which is a standard administr
 
 This is especially helpful for back-office maintenance tasks where many test orders, failed orders, or obsolete records may need to be managed together. The visual selection state also makes it clear which records will be affected before the action is applied.
 
-![Bulk order actions](docs/admin-screenshots/06-bulk-order-actions.png)
+![Bulk order actions](./admin-screenshots/06-bulk-order-actions.png)
 
 ### 7. User role assignment
 
@@ -102,7 +102,7 @@ The **Groups** section allows the admin to assign predefined roles such as Edito
 
 The screenshot shows the **Owner** role selected. This means the user receives permissions through the saved Owner group configuration. It also demonstrates the intended access-control model: common access should be handled through roles, while direct permissions should be used only for narrow exceptions.
 
-![User role assignment](docs/admin-screenshots/07-user-role-assignment.png)
+![User role assignment](./admin-screenshots/07-user-role-assignment.png)
 
 ### 8. Bouquet edit form with translations
 
@@ -112,7 +112,7 @@ The screenshot shows the Ukrainian version of a bouquet. Admins can edit the tra
 
 This connects directly to the storefront's localized catalog feature. The frontend can show bouquet content in the currently selected language while the admin provides a structured place to maintain those translations. For a multilingual ecommerce project, this is more scalable than hardcoding text in the frontend.
 
-![Bouquet edit form with translations](docs/admin-screenshots/08-bouquet-edit-translations.png)
+![Bouquet edit form with translations](./admin-screenshots/08-bouquet-edit-translations.png)
 
 ### 9. Bouquet image preview
 
@@ -122,7 +122,7 @@ The preview is useful because catalog images are a key part of the storefront ex
 
 The same form also includes tag and active status fields, so the admin can control both the visual product representation and whether the bouquet is available in the catalog. This screenshot shows the lower part of the bouquet editing page where media and publishing-related fields are managed.
 
-![Bouquet image preview](docs/admin-screenshots/09-bouquet-image-preview.png)
+![Bouquet image preview](./admin-screenshots/09-bouquet-image-preview.png)
 
 ### 10. Subscription plans empty state
 
@@ -132,7 +132,7 @@ The empty state gives the admin two clear options: add a new subscription plan o
 
 This section prepares the admin for subscription-related functionality, where plans can be organized by billing interval such as weekly, monthly, or quarterly. It also demonstrates that the admin navigation already has a dedicated place for subscription management even when the database is still empty.
 
-![Subscription plans empty state](docs/admin-screenshots/10-subscription-plans-empty-state.png)
+![Subscription plans empty state](./admin-screenshots/10-subscription-plans-empty-state.png)
 
 ### 11. Roles list before permissions are assigned
 
@@ -142,7 +142,7 @@ This is a useful setup state because it shows the role model before permissions 
 
 The permissions count column makes the role setup auditable from the list page. If a role unexpectedly has too many or too few permissions, this page can quickly reveal the issue before a user is assigned to that role.
 
-![Roles list before permissions are assigned](docs/admin-screenshots/11-roles-list-empty-permissions.png)
+![Roles list before permissions are assigned](./admin-screenshots/11-roles-list-empty-permissions.png)
 
 ### 12. Site language settings
 
@@ -152,7 +152,7 @@ This admin page is small but important because it controls the language availabi
 
 The page is connected to the multilingual architecture of the project: bouquet translations can exist in multiple languages, and the admin can decide which languages should currently be available to users on the site.
 
-![Site language settings](docs/admin-screenshots/12-site-language-settings.png)
+![Site language settings](./admin-screenshots/12-site-language-settings.png)
 
 ### 13. Roles list after Owner permissions are assigned
 
@@ -162,7 +162,7 @@ This makes permission state easy to audit from the list page. Admins can immedia
 
 The success message at the top confirms that the Owner group was changed successfully. This screen demonstrates the result of editing role permissions and returning to the role overview.
 
-![Roles list after Owner permissions are assigned](docs/admin-screenshots/13-roles-list-owner-permissions.png)
+![Roles list after Owner permissions are assigned](./admin-screenshots/13-roles-list-owner-permissions.png)
 
 ### 14. Admin preferences menu
 
@@ -172,7 +172,7 @@ This matches the admin's multilingual and dark-theme setup. It also makes the ad
 
 The menu is useful in a demo project because it shows that the admin experience is not only functional, but also customized for localization and user preferences.
 
-![Admin preferences menu](docs/admin-screenshots/14-admin-preferences-menu.png)
+![Admin preferences menu](./admin-screenshots/14-admin-preferences-menu.png)
 
 ### 15. Role permission editor
 
@@ -182,7 +182,7 @@ Each category shows a permission counter, for example `0/4`, so the admin can se
 
 The page also includes guidance to use roles for common access and direct permissions only for narrow exceptions. This helps avoid accidental over-permissioning and makes the access model easier to explain during project review.
 
-![Role permission editor](docs/admin-screenshots/15-role-permission-editor.png)
+![Role permission editor](./admin-screenshots/15-role-permission-editor.png)
 
 ## Why the admin is presented with screenshots
 
