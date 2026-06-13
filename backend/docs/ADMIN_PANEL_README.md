@@ -183,26 +183,3 @@ Each category shows a permission counter, for example `0/4`, so the admin can se
 The page also includes guidance to use roles for common access and direct permissions only for narrow exceptions. This helps avoid accidental over-permissioning and makes the access model easier to explain during project review.
 
 ![Role permission editor](./admin-screenshots/15-role-permission-editor.png)
-
-## Why the admin is presented with screenshots
-
-The admin area is intentionally not shared with public demo credentials because it contains sensitive operational controls: users, permissions, orders, payments, catalog records, and language settings. Screenshots make it possible to review the implemented admin functionality without exposing privileged access.
-
-## Admin scope summary
-
-| Module | Implemented functionality |
-| --- | --- |
-| **Bouquets** | Search, tag filters, active filters, image thumbnails, image preview, localized fields, active status, edit/delete actions. |
-| **Orders** | Search, pagination, status filters, payment-status filters, inline status update, bulk selection, bulk actions. |
-| **Website languages** | Enable/disable Ukrainian, English, and Polish storefront languages. |
-| **Subscription plans** | Admin section with interval filters, active filters, reset filters action, and empty state for first record creation. |
-| **Users** | User list, user creation, password authentication, active/staff/superuser flags, group assignment. |
-| **Roles** | Role list, permission counters, Owner role permission setup, categorized permission editor. |
-| **Admin UI** | Dark theme, sidebar navigation, breadcrumbs, sticky action bar, language preferences, theme preferences, account menu. |
-
-## Related project areas
-
-- **Backend**: Python 3.12, Django, Django REST Framework, PostgreSQL, django-parler, django-unfold.
-- **Frontend storefront**: Next.js App Router, React, TypeScript, Tailwind CSS, TanStack Query, Zustand, Formik, Zod, Axios.
-- **Payments**: LiqPay sandbox integration for card, Apple Pay, and Google Pay checkout scenarios.
-- **Quality**: Vitest, Testing Library, MSW, Playwright, ESLint, Ruff, Black, mypy, pre-commit, and GitHub Actions.
