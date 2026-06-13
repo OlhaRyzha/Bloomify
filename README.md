@@ -173,6 +173,7 @@ Details: [frontend analytics docs](frontend/docs/analytics.md).
 - [Frontend testing guide](frontend/docs/testing.md)
 - [Frontend performance guide](frontend/docs/performance.md)
 - [Frontend analytics guide](frontend/docs/analytics.md)
+- [Admin panel documentation](backend/docs/ADMIN_PANEL_README.md)
 
 ## Notes
 
