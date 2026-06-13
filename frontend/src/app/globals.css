@@ -42,10 +42,6 @@
     --forest: 150 40% 20%;
     --gold: 40 70% 55%;
     --peach: 25 70% 90%;
-    --font-display-stack:
-      var(--font-display, Georgia), ui-serif, Georgia, serif;
-    --font-body-stack:
-      var(--font-body, Inter), ui-sans-serif, system-ui, sans-serif;
 
     --gradient-hero: linear-gradient(
       135deg,
@@ -149,7 +145,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-body-stack);
+    font-family: var(--font-body, Inter), ui-sans-serif, system-ui, sans-serif;
   }
 
   h1,
@@ -158,17 +154,17 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-display-stack);
+    font-family: var(--font-display, Georgia), ui-serif, Georgia, serif;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: var(--font-display-stack);
+    font-family: var(--font-display, Georgia), ui-serif, Georgia, serif;
   }
 
   .font-body {
-    font-family: var(--font-body-stack);
+    font-family: var(--font-body, Inter), ui-sans-serif, system-ui, sans-serif;
   }
 
   .bg-gradient-hero {
@@ -242,7 +238,7 @@
 }
 
 .animate-float {
-  animation: float 4s ease-in-out 1.2s infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 .animate-fade-up {
@@ -268,6 +264,10 @@
   animation: featured-catalog-reveal 0.55s ease-out both;
 }
 
+.hero-image-float {
+  animation: hero-image-float 6s ease-in-out 1.2s infinite;
+}
+
 @keyframes featured-catalog-reveal {
   from {
     opacity: 0;
@@ -276,6 +276,16 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes hero-image-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
   }
 }
 

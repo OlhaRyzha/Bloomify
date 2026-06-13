@@ -1,96 +1,45 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
-
-import { withSkeleton } from '@/components/hoc/with-skeleton';
 import { PaginationContainer } from '@/components/pagination/pagination';
-import {
-  RetryFeedbackState,
-  TranslatedFeedbackState,
-} from '@/components/ui/translated-feedback-state';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CatalogItem } from '@/types/catalog';
 import { getBouquetCountLabel } from '@/utils/i18n';
-import {
-  trackCatalogSearch,
-  trackCatalogSort,
-  trackCatalogTagFilter,
-  trackCatalogViewed,
-} from '@/services/analytics/analytics.events';
 
-import { useGetProducts } from '../api/use-products';
+import { useGetProductFilters, useGetProductList } from '../api/use-products';
 import CatalogCard from '../card/catalog-card';
-import CatalogCardSkeleton from '../card/catalog-card-skeleton';
-import { CatalogControls } from './catalog-controls';
+import {
+  CATALOG_GRID_CLASSNAME,
+  CATALOG_PAGE_SIZE_OPTIONS,
+  DEFAULT_PER_PAGE,
+} from './catalog.config';
+import { CatalogControls } from './components/catalog-controls';
+import { CatalogListState } from './components/catalog-list-state';
+import { useCatalogAnalytics } from './hooks/use-catalog-analytics';
 import { useCatalogGridState } from './hooks/use-catalog-grid-state';
 
-const CatalogCardWithSkeleton = withSkeleton(CatalogCard, {
-  skeleton: <CatalogCardSkeleton />,
-});
+const EMPTY_PRODUCTS: CatalogItem[] = [];
 
 type CatalogGridProps = {
   items?: CatalogItem[];
-  pageSize?: number;
   className?: string;
   loading?: boolean;
   hideControls?: boolean;
-  maxItems?: number;
-  perPageOptions?: number[];
-};
-
-type CatalogSkeletonItem = {
-  id: string;
-  isSkeleton: true;
-};
-
-type CatalogRenderItem = CatalogItem | CatalogSkeletonItem;
-
-const isCatalogSkeletonItem = (
-  item: CatalogRenderItem
-): item is CatalogSkeletonItem => {
-  return 'isSkeleton' in item;
-};
-
-const removeDuplicatedCatalogItems = (items: CatalogItem[]): CatalogItem[] => {
-  const uniqueItems = new Map<CatalogItem['id'], CatalogItem>();
-
-  items.forEach((item) => {
-    if (!uniqueItems.has(item.id)) {
-      uniqueItems.set(item.id, item);
-    }
-  });
-
-  return Array.from(uniqueItems.values());
 };
 
 export default function CatalogGrid({
   items,
-  pageSize = 6,
   className,
   loading: loadingProp,
   hideControls,
-  maxItems,
-  perPageOptions = [6, 9, 12],
 }: CatalogGridProps) {
   const { locale, t } = useTranslation();
 
-  const shouldFetchCatalogItems = items === undefined;
-  const {
-    data: catalogItems = [],
-    isError: isCatalogError,
-    isLoading: isCatalogLoading,
-    refetch: refetchCatalogItems,
-  } = useGetProducts({
-    enabled: shouldFetchCatalogItems,
-  });
+  const isServerList = items === undefined;
 
-  const loading = loadingProp ?? isCatalogLoading;
-
-  const effectiveItems = useMemo(() => {
-    const uniqueItems = removeDuplicatedCatalogItems(items ?? catalogItems);
-
-    return maxItems ? uniqueItems.slice(0, maxItems) : uniqueItems;
-  }, [items, catalogItems, maxItems]);
+  const { data: productFilters, isLoading: isProductFiltersLoading } =
+    useGetProductFilters({
+      enabled: isServerList && !hideControls,
+    });
 
   const {
     page,
@@ -98,72 +47,53 @@ export default function CatalogGrid({
     sort,
     tagFilter,
     searchInput,
-    availableTags,
-    filteredItems,
-    sortedItems,
+    queryParams,
     setPage,
     debouncedSearch,
     updateSearch,
     updateSort,
     updateTagFilter,
     updatePerPage,
-  } = useCatalogGridState({ items: effectiveItems, pageSize });
-  const trackedItemListKeyRef = useRef<string | null>(null);
+  } = useCatalogGridState({
+    availableTags: productFilters?.tags ?? [],
+    pageSize: DEFAULT_PER_PAGE,
+  });
 
-  useEffect(() => {
-    if (loading || effectiveItems.length === 0) {
-      return;
-    }
+  const {
+    data: productList,
+    isError,
+    isLoading: isProductListLoading,
+    refetch,
+  } = useGetProductList(queryParams, {
+    enabled: isServerList,
+  });
 
-    const listKey = `${locale}:${effectiveItems.map((item) => item.id).join(',')}`;
-    if (trackedItemListKeyRef.current === listKey) {
-      return;
-    }
+  const products = items ?? productList?.items ?? EMPTY_PRODUCTS;
+  const productsCount = items?.length ?? productList?.total ?? products.length;
+  const isLoading =
+    loadingProp ?? (isProductListLoading || isProductFiltersLoading);
 
-    trackedItemListKeyRef.current = listKey;
-    trackCatalogViewed({
-      itemListName: hideControls ? 'featured_catalog' : 'catalog',
-      itemCount: effectiveItems.length,
-      locale,
-    });
-  }, [effectiveItems, hideControls, loading, locale]);
+  const isEmpty = products.length === 0;
 
-  useEffect(() => {
-    trackCatalogSearch({
-      query: debouncedSearch,
-      resultCount: filteredItems.length,
-      locale,
-    });
-  }, [debouncedSearch, filteredItems.length, locale]);
+  const { trackSortChange, trackTagFilterChange } = useCatalogAnalytics({
+    products,
+    productsCount,
+    locale,
+    loading: isLoading,
+    isEmptyProducts: isEmpty,
+    debouncedSearch,
+    hideControls,
+  });
 
   const handleSortChange = (value: Parameters<typeof updateSort>[0]) => {
     updateSort(value);
-    trackCatalogSort({
-      sort: value,
-      resultCount: filteredItems.length,
-      locale,
-    });
+    trackSortChange(value);
   };
 
   const handleTagFilterChange = (value: string) => {
     updateTagFilter(value);
-    trackCatalogTagFilter({
-      tag: value,
-      resultCount: filteredItems.length,
-      locale,
-    });
+    trackTagFilterChange(value);
   };
-
-  const skeletonItems: CatalogSkeletonItem[] = Array.from(
-    { length: perPage },
-    (_, index) => ({
-      id: `catalog-card-skeleton-${index}`,
-      isSkeleton: true,
-    })
-  );
-
-  const itemsForRender: CatalogRenderItem[] =
-    loading && effectiveItems.length === 0 ? skeletonItems : sortedItems;
 
   return (
     <div className={className}>
@@ -175,50 +105,42 @@ export default function CatalogGrid({
           onSortChange={handleSortChange}
           tagFilter={tagFilter}
           onTagFilterChange={handleTagFilterChange}
-          availableTags={availableTags}
+          availableTags={productFilters?.tags ?? []}
         />
       )}
 
-      {isCatalogError && shouldFetchCatalogItems ? (
-        <RetryFeedbackState
-          translationKeyPrefix='catalog'
-          onRetry={async () => {
-            await refetchCatalogItems();
-          }}
-        />
-      ) : !loading && sortedItems.length === 0 ? (
-        <TranslatedFeedbackState
-          kind='empty'
-          translationKeyPrefix='catalog'
-        />
-      ) : (
+      <CatalogListState
+        isError={isError && isServerList}
+        isEmpty={isEmpty}
+        isLoading={isLoading}
+        skeletonCount={perPage}
+        onRetry={refetch}
+      />
+
+      {!isError && !isEmpty && (
         <PaginationContainer
-          items={itemsForRender}
+          items={products}
           pageSize={perPage}
           page={page}
           onPageChange={setPage}
+          totalItems={isServerList ? productsCount : undefined}
           hideControls={hideControls}
           scrollToTopOnChange
           showPageSizeControl={!hideControls}
-          pageSizeOptions={perPageOptions}
+          pageSizeOptions={CATALOG_PAGE_SIZE_OPTIONS}
           onPageSizeChange={updatePerPage}
           showItemsCount={!hideControls}
-          itemsCount={filteredItems.length}
+          itemsCount={productsCount}
           itemsCountPrefix={t('catalog_items_count_prefix')}
-          itemsCountSuffix={getBouquetCountLabel(filteredItems.length, locale)}
+          itemsCountSuffix={getBouquetCountLabel(productsCount, locale)}
           renderPage={(pageItems) => (
-            <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3'>
-              {pageItems.map((product) =>
-                isCatalogSkeletonItem(product) ? (
-                  <CatalogCardSkeleton key={product.id} />
-                ) : (
-                  <CatalogCardWithSkeleton
-                    key={product.id}
-                    loading={loading}
-                    item={product}
-                  />
-                )
-              )}
+            <div className={CATALOG_GRID_CLASSNAME}>
+              {pageItems.map((product) => (
+                <CatalogCard
+                  key={product.id}
+                  item={product}
+                />
+              ))}
             </div>
           )}
         />

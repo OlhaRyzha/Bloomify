@@ -68,6 +68,7 @@ class EnvironmentSettings(BaseSettings):
     AUTH0_CLIENT_ID: str = ""
     AUTH0_AUDIENCE: str = ""
     AUTH0_ISSUER: str = ""
+    AUTH0_ALGORITHMS: str = "RS256"
 
     LIQPAY_DEV_BACKEND_LOCAL_URL: str = ""
     LIQPAY_CALLBACK_PATH: str = "/payments/liqpay/callback"
@@ -364,6 +365,11 @@ AUTH0_DOMAIN = env.AUTH0_DOMAIN
 AUTH0_CLIENT_ID = env.AUTH0_CLIENT_ID
 AUTH0_AUDIENCE = env.AUTH0_AUDIENCE
 AUTH0_ISSUER = env.AUTH0_ISSUER
+AUTH0_ALGORITHMS = [
+    algorithm.strip()
+    for algorithm in env.AUTH0_ALGORITHMS.split(",")
+    if algorithm.strip()
+]
 
 
 AUTH_PASSWORD_VALIDATORS = [

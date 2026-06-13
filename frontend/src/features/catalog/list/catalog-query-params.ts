@@ -1,7 +1,9 @@
 import { O, pipe } from '@mobily/ts-belt';
 import { isValueGreaterThanZero } from '@/utils/guards/is-number';
 import { DEFAULT_CATALOG_PARAMS } from './catalog.config';
-import type { CatalogQueryParams, SortOption } from './catalog.types';
+import type { CatalogQueryParams, SortOption } from './types';
+import { getTrimmedValue } from '@/utils/strings/get-trimmed-value';
+import { isDefaultTag } from '@/utils/guards/is-default-tag';
 
 const PARAMS = {
   page: 'page',
@@ -26,13 +28,14 @@ type ParamConfig = {
   def: string | number;
 };
 
-const trimValue = (value: string) => value.trim();
-
 export function getCatalogQueryParams(
   search: string,
   defaults?: Partial<CatalogQueryParams>
 ): CatalogQueryParams {
-  const baseDefaults: CatalogQueryParams = { ...DEFAULT_CATALOG_PARAMS, ...defaults };
+  const baseDefaults: CatalogQueryParams = {
+    ...DEFAULT_CATALOG_PARAMS,
+    ...defaults,
+  };
   const params = new URLSearchParams(search);
 
   const PARAMS_CONFIG: ParamConfig[] = [
@@ -53,7 +56,7 @@ export function getCatalogQueryParams(
     {
       key: 'search',
       param: PARAMS.search,
-      map: trimValue,
+      map: getTrimmedValue,
       def: baseDefaults.search,
     },
     {
@@ -65,7 +68,7 @@ export function getCatalogQueryParams(
     {
       key: 'tag',
       param: PARAMS.tag,
-      map: trimValue,
+      map: getTrimmedValue,
       def: baseDefaults.tag,
     },
   ];
@@ -89,18 +92,20 @@ export function getCatalogQueryParams(
 
 export function setCatalogQueryParams(params: CatalogQueryParams) {
   const urlParams = new URLSearchParams();
+  const search = getTrimmedValue(params.search);
+
   urlParams.set(PARAMS.page, String(params.page));
   urlParams.set(PARAMS.perPage, String(params.perPage));
 
-  if (params.search.trim()) {
-    urlParams.set(PARAMS.search, params.search.trim());
+  if (search) {
+    urlParams.set(PARAMS.search, search);
   }
 
   if (params.sort !== 'default') {
     urlParams.set(PARAMS.sort, params.sort);
   }
 
-  if (params.tag && params.tag !== 'all') {
+  if (params.tag && !isDefaultTag(params.tag)) {
     urlParams.set(PARAMS.tag, params.tag);
   }
 

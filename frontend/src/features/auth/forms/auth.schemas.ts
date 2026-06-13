@@ -4,50 +4,32 @@ import {
   getValidationMessages,
   type TranslationFn,
 } from '@/constants/message.constants';
-import { EMAIL_REGEX, PASSWORD_REGEX } from '@/utils/patterns/regex';
+import {
+  confirmPasswordSchema,
+  emailSchema,
+  nameSchema,
+  passwordSchema,
+  requiredStringSchema,
+} from '@/utils/forms/zod-string';
 
 export const createLoginSchema = (t: TranslationFn) => {
-  const validationMessages = getValidationMessages(t);
-
   return z.object({
-    email: z
-      .string()
-      .trim()
-      .min(1, validationMessages.requiredField())
-      .regex(EMAIL_REGEX, validationMessages.invalidEmail),
-    password: z.string().trim().min(1, validationMessages.requiredField()),
+    email: emailSchema(t),
+    password: requiredStringSchema(t),
   });
 };
 
 export const createRegisterSchema = (t: TranslationFn) => {
-  const validationMessages = getValidationMessages(t);
-
   return z
     .object({
-      name: z
-        .string()
-        .trim()
-        .min(1, validationMessages.requiredField())
-        .min(2, validationMessages.nameMin(2)),
-      email: z
-        .string()
-        .trim()
-        .min(1, validationMessages.requiredField())
-        .regex(EMAIL_REGEX, validationMessages.invalidEmail),
-      password: z
-        .string()
-        .trim()
-        .min(1, validationMessages.requiredField())
-        .min(8, validationMessages.passwordMin(8))
-        .regex(PASSWORD_REGEX, validationMessages.passwordRules),
-      confirmPassword: z
-        .string()
-        .trim()
-        .min(1, validationMessages.requiredField()),
+      name: nameSchema(t),
+      email: emailSchema(t),
+      password: passwordSchema(t),
+      confirmPassword: confirmPasswordSchema(t),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: validationMessages.passwordMismatch,
       path: ['confirmPassword'],
+      message: getValidationMessages(t).passwordMismatch,
     });
 };
 

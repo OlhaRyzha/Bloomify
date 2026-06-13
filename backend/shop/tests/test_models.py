@@ -2,15 +2,14 @@ from decimal import Decimal
 
 from django.test import TestCase
 
+from shop import models
 from shop.models.order import OrderItem
 from shop.tests.factories import create_order, create_product
 
 
 class ModelsSmokeTest(TestCase):
     def test_models_module_imports(self):
-        from shop import models  # noqa: F401
-
-        self.assertTrue(True)
+        self.assertIsNotNone(models)
 
 
 class OrderModelTest(TestCase):

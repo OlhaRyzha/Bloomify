@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import type { CatalogItem } from '@/types/catalog';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   getCatalogQueryParams,
@@ -10,16 +9,17 @@ import {
 } from '../catalog-query-params';
 import { selectCatalogGridState } from '../../store/catalog.selectors';
 import { useCatalogStore } from '../../store/catalog.store';
-import type { SortOption } from '../catalog.types';
+import type { CatalogQueryParams, SortOption } from '../types';
+import { isDefaultTag } from '@/utils/guards/is-default-tag';
+import { DEFAULT_TAG } from '../catalog.config';
 
 type UseCatalogGridStateProps = {
-  items: CatalogItem[];
   pageSize: number;
+  availableTags?: string[];
 };
-
 export function useCatalogGridState({
-  items,
   pageSize,
+  availableTags = [],
 }: UseCatalogGridStateProps) {
   const hydratedFromUrl = useRef(false);
   const {
@@ -68,73 +68,15 @@ export function useCatalogGridState({
     });
   }, [page, perPage, searchInput, sort, tagFilter]);
 
-  const availableTags = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          items
-            .map((item) => item.tag)
-            .filter((tag): tag is string => Boolean(tag))
-        )
-      ),
-    [items]
-  );
-
   useEffect(() => {
-    if (tagFilter !== 'all' && !availableTags.includes(tagFilter)) {
-      setTag('all');
+    if (
+      availableTags.length > 0 &&
+      !isDefaultTag(tagFilter) &&
+      !availableTags.includes(tagFilter)
+    ) {
+      setTag(DEFAULT_TAG);
     }
   }, [availableTags, setTag, tagFilter]);
-
-  const filteredItems = useMemo(() => {
-    const normalizedSearch = debouncedSearch.trim().toLowerCase();
-    const searchFiltered =
-      normalizedSearch.length === 0
-        ? items
-        : items.filter((item) => {
-            const haystack = `${item.name} ${
-              item.description ?? ''
-            }`.toLowerCase();
-            return haystack.includes(normalizedSearch);
-          });
-
-    if (tagFilter === 'all') {
-      return searchFiltered;
-    }
-    return searchFiltered.filter((item) => item.tag === tagFilter);
-  }, [items, tagFilter, debouncedSearch]);
-
-  const sortedItems = useMemo(() => {
-    const itemsToSort = [...filteredItems];
-    switch (sort) {
-      case 'price-asc':
-        return itemsToSort.sort((a, b) => Number(a.price) - Number(b.price));
-      case 'price-desc':
-        return itemsToSort.sort((a, b) => Number(b.price) - Number(a.price));
-      case 'name-asc':
-        return itemsToSort.sort((a, b) => a.name.localeCompare(b.name));
-      default:
-        return itemsToSort;
-    }
-  }, [filteredItems, sort]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedItems.length / perPage));
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(1);
-    }
-  }, [page, totalPages, setPage]);
-
-  const skeletonItems = useMemo(
-    () =>
-      Array.from({ length: perPage }, (_, idx) => ({
-        id: `skeleton-${idx}`,
-        name: '',
-        price: '0',
-      })) as CatalogItem[],
-    [perPage]
-  );
 
   const updateSearch = (value: string) => {
     setSearch(value);
@@ -152,6 +94,17 @@ export function useCatalogGridState({
     setPerPage(value);
   };
 
+  const queryParams = useMemo<CatalogQueryParams>(
+    () => ({
+      page,
+      perPage,
+      search: debouncedSearch,
+      sort,
+      tag: tagFilter,
+    }),
+    [debouncedSearch, page, perPage, sort, tagFilter]
+  );
+
   return {
     page,
     perPage,
@@ -160,9 +113,7 @@ export function useCatalogGridState({
     searchInput,
     debouncedSearch,
     availableTags,
-    filteredItems,
-    sortedItems,
-    skeletonItems,
+    queryParams,
     setPage,
     updateSearch,
     updateSort,

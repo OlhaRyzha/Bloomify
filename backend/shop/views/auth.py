@@ -18,10 +18,12 @@ from shop.serializers.auth import (
     LoginSerializer,
     RegisterSerializer,
 )
-from shop.services.auth0 import (
-    Auth0ConfigurationError,
-    Auth0TokenError,
-    verify_auth0_tokens,
+from shop.services.identity_provider_types import (
+    IdentityProviderConfigurationError,
+    IdentityProviderTokenError,
+)
+from shop.services.identity_providers import (
+    get_identity_provider,
 )
 
 AUTH_REFRESH_COOKIE_NAME = "bloomify_refresh"
@@ -138,31 +140,32 @@ class Auth0LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         access_token = serializer.validated_data["accessToken"]
         id_token = serializer.validated_data["idToken"]
+        identity_provider = get_identity_provider("auth0")
 
         try:
-            auth0_user = verify_auth0_tokens(access_token, id_token)
-        except Auth0ConfigurationError:
+            external_user = identity_provider.verify_tokens(access_token, id_token)
+        except IdentityProviderConfigurationError:
             return Response(
                 {"detail": "Auth0 is not configured."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
-        except Auth0TokenError:
+        except IdentityProviderTokenError:
             return Response(
                 {"detail": "Invalid Auth0 access token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        email = str(auth0_user.email).lower()
+        email = str(external_user.email).lower()
         user = User.objects.filter(email__iexact=email).first()
         if user is None:
             user = User.objects.create_user(
                 username=email,
                 email=email,
                 password=None,
-                first_name=auth0_user.name,
+                first_name=external_user.name,
             )
-        elif auth0_user.name and not user.first_name:
-            user.first_name = auth0_user.name
+        elif external_user.name and not user.first_name:
+            user.first_name = external_user.name
             user.save(update_fields=["first_name"])
 
         access_payload, refresh_token = build_access_response(user)

@@ -15,15 +15,10 @@ import {
   selectSetCatalogSort,
   selectSetCatalogTag,
 } from './catalog.selectors';
+import { DEFAULT_CATALOG_PARAMS } from '../list/catalog.config';
 
 const resetCatalogStore = () => {
-  useCatalogStore.setState({
-    page: 1,
-    perPage: 6,
-    search: '',
-    sort: 'default',
-    tag: 'all',
-  });
+  useCatalogStore.setState(DEFAULT_CATALOG_PARAMS);
 };
 
 describe('catalog store', () => {

@@ -10,8 +10,10 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination';
 import { generatePageNumbers } from '@/utils/pagination/generate-page-numbers';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { isFunction } from '@/utils/guards/is-function';
+import { isValueGreaterThanZero } from '@/utils/guards/is-number';
+import { isWindowUndefined } from '@/utils/guards/is-window-undefined';
 import { cn } from '@/lib/utils';
 import {
   Select,
@@ -37,6 +39,7 @@ type PaginationContainerProps<T> = {
   onPageSizeChange?: (value: number) => void;
   showItemsCount?: boolean;
   itemsCount?: number;
+  totalItems?: number;
   itemsCountPrefix?: string;
   itemsCountSuffix?: string;
 };
@@ -57,20 +60,23 @@ export function PaginationContainer<T>({
   onPageSizeChange,
   showItemsCount,
   itemsCount,
+  totalItems,
   itemsCountPrefix = 'Items',
   itemsCountSuffix = 'total',
 }: PaginationContainerProps<T>) {
   const isControlled = controlledPage !== undefined && isFunction(onPageChange);
   const [uncontrolledPage, setUncontrolledPage] = useState(1);
 
-  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const safePageSize = isValueGreaterThanZero(pageSize) ? pageSize : 1;
+  const totalItemCount = totalItems ?? items.length;
+  const totalPages = Math.max(1, Math.ceil(totalItemCount / safePageSize));
   const rawPage = isControlled ? controlledPage ?? 1 : uncontrolledPage;
   const page = Math.min(totalPages, Math.max(1, rawPage));
 
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
+  const start = (page - 1) * safePageSize;
+  const end = start + safePageSize;
 
-  const pageItems = useMemo(() => items.slice(start, end), [items, start, end]);
+  const pageItems = totalItems === undefined ? items.slice(start, end) : items;
   const shouldShowPaginationControls = !hideControls && totalPages > 1;
   const shouldShowFooterControls =
     !hideControls &&
@@ -88,7 +94,7 @@ export function PaginationContainer<T>({
       setUncontrolledPage(next);
     }
 
-    if (scrollToTopOnChange && typeof window !== 'undefined') {
+    if (scrollToTopOnChange && !isWindowUndefined()) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -102,7 +108,7 @@ export function PaginationContainer<T>({
         <div className='mt-10 flex min-w-0 flex-col items-center justify-center gap-5 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left'>
           {showItemsCount ? (
             <p className='text-nowrap text-sm font-semibold text-muted-foreground'>
-              {itemsCountPrefix} <b> {itemsCount ?? items.length}</b>{' '}
+              {itemsCountPrefix} <b> {itemsCount ?? totalItemCount}</b>{' '}
               {itemsCountSuffix}
             </p>
           ) : (
@@ -171,7 +177,7 @@ export function PaginationContainer<T>({
           <div className='flex shrink-0 justify-center'>
             {showPageSizeControl && pageSizeOptions?.length ? (
               <Select
-                value={String(pageSize)}
+                value={String(safePageSize)}
                 onValueChange={(value) => {
                   onPageSizeChange?.(Number(value));
                 }}>
@@ -179,7 +185,7 @@ export function PaginationContainer<T>({
                   chevronDownIconClassName='stroke-white'
                   aria-label='Items per page'
                   className='h-10 min-w-[96px] justify-between rounded-md border border-border bg-primary px-3 text-sm font-semibold text-white shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20'>
-                  <SelectValue>{pageSize} / page</SelectValue>
+                  <SelectValue>{safePageSize} / page</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {pageSizeOptions.map((option) => (

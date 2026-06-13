@@ -176,9 +176,7 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
   expect(checkoutResponse.ok()).toBe(true);
 
   await expect(
-    page.getByRole('heading', {
-      name: /дякуємо|замовлення|оформлено|створено/i,
-    })
+    page.getByRole('heading', { name: 'Замовлення створено' })
   ).toBeVisible();
 
   await expect(page).not.toHaveURL(/liqpay/i);

@@ -28,6 +28,7 @@ import {
 } from '@/features/auth/lib/server/api/auth.schemas';
 import { useAuthTokenStore } from '@/features/auth/store/auth-token.store';
 import { isWindowUndefined } from '@/utils/guards/is-window-undefined';
+import { isProduction } from '@/utils/guards/is-production';
 
 type RequestMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
@@ -70,7 +71,7 @@ const getApiBaseUrl = () => {
     return `${siteUrl}${baseUrl}`;
   }
 
-  if (process.env.NODE_ENV === 'production') {
+  if (isProduction) {
     return baseUrl;
   }
 

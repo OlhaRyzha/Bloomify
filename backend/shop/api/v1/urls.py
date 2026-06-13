@@ -14,11 +14,12 @@ from shop.views.orders import (
     LiqPayPaymentStatusView,
     OrderListView,
 )
-from shop.views.products import ProductDetailView, ProductListView
+from shop.views.products import ProductDetailView, ProductFiltersView, ProductListView
 from shop.views.site_languages import SiteLanguagesView
 
 urlpatterns = [
     path("products", ProductListView.as_view(), name="products"),
+    path("products/filters", ProductFiltersView.as_view(), name="product_filters"),
     path("favorites-products", ProductListView.as_view(), name="favorites_products"),
     path("products/<int:pk>", ProductDetailView.as_view(), name="product"),
     path("orders", OrderListView.as_view(), name="orders"),
