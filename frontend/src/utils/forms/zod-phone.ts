@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { PHONE_REGEX } from '../patterns/regex';
+import { trimmedString } from './zod-string';
 
 type PhoneStringMessages = {
   required: string;
@@ -7,9 +7,7 @@ type PhoneStringMessages = {
 };
 
 export const phoneString = ({ required, invalid }: PhoneStringMessages) =>
-  z
-    .string()
-    .trim()
+  trimmedString()
     .min(1, required)
     .regex(PHONE_REGEX, invalid)
     .refine((value) => {

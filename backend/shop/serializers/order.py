@@ -11,8 +11,12 @@ from shop.security.order_access import (
     create_order_access_token,
     hash_order_access_token,
 )
+from shop.services.payment_providers import (
+    PAYMENT_METHODS_WITH_PROVIDER,
+    get_payment_provider,
+    get_payment_provider_key_for_method,
+)
 
-PAYMENT_METHODS_WITH_LIQPAY = {"apple_pay", "google_pay", "card"}
 STANDARD_DELIVERY_FEE = Decimal("150.00")
 FREE_DELIVERY_THRESHOLD = Decimal("1500.00")
 
@@ -104,7 +108,8 @@ def create_checkout_order(
 
     total = subtotal + delivery_cost
     payment_method = payload["paymentMethod"]
-    uses_liqpay = payment_method in PAYMENT_METHODS_WITH_LIQPAY
+    payment_provider = get_payment_provider_key_for_method(payment_method)
+    uses_payment_provider = payment_method in PAYMENT_METHODS_WITH_PROVIDER
     payment_status_token = create_order_access_token()
 
     with transaction.atomic():
@@ -116,9 +121,9 @@ def create_checkout_order(
             delivery_city=payload["city"],
             delivery_address=payload["address"],
             delivery_note=payload.get("deliveryNote", ""),
-            payment_provider="liqpay" if uses_liqpay else "",
+            payment_provider=payment_provider,
             payment_method=payment_method,
-            payment_status="pending" if uses_liqpay else "not_required",
+            payment_status="pending" if uses_payment_provider else "not_required",
             status="pending",
             subtotal=subtotal,
             delivery_cost=delivery_cost,
@@ -126,8 +131,8 @@ def create_checkout_order(
             payment_status_token_hash=hash_order_access_token(payment_status_token),
         )
 
-        order.liqpay_order_id = f"bloomify-{order.pk}"
-        order.save(update_fields=["liqpay_order_id"])
+        if payment_provider:
+            get_payment_provider(payment_provider).assign_order_reference(order)
 
         order.items.bulk_create(
             [

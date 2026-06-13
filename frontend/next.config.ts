@@ -1,7 +1,7 @@
+import { isDevelopment } from '@/utils/guards/is-development';
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
-const isDev = process.env.NODE_ENV === 'development';
 const mediaHost = process.env.NEXT_PUBLIC_MEDIA_HOST ?? '';
 const disableImageOptimization =
   process.env.NEXT_PUBLIC_DISABLE_IMAGE_OPTIMIZATION === 'true' ||
@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ['image/avif', 'image/webp'],
-    unoptimized: isDev || disableImageOptimization,
+    unoptimized: isDevelopment || disableImageOptimization,
     remotePatterns: [
       {
         protocol: 'http',
@@ -43,7 +43,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
   turbopack: {},
-
 };
 
 export default withSentryConfig(nextConfig, {

@@ -1,7 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import type { CatalogQueryParams, SortOption } from '../list/catalog.types';
+import type { CatalogQueryParams, SortOption } from '../list/types';
+import { DEFAULT_CATALOG_PARAMS } from '../list/catalog.config';
 
 export type CatalogState = CatalogQueryParams & {
   setPage: (page: number) => void;
@@ -13,11 +14,7 @@ export type CatalogState = CatalogQueryParams & {
 };
 
 export const useCatalogStore = create<CatalogState>((set) => ({
-  page: 1,
-  perPage: 6,
-  search: '',
-  sort: 'default',
-  tag: 'all',
+  ...DEFAULT_CATALOG_PARAMS,
   setPage: (page) => set({ page }),
   setPerPage: (perPage) => set({ perPage, page: 1 }),
   setSort: (sort) => set({ sort, page: 1 }),

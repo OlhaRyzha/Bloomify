@@ -4,6 +4,20 @@ from rest_framework import serializers
 from shop.models.product import Product, get_product_translation_text
 
 
+class ProductListResponseSerializer(serializers.Serializer):
+    items = serializers.ListField(child=serializers.DictField())
+    page = serializers.IntegerField()
+    pageSize = serializers.IntegerField()
+    total = serializers.IntegerField()
+    totalPages = serializers.IntegerField()
+    hasNextPage = serializers.BooleanField()
+    nextPage = serializers.IntegerField(allow_null=True)
+
+
+class ProductFiltersResponseSerializer(serializers.Serializer):
+    tags = serializers.ListField(child=serializers.CharField())
+
+
 class ProductSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="pk", read_only=True)
     name = serializers.SerializerMethodField()

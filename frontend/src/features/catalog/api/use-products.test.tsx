@@ -6,16 +6,28 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { LocaleProvider } from '@/components/providers/locale-provider';
 import { createTestQueryClient } from '@/test/render';
 
-import { createProductItem } from './products.factory';
+import {
+  createProductFiltersResponse,
+  createProductItem,
+  createProductListResponse,
+} from './products.factory';
 import ProductsService from './products.service';
 import { productsQueryKeys } from './query-keys';
-import { useGetProductById, useGetProducts } from './use-products';
+import {
+  useGetProductById,
+  useGetProductFilters,
+  useGetProductList,
+  useGetProducts,
+} from './use-products';
+import { testCatalogParams4 } from '../list/tests/catalog.fixture';
 
 vi.mock('./products.service', () => ({
   default: {
     createProduct: vi.fn(),
     deleteProduct: vi.fn(),
     getProductById: vi.fn(),
+    getProductFilters: vi.fn(),
+    getProductList: vi.fn(),
     getProducts: vi.fn(),
     updateProduct: vi.fn(),
   },
@@ -36,6 +48,8 @@ const createWrapper = (locale: 'en' | 'uk' | 'pl' = 'en') => {
 describe('use-products hooks', () => {
   beforeEach(() => {
     vi.mocked(ProductsService.getProducts).mockReset();
+    vi.mocked(ProductsService.getProductList).mockReset();
+    vi.mocked(ProductsService.getProductFilters).mockReset();
     vi.mocked(ProductsService.getProductById).mockReset();
   });
 
@@ -55,6 +69,53 @@ describe('use-products hooks', () => {
     expect(ProductsService.getProducts).toHaveBeenCalledWith({ lang: 'pl' });
     expect(queryClient.getQueryData(productsQueryKeys.list('pl'))).toEqual(
       products
+    );
+  });
+
+  test('loads paginated products with params in query key', async () => {
+    const productList = createProductListResponse({
+      items: [createProductItem({ id: 'white-harmony' })],
+    });
+    vi.mocked(ProductsService.getProductList).mockResolvedValue(productList);
+    const { queryClient, Wrapper } = createWrapper('en');
+
+    const { result } = renderHook(() => useGetProductList(testCatalogParams4), {
+      wrapper: Wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(ProductsService.getProductList).toHaveBeenCalledWith({
+      ...testCatalogParams4,
+      lang: 'en',
+    });
+    expect(
+      queryClient.getQueryData(
+        productsQueryKeys.paginatedList('en', testCatalogParams4)
+      )
+    ).toEqual(productList);
+  });
+
+  test('loads product filters with locale-aware query key', async () => {
+    const filters = createProductFiltersResponse(['classic']);
+    vi.mocked(ProductsService.getProductFilters).mockResolvedValue(filters);
+    const { queryClient, Wrapper } = createWrapper('uk');
+
+    const { result } = renderHook(() => useGetProductFilters(), {
+      wrapper: Wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(ProductsService.getProductFilters).toHaveBeenCalledWith({
+      lang: 'uk',
+    });
+    expect(queryClient.getQueryData(productsQueryKeys.filters('uk'))).toEqual(
+      filters
     );
   });
 

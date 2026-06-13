@@ -1,15 +1,11 @@
 import z from 'zod';
 
-import {
-  getValidationMessages,
-  type TranslationFn,
-} from '@/constants/message.constants';
+import { type TranslationFn } from '@/constants/message.constants';
+import { requiredStringSchema } from '@/utils/forms/zod-string';
 
 export const createCartPromoCodeSchema = (t: TranslationFn) => {
-  const validationMessages = getValidationMessages(t);
-
   return z.object({
-    promoCode: z.string().trim().min(1, validationMessages.requiredField()),
+    promoCode: requiredStringSchema(t),
   });
 };
 

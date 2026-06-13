@@ -26,6 +26,8 @@ class Product(TranslatableModel):
     if TYPE_CHECKING:
         id: int
         name: str
+        description: str
+        tag: str
 
     translations = TranslatedFields(
         name=models.CharField(_("Name"), max_length=200),

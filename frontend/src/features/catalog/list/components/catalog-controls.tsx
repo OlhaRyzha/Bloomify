@@ -9,8 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { SortOption } from './catalog.types';
+
 import { useTranslation } from '@/hooks/use-translation';
+import { SortOption } from '../types';
+import { blurFocusedElementByIdOnOpen } from '@/utils/dom/blur-focused-element-by-id-on-open';
+import { DEFAULT_TAG } from '../catalog.config';
 
 type CatalogControlsProps = {
   searchInput: string;
@@ -35,24 +38,12 @@ export function CatalogControls({
   const searchInputId = 'catalog-search';
   const sortSelectId = 'catalog-sort';
   const tagSelectId = 'catalog-tag-filter';
+
   const sortLabelByValue: Record<SortOption, string> = {
     default: t('controls_sort_options_default'),
     'price-asc': t('controls_sort_options_price_asc'),
     'price-desc': t('controls_sort_options_price_desc'),
     'name-asc': t('controls_sort_options_name_asc'),
-  };
-  const blurFocusedTriggerOnOpen = (triggerId: string) => (open: boolean) => {
-    if (!open) return;
-
-    window.requestAnimationFrame(() => {
-      const activeElement = document.activeElement;
-      if (
-        activeElement instanceof HTMLElement &&
-        activeElement.id === triggerId
-      ) {
-        activeElement.blur();
-      }
-    });
   };
 
   return (
@@ -95,7 +86,7 @@ export function CatalogControls({
           </span>
           <Select
             value={sort}
-            onOpenChange={blurFocusedTriggerOnOpen(sortSelectId)}
+            onOpenChange={blurFocusedElementByIdOnOpen(sortSelectId)}
             onValueChange={(value) => onSortChange(value as SortOption)}>
             <SelectTrigger
               id={sortSelectId}
@@ -143,7 +134,7 @@ export function CatalogControls({
             </span>
             <Select
               value={tagFilter}
-              onOpenChange={blurFocusedTriggerOnOpen(tagSelectId)}
+              onOpenChange={blurFocusedElementByIdOnOpen(tagSelectId)}
               onValueChange={onTagFilterChange}>
               <SelectTrigger
                 id={tagSelectId}
@@ -152,7 +143,9 @@ export function CatalogControls({
                 <SelectValue placeholder={t('controls_tag_placeholder')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>{t('controls_tag_all')}</SelectItem>
+                <SelectItem value={DEFAULT_TAG}>
+                  {t('controls_tag_all')}
+                </SelectItem>
                 {availableTags.map((tag) => (
                   <SelectItem
                     key={tag}

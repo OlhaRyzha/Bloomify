@@ -4,6 +4,7 @@ import type { CatalogItem } from '@/types/catalog';
 import { toAnalyticsItem } from './analytics.helpers';
 import Analytics from './analytics.service';
 import type { AnalyticsEventPayload } from './analytics.types';
+import { getTrimmedValue } from '@/utils/strings/get-trimmed-value';
 
 type LocalePayload = {
   locale?: string;
@@ -90,7 +91,7 @@ export const trackCatalogSearch = ({
   resultCount,
   locale,
 }: CatalogSearchPayload) => {
-  const normalizedQuery = query.trim();
+  const normalizedQuery = getTrimmedValue(query);
 
   if (!normalizedQuery) return;
 

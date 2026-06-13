@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from math import ceil
-from typing import Generic, TypeVar
+from typing import Generic, TypedDict, TypeVar
 
 from django.db.models import Model, QuerySet
 from rest_framework.request import Request
@@ -10,6 +10,16 @@ DEFAULT_PAGE_SIZE = 10
 MAX_PAGE_SIZE = 50
 
 T = TypeVar("T", bound=Model)
+
+
+class PaginatedResponse(TypedDict):
+    items: Sequence[object]
+    page: int
+    pageSize: int
+    total: int
+    totalPages: int
+    hasNextPage: bool
+    nextPage: int | None
 
 
 @dataclass(frozen=True)
@@ -85,7 +95,7 @@ def build_paginated_response(
     *,
     paginated: PaginatedResult[T],
     serialized_items: Sequence[object],
-) -> dict[str, object]:
+) -> PaginatedResponse:
     return {
         "items": serialized_items,
         "page": paginated.page,

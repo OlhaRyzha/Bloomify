@@ -1,49 +1,33 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { createProductItem } from '../../api/products.factory';
-import {
-  createCatalogGridItems,
-  resetCatalogStore,
-} from '../catalog.test-utils';
+import { DEFAULT_PAGE, DEFAULT_PER_PAGE, DEFAULT_TAG } from '../catalog.config';
+import { availableTags, resetCatalogStore } from '../tests/catalog.test-utils';
 import { useCatalogGridState } from './use-catalog-grid-state';
 
-const items = createCatalogGridItems();
+const renderCatalogGridStateHook = () =>
+  renderHook(() =>
+    useCatalogGridState({
+      pageSize: DEFAULT_PER_PAGE,
+      availableTags,
+    })
+  );
 
 describe('useCatalogGridState', () => {
   beforeEach(() => {
     vi.useRealTimers();
     resetCatalogStore();
+    window.history.pushState({}, '', '/catalog');
   });
 
   test('hydrates from URL params and exposes available tags', async () => {
-    const paginatedItems = [
-      ...items,
-      createProductItem({
-        id: 'rose-box',
-        name: 'Rose box',
-        description: 'Classic rose box',
-        price: '1800',
-        tag: 'classic',
-      }),
-      createProductItem({
-        id: 'rose-cloud',
-        name: 'Rose cloud',
-        description: 'Classic rose cloud',
-        price: '1700',
-        tag: 'classic',
-      }),
-    ];
-
     window.history.pushState(
       {},
       '',
       '/catalog?page=2&perPage=2&sort=price-desc&tag=classic&search=rose'
     );
 
-    const { result } = renderHook(() =>
-      useCatalogGridState({ items: paginatedItems, pageSize: 6 })
-    );
+    const { result } = renderCatalogGridStateHook();
 
     await waitFor(() => {
       expect(result.current.page).toBe(2);
@@ -53,53 +37,50 @@ describe('useCatalogGridState', () => {
     expect(result.current.sort).toBe('price-desc');
     expect(result.current.tagFilter).toBe('classic');
     expect(result.current.searchInput).toBe('rose');
-    expect(result.current.availableTags).toEqual([
-      'classic',
-      'white',
-      'summer',
-    ]);
+    expect(result.current.availableTags).toEqual(availableTags);
+    expect(result.current.queryParams).toMatchObject({
+      page: 2,
+      perPage: 2,
+      sort: 'price-desc',
+      tag: 'classic',
+    });
   });
 
-  test('sorts and filters catalog items', async () => {
-    const { result } = renderHook(() =>
-      useCatalogGridState({ items, pageSize: 6 })
-    );
+  test('updates server query params when tag and sort change', async () => {
+    const { result } = renderCatalogGridStateHook();
 
     await waitFor(() => {
-      expect(result.current.sortedItems).toHaveLength(3);
+      expect(result.current.page).toBe(1);
     });
 
-    result.current.updateTagFilter('classic');
-    result.current.updateSort('price-asc');
+    act(() => {
+      result.current.updateTagFilter('classic');
+      result.current.updateSort('price-asc');
+    });
 
     await waitFor(() => {
       expect(result.current.tagFilter).toBe('classic');
     });
 
-    expect(result.current.filteredItems.map((item) => item.id)).toEqual([
-      'rose-bouquet',
-    ]);
-    expect(result.current.sortedItems.map((item) => item.id)).toEqual([
-      'rose-bouquet',
-    ]);
+    expect(result.current.queryParams).toMatchObject({
+      page: 1,
+      sort: 'price-asc',
+      tag: 'classic',
+    });
   });
 
   test('resets invalid tag to all', async () => {
     window.history.pushState({}, '', '/catalog?tag=missing');
 
-    const { result } = renderHook(() =>
-      useCatalogGridState({ items, pageSize: 6 })
-    );
+    const { result } = renderCatalogGridStateHook();
 
     await waitFor(() => {
-      expect(result.current.tagFilter).toBe('all');
+      expect(result.current.tagFilter).toBe(DEFAULT_TAG);
     });
   });
 
   test('resets page when debounced search changes and writes query params', async () => {
-    const { result } = renderHook(() =>
-      useCatalogGridState({ items, pageSize: 6 })
-    );
+    const { result } = renderCatalogGridStateHook();
 
     await waitFor(() => {
       expect(result.current.page).toBe(1);
@@ -112,11 +93,12 @@ describe('useCatalogGridState', () => {
 
     await waitFor(
       () => {
-        expect(result.current.page).toBe(1);
+        expect(result.current.page).toBe(DEFAULT_PAGE);
       },
       { timeout: 1000 }
     );
 
     expect(window.location.search).toContain('search=white');
+    expect(result.current.queryParams.search).toBe('white');
   });
 });

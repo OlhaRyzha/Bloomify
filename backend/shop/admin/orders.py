@@ -62,6 +62,8 @@ class OrderAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "payment_provider",
+                    "provider_order_id",
+                    "provider_payment_id",
                     "liqpay_order_id",
                     "liqpay_payment_id",
                     "subtotal",
@@ -80,6 +82,8 @@ class OrderAdmin(admin.ModelAdmin):
         "customer_email",
         "customer_phone",
         "items__product__translations__name",
+        "provider_order_id",
+        "provider_payment_id",
         "liqpay_order_id",
         "liqpay_payment_id",
     )

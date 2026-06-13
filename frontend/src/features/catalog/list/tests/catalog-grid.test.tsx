@@ -1,14 +1,57 @@
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
-
-import { renderWithProviders } from '@/test/render';
-import { server } from '@/test/msw/server';
-import { apiUrl } from '@/test/api-url';
 import { http, HttpResponse } from 'msw';
 
-import { createProductItem } from '../api/products.factory';
-import CatalogGrid from './catalog-grid';
+import { apiUrl } from '@/test/api-url';
+import { renderWithProviders } from '@/test/render';
+import { server } from '@/test/msw/server';
+
+import {
+  createProductFiltersResponse,
+  createProductItem,
+  createProductListResponse,
+} from '../../api/products.factory';
+import CatalogGrid from '../catalog-grid';
 import { resetCatalogStore } from './catalog.test-utils';
+import { testProductItem1, testProductItem2 } from './catalog.fixture';
+import { DEFAULT_SORT } from '../catalog.config';
+
+const createCatalogProducts = () => [
+  createProductItem(testProductItem1),
+  createProductItem(testProductItem2),
+];
+
+const mockCatalogApi = (items = createCatalogProducts()) => {
+  server.use(
+    http.get(apiUrl('products/filters'), () =>
+      HttpResponse.json(createProductFiltersResponse(['roses', 'white']))
+    ),
+    http.get(apiUrl('products'), ({ request }) => {
+      const params = new URL(request.url).searchParams;
+      const search = params.get('search')?.toLowerCase() ?? '';
+      const sort = params.get('sort') ?? DEFAULT_SORT;
+
+      const serverFilteredItems = search
+        ? items.filter((item) =>
+            `${item.name} ${item.description ?? ''}`
+              .toLowerCase()
+              .includes(search)
+          )
+        : items;
+
+      const serverSortedItems =
+        sort === 'price-asc'
+          ? [...serverFilteredItems].sort(
+              (a, b) => Number(a.price) - Number(b.price)
+            )
+          : serverFilteredItems;
+
+      return HttpResponse.json(
+        createProductListResponse({ items: serverSortedItems })
+      );
+    })
+  );
+};
 
 describe('CatalogGrid', () => {
   beforeEach(() => {
@@ -16,25 +59,14 @@ describe('CatalogGrid', () => {
   });
 
   test('filters visible bouquets by search text', async () => {
-    const items = [
-      createProductItem({
-        id: 'rose-bouquet',
-        name: 'Rose bouquet',
-        description: 'Fresh roses and seasonal greenery.',
-      }),
-      createProductItem({
-        id: 'white-harmony',
-        name: 'White harmony',
-        description: 'White lilies and eucalyptus.',
-      }),
-    ];
+    mockCatalogApi();
 
-    const { user } = renderWithProviders(<CatalogGrid items={items} />, {
+    const { user } = renderWithProviders(<CatalogGrid />, {
       locale: 'en',
     });
 
-    expect(screen.getByText('Rose bouquet')).toBeInTheDocument();
-    expect(screen.getByText('White harmony')).toBeInTheDocument();
+    expect(await screen.findByText('Rose bouquet')).toBeInTheDocument();
+    expect(await screen.findByText('White harmony')).toBeInTheDocument();
 
     await user.type(
       screen.getByRole('searchbox', { name: /search catalog/i }),
@@ -44,19 +76,14 @@ describe('CatalogGrid', () => {
     await waitFor(() => {
       expect(screen.queryByText('Rose bouquet')).not.toBeInTheDocument();
     });
+
     expect(screen.getByText('White harmony')).toBeInTheDocument();
   });
 
   test('shows empty state when filters match no bouquets', async () => {
-    const items = [
-      createProductItem({
-        id: 'rose-bouquet',
-        name: 'Rose bouquet',
-        description: 'Fresh roses and seasonal greenery.',
-      }),
-    ];
+    mockCatalogApi();
 
-    const { user } = renderWithProviders(<CatalogGrid items={items} />, {
+    const { user } = renderWithProviders(<CatalogGrid />, {
       locale: 'en',
     });
 
@@ -68,24 +95,14 @@ describe('CatalogGrid', () => {
     expect(
       await screen.findByRole('heading', { name: /no bouquets found/i })
     ).toBeInTheDocument();
+
     expect(screen.queryByText('Rose bouquet')).not.toBeInTheDocument();
   });
 
   test('opens sort menu and applies selected order', async () => {
-    const items = [
-      createProductItem({
-        id: 'premium-rose',
-        name: 'Premium rose',
-        price: '2500',
-      }),
-      createProductItem({
-        id: 'white-harmony',
-        name: 'White harmony',
-        price: '1200',
-      }),
-    ];
+    mockCatalogApi();
 
-    const { user } = renderWithProviders(<CatalogGrid items={items} />, {
+    const { user } = renderWithProviders(<CatalogGrid />, {
       locale: 'en',
     });
 
@@ -101,8 +118,9 @@ describe('CatalogGrid', () => {
 
     await waitFor(() => {
       const productHeadings = screen.getAllByRole('heading', { level: 3 });
+
       expect(productHeadings[0]).toHaveTextContent('White harmony');
-      expect(productHeadings[1]).toHaveTextContent('Premium rose');
+      expect(productHeadings[1]).toHaveTextContent('Rose bouquet');
     });
   });
 

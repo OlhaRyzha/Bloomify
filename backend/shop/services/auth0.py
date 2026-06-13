@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 import jwt
 from django.conf import settings
@@ -7,23 +6,25 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import validate_email
 from pydantic import BaseModel, ValidationError, field_validator
 
+from shop.services.identity_provider_types import (
+    ExternalIdentityPayload,
+    IdentityProviderConfigurationError,
+    IdentityProviderTokenError,
+)
+from shop.types import JsonObject, is_json_object
+
 logger = logging.getLogger(__name__)
 
 
-class Auth0ConfigurationError(RuntimeError):
+class Auth0ConfigurationError(IdentityProviderConfigurationError):
     pass
 
 
-class Auth0TokenError(RuntimeError):
+class Auth0TokenError(IdentityProviderTokenError):
     pass
 
 
-class Auth0UserPayload(BaseModel):
-    sub: str
-    email: str
-    name: str = ""
-    email_verified: bool = False
-
+class Auth0UserPayload(ExternalIdentityPayload):
     @field_validator("email")
     @classmethod
     def validate_email_address(cls, value: str) -> str:
@@ -73,19 +74,28 @@ def _get_auth0_jwks_url() -> str:
     return f"https://{_get_auth0_domain()}/.well-known/jwks.json"
 
 
-def _decode_auth0_token(token: str, *, audience: str) -> dict[str, Any]:
+def _get_auth0_algorithms() -> list[str]:
+    algorithms = settings.AUTH0_ALGORITHMS
+
+    if not algorithms:
+        raise Auth0ConfigurationError("AUTH0_ALGORITHMS is not configured")
+
+    return algorithms
+
+
+def _decode_auth0_token(token: str, *, audience: str) -> JsonObject:
     jwks_client = jwt.PyJWKClient(_get_auth0_jwks_url())
     signing_key = jwks_client.get_signing_key_from_jwt(token)
 
-    decoded_token = jwt.decode(
+    decoded_token: object = jwt.decode(
         token,
         signing_key.key,
-        algorithms=["RS256"],
+        algorithms=_get_auth0_algorithms(),
         audience=audience,
         issuer=_get_auth0_issuer(),
     )
 
-    if not isinstance(decoded_token, dict):
+    if not is_json_object(decoded_token):
         raise Auth0TokenError("Decoded Auth0 token payload is invalid")
 
     return decoded_token
@@ -140,3 +150,13 @@ def verify_auth0_tokens(access_token: str, id_token: str) -> Auth0UserPayload:
         raise Auth0TokenError("Auth0 email is not verified")
 
     return id_payload
+
+
+class Auth0Provider:
+    key = "auth0"
+
+    def verify_tokens(self, access_token: str, id_token: str) -> Auth0UserPayload:
+        return verify_auth0_tokens(access_token, id_token)
+
+
+AUTH0_PROVIDER = Auth0Provider()

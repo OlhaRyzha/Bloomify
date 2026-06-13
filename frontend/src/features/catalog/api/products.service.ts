@@ -3,16 +3,23 @@ import type { Locale } from '@/locales/translations';
 import apiClient from '@/services/api/clients/api-client';
 import type { AxiosRequestConfig } from 'axios';
 import {
+  catalogFiltersSchema,
   catalogItemSchema,
+  catalogListSchema,
   catalogSchema,
+  type ProductFilters,
   type ProductItem,
+  type ProductList,
   type Products,
 } from '@/features/catalog/api/products.shemas';
 import { parseResponseWithSchema } from '@/services/api/request/safe-fetch';
+import type { CatalogQueryParams } from '../list/types';
 
 type ProductsRequestParams = {
   lang?: Locale;
 };
+
+type ProductListRequestParams = ProductsRequestParams & CatalogQueryParams;
 
 type ProductsRequestConfig = Omit<AxiosRequestConfig, 'params'>;
 
@@ -23,6 +30,34 @@ const ProductsService = {
     });
 
     return parseResponseWithSchema(response, catalogSchema);
+  },
+
+  getProductList: async (
+    params: ProductListRequestParams
+  ): Promise<ProductList> => {
+    const response = await apiClient.get<ProductList>(API_ROUTES.PRODUCTS, {
+      params: {
+        lang: params.lang,
+        page: params.page,
+        pageSize: params.perPage,
+        search: params.search,
+        sort: params.sort,
+        tag: params.tag,
+      },
+    });
+
+    return parseResponseWithSchema(response, catalogListSchema);
+  },
+
+  getProductFilters: async (
+    params?: ProductsRequestParams
+  ): Promise<ProductFilters> => {
+    const response = await apiClient.get<ProductFilters>(
+      API_ROUTES.PRODUCT_FILTERS,
+      { params }
+    );
+
+    return parseResponseWithSchema(response, catalogFiltersSchema);
   },
 
   getProductById: (

@@ -24,25 +24,23 @@ from rest_framework.views import APIView
 from shop.models.order import Order
 from shop.security.order_access import hash_order_access_token
 from shop.serializers.order import (
-    PAYMENT_METHODS_WITH_LIQPAY,
     CheckoutCreateSerializer,
     CheckoutOrderPayload,
     PaymentStatusRequestSerializer,
     create_checkout_order,
 )
 from shop.serializers.order_list import serialize_order
-from shop.services.liqpay import (
-    LiqPayConfigurationError,
-    LiqPayStatusError,
-    create_checkout_payload,
-    decode_data,
-    fetch_payment_status,
-    verify_signature,
+from shop.services.payment_provider_types import (
+    PaymentCheckoutPayload,
+    PaymentProviderConfigurationError,
+    PaymentProviderPayloadError,
+    PaymentProviderStatusError,
+    has_paid_notification_been_sent,
+    mark_paid_notification_as_sent,
 )
-from shop.types import PaymentProviderPayload
+from shop.services.payment_providers import get_payment_provider
 
 logger = logging.getLogger(__name__)
-PAID_TELEGRAM_NOTIFICATION_SENT_KEY = "paid_telegram_notification_sent"
 
 
 class PaymentStatusResponse(TypedDict):
@@ -61,6 +59,37 @@ class PaymentStatusResponseSerializer(serializers.Serializer):
     paymentProvider = serializers.CharField(allow_blank=True)
     paymentMethod = serializers.CharField(allow_blank=True)
     paymentStatusToken = serializers.CharField()
+
+
+class OrderListItemProductSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    productId = serializers.IntegerField()
+    name = serializers.CharField()
+    imageUrl = serializers.CharField(allow_blank=True)
+    quantity = serializers.IntegerField()
+    unitPrice = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
+class OrderListItemSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    status = serializers.CharField()
+    paymentStatus = serializers.CharField()
+    paymentProvider = serializers.CharField(allow_blank=True)
+    paymentMethod = serializers.CharField(allow_blank=True)
+    createdAt = serializers.DateTimeField()
+    total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    items = OrderListItemProductSerializer(many=True)
+
+
+class OrderListResponseSerializer(serializers.Serializer):
+    items = OrderListItemSerializer(many=True)
+    page = serializers.IntegerField()
+    pageSize = serializers.IntegerField()
+    total = serializers.IntegerField()
+    totalPages = serializers.IntegerField()
+    hasNextPage = serializers.BooleanField()
+    nextPage = serializers.IntegerField(allow_null=True)
 
 
 def publish_order_paid_notification_safely(order_id: int) -> None:
@@ -93,18 +122,6 @@ def publish_cash_on_delivery_notification_safely(order_id: int) -> None:
     )
 
 
-def has_paid_notification_been_sent(order: Order) -> bool:
-    return order.payment_payload.get(PAID_TELEGRAM_NOTIFICATION_SENT_KEY) is True
-
-
-def mark_paid_notification_as_sent(order: Order) -> None:
-    order.payment_payload = {
-        **order.payment_payload,
-        PAID_TELEGRAM_NOTIFICATION_SENT_KEY: True,
-    }
-    order.save(update_fields=["payment_payload"])
-
-
 def schedule_paid_notification_after_checkout_return(order: Order) -> None:
     if order.payment_status != "paid" or has_paid_notification_been_sent(order):
         return
@@ -112,41 +129,6 @@ def schedule_paid_notification_after_checkout_return(order: Order) -> None:
     mark_paid_notification_as_sent(order)
     transaction.on_commit(lambda: publish_order_paid_notification_safely(order.id))
     transaction.on_commit(lambda: notify_customer_order_subscribers(order))
-
-
-def apply_liqpay_payment_payload(
-    order: Order,
-    payload: PaymentProviderPayload,
-    *,
-    sandbox_is_paid: bool = True,
-) -> bool:
-    payment_status = str(payload.get("status", "")).lower()
-    was_paid_before = order.payment_status == "paid"
-    paid_statuses = {"success"}
-    if sandbox_is_paid:
-        paid_statuses.add("sandbox")
-
-    order.payment_payload = payload
-    order.liqpay_payment_id = str(payload.get("payment_id", ""))
-    if payment_status in paid_statuses:
-        order.payment_status = "paid"
-        order.status = "paid"
-    elif payment_status in {"failure", "error", "reversed"}:
-        order.payment_status = "failed"
-        order.status = "failed"
-    else:
-        order.payment_status = "pending"
-
-    order.save(
-        update_fields=[
-            "payment_payload",
-            "liqpay_payment_id",
-            "payment_status",
-            "status",
-        ]
-    )
-
-    return order.payment_status == "paid" and not was_paid_before
 
 
 def build_payment_status_response(
@@ -184,15 +166,18 @@ class CheckoutCreateView(APIView):
         order = checkout_result["order"]
         payment_status_token = checkout_result["payment_status_token"]
 
-        liqpay_payload = None
-        if order.payment_method in PAYMENT_METHODS_WITH_LIQPAY:
+        checkout_payloads: dict[str, PaymentCheckoutPayload | None] = {"liqpay": None}
+        if order.payment_provider:
             try:
-                liqpay_payload = create_checkout_payload(
-                    order,
-                    locale=payload.get("locale"),
-                    payment_status_token=payment_status_token,
+                payment_provider = get_payment_provider(order.payment_provider)
+                checkout_payloads[payment_provider.checkout_response_key] = (
+                    payment_provider.create_checkout_payload(
+                        order,
+                        locale=payload.get("locale"),
+                        payment_status_token=payment_status_token,
+                    )
                 )
-            except LiqPayConfigurationError as exc:
+            except PaymentProviderConfigurationError as exc:
                 order.payment_status = "failed"
                 order.status = "failed"
                 order.payment_payload = {"configuration_error": str(exc)}
@@ -216,7 +201,7 @@ class CheckoutCreateView(APIView):
                 "paymentProvider": order.payment_provider,
                 "paymentMethod": order.payment_method,
                 "paymentStatusToken": payment_status_token,
-                "liqpay": liqpay_payload,
+                "liqpay": checkout_payloads["liqpay"],
             },
             status=status.HTTP_201_CREATED,
         )
@@ -246,34 +231,59 @@ class LiqPayCallbackView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not verify_signature(data, signature):
+        payment_provider = get_payment_provider("liqpay")
+
+        try:
+            is_valid_signature = payment_provider.verify_callback_signature(
+                data,
+                signature,
+            )
+        except PaymentProviderConfigurationError as exc:
+            logger.warning("Failed to verify payment callback signature: %s", exc)
+            return Response(
+                {"detail": "Unable to verify LiqPay signature."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        if not is_valid_signature:
             return Response(
                 {"detail": "Invalid LiqPay signature."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        payload = decode_data(data)
-        order_id = payload.get("order_id")
-        if not isinstance(order_id, str):
+        try:
+            payload = payment_provider.decode_callback_payload(data)
+        except PaymentProviderPayloadError:
             return Response(
-                {"detail": "Missing LiqPay order id."},
+                {"detail": "Invalid LiqPay data payload."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
-            order = Order.objects.get(liqpay_order_id=order_id)
+            with transaction.atomic():
+                order = payment_provider.get_callback_order(payload)
+                logger.info(
+                    "Payment callback received for provider %s order %s with status %s",
+                    payment_provider.key,
+                    order.pk,
+                    payload.get("status"),
+                )
+                payment_provider.apply_payment_payload(
+                    order,
+                    payload,
+                    from_callback=True,
+                )
+        except PaymentProviderPayloadError:
+            return Response(
+                {"detail": "Missing LiqPay order id."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except Order.DoesNotExist:
             return Response(
                 {"detail": "Order not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        logger.info(
-            "LiqPay callback received for order %s with status %s",
-            order.pk,
-            payload.get("status"),
-        )
-        apply_liqpay_payment_payload(order, payload, sandbox_is_paid=False)
         return Response({"status": "ok"})
 
 
@@ -293,7 +303,7 @@ class LiqPayPaymentStatusView(APIView):
         token = serializer.validated_data["token"]
 
         try:
-            order = Order.objects.get(pk=pk, payment_provider="liqpay")
+            order = Order.objects.exclude(payment_provider="").get(pk=pk)
         except Order.DoesNotExist:
             return Response(
                 {"detail": "Order not found."},
@@ -309,8 +319,19 @@ class LiqPayPaymentStatusView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        try:
+            payment_provider = get_payment_provider(order.payment_provider)
+        except PaymentProviderConfigurationError as exc:
+            logger.warning("Unsupported payment provider for order %s: %s", pk, exc)
+            return Response(
+                {"detail": "Unsupported payment provider."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
         if order.payment_status == "paid":
-            schedule_paid_notification_after_checkout_return(order)
+            with transaction.atomic():
+                order = Order.objects.select_for_update().get(pk=order.pk)
+                schedule_paid_notification_after_checkout_return(order)
             return Response(
                 build_payment_status_response(
                     order,
@@ -319,21 +340,25 @@ class LiqPayPaymentStatusView(APIView):
             )
 
         try:
-            payload = fetch_payment_status(order)
-        except (LiqPayConfigurationError, LiqPayStatusError) as exc:
-            logger.warning("Failed to sync LiqPay status for order %s: %s", pk, exc)
+            payload = payment_provider.sync_payment_status(order)
+        except (PaymentProviderConfigurationError, PaymentProviderStatusError) as exc:
+            logger.warning("Failed to sync payment status for order %s: %s", pk, exc)
             return Response(
                 {"detail": "Unable to sync payment status."},
                 status=status.HTTP_502_BAD_GATEWAY,
             )
 
         logger.info(
-            "LiqPay status synced for order %s with status %s",
+            "Payment status synced for provider %s order %s with status %s",
+            payment_provider.key,
             order.pk,
             payload.get("status"),
         )
-        if apply_liqpay_payment_payload(order, payload):
-            schedule_paid_notification_after_checkout_return(order)
+        with transaction.atomic():
+            order = Order.objects.select_for_update().get(pk=order.pk)
+            application = payment_provider.apply_payment_payload(order, payload)
+            if application["became_paid"]:
+                schedule_paid_notification_after_checkout_return(order)
 
         return Response(
             build_payment_status_response(
@@ -346,6 +371,7 @@ class LiqPayPaymentStatusView(APIView):
 class OrderListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(responses={200: OrderListResponseSerializer})
     def get(self, request: Request) -> Response:
         user = request.user
 

@@ -26,5 +26,21 @@ export const catalogItemSchema = z.object({
 
 export const catalogSchema = z.array(catalogItemSchema);
 
+export const catalogListSchema = z.object({
+  items: catalogSchema,
+  page: z.number(),
+  pageSize: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+  hasNextPage: z.boolean(),
+  nextPage: z.number().nullable(),
+});
+
+export const catalogFiltersSchema = z.object({
+  tags: z.array(z.string()),
+});
+
 export type ProductItem = z.infer<typeof catalogItemSchema>;
 export type Products = z.infer<typeof catalogSchema>;
+export type ProductList = z.infer<typeof catalogListSchema>;
+export type ProductFilters = z.infer<typeof catalogFiltersSchema>;

@@ -148,9 +148,7 @@ class SentryAlertWebhookView(APIView):
             else ""
         )
         provided_secret = (
-            request.headers.get("X-Bloomify-Sentry-Secret")
-            or bearer_secret
-            or request.query_params.get("token")
+            request.headers.get("X-Bloomify-Sentry-Secret") or bearer_secret
         )
         return provided_secret == expected_secret
 

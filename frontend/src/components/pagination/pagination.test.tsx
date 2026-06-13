@@ -103,4 +103,29 @@ describe('PaginationContainer', () => {
     await user.click(screen.getByRole('link', { name: /previous page/i }));
     expect(onPageChange).toHaveBeenCalledWith(1);
   });
+
+  test('does not slice items again when totalItems is provided', () => {
+    renderWithProviders(
+      <PaginationContainer
+        items={['Server item 6']}
+        page={2}
+        pageSize={5}
+        totalItems={12}
+        onPageChange={vi.fn()}
+        renderPage={(pageItems) => (
+          <ul>
+            {pageItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        )}
+      />
+    );
+
+    expect(screen.getByText('Server item 6')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /go to page 2/i })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+  });
 });

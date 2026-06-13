@@ -135,7 +135,7 @@ class SentryAlertWebhookTest(TestCase):
         self, publish_notification
     ):
         response = self.client.post(
-            "/notifications/sentry-alert?token=sentry-secret",
+            "/notifications/sentry-alert",
             {
                 "title": "Backend error",
                 "project": "bloomify-backend",
@@ -144,6 +144,7 @@ class SentryAlertWebhookTest(TestCase):
                 "url": "https://sentry.io/issues/123",
             },
             content_type="application/json",
+            headers={"X-Bloomify-Sentry-Secret": "sentry-secret"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -163,7 +164,24 @@ class SentryAlertWebhookTest(TestCase):
     @patch("notifications.views.publish_telegram_notification")
     def test_sentry_alert_webhook_rejects_invalid_secret(self, publish_notification):
         response = self.client.post(
-            "/notifications/sentry-alert?token=wrong",
+            "/notifications/sentry-alert",
+            {"title": "Backend error"},
+            content_type="application/json",
+            headers={"X-Bloomify-Sentry-Secret": "wrong"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        publish_notification.assert_not_called()
+
+    @override_settings(
+        SENTRY_ALERT_WEBHOOK_SECRET="sentry-secret",
+        TELEGRAM_ADMIN_CHAT_ID="telegram-chat",
+        TELEGRAM_BOT_TOKEN="telegram-token",
+    )
+    @patch("notifications.views.publish_telegram_notification")
+    def test_sentry_alert_webhook_rejects_query_secret(self, publish_notification):
+        response = self.client.post(
+            "/notifications/sentry-alert?token=sentry-secret",
             {"title": "Backend error"},
             content_type="application/json",
         )

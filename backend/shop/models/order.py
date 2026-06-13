@@ -101,6 +101,12 @@ class Order(models.Model):
     liqpay_payment_id: "models.CharField[str, str]" = models.CharField(
         _("LiqPay payment id"), max_length=120, blank=True
     )
+    provider_order_id: "models.CharField[str | None, str | None]" = models.CharField(
+        _("Provider order id"), max_length=120, blank=True, unique=True, null=True
+    )
+    provider_payment_id: "models.CharField[str, str]" = models.CharField(
+        _("Provider payment id"), max_length=120, blank=True
+    )
     subtotal: "models.DecimalField[Decimal, Decimal]" = models.DecimalField(
         _("Subtotal"), max_digits=10, decimal_places=2, default=Decimal("0.00")
     )

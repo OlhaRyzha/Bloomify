@@ -1,8 +1,8 @@
 import base64
+import binascii
 import hashlib
 import hmac
 from decimal import Decimal
-from typing import TypedDict
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import requests
@@ -10,7 +10,15 @@ from django.conf import settings
 
 from shop.models.order import Order
 from shop.security.encoding import decode_json_payload, encode_json_payload
-from shop.types import JsonMapping, JsonObject, is_json_object
+from shop.services.payment_provider_types import (
+    PaymentApplication,
+    PaymentCheckoutPayload,
+    PaymentProviderConfigurationError,
+    PaymentProviderPayloadError,
+    PaymentProviderStatusError,
+    apply_provider_payment_payload,
+)
+from shop.types import JsonMapping, JsonObject, PaymentProviderPayload, is_json_object
 
 PAYTYPE_BY_PAYMENT_METHOD = {
     "apple_pay": "apay",
@@ -20,18 +28,16 @@ PAYTYPE_BY_PAYMENT_METHOD = {
 SUPPORTED_LANGUAGE_CODES = {language_code for language_code, _ in settings.LANGUAGES}
 
 
-class LiqPayConfigurationError(RuntimeError):
+class LiqPayConfigurationError(PaymentProviderConfigurationError):
     pass
 
 
-class LiqPayStatusError(RuntimeError):
+class LiqPayStatusError(PaymentProviderStatusError):
     pass
 
 
-class LiqPayCheckoutPayload(TypedDict):
-    checkoutUrl: str
-    data: str
-    signature: str
+class LiqPayPayloadError(PaymentProviderPayloadError):
+    pass
 
 
 def create_signature(data: str) -> str:
@@ -48,7 +54,10 @@ def encode_data(payload: JsonMapping) -> str:
 
 
 def decode_data(data: str) -> JsonObject:
-    return decode_json_payload(data)
+    try:
+        return decode_json_payload(data)
+    except (binascii.Error, UnicodeDecodeError, ValueError) as exc:
+        raise LiqPayPayloadError("Invalid LiqPay data payload") from exc
 
 
 def create_checkout_payload(
@@ -56,7 +65,7 @@ def create_checkout_payload(
     *,
     locale: str | None = None,
     payment_status_token: str,
-) -> LiqPayCheckoutPayload:
+) -> PaymentCheckoutPayload:
     public_key = settings.LIQPAY_PUBLIC_KEY
     if not public_key:
         raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
@@ -68,7 +77,7 @@ def create_checkout_payload(
         "amount": _format_amount(order.total),
         "currency": "UAH",
         "description": f"Bloomify order #{order.pk}",
-        "order_id": order.liqpay_order_id,
+        "order_id": _get_provider_order_id(order),
         "result_url": build_result_url(
             order,
             locale=locale,
@@ -130,7 +139,8 @@ def fetch_payment_status(order: Order) -> JsonObject:
     public_key = settings.LIQPAY_PUBLIC_KEY
     if not public_key:
         raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
-    if not order.liqpay_order_id:
+    provider_order_id = _get_provider_order_id(order)
+    if not provider_order_id:
         raise LiqPayStatusError("Order does not have a LiqPay order id")
 
     data = encode_data(
@@ -138,7 +148,7 @@ def fetch_payment_status(order: Order) -> JsonObject:
             "version": 7,
             "public_key": public_key,
             "action": "status",
-            "order_id": order.liqpay_order_id,
+            "order_id": provider_order_id,
         }
     )
     try:
@@ -169,5 +179,95 @@ def verify_signature(data: str, signature: str) -> bool:
     return hmac.compare_digest(create_signature(data), signature)
 
 
+def apply_payment_payload(
+    order: Order,
+    payload: PaymentProviderPayload,
+    *,
+    sandbox_is_paid: bool = True,
+) -> PaymentApplication:
+    payment_status = str(payload.get("status", "")).lower()
+    paid_statuses = {"success"}
+    if sandbox_is_paid:
+        paid_statuses.add("sandbox")
+
+    application = apply_provider_payment_payload(
+        order,
+        payload,
+        provider_payment_id=str(payload.get("payment_id", "")),
+        provider_is_paid=payment_status in paid_statuses,
+    )
+    order.liqpay_payment_id = order.provider_payment_id
+    order.save(update_fields=["liqpay_payment_id"])
+    return application
+
+
+class LiqPayProvider:
+    key = "liqpay"
+    checkout_response_key = "liqpay"
+
+    def assign_order_reference(self, order: Order) -> None:
+        provider_order_id = f"bloomify-{order.pk}"
+        order.provider_order_id = provider_order_id
+        order.liqpay_order_id = provider_order_id
+        order.save(update_fields=["provider_order_id", "liqpay_order_id"])
+
+    def create_checkout_payload(
+        self,
+        order: Order,
+        *,
+        locale: str | None,
+        payment_status_token: str,
+    ) -> PaymentCheckoutPayload:
+        return create_checkout_payload(
+            order,
+            locale=locale,
+            payment_status_token=payment_status_token,
+        )
+
+    def verify_callback_signature(self, data: str, signature: str) -> bool:
+        return verify_signature(data, signature)
+
+    def decode_callback_payload(self, data: str) -> JsonObject:
+        return decode_data(data)
+
+    def get_callback_order(self, payload: PaymentProviderPayload) -> Order:
+        order_id = payload.get("order_id")
+        if not isinstance(order_id, str):
+            raise LiqPayPayloadError("Missing LiqPay order id")
+        try:
+            return Order.objects.select_for_update().get(
+                payment_provider=self.key,
+                provider_order_id=order_id,
+            )
+        except Order.DoesNotExist:
+            return Order.objects.select_for_update().get(
+                payment_provider=self.key,
+                liqpay_order_id=order_id,
+            )
+
+    def sync_payment_status(self, order: Order) -> JsonObject:
+        return fetch_payment_status(order)
+
+    def apply_payment_payload(
+        self,
+        order: Order,
+        payload: PaymentProviderPayload,
+        *,
+        from_callback: bool = False,
+    ) -> PaymentApplication:
+        return apply_payment_payload(
+            order,
+            payload,
+            sandbox_is_paid=not from_callback,
+        )
+
+
+LIQPAY_PROVIDER = LiqPayProvider()
+
+
 def _format_amount(value: Decimal) -> str:
     return f"{value.quantize(Decimal('0.01'))}"
+
+
+def _get_provider_order_id(order: Order) -> str | None:
+    return order.provider_order_id or order.liqpay_order_id
