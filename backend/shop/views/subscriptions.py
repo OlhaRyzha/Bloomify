@@ -88,9 +88,14 @@ def _create_subscription_checkout_payload(
         "sandbox": 1 if public_key.startswith("sandbox_") else 0,
     }
 
-    if settings.LIQPAY_SERVER_URL:
+    subscription_server_url = (
+        getattr(settings, "LIQPAY_SUBSCRIPTION_SERVER_URL", "") or ""
+    )
+    if subscription_server_url:
+        payload["server_url"] = subscription_server_url
+    elif settings.LIQPAY_SERVER_URL:
         parts = urlsplit(settings.LIQPAY_SERVER_URL)
-        server_url = urlunsplit(
+        payload["server_url"] = urlunsplit(
             (
                 parts.scheme,
                 parts.netloc,
@@ -99,7 +104,6 @@ def _create_subscription_checkout_payload(
                 "",
             )
         )
-        payload["server_url"] = server_url
 
     data = encode_data(payload)
     return {
