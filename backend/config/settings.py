@@ -81,6 +81,7 @@ class EnvironmentSettings(BaseSettings):
     LIQPAY_SERVER_URL: str = ""
     LIQPAY_RESULT_URL: str = "http://localhost:3000/checkout"
     LIQPAY_SUBSCRIPTION_CALLBACK_PATH: str = "/payments/liqpay/subscription-callback"
+    LIQPAY_SUBSCRIPTION_SERVER_URL: str = ""
 
 
 env = EnvironmentSettings.model_validate({})
@@ -479,3 +480,4 @@ LIQPAY_API_URL = env.LIQPAY_API_URL
 LIQPAY_SERVER_URL = env.LIQPAY_SERVER_URL
 LIQPAY_RESULT_URL = env.LIQPAY_RESULT_URL
 LIQPAY_SUBSCRIPTION_CALLBACK_PATH = env.LIQPAY_SUBSCRIPTION_CALLBACK_PATH
+LIQPAY_SUBSCRIPTION_SERVER_URL = env.LIQPAY_SUBSCRIPTION_SERVER_URL

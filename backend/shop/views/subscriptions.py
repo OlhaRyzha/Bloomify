@@ -88,9 +88,7 @@ def _create_subscription_checkout_payload(
         "sandbox": 1 if public_key.startswith("sandbox_") else 0,
     }
 
-    subscription_server_url = (
-        getattr(settings, "LIQPAY_SUBSCRIPTION_SERVER_URL", "") or ""
-    )
+    subscription_server_url = settings.LIQPAY_SUBSCRIPTION_SERVER_URL
     if subscription_server_url:
         payload["server_url"] = subscription_server_url
     elif settings.LIQPAY_SERVER_URL:
