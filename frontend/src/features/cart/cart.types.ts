@@ -7,6 +7,7 @@ export type CartItemWithDetails = CatalogItem & {
 export type CartSummaryModel = {
   cartItems: CartItemWithDetails[];
   deliveryCost: number;
+  discount: number;
   itemCount: number;
   subtotal: number;
   total: number;

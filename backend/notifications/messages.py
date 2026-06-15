@@ -50,18 +50,26 @@ def build_order_message(order: Order, *, title: str) -> str:
     if delivery_note:
         lines.append(f"Коментар: {escape(delivery_note)}")
 
-    lines.extend(
-        [
-            "",
-            "<b>Що замовлено</b>",
-            *(item_lines or ["• Немає позицій у замовленні"]),
-            "",
-            "<b>Сума</b>",
-            f"Товари: {format_money(order.subtotal)}",
-            f"Доставка: {format_money(order.delivery_cost)}",
-            f"Разом: <b>{format_money(order.total)}</b>",
-        ]
-    )
+    sum_lines = [
+        "",
+        "<b>Що замовлено</b>",
+        *(item_lines or ["• Немає позицій у замовленні"]),
+        "",
+        "<b>Сума</b>",
+        f"Товари: {format_money(order.subtotal)}",
+        f"Доставка: {format_money(order.delivery_cost)}",
+    ]
+
+    if order.discount and order.discount > Decimal("0.00"):
+        promo_label = (
+            f" ({escape(order.promo_code.code)})"
+            if order.promo_code is not None
+            else ""
+        )
+        sum_lines.append(f"Знижка{promo_label}: -{format_money(order.discount)}")
+
+    sum_lines.append(f"Разом: <b>{format_money(order.total)}</b>")
+    lines.extend(sum_lines)
 
     return "\n".join(lines)
 

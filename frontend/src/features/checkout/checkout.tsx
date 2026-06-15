@@ -14,6 +14,7 @@ import { useHydrated } from '@/hooks/use-hydrated';
 import { useGetProducts } from '@/features/catalog/api/use-products';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import {
+  selectAppliedPromoCode,
   selectCartItems,
   selectClearCart,
 } from '@/features/cart/store/cart.selectors';
@@ -46,6 +47,7 @@ export default function CheckoutFeature() {
 
   const cartItems = useCartStore(useShallow(selectCartItems));
   const clearCart = useCartStore(selectClearCart);
+  const appliedPromoCode = useCartStore(selectAppliedPromoCode);
 
   const deliveryDraft = useCheckoutDraftStore(selectCheckoutDeliveryDraft);
   const setDeliveryDraft = useCheckoutDraftStore(
@@ -67,11 +69,15 @@ export default function CheckoutFeature() {
 
   const summary = useMemo(() => {
     if (!isHydrated) {
-      return getCartSummary([], []);
+      return getCartSummary([], [], 0);
     }
 
-    return getCartSummary(cartItems, catalogItems);
-  }, [cartItems, catalogItems, isHydrated]);
+    return getCartSummary(
+      cartItems,
+      catalogItems,
+      appliedPromoCode?.discount ?? 0
+    );
+  }, [cartItems, catalogItems, isHydrated, appliedPromoCode]);
 
   const {
     completedOrderId,
@@ -93,6 +99,7 @@ export default function CheckoutFeature() {
     clearCart,
     completeOrder,
     locale,
+    promoCode: appliedPromoCode?.code,
     resetCompletedOrderState,
     summary,
     t,

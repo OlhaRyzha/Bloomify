@@ -274,6 +274,11 @@ UNFOLD = {
                         "link": f"{ADMIN_BASE_PATH}/shop/order/",
                     },
                     {
+                        "title": "Promo codes",
+                        "icon": "confirmation_number",
+                        "link": f"{ADMIN_BASE_PATH}/shop/promocode/",
+                    },
+                    {
                         "title": "Subscription plans",
                         "icon": "workspace_premium",
                         "link": f"{ADMIN_BASE_PATH}/shop/subscriptionplan/",

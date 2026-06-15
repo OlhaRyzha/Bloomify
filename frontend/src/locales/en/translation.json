@@ -138,6 +138,10 @@
   "cart_promo_placeholder": "Enter code",
   "cart_promo_button": "Apply",
   "cart_promo_message": "{{freeDelivery}}.",
+  "cart_promo_applied": "Discount applied",
+  "cart_promo_remove": "Remove promo code",
+  "cart_promo_discount": "Discount",
+  "product_tag_sale": "Sale",
   "cart_info_cards_delivery_description": "Courier delivers at a convenient time. In Kyiv — from 2 hours.",
   "cart_info_cards_packaging_title": "Packaging",
   "cart_info_cards_packaging_description": "Elegant wrapping and a note are already included in the price.",
@@ -423,5 +427,7 @@
   "subscription_status_pending": "Awaiting payment",
   "subscription_status_paused": "Paused",
   "subscription_status_canceled": "Canceled",
-  "subscription_start_date_label": "Start date"
+  "subscription_start_date_label": "Start date",
+  "subscription_payment_syncing": "Verifying payment, please wait…",
+  "subscription_payment_failed": "Payment could not be confirmed. Please contact support."
 }

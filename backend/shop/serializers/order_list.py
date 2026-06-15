@@ -15,6 +15,10 @@ def serialize_order(
         "paymentProvider": order.payment_provider,
         "paymentMethod": order.payment_method,
         "createdAt": order.created_at,
+        "subtotal": order.subtotal,
+        "deliveryCost": order.delivery_cost,
+        "discount": order.discount,
+        "promoCode": order.promo_code.code if order.promo_code is not None else None,
         "total": order.total,
         "items": [
             {

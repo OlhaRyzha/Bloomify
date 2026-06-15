@@ -5,6 +5,8 @@ from django.db.models.functions import Lower
 
 from shop.models.product import Product
 
+SALE_TAG_MARKER = "__sale__"
+
 
 def get_active_products_queryset() -> QuerySet[Product]:
     return cast(
@@ -30,7 +32,10 @@ def filter_products_queryset(
         ) | queryset.filter(translations__description__icontains=search)
 
     if tag and tag != "all":
-        queryset = queryset.filter(translations__tag=tag)
+        if tag == SALE_TAG_MARKER:
+            queryset = queryset.filter(discount__isnull=False)
+        else:
+            queryset = queryset.filter(translations__tag=tag)
 
     queryset = queryset.distinct()
 
@@ -46,14 +51,21 @@ def filter_products_queryset(
 
 
 def get_active_product_tags(*, language_code: str | None = None) -> list[str]:
-    queryset = get_active_products_queryset().exclude(translations__tag="")
-    if language_code:
-        queryset = queryset.filter(translations__language_code=language_code)
+    base = get_active_products_queryset()
 
-    return sorted(
+    tag_qs = base.exclude(translations__tag="")
+    if language_code:
+        tag_qs = tag_qs.filter(translations__language_code=language_code)
+
+    tags = sorted(
         {
             tag
-            for tag in queryset.values_list("translations__tag", flat=True)
+            for tag in tag_qs.values_list("translations__tag", flat=True)
             if isinstance(tag, str) and tag.strip()
         }
     )
+
+    if base.filter(discount__isnull=False).exists():
+        tags.append(SALE_TAG_MARKER)
+
+    return tags

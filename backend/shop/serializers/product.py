@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.utils.translation import get_language
 from rest_framework import serializers
 
@@ -26,9 +28,21 @@ class ProductSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
     imageUrl = serializers.SerializerMethodField()
 
+    discountedPrice = serializers.SerializerMethodField()
+    isSale = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ("id", "name", "description", "price", "imageUrl", "tag")
+        fields = (
+            "id",
+            "name",
+            "description",
+            "price",
+            "discountedPrice",
+            "isSale",
+            "imageUrl",
+            "tag",
+        )
 
     def _language(self) -> str | None:
         request = self.context.get("request")
@@ -56,6 +70,15 @@ class ProductSerializer(serializers.ModelSerializer):
             "tag",
             language_code=self._language(),
         )
+
+    def get_discountedPrice(self, obj: Product) -> str | None:
+        if obj.discount is None:
+            return None
+        price = Decimal(str(obj.price))
+        return str((price - obj.discount).quantize(Decimal("0.01")))
+
+    def get_isSale(self, obj: Product) -> bool:
+        return obj.discount is not None
 
     def get_imageUrl(self, obj: Product) -> str | None:
         if not obj.image:

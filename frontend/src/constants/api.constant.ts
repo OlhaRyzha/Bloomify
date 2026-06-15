@@ -21,4 +21,5 @@ export const API_ROUTES = {
   SUBSCRIPTION_PAYMENT_STATUS: (paymentId: number) =>
     `subscriptions/payments/${paymentId}/status`,
   SUBSCRIPTION_UPGRADE: 'subscriptions/upgrade',
+  PROMO_VALIDATE: 'orders/promo/validate',
 };

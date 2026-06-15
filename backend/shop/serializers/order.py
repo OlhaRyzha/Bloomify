@@ -7,6 +7,7 @@ from rest_framework import serializers
 
 from shop.models.order import Order
 from shop.models.product import Product
+from shop.models.promo_code import PromoCode
 from shop.security.order_access import (
     create_order_access_token,
     hash_order_access_token,
@@ -41,6 +42,7 @@ class CheckoutOrderPayload(TypedDict):
     items: list[CheckoutItemData]
     deliveryNote: NotRequired[str]
     locale: NotRequired[str]
+    promoCode: NotRequired[str]
 
 
 class CheckoutItemSerializer(serializers.Serializer):
@@ -62,6 +64,7 @@ class CheckoutCreateSerializer(serializers.Serializer):
         choices=[language_code for language_code, _ in settings.LANGUAGES],
         required=False,
     )
+    promoCode = serializers.CharField(required=False, allow_blank=True, max_length=20)
     items = CheckoutItemSerializer(many=True)
 
     def validate_items(self, value: list[CheckoutItemData]) -> list[CheckoutItemData]:
@@ -106,7 +109,18 @@ def create_checkout_order(
         else STANDARD_DELIVERY_FEE
     )
 
-    total = subtotal + delivery_cost
+    promo: PromoCode | None = None
+    discount = Decimal("0.00")
+    raw_promo_code = payload.get("promoCode", "")
+    if raw_promo_code:
+        try:
+            promo = PromoCode.objects.get(code=raw_promo_code.upper().strip())
+            if promo.is_valid():
+                discount = promo.calculate_discount(subtotal)
+        except PromoCode.DoesNotExist:
+            pass
+
+    total = subtotal + delivery_cost - discount
     payment_method = payload["paymentMethod"]
     payment_provider = get_payment_provider_key_for_method(payment_method)
     uses_payment_provider = payment_method in PAYMENT_METHODS_WITH_PROVIDER
@@ -127,6 +141,8 @@ def create_checkout_order(
             status="pending",
             subtotal=subtotal,
             delivery_cost=delivery_cost,
+            discount=discount,
+            promo_code=promo,
             total=total,
             payment_status_token_hash=hash_order_access_token(payment_status_token),
         )
@@ -146,6 +162,11 @@ def create_checkout_order(
                 for product, quantity, unit_price, item_total in order_items
             ]
         )
+
+        if promo and discount > Decimal("0.00"):
+            PromoCode.objects.filter(pk=promo.pk).update(
+                used_count=promo.used_count + 1
+            )
 
     return {
         "order": order,

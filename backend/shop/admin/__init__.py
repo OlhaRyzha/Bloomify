@@ -1,13 +1,14 @@
-from .orders import OrderAdmin
-from .products import ProductAdmin
-from .roles import RoleAdmin
-from .site_languages import SiteLanguageSettingsAdmin
-from .subscriptions import (
+from shop.admin.orders import OrderAdmin
+from shop.admin.products import ProductAdmin
+from shop.admin.promo_codes import PromoCodeAdmin
+from shop.admin.roles import RoleAdmin
+from shop.admin.site_languages import SiteLanguageSettingsAdmin
+from shop.admin.subscriptions import (
     SubscriptionAdmin,
     SubscriptionPaymentAdmin,
     SubscriptionPlanAdmin,
 )
-from .users import UserAdmin
+from shop.admin.users import UserAdmin
 
 __all__ = [
     "ProductAdmin",
@@ -16,6 +17,7 @@ __all__ = [
     "SubscriptionPaymentAdmin",
     "SiteLanguageSettingsAdmin",
     "OrderAdmin",
+    "PromoCodeAdmin",
     "RoleAdmin",
     "UserAdmin",
 ]

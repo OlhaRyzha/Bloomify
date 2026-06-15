@@ -43,6 +43,7 @@ type UseCheckoutSubmitParams = {
   clearCart: () => void;
   completeOrder: (params: CompleteOrderParams) => void;
   locale: string;
+  promoCode?: string | null;
   resetCompletedOrderState: () => void;
   summary: CheckoutSummaryForSubmit;
   t: TranslationFunction;
@@ -53,6 +54,7 @@ export function useCheckoutSubmit({
   clearCart,
   completeOrder,
   locale,
+  promoCode,
   resetCompletedOrderState,
   summary,
   t,
@@ -89,6 +91,7 @@ export function useCheckoutSubmit({
               id: item.id,
               quantity: item.quantity,
             })),
+            ...(promoCode ? { promoCode } : {}),
           });
 
         await queryClient.invalidateQueries({
@@ -148,6 +151,7 @@ export function useCheckoutSubmit({
       clearCart,
       completeOrder,
       locale,
+      promoCode,
       queryClient,
       resetCompletedOrderState,
       summary.itemCount,

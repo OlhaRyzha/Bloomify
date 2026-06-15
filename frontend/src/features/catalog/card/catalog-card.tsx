@@ -57,9 +57,18 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
           />
         </Link>
 
-        <span className='absolute left-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground'>
-          {item.tag}
-        </span>
+        <div className='absolute left-4 top-4 flex flex-col gap-1'>
+          {item.tag ? (
+            <span className='rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground'>
+              {item.tag}
+            </span>
+          ) : null}
+          {item.isSale ? (
+            <span className='rounded-full bg-red-500 px-3 py-1 text-xs font-medium text-white'>
+              {t('product_tag_sale')}
+            </span>
+          ) : null}
+        </div>
 
         <button
           type='button'
@@ -104,9 +113,22 @@ export default function CatalogCard({ item, className }: CatalogCardProps) {
           {item.description}
         </p>
         <div className='mt-auto flex items-center justify-between'>
-          <span className='font-display text-2xl font-bold text-primary'>
-            {Number(item.price)} ₴
-          </span>
+          <div className='flex flex-col'>
+            {item.discountedPrice ? (
+              <>
+                <span className='text-sm text-muted-foreground line-through'>
+                  {Number(item.price)} ₴
+                </span>
+                <span className='font-display text-2xl font-bold text-primary'>
+                  {Number(item.discountedPrice)} ₴
+                </span>
+              </>
+            ) : (
+              <span className='font-display text-2xl font-bold text-primary'>
+                {Number(item.price)} ₴
+              </span>
+            )}
+          </div>
           <AddToCartButton
             size='sm'
             itemId={item.id}
