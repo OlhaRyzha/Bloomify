@@ -24,6 +24,7 @@ export type CheckoutRequest = {
   locale?: string;
   paymentMethod: CheckoutPaymentMethod;
   items: CheckoutRequestItem[];
+  promoCode?: string;
 };
 
 export type LiqPayCheckoutPayload = {

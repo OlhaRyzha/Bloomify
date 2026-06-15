@@ -138,6 +138,10 @@
   "cart_promo_placeholder": "Wpisz kod",
   "cart_promo_button": "Zastosuj",
   "cart_promo_message": "{{freeDelivery}}.",
+  "cart_promo_applied": "Rabat zastosowany",
+  "cart_promo_remove": "Usuń kod promocyjny",
+  "cart_promo_discount": "Rabat",
+  "product_tag_sale": "Promocja",
   "cart_info_cards_delivery_description": "Kurier dostarczy bukiet o dogodnej porze. W Kijowie — od 2 godzin.",
   "cart_info_cards_packaging_title": "Opakowanie",
   "cart_info_cards_packaging_description": "Estetyczne opakowanie i kartka są wliczone w cenę.",
@@ -423,5 +427,7 @@
   "subscription_status_pending": "Oczekuje na płatność",
   "subscription_status_paused": "Wstrzymana",
   "subscription_status_canceled": "Anulowana",
-  "subscription_start_date_label": "Data rozpoczęcia"
+  "subscription_start_date_label": "Data rozpoczęcia",
+  "subscription_payment_syncing": "Weryfikujemy płatność, proszę czekać…",
+  "subscription_payment_failed": "Nie udało się potwierdzić płatności. Skontaktuj się z obsługą."
 }

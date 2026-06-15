@@ -38,6 +38,9 @@ class Product(TranslatableModel):
     price: "DecimalField[Decimal, Decimal]" = models.DecimalField(
         _("Price"), max_digits=10, decimal_places=2
     )
+    discount: "DecimalField[Decimal | None, Decimal | None]" = models.DecimalField(
+        _("Discount"), max_digits=10, decimal_places=2, null=True, blank=True
+    )
     image = models.ImageField(_("Image"), upload_to="products/", blank=True, null=True)
     is_active: "BooleanField[bool, bool]" = models.BooleanField(
         _("Active"), default=True

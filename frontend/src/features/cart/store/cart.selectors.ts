@@ -11,8 +11,14 @@ export const selectCartItemQuantity = (id?: string) => (state: CartState) =>
 export const selectCartCount = (state: CartState) =>
   state.items.reduce((total, item) => total + item.quantity, 0);
 
+export const selectAppliedPromoCode = (state: CartState) =>
+  state.appliedPromoCode;
+export const selectSetPromoCode = (state: CartState) => state.setPromoCode;
+export const selectClearPromoCode = (state: CartState) => state.clearPromoCode;
+
 export const selectCartViewState = (state: CartState) => ({
   items: state.items,
+  appliedPromoCode: state.appliedPromoCode,
   removeItem: state.removeItem,
   updateQuantity: state.updateQuantity,
   clearCart: state.clearCart,

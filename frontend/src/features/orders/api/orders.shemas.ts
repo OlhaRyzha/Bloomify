@@ -17,6 +17,10 @@ export const orderSchema = z.object({
   paymentProvider: z.string(),
   paymentMethod: z.string(),
   createdAt: z.string(),
+  subtotal: z.coerce.number().optional(),
+  deliveryCost: z.coerce.number().optional(),
+  discount: z.coerce.number().optional(),
+  promoCode: z.string().nullable().optional(),
   total: z.coerce.number(),
   items: z.array(orderItemSchema),
 });

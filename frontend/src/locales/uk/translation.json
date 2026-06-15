@@ -138,6 +138,10 @@
   "cart_promo_placeholder": "Введіть код",
   "cart_promo_button": "Застосувати",
   "cart_promo_message": "{{freeDelivery}}.",
+  "cart_promo_applied": "Знижку застосовано",
+  "cart_promo_remove": "Видалити промокод",
+  "cart_promo_discount": "Знижка",
+  "product_tag_sale": "Акція",
   "cart_info_cards_delivery_description": "Кур’єр доставить букет у зручний час. По Києву — від 2 годин.",
   "cart_info_cards_packaging_title": "Пакування",
   "cart_info_cards_packaging_description": "Естетична упаковка та листівка вже включені у вартість.",
@@ -423,5 +427,7 @@
   "subscription_status_pending": "Очікує оплати",
   "subscription_status_paused": "Призупинена",
   "subscription_status_canceled": "Скасована",
-  "subscription_start_date_label": "Дата початку"
+  "subscription_start_date_label": "Дата початку",
+  "subscription_payment_syncing": "Перевіряємо оплату, зачекайте…",
+  "subscription_payment_failed": "Не вдалось підтвердити оплату. Зверніться до підтримки."
 }

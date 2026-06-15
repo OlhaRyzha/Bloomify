@@ -35,22 +35,27 @@ export const getCartItemCount = (items: CartItemWithDetails[]) =>
 export const getCartDeliveryCost = (subtotal: number) =>
   subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : STANDARD_DELIVERY_FEE;
 
-export const getCartTotal = (subtotal: number, deliveryCost: number) =>
-  subtotal + deliveryCost;
+export const getCartTotal = (
+  subtotal: number,
+  deliveryCost: number,
+  discount = 0
+) => Math.max(subtotal + deliveryCost - discount, 0);
 
 export const getCartSummary = (
   items: CartItem[],
-  catalogItems: CatalogItem[]
+  catalogItems: CatalogItem[],
+  discount = 0
 ): CartSummaryModel => {
   const cartItems = getCartItemsWithDetails(items, catalogItems);
   const subtotal = getCartSubtotal(cartItems);
   const itemCount = getCartItemCount(cartItems);
   const deliveryCost = getCartDeliveryCost(subtotal);
-  const total = getCartTotal(subtotal, deliveryCost);
+  const total = getCartTotal(subtotal, deliveryCost, discount);
 
   return {
     cartItems,
     deliveryCost,
+    discount,
     itemCount,
     subtotal,
     total,

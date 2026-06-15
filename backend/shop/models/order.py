@@ -5,9 +5,9 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from shop.models.product import Product
+from shop.models.promo_code import PromoCode
 from shop.types import JsonObject
-
-from .product import Product
 
 
 class Order(models.Model):
@@ -107,8 +107,21 @@ class Order(models.Model):
     provider_payment_id: "models.CharField[str, str]" = models.CharField(
         _("Provider payment id"), max_length=120, blank=True
     )
+    promo_code: "models.ForeignKey[PromoCode | None, PromoCode | None]" = (
+        models.ForeignKey(
+            PromoCode,
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True,
+            related_name="orders",
+            verbose_name=_("Promo code"),
+        )
+    )
     subtotal: "models.DecimalField[Decimal, Decimal]" = models.DecimalField(
         _("Subtotal"), max_digits=10, decimal_places=2, default=Decimal("0.00")
+    )
+    discount: "models.DecimalField[Decimal, Decimal]" = models.DecimalField(
+        _("Discount"), max_digits=10, decimal_places=2, default=Decimal("0.00")
     )
     delivery_cost: "models.DecimalField[Decimal, Decimal]" = models.DecimalField(
         _("Delivery cost"), max_digits=10, decimal_places=2, default=Decimal("0.00")

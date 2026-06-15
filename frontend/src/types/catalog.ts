@@ -5,6 +5,8 @@ export type CatalogItem = {
   name: string;
   description?: string;
   price: string;
+  discountedPrice?: string | null;
+  isSale?: boolean;
   image?: StaticImageData | string;
   imageUrl?: string | null;
   tag?: string;

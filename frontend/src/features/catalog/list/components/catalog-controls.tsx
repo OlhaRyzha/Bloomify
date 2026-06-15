@@ -15,6 +15,8 @@ import { SortOption } from '../types';
 import { blurFocusedElementByIdOnOpen } from '@/utils/dom/blur-focused-element-by-id-on-open';
 import { DEFAULT_TAG } from '../catalog.config';
 
+const SALE_TAG_MARKER = '__sale__';
+
 type CatalogControlsProps = {
   searchInput: string;
   onSearchChange: (value: string) => void;
@@ -35,6 +37,9 @@ export function CatalogControls({
   availableTags,
 }: CatalogControlsProps) {
   const { t } = useTranslation();
+
+  const resolveTagLabel = (tag: string) =>
+    tag === SALE_TAG_MARKER ? t('product_tag_sale') : tag;
   const searchInputId = 'catalog-search';
   const sortSelectId = 'catalog-sort';
   const tagSelectId = 'catalog-tag-filter';
@@ -150,7 +155,7 @@ export function CatalogControls({
                   <SelectItem
                     key={tag}
                     value={tag}>
-                    {tag}
+                    {resolveTagLabel(tag)}
                   </SelectItem>
                 ))}
               </SelectContent>

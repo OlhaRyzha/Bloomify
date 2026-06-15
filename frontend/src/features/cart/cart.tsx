@@ -41,9 +41,8 @@ export default function CartFeature() {
   const isHydrated = useHydrated();
   const [confirmation, setConfirmation] = useState<CartConfirmation>(null);
 
-  const { items, removeItem, updateQuantity, clearCart } = useCartStore(
-    useShallow(selectCartViewState)
-  );
+  const { items, appliedPromoCode, removeItem, updateQuantity, clearCart } =
+    useCartStore(useShallow(selectCartViewState));
 
   const { locale, t } = useTranslation();
 
@@ -56,14 +55,18 @@ export default function CartFeature() {
     refetch: refetchCatalogItems,
   } = useGetProducts();
 
-  const { cartItems, deliveryCost, itemCount, subtotal, total } =
+  const { cartItems, deliveryCost, discount, itemCount, subtotal, total } =
     useMemo(() => {
       if (!isHydrated) {
-        return getCartSummary([], []);
+        return getCartSummary([], [], 0);
       }
 
-      return getCartSummary(items, catalogItems);
-    }, [items, catalogItems, isHydrated]);
+      return getCartSummary(
+        items,
+        catalogItems,
+        appliedPromoCode?.discount ?? 0
+      );
+    }, [items, catalogItems, isHydrated, appliedPromoCode]);
 
   useEffect(() => {
     if (!isHydrated || !isNonEmptyArray(cartItems)) {
@@ -244,10 +247,12 @@ export default function CartFeature() {
         <CartSummary
           subtotal={subtotal}
           deliveryCost={deliveryCost}
+          discount={discount}
+          promoCode={appliedPromoCode?.code}
           total={total}
         />
 
-        <CartPromoCodeForm />
+        <CartPromoCodeForm subtotal={subtotal} />
         <CartInfoCards />
       </aside>
 

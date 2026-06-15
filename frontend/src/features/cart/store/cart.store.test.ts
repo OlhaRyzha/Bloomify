@@ -14,10 +14,13 @@ const resetCartStore = () => {
 
 const createCartState = (items: CartState['items']): CartState => ({
   items,
+  appliedPromoCode: null,
   addItem: () => undefined,
   removeItem: () => undefined,
   updateQuantity: () => undefined,
   clearCart: () => undefined,
+  setPromoCode: () => undefined,
+  clearPromoCode: () => undefined,
 });
 
 describe('cart store', () => {

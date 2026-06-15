@@ -8,12 +8,16 @@ import { getLocalizedPath } from '@/i18n/routing';
 type CartSummaryProps = {
   subtotal: number;
   deliveryCost: number;
+  discount?: number;
+  promoCode?: string | null;
   total: number;
 };
 
 export default function CartSummary({
   subtotal,
   deliveryCost,
+  discount = 0,
+  promoCode,
   total,
 }: CartSummaryProps) {
   const { locale, t } = useTranslation();
@@ -39,6 +43,17 @@ export default function CartSummary({
               : formatCurrency(deliveryCost, locale)}
           </span>
         </div>
+        {discount > 0 && (
+          <div className='flex items-center justify-between text-green-600'>
+            <span>
+              {t('cart_promo_discount')}
+              {promoCode ? ` (${promoCode})` : ''}
+            </span>
+            <span className='font-semibold'>
+              -{formatCurrency(discount, locale)}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className='mt-6 flex items-center justify-between border-t border-border pt-4'>

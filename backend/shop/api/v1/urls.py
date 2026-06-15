@@ -15,6 +15,7 @@ from shop.views.orders import (
     OrderListView,
 )
 from shop.views.products import ProductDetailView, ProductFiltersView, ProductListView
+from shop.views.promo_codes import ValidatePromoCodeView
 from shop.views.site_languages import SiteLanguagesView
 from shop.views.subscriptions import (
     LiqPaySubscriptionCallbackView,
@@ -33,6 +34,9 @@ urlpatterns = [
     path("products/<int:pk>", ProductDetailView.as_view(), name="product"),
     path("orders", OrderListView.as_view(), name="orders"),
     path("orders/checkout", CheckoutCreateView.as_view(), name="orders_checkout"),
+    path(
+        "orders/promo/validate", ValidatePromoCodeView.as_view(), name="promo_validate"
+    ),
     path(
         "orders/<int:pk>/payment-status",
         LiqPayPaymentStatusView.as_view(),

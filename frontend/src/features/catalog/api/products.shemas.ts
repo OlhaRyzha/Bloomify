@@ -10,6 +10,8 @@ export const catalogItemSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   price: z.string(),
+  discountedPrice: z.string().optional().nullable(),
+  isSale: z.boolean().optional(),
   imageUrl: z
     .string()
     .optional()

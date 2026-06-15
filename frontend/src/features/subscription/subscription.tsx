@@ -7,6 +7,7 @@ import { useMySubscription } from './api/use-my-subscription';
 import { useSubscribe } from './api/use-subscribe';
 import { useUnsubscribe } from './api/use-unsubscribe';
 import { useUpgradeSubscription } from './api/use-upgrade-subscription';
+import { useSubscriptionPaymentSync } from './api/use-subscription-payment-sync';
 import PlanCard from './components/plan-card';
 import PlanCardSkeleton from './components/plan-card-skeleton';
 import SubscriptionStatusCard from './components/subscription-status-card';
@@ -35,13 +36,29 @@ export default function SubscriptionFeature() {
     variables: upgradingPlanId,
   } = useUpgradeSubscription();
 
+  const { syncState } = useSubscriptionPaymentSync();
+
   const isActiveSubscription =
     mySubscription?.status === 'active' || mySubscription?.status === 'pending';
 
-  const showPlanSkeletons = plansLoading || (hasAuthSession && subscriptionLoading);
+  const isSyncing = syncState === 'syncing';
+  const showPlanSkeletons =
+    plansLoading || (hasAuthSession && subscriptionLoading) || isSyncing;
 
   return (
     <div className='space-y-10'>
+      {isSyncing && (
+        <div className='rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary'>
+          {t('subscription_payment_syncing')}
+        </div>
+      )}
+
+      {syncState === 'failed' && (
+        <div className='rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive'>
+          {t('subscription_payment_failed')}
+        </div>
+      )}
+
       {mySubscription && !showPlanSkeletons && (
         <section>
           <h2 className='font-display text-2xl font-bold text-foreground mb-4'>

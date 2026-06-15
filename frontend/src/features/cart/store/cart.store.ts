@@ -6,18 +6,27 @@ export type CartItem = {
   quantity: number;
 };
 
+export type AppliedPromoCode = {
+  code: string;
+  discount: number;
+};
+
 export type CartState = {
   items: CartItem[];
+  appliedPromoCode: AppliedPromoCode | null;
   addItem: (id: string) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  setPromoCode: (promo: AppliedPromoCode) => void;
+  clearPromoCode: () => void;
 };
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      appliedPromoCode: null,
       addItem: (id) => {
         const items = get().items;
         const existing = items.find((item) => item.id === id);
@@ -50,13 +59,22 @@ export const useCartStore = create<CartState>()(
         });
       },
       clearCart: () => {
-        set({ items: [] });
+        set({ items: [], appliedPromoCode: null });
+      },
+      setPromoCode: (promo) => {
+        set({ appliedPromoCode: promo });
+      },
+      clearPromoCode: () => {
+        set({ appliedPromoCode: null });
       },
     }),
     {
       name: 'bloomify-cart',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({
+        items: state.items,
+        appliedPromoCode: state.appliedPromoCode,
+      }),
     }
   )
 );
