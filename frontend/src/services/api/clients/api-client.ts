@@ -214,7 +214,9 @@ export class ApiClient {
 
   private handleResponseError(error: AxiosError): Promise<never> {
     const config = error.config as AuthRetryRequestConfig | undefined;
-    if (!config?._skipErrorLog) {
+    const url = config?.url ?? '';
+    const silenced = config?._skipErrorLog || isAuthSessionRoute(url);
+    if (!silenced) {
       console.error('[API ERROR]', error);
     }
 

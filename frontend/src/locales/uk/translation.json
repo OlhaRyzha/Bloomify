@@ -410,5 +410,17 @@
   "api_error_service_unavailable": "Сервіс тимчасово недоступний.",
   "api_error_gateway_timeout": "Час очікування шлюзу вичерпано.",
   "api_error_client": "Помилка клієнта.",
-  "api_error_network": "Помилка мережі."
+  "api_error_network": "Помилка мережі.",
+  "metadata_subscription_description": "Оформіть підписку на квіти Bloomify та отримуйте свіжі букети щомісяця прямо до дверей.",
+  "subscriptions_page_title": "Підписка на квіти",
+  "subscriptions_page_description": "Оберіть тариф і отримуйте свіжі букети на ваш вибір.",
+  "subscription_my_plan_title": "Ваша поточна підписка",
+  "subscription_plans_title": "Тарифи",
+  "subscription_plans_description": "Оберіть план підписки, що підходить саме вам.",
+  "subscription_current_plan_label": "Поточний план",
+  "subscription_status_active": "Активна",
+  "subscription_status_pending": "Очікує оплати",
+  "subscription_status_paused": "Призупинена",
+  "subscription_status_canceled": "Скасована",
+  "subscription_start_date_label": "Дата початку"
 }
