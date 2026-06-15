@@ -7,8 +7,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { subscriptionQueryKeys } from './query-keys';
 import SubscriptionService from './subscription.service';
 
-const RETRY_LIMIT = 8;
-const RETRY_DELAY_MS = 1500;
+const RETRY_LIMIT = 15;
+const RETRY_DELAY_MS = 2000;
 
 export type SubscriptionSyncState = 'idle' | 'syncing' | 'paid' | 'failed';
 
@@ -42,6 +42,12 @@ export function useSubscriptionPaymentSync() {
       router.replace(url.pathname + (url.search || ''));
     };
 
+    const finish = async (nextState: SubscriptionSyncState) => {
+      await queryClient.invalidateQueries({ queryKey: subscriptionQueryKeys.all });
+      setSyncState(nextState);
+      clearUrlParams();
+    };
+
     const poll = async (attempt = 0): Promise<void> => {
       if (syncKeyRef.current !== syncKey) return;
 
@@ -55,18 +61,13 @@ export function useSubscriptionPaymentSync() {
 
         if (syncKeyRef.current !== syncKey) return;
 
-        if (result.paymentStatus === 'paid') {
-          await queryClient.invalidateQueries({
-            queryKey: subscriptionQueryKeys.all,
-          });
-          setSyncState('paid');
-          clearUrlParams();
+        if (result.paymentStatus === 'paid' || result.subscriptionStatus === 'active') {
+          await finish('paid');
           return;
         }
 
         if (result.paymentStatus === 'failed') {
-          setSyncState('failed');
-          clearUrlParams();
+          await finish('failed');
           return;
         }
 
@@ -75,12 +76,11 @@ export function useSubscriptionPaymentSync() {
           return;
         }
 
-        setSyncState('idle');
-        clearUrlParams();
+        // Retries exhausted — invalidate anyway in case callback arrived late
+        await finish('idle');
       } catch {
         if (syncKeyRef.current !== syncKey) return;
-        setSyncState('idle');
-        clearUrlParams();
+        await finish('idle');
       }
     };
 
