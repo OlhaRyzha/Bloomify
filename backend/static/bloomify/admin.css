@@ -649,41 +649,21 @@ fieldset.module .selector,
 .change-form .form-row .timezonewarning,
 #content .form-row .timezonewarning,
 .unfold-main .form-row .timezonewarning {
-  display: flex !important;
+  display: inline-flex !important;
   position: static !important;
   inset: auto !important;
   transform: none !important;
   align-items: center;
-  gap: 8px;
-  width: min(100%, 430px);
-  max-width: 430px;
-  margin: 8px 0 0 62px !important;
+  gap: 4px;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 0 0 10px !important;
   padding: 0 !important;
   background: none !important;
   color: var(--bloomify-form-muted) !important;
   font-size: 12px;
   line-height: 1.45;
-  text-align: left !important;
-}
-
-.aligned .form-row .timezonewarning::before,
-.change-form .form-row .timezonewarning::before,
-#content .form-row .timezonewarning::before,
-.unfold-main .form-row .timezonewarning::before {
-  content: "warning";
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  color: #ef4444;
-  font-family: "Material Symbols Outlined";
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1;
-  text-transform: none;
+  vertical-align: middle;
 }
 
 .aligned .form-row .datetime br,
@@ -1647,9 +1627,11 @@ body.theme-dark .bloomify-permission-option:has(input:checked) {
   .change-form .form-row .timezonewarning,
   #content .form-row .timezonewarning,
   .unfold-main .form-row .timezonewarning {
-    display: block !important;
-    flex: 0 0 100%;
-    margin: 0 0 8px !important;
+    display: inline-flex !important;
+    flex: none;
+    width: auto !important;
+    margin: 0 0 0 8px !important;
+    vertical-align: middle;
   }
 
   .aligned .form-row .bloomify-datetime-row,

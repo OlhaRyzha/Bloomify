@@ -23,6 +23,7 @@ from shop.views.subscriptions import (
     SubscriptionPaymentStatusView,
     SubscriptionPlanListView,
     UnsubscribeView,
+    UpgradeSubscriptionView,
 )
 
 urlpatterns = [
@@ -55,6 +56,11 @@ urlpatterns = [
     path("subscriptions/me", MySubscriptionView.as_view(), name="my_subscription"),
     path("subscriptions/subscribe", SubscribeView.as_view(), name="subscribe"),
     path("subscriptions/unsubscribe", UnsubscribeView.as_view(), name="unsubscribe"),
+    path(
+        "subscriptions/upgrade",
+        UpgradeSubscriptionView.as_view(),
+        name="subscription_upgrade",
+    ),
     path(
         "subscriptions/payments/<int:pk>/status",
         SubscriptionPaymentStatusView.as_view(),

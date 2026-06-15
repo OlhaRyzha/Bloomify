@@ -39,6 +39,7 @@ class SubscriptionPlanAdmin(TranslatableAdmin):
     search_fields = ("translations__name", "translations__description")
     ordering = ("price",)
     fieldsets = (
+        (_("Content"), {"fields": ("name", "description", "badge")}),
         (None, {"fields": ("price", "interval", "is_active")}),
         (_("System"), {"fields": ("created_at", "updated_at")}),
     )

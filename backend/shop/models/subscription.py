@@ -16,6 +16,7 @@ class SubscriptionPlan(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(_("Name"), max_length=200),
         description=models.TextField(_("Description"), blank=True),
+        badge=models.CharField(_("Badge"), max_length=50, blank=True, default=""),
     )
 
     price = models.DecimalField(_("Price"), max_digits=10, decimal_places=2)
@@ -81,6 +82,14 @@ class SubscriptionPayment(models.Model):
         on_delete=models.CASCADE,
         related_name="payments",
         verbose_name=_("Subscription"),
+    )
+    target_plan = models.ForeignKey(
+        SubscriptionPlan,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="upgrade_payments",
+        verbose_name=_("Target plan"),
     )
     amount = models.DecimalField(
         _("Amount"), max_digits=10, decimal_places=2, default=Decimal("0.00")

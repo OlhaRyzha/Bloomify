@@ -20,4 +20,5 @@ export const API_ROUTES = {
   UNSUBSCRIBE: 'subscriptions/unsubscribe',
   SUBSCRIPTION_PAYMENT_STATUS: (paymentId: number) =>
     `subscriptions/payments/${paymentId}/status`,
+  SUBSCRIPTION_UPGRADE: 'subscriptions/upgrade',
 };

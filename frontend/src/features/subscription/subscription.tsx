@@ -6,6 +6,7 @@ import { useSubscriptionPlans } from './api/use-subscription-plans';
 import { useMySubscription } from './api/use-my-subscription';
 import { useSubscribe } from './api/use-subscribe';
 import { useUnsubscribe } from './api/use-unsubscribe';
+import { useUpgradeSubscription } from './api/use-upgrade-subscription';
 import PlanCard from './components/plan-card';
 import PlanCardSkeleton from './components/plan-card-skeleton';
 import SubscriptionStatusCard from './components/subscription-status-card';
@@ -28,6 +29,11 @@ export default function SubscriptionFeature() {
     variables: subscribingPlanId,
   } = useSubscribe();
   const { mutate: unsubscribe, isPending: isUnsubscribing } = useUnsubscribe();
+  const {
+    mutate: upgrade,
+    isPending: isUpgrading,
+    variables: upgradingPlanId,
+  } = useUpgradeSubscription();
 
   const isActiveSubscription =
     mySubscription?.status === 'active' || mySubscription?.status === 'pending';
@@ -62,20 +68,22 @@ export default function SubscriptionFeature() {
             ? Array.from({ length: SKELETON_COUNT }, (_, i) => (
                 <PlanCardSkeleton key={i} />
               ))
-            : (plans ?? []).map((plan, index) => (
+            : (plans ?? []).map((plan) => (
                 <PlanCard
                   key={plan.id}
                   plan={plan}
-                  popular={index === 1}
                   isCurrentPlan={
                     mySubscription?.plan.id === plan.id && isActiveSubscription
                   }
-                  isSubscribed={
-                    isActiveSubscription && mySubscription?.plan.id !== plan.id
+                  currentPlanPrice={
+                    isActiveSubscription ? mySubscription?.plan.price : undefined
                   }
                   isLoading={isSubscribing && subscribingPlanId === plan.id}
+                  isUpgrading={isUpgrading && upgradingPlanId === plan.id}
                   onSubscribe={subscribe}
+                  onUpgrade={upgrade}
                   subscribeLabel={t('sections_subscription_cta')}
+                  upgradeLabel={t('action_upgrade_subscription')}
                   currentPlanLabel={t('subscription_current_plan_label')}
                   perPeriodLabel={t('label_month')}
                 />

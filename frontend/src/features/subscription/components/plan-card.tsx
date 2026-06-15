@@ -8,12 +8,14 @@ import type { SubscriptionPlan } from '../api/subscription.schemas';
 
 type PlanCardProps = {
   plan: SubscriptionPlan;
-  popular?: boolean;
   isCurrentPlan?: boolean;
-  isSubscribed?: boolean;
+  currentPlanPrice?: number;
   isLoading?: boolean;
+  isUpgrading?: boolean;
   onSubscribe: (planId: number) => void;
+  onUpgrade: (planId: number) => void;
   subscribeLabel: string;
+  upgradeLabel: string;
   currentPlanLabel: string;
   perPeriodLabel: string;
 };
@@ -26,16 +28,81 @@ const INTERVAL_LABEL: Record<string, string> = {
 
 export default function PlanCard({
   plan,
-  popular = false,
   isCurrentPlan = false,
-  isSubscribed = false,
+  currentPlanPrice,
   isLoading = false,
+  isUpgrading = false,
   onSubscribe,
+  onUpgrade,
   subscribeLabel,
+  upgradeLabel,
   currentPlanLabel,
   perPeriodLabel,
 }: PlanCardProps) {
   const periodLabel = INTERVAL_LABEL[plan.interval] ?? plan.interval;
+  const popular = plan.badge !== '';
+  const isSubscribed = currentPlanPrice !== undefined;
+  const canUpgrade = isSubscribed && !isCurrentPlan && plan.price > currentPlanPrice;
+  const canDowngrade = isSubscribed && !isCurrentPlan && plan.price < currentPlanPrice;
+
+  const renderButton = () => {
+    if (isCurrentPlan) {
+      return (
+        <Button
+          className='w-full'
+          variant='secondary'
+          disabled>
+          <Check className='h-4 w-4' aria-hidden />
+          {currentPlanLabel}
+        </Button>
+      );
+    }
+
+    if (canUpgrade) {
+      const diff = plan.price - currentPlanPrice;
+      return (
+        <Button
+          className='w-full'
+          variant='outline'
+          disabled={isUpgrading}
+          onClick={() => onUpgrade(plan.id)}>
+          {isUpgrading ? (
+            <Loader2 className='h-4 w-4 animate-spin' aria-hidden />
+          ) : (
+            `${upgradeLabel} +${diff}₴`
+          )}
+        </Button>
+      );
+    }
+
+    if (canDowngrade) {
+      return (
+        <Button
+          className='w-full'
+          variant='ghost'
+          disabled>
+          {upgradeLabel}
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        className={cn(
+          'w-full',
+          popular && 'bg-gold text-forest font-semibold hover:bg-gold/90 active:bg-gold/80'
+        )}
+        variant='default'
+        disabled={isLoading}
+        onClick={() => onSubscribe(plan.id)}>
+        {isLoading ? (
+          <Loader2 className='h-4 w-4 animate-spin' aria-hidden />
+        ) : (
+          subscribeLabel
+        )}
+      </Button>
+    );
+  };
 
   return (
     <Card
@@ -48,7 +115,7 @@ export default function PlanCard({
       )}>
       {popular && (
         <div className='absolute right-0 top-0 rounded-bl-xl bg-gold px-4 py-1 text-xs font-semibold text-forest'>
-          Популярний
+          {plan.badge}
         </div>
       )}
 
@@ -91,28 +158,7 @@ export default function PlanCard({
       </CardHeader>
 
       <CardContent className='space-y-4'>
-        <Button
-          className={cn(
-            'w-full',
-            popular && !isCurrentPlan && 'bg-gold text-forest font-semibold hover:bg-gold/90 active:bg-gold/80'
-          )}
-          variant={isCurrentPlan ? 'secondary' : 'default'}
-          disabled={isCurrentPlan || isSubscribed || isLoading}
-          onClick={() => onSubscribe(plan.id)}>
-          {isLoading ? (
-            <Loader2
-              className='h-4 w-4 animate-spin'
-              aria-hidden
-            />
-          ) : isCurrentPlan ? (
-            <span className='flex items-center gap-2'>
-              <Check className='h-4 w-4' aria-hidden />
-              {currentPlanLabel}
-            </span>
-          ) : (
-            subscribeLabel
-          )}
-        </Button>
+        {renderButton()}
       </CardContent>
     </Card>
   );

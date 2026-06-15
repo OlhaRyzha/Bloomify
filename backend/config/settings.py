@@ -80,6 +80,7 @@ class EnvironmentSettings(BaseSettings):
     LIQPAY_API_URL: str = "https://www.liqpay.ua/api/request"
     LIQPAY_SERVER_URL: str = ""
     LIQPAY_RESULT_URL: str = "http://localhost:3000/checkout"
+    LIQPAY_SUBSCRIPTION_CALLBACK_PATH: str = "/payments/liqpay/subscription-callback"
 
 
 env = EnvironmentSettings.model_validate({})
@@ -186,7 +187,7 @@ FORCE_SCRIPT_NAME = (
 )
 STATIC_BASE_PATH = f"{FORCE_SCRIPT_NAME or ''}/static"
 ADMIN_BASE_PATH = f"{FORCE_SCRIPT_NAME or ''}/admin"
-ADMIN_ASSET_VERSION = "20260603-datetime-3"
+ADMIN_ASSET_VERSION = "20260615-tz-inline-2"
 
 INSTALLED_APPS = [
     "unfold",
@@ -472,3 +473,4 @@ LIQPAY_CHECKOUT_URL = env.LIQPAY_CHECKOUT_URL
 LIQPAY_API_URL = env.LIQPAY_API_URL
 LIQPAY_SERVER_URL = env.LIQPAY_SERVER_URL
 LIQPAY_RESULT_URL = env.LIQPAY_RESULT_URL
+LIQPAY_SUBSCRIPTION_CALLBACK_PATH = env.LIQPAY_SUBSCRIPTION_CALLBACK_PATH

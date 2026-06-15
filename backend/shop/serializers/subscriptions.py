@@ -7,10 +7,19 @@ from shop.models.subscription import Subscription, SubscriptionPlan
 class SubscriptionPlanSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
+    badge = serializers.SerializerMethodField()
 
     class Meta:
         model = SubscriptionPlan
-        fields = ("id", "name", "description", "price", "interval", "is_active")
+        fields = (
+            "id",
+            "name",
+            "description",
+            "price",
+            "interval",
+            "badge",
+            "is_active",
+        )
 
     def _language(self) -> str | None:
         request = self.context.get("request")
@@ -34,6 +43,14 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
             or ""
         )
 
+    def get_badge(self, obj: SubscriptionPlan) -> str:
+        return str(
+            obj.safe_translation_getter(
+                "badge", language_code=self._language(), any_language=False
+            )
+            or ""
+        )
+
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     plan = SubscriptionPlanSerializer(read_only=True)
@@ -44,6 +61,15 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 
 class SubscribeRequestSerializer(serializers.Serializer):
+    plan_id = serializers.IntegerField()
+
+    def validate_plan_id(self, value: int) -> int:
+        if not SubscriptionPlan.objects.filter(id=value, is_active=True).exists():
+            raise serializers.ValidationError("Subscription plan not found.")
+        return value
+
+
+class UpgradeRequestSerializer(serializers.Serializer):
     plan_id = serializers.IntegerField()
 
     def validate_plan_id(self, value: int) -> int:

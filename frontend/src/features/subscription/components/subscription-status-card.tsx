@@ -104,13 +104,16 @@ export default function SubscriptionStatusCard({
           </div>
 
           {subscription.status === 'active' && (
-            <Button
-              variant='outline'
-              className='w-full text-destructive hover:text-destructive'
-              disabled={isUnsubscribing}
-              onClick={() => setConfirmOpen(true)}>
-              {t('action_cancel_subscription')}
-            </Button>
+            <div className='flex justify-end'>
+              <Button
+                variant='ghost'
+                size='sm'
+                className='text-destructive hover:text-destructive hover:bg-destructive/10'
+                disabled={isUnsubscribing}
+                onClick={() => setConfirmOpen(true)}>
+                {t('action_cancel_subscription')}
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

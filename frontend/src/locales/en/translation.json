@@ -372,6 +372,7 @@
   "action_delete": "Delete",
   "action_clear": "Clear",
   "action_cancel_subscription": "Cancel subscription",
+  "action_upgrade_subscription": "Switch to plan",
   "label_catalog": "Catalog",
   "label_about": "About",
   "label_contact": "Contact",

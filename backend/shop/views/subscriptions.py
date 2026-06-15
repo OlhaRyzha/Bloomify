@@ -20,6 +20,7 @@ from shop.serializers.subscriptions import (
     SubscribeRequestSerializer,
     SubscriptionPlanSerializer,
     SubscriptionSerializer,
+    UpgradeRequestSerializer,
 )
 from shop.services.liqpay import (
     create_signature,
@@ -88,12 +89,16 @@ def _create_subscription_checkout_payload(
     }
 
     if settings.LIQPAY_SERVER_URL:
-        callback_path = getattr(settings, "LIQPAY_SUBSCRIPTION_CALLBACK_PATH", None)
-        if callback_path:
-            parts = urlsplit(settings.LIQPAY_SERVER_URL)
-            server_url = urlunsplit((parts.scheme, parts.netloc, callback_path, "", ""))
-        else:
-            server_url = settings.LIQPAY_SERVER_URL
+        parts = urlsplit(settings.LIQPAY_SERVER_URL)
+        server_url = urlunsplit(
+            (
+                parts.scheme,
+                parts.netloc,
+                settings.LIQPAY_SUBSCRIPTION_CALLBACK_PATH,
+                "",
+                "",
+            )
+        )
         payload["server_url"] = server_url
 
     data = encode_data(payload)
@@ -105,6 +110,7 @@ def _create_subscription_checkout_payload(
 
 
 class SubscriptionPlanListView(APIView):
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(responses={200: SubscriptionPlanSerializer(many=True)})
@@ -237,6 +243,88 @@ class UnsubscribeView(APIView):
         return Response({"detail": "Subscription canceled."})
 
 
+class UpgradeSubscriptionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(request=UpgradeRequestSerializer, responses={201: dict})
+    def post(self, request: Request) -> Response:
+        user = request.user
+        if not isinstance(user, User):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer = UpgradeRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        target_plan = SubscriptionPlan.objects.get(
+            id=serializer.validated_data["plan_id"], is_active=True
+        )
+
+        subscription = (
+            Subscription.objects.filter(user=user, status="active")
+            .select_related("plan")
+            .first()
+        )
+        if subscription is None:
+            return Response(
+                {"detail": "No active subscription to upgrade."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if target_plan.pk == subscription.plan.pk:
+            return Response(
+                {"detail": "Already on this plan."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if target_plan.price <= subscription.plan.price:
+            return Response(
+                {"detail": "Can only upgrade to a more expensive plan."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        diff_amount = target_plan.price - subscription.plan.price
+
+        locale = request.data.get("locale") or request.query_params.get("locale")
+        if isinstance(locale, str) and locale not in SUPPORTED_LANGUAGE_CODES:
+            locale = None
+
+        payment = SubscriptionPayment.objects.create(
+            subscription=subscription,
+            target_plan=target_plan,
+            amount=diff_amount,
+            status="pending",
+        )
+
+        payment_status_token = create_order_access_token()
+        payment.payment_status_token_hash = hash_order_access_token(
+            payment_status_token
+        )
+        payment.save(update_fields=["payment_status_token_hash"])
+
+        try:
+            checkout_payload = _create_subscription_checkout_payload(
+                payment,
+                locale=locale,
+                payment_status_token=payment_status_token,
+            )
+        except PaymentProviderConfigurationError as exc:
+            payment.status = "failed"
+            payment.save(update_fields=["status"])
+            return Response(
+                {"detail": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
+        return Response(
+            {
+                "subscriptionId": subscription.pk,
+                "paymentId": payment.pk,
+                "status": subscription.status,
+                "liqpay": checkout_payload,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
 class SubscriptionPaymentStatusView(APIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
@@ -314,9 +402,9 @@ class LiqPaySubscriptionCallbackView(APIView):
             )
 
         try:
-            payment = SubscriptionPayment.objects.select_related("subscription").get(
-                provider_order_id=order_id
-            )
+            payment = SubscriptionPayment.objects.select_related(
+                "subscription", "target_plan"
+            ).get(provider_order_id=order_id)
         except SubscriptionPayment.DoesNotExist:
             return Response(
                 {"detail": "Payment not found."}, status=status.HTTP_404_NOT_FOUND
@@ -335,7 +423,11 @@ class LiqPaySubscriptionCallbackView(APIView):
                 sub = payment.subscription
                 sub.status = "active"
                 sub.start_date = date.today()
-                sub.save(update_fields=["status", "start_date"])
+                sub_update_fields = ["status", "start_date"]
+                if payment.target_plan is not None:
+                    sub.plan = payment.target_plan
+                    sub_update_fields.append("plan")
+                sub.save(update_fields=sub_update_fields)
             elif payment_status in {"failure", "error", "reversed"}:
                 payment.status = "failed"
                 sub = payment.subscription

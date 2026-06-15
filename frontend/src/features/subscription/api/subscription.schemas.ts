@@ -6,6 +6,7 @@ export const subscriptionPlanSchema = z.object({
   description: z.string(),
   price: z.coerce.number(),
   interval: z.enum(['weekly', 'monthly', 'quarterly']),
+  badge: z.string(),
   is_active: z.boolean(),
 });
 

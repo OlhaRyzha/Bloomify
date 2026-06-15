@@ -13,6 +13,7 @@ export const createSubscriptionPlan = (
   description: 'Perfect for beginners',
   price: 999,
   interval: 'monthly',
+  badge: '',
   is_active: true,
   ...overrides,
 });

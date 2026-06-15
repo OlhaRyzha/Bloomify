@@ -372,6 +372,7 @@
   "action_delete": "Видалити",
   "action_clear": "Очистити",
   "action_cancel_subscription": "Скасувати підписку",
+  "action_upgrade_subscription": "Перейти на тариф",
   "label_catalog": "Каталог",
   "label_about": "Про нас",
   "label_contact": "Контакти",

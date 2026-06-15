@@ -51,6 +51,14 @@ const SubscriptionService = {
   unsubscribe: (): Promise<void> =>
     apiClient.post<void>(API_ROUTES.UNSUBSCRIBE),
 
+  upgrade: async (planId: number, locale?: string): Promise<SubscribeResponse> => {
+    const response = await apiClient.post<SubscribeResponse, SubscribeBody>(
+      API_ROUTES.SUBSCRIPTION_UPGRADE,
+      { plan_id: planId, locale }
+    );
+    return parseResponseWithSchema(response, subscribeResponseSchema);
+  },
+
   getPaymentStatus: async (
     paymentId: number,
     paymentToken: string
