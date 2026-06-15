@@ -410,5 +410,17 @@
   "api_error_service_unavailable": "Service unavailable.",
   "api_error_gateway_timeout": "Gateway timeout.",
   "api_error_client": "Client error.",
-  "api_error_network": "Network error."
+  "api_error_network": "Network error.",
+  "metadata_subscription_description": "Subscribe to Bloomify flowers and receive fresh bouquets every month delivered to your door.",
+  "subscriptions_page_title": "Flower subscription",
+  "subscriptions_page_description": "Choose a plan and get fresh bouquets delivered on your schedule.",
+  "subscription_my_plan_title": "Your current subscription",
+  "subscription_plans_title": "Plans",
+  "subscription_plans_description": "Choose the subscription plan that suits you best.",
+  "subscription_current_plan_label": "Current plan",
+  "subscription_status_active": "Active",
+  "subscription_status_pending": "Awaiting payment",
+  "subscription_status_paused": "Paused",
+  "subscription_status_canceled": "Canceled",
+  "subscription_start_date_label": "Start date"
 }

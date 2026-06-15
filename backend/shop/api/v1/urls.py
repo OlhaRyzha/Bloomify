@@ -16,6 +16,14 @@ from shop.views.orders import (
 )
 from shop.views.products import ProductDetailView, ProductFiltersView, ProductListView
 from shop.views.site_languages import SiteLanguagesView
+from shop.views.subscriptions import (
+    LiqPaySubscriptionCallbackView,
+    MySubscriptionView,
+    SubscribeView,
+    SubscriptionPaymentStatusView,
+    SubscriptionPlanListView,
+    UnsubscribeView,
+)
 
 urlpatterns = [
     path("products", ProductListView.as_view(), name="products"),
@@ -33,6 +41,24 @@ urlpatterns = [
         "payments/liqpay/callback",
         LiqPayCallbackView.as_view(),
         name="liqpay_callback",
+    ),
+    path(
+        "payments/liqpay/subscription-callback",
+        LiqPaySubscriptionCallbackView.as_view(),
+        name="liqpay_subscription_callback",
+    ),
+    path(
+        "subscriptions/plans",
+        SubscriptionPlanListView.as_view(),
+        name="subscription_plans",
+    ),
+    path("subscriptions/me", MySubscriptionView.as_view(), name="my_subscription"),
+    path("subscriptions/subscribe", SubscribeView.as_view(), name="subscribe"),
+    path("subscriptions/unsubscribe", UnsubscribeView.as_view(), name="unsubscribe"),
+    path(
+        "subscriptions/payments/<int:pk>/status",
+        SubscriptionPaymentStatusView.as_view(),
+        name="subscription_payment_status",
     ),
     path("site/languages", SiteLanguagesView.as_view(), name="site_languages"),
     path("auth/register/", RegisterView.as_view(), name="auth_register"),

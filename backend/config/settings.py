@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import timedelta as _timedelta
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
@@ -386,6 +387,19 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": _timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": _timedelta(days=30),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "ALGORITHM": JWT_ALGORITHM,
+    "SIGNING_KEY": JWT_SECRET_KEY,
+}
+
+AUTH_REFRESH_COOKIE_MAX_AGE = int(
+    _timedelta(days=30).total_seconds()
+)  # matches REFRESH_TOKEN_LIFETIME
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (

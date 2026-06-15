@@ -410,5 +410,17 @@
   "api_error_service_unavailable": "Usługa jest tymczasowo niedostępna.",
   "api_error_gateway_timeout": "Przekroczono czas oczekiwania bramy.",
   "api_error_client": "Błąd klienta.",
-  "api_error_network": "Błąd sieci."
+  "api_error_network": "Błąd sieci.",
+  "metadata_subscription_description": "Zapisz się do subskrypcji kwiatów Bloomify i otrzymuj świeże bukiety co miesiąc pod Twoje drzwi.",
+  "subscriptions_page_title": "Subskrypcja kwiatów",
+  "subscriptions_page_description": "Wybierz plan i odbieraj świeże bukiety według Twojego harmonogramu.",
+  "subscription_my_plan_title": "Twoja aktualna subskrypcja",
+  "subscription_plans_title": "Plany",
+  "subscription_plans_description": "Wybierz plan subskrypcji, który najlepiej Ci odpowiada.",
+  "subscription_current_plan_label": "Aktualny plan",
+  "subscription_status_active": "Aktywna",
+  "subscription_status_pending": "Oczekuje na płatność",
+  "subscription_status_paused": "Wstrzymana",
+  "subscription_status_canceled": "Anulowana",
+  "subscription_start_date_label": "Data rozpoczęcia"
 }

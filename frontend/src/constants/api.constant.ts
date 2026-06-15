@@ -14,7 +14,10 @@ export const API_ROUTES = {
   AUTH_ME: 'auth/me/',
   AUTH_AUTH0: 'auth/oauth/auth0/',
   ROLES: 'roles',
-  SUBSCRIPTIONS: 'subscriptions',
+  SUBSCRIPTION_PLANS: 'subscriptions/plans',
+  MY_SUBSCRIPTION: 'subscriptions/me',
   SUBSCRIBE: 'subscriptions/subscribe',
   UNSUBSCRIBE: 'subscriptions/unsubscribe',
+  SUBSCRIPTION_PAYMENT_STATUS: (paymentId: number) =>
+    `subscriptions/payments/${paymentId}/status`,
 };

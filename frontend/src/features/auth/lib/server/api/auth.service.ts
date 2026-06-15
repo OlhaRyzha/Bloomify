@@ -43,7 +43,11 @@ const AuthService = {
 
   refreshSession: async (): Promise<AuthTokenResponse> => {
     const response = await apiClient.post<unknown>(
-      API_ROUTES.AUTH_REFRESH_TOKEN
+      API_ROUTES.AUTH_REFRESH_TOKEN,
+      undefined,
+      // _skipErrorLog is a custom interceptor flag — silences expected 401 when
+      // session cookie exists but refresh token has expired
+      { _skipErrorLog: true } as import('axios').AxiosRequestConfig
     );
 
     return parseResponseWithSchema(

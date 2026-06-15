@@ -41,7 +41,7 @@ export const NAVIGATION_LINKS: NavigationLink[] = [
   },
   {
     key: 'subscription',
-    href: '/#subscription',
+    href: '/subscriptions',
     labelKey: 'label_subscription',
     visibility: 'all',
   },
