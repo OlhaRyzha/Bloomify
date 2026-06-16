@@ -18,7 +18,7 @@ type CartLineItemProps = {
 function CartLineItem({ item, onRemove, onUpdateQuantity }: CartLineItemProps) {
   const { locale, t } = useTranslation();
 
-  const itemPrice = Number(item.price);
+  const itemPrice = Number(item.discountedPrice ?? item.price);
   const itemTotal = itemPrice * item.quantity;
 
   return (

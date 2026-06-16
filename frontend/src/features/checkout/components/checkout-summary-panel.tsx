@@ -52,12 +52,12 @@ export default function CheckoutSummaryPanel({
             <div>
               <p className='font-semibold text-foreground'>{item.name}</p>
               <p className='text-muted-foreground'>
-                {item.quantity} x {formatCurrency(item.price, locale)}
+                {item.quantity} x {formatCurrency(item.discountedPrice ?? item.price, locale)}
               </p>
             </div>
 
             <p className='font-semibold text-foreground'>
-              {formatCurrency(Number(item.price) * item.quantity, locale)}
+              {formatCurrency(Number(item.discountedPrice ?? item.price) * item.quantity, locale)}
             </p>
           </li>
         ))}
