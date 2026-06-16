@@ -21,7 +21,11 @@ vi.mock('./analytics.service', () => ({
 const catalogItem: CatalogItem = {
   id: 'bouquet-1',
   name: 'Біла гармонія',
+  description: 'Ніжний букет з білих троянд.',
   price: '1650',
+  discountedPrice: null,
+  isSale: false,
+  imageUrl: null,
   tag: 'Класика',
 };
 

@@ -11,7 +11,9 @@ type LocalePayload = {
 };
 
 type CatalogAnalyticsItem = CatalogItem;
-type CartAnalyticsItem = CatalogItem | CartItemWithDetails;
+type CartAnalyticsItem =
+  | (Pick<CatalogItem, 'id' | 'name' | 'price'> & { tag?: string })
+  | CartItemWithDetails;
 
 type ProductItemPayload = LocalePayload & {
   item: CatalogAnalyticsItem;

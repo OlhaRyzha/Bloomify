@@ -1,20 +1,22 @@
 import z from 'zod';
+import type { components } from '@/types/api.generated';
 import { getValidationMessages } from '@/constants/message.constants';
 import { ABSOLUTE_URL_REGEX, RELATIVE_URL_REGEX } from '@/utils/patterns/regex';
 import { testT } from '@/test/translation';
 
 const validationMessages = getValidationMessages(testT);
 
+type ApiProduct = components['schemas']['Product'];
+
 export const catalogItemSchema = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().optional(),
+  description: z.string(),
   price: z.string(),
-  discountedPrice: z.string().optional().nullable(),
-  isSale: z.boolean().optional(),
+  discountedPrice: z.string().nullable(),
+  isSale: z.boolean(),
   imageUrl: z
     .string()
-    .optional()
     .nullable()
     .refine(
       (value) =>
@@ -23,8 +25,8 @@ export const catalogItemSchema = z.object({
         RELATIVE_URL_REGEX.test(value),
       validationMessages.invalidImageUrl
     ),
-  tag: z.string().optional(),
-});
+  tag: z.string(),
+}) satisfies z.ZodType<ApiProduct>;
 
 export const catalogSchema = z.array(catalogItemSchema);
 
