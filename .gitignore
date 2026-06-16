@@ -103,6 +103,7 @@ docker-data/
 AGENTS.md
 CLAUDE.md
 .codex/
+.claude/
 *.lock.bak
 *.local
 *.secret
