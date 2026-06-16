@@ -67,9 +67,13 @@ jobs:
         working-directory: backend
         run: uv run mypy .
 
-      - name: Check for pending migrations
+      - name: Apply migrations
         working-directory: backend
-        run: uv run python manage.py migrate --check
+        run: uv run python manage.py migrate
+
+      - name: Check for uncommitted model changes
+        working-directory: backend
+        run: uv run python manage.py makemigrations --check --dry-run
 
       - name: Run tests
         working-directory: backend
