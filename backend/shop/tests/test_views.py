@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from shop.models.product import Product
 from shop.tests.factories import create_product
@@ -40,21 +40,18 @@ class ViewsSmokeTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response["Location"], "/static/bloomify/favicon-32.png")
 
-    @override_settings(ENABLE_API_DOCS=True)
     def test_docs_endpoint_available(self):
         response = self.client.get("/docs/")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "SwaggerUIBundle")
 
-    @override_settings(ENABLE_API_DOCS=True)
     def test_redoc_endpoint_available(self):
         response = self.client.get("/redoc/")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "redoc")
 
-    @override_settings(ENABLE_API_DOCS=True)
     def test_schema_endpoint_available(self):
         response = self.client.get("/schema/")
 

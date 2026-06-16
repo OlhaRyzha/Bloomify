@@ -46,6 +46,7 @@ jobs:
       POSTGRES_DB: "postgres"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
+      DJANGO_ENABLE_API_DOCS: "true"
 
     steps:
       - uses: actions/checkout@v4
