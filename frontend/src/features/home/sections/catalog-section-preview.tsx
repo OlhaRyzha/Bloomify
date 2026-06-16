@@ -89,9 +89,22 @@ function FeaturedProductCard({
             {item.description}
           </p>
         )}
-        <p className='font-display mt-auto text-2xl font-bold text-primary'>
-          {formatCurrency(Number(item.price), locale)}
-        </p>
+        <div className='mt-auto'>
+          {item.discountedPrice ? (
+            <>
+              <p className='text-sm text-muted-foreground line-through'>
+                {formatCurrency(Number(item.price), locale)}
+              </p>
+              <p className='font-display text-2xl font-bold text-primary'>
+                {formatCurrency(Number(item.discountedPrice), locale)}
+              </p>
+            </>
+          ) : (
+            <p className='font-display text-2xl font-bold text-primary'>
+              {formatCurrency(Number(item.price), locale)}
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

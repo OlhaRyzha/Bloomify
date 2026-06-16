@@ -54,9 +54,22 @@ export default function ProductFeature({ copy, product }: ProductFeatureProps) {
         <section
           className='flex flex-wrap items-center gap-4'
           aria-label={copy.actionsLabel}>
-          <p className='font-display text-3xl font-bold text-primary'>
-            {product.price} ₴
-          </p>
+          <div>
+            {product.discountedPrice ? (
+              <>
+                <p className='text-sm text-muted-foreground line-through'>
+                  {product.price} ₴
+                </p>
+                <p className='font-display text-3xl font-bold text-primary'>
+                  {product.discountedPrice} ₴
+                </p>
+              </>
+            ) : (
+              <p className='font-display text-3xl font-bold text-primary'>
+                {product.price} ₴
+              </p>
+            )}
+          </div>
           <AddToCartButton
             size='lg'
             itemId={product.id}
