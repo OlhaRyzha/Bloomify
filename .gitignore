@@ -99,6 +99,9 @@ next-env.d.ts
 docker-data/
 *.pid
 
+# Graphify
+graphify-out/
+
 # Misc
 AGENTS.md
 CLAUDE.md
