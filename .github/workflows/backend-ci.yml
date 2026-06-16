@@ -76,6 +76,29 @@ jobs:
         working-directory: backend
         run: uv run python manage.py makemigrations --check --dry-run
 
-      - name: Run tests
+      - name: Run tests with coverage
         working-directory: backend
-        run: uv run python manage.py test --verbosity=2
+        run: uv run coverage run manage.py test --verbosity=2
+
+      - name: Coverage report (fail under 80%)
+        working-directory: backend
+        run: uv run coverage report
+
+      - name: Install k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Start Django server for load test
+        working-directory: backend
+        run: |
+          uv run python manage.py runserver 8000 &
+          echo $! > /tmp/django.pid
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:8000/products && break || sleep 1
+          done
+
+      - name: LiqPay callback smoke (load test)
+        run: k6 run backend/load_tests/liqpay-callback-smoke.js
+
+      - name: Stop Django server
+        if: always()
+        run: kill $(cat /tmp/django.pid) 2>/dev/null || true

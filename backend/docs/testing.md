@@ -18,6 +18,13 @@ make lint
 cd backend && uv run python manage.py test shop.tests
 ```
 
+Run tests with coverage (matches what CI runs):
+
+```bash
+cd backend && uv run coverage run manage.py test shop.tests
+cd backend && uv run coverage report
+```
+
 For model changes:
 
 ```bash
@@ -65,6 +72,56 @@ Use Django's test client for endpoint behavior:
 - Assert response body fields that belong to the API contract.
 - Refresh models from the database before checking persisted side effects.
 - Keep endpoint tests focused on one workflow; push pure calculations into service tests.
+
+## Coverage
+
+Coverage is measured with the `coverage` package and enforced in CI at **80% minimum** across the `shop` app.
+
+Configuration lives in `backend/.coveragerc`. It excludes migrations and test files from measurement.
+
+Run locally:
+
+```bash
+cd backend && uv run coverage run manage.py test shop.tests
+cd backend && uv run coverage report
+```
+
+The CI step fails the build if coverage drops below 80%. When adding new services or views, add a corresponding test before coverage drops.
+
+## Security Tests
+
+Security-relevant behavior lives in `test_checkout_payments.py`. Tests in this group verify authorization boundaries, not just happy paths:
+
+- **HMAC rejection** — `test_liqpay_callback_rejects_invalid_signature`: an unsigned or tampered callback payload must return 400 before touching the database.
+- **Invalid token** — `test_liqpay_status_sync_rejects_invalid_token`: a well-formed but wrong token must return 403.
+- **Cross-order token (IDOR)** — `test_payment_status_rejects_token_from_different_order`: a valid token from order A must not grant access to order B. The view compares `hash(token)` against the hash stored on the specific order in the URL, so a token is always scoped to one order.
+- **Rate limiting** — `test_checkout_endpoint_is_rate_limited` and `test_payment_status_endpoint_is_rate_limited`: verify that `ScopedRateThrottle` returns 429 after the configured limit is hit.
+
+When adding new endpoint authorization logic, add a matching rejection test. The pattern is: write the happy-path test first, then add a test that confirms the boundary cannot be crossed.
+
+## Load Tests
+
+Smoke load tests live in `backend/load_tests/` and use [k6](https://k6.io).
+
+`liqpay-callback-smoke.js` runs in CI automatically — it starts a Django server, sends 20 requests with invalid signatures, and checks that all are rejected in under 200 ms.
+
+`checkout-smoke.js` is not in CI — it requires a running backend with real product data. Run it manually before production deploys.
+
+Install k6: `brew install k6` (macOS) or see [k6 docs](https://k6.io/docs/get-started/installation/).
+
+```bash
+# LiqPay callback HMAC rejection speed (no DB or running server required)
+make load-test-callback
+
+# Checkout endpoint (requires a running backend and a valid product ID)
+PRODUCT_ID=<id> make load-test-checkout
+```
+
+`liqpay-callback-smoke.js` — sends requests with an invalid signature. The endpoint must reject them under 200 ms. No DB writes happen; this only tests HMAC check speed under load.
+
+`checkout-smoke.js` — sends a full checkout payload. Requires `BASE_URL` pointing to a running backend and `PRODUCT_ID` of an existing product. Goal: p(95) < 500 ms, no 500 responses.
+
+Both scripts use 1 VU and 20 iterations as a smoke baseline. Increase `vus` and `iterations` for actual stress testing.
 
 ## Payments
 

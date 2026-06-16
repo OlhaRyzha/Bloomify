@@ -139,6 +139,14 @@ backend-pyright:
 	cd $(FRONTEND_DIR) && npx pyright --project ../pyrightconfig.json
 
 
+# ---------- Load tests ----------
+
+load-test-checkout:
+	k6 run $(BACKEND_DIR)/load_tests/checkout-smoke.js
+
+load-test-callback:
+	k6 run $(BACKEND_DIR)/load_tests/liqpay-callback-smoke.js
+
 # ---------- pre-commit ----------
 
 pre-commit-install:
