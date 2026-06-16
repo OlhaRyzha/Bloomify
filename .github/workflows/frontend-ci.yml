@@ -50,6 +50,9 @@ jobs:
       - name: Coverage
         run: make frontend-test-coverage
 
+      - name: Check dependencies
+        run: make frontend-check-deps
+
   build:
     runs-on: ubuntu-latest
     needs: check

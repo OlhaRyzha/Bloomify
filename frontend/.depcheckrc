@@ -1,0 +1,12 @@
+{
+  "ignores": [
+    "@tailwindcss/postcss",
+    "autoprefixer",
+    "depcheck",
+    "pyright",
+    "ts-prune",
+    "tw-animate-css",
+    "unimported",
+    "@next/env"
+  ]
+}

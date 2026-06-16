@@ -66,6 +66,11 @@ frontend-performance-budget:
 frontend-check-deps:
 	cd $(FRONTEND_DIR) && npx depcheck
 
+generate-api-types:
+	cd $(BACKEND_DIR) && uv run python manage.py spectacular --file ../openapi.json
+	cd $(FRONTEND_DIR) && npx openapi-typescript ../openapi.json -o src/types/api.generated.ts
+	rm -f openapi.json
+
 frontend-check-unimported:
 	cd $(FRONTEND_DIR) && npx unimported
 

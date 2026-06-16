@@ -148,6 +148,7 @@ def build_payment_status_response(
 
 
 class CheckoutCreateView(APIView):
+    # AllowAny: guest checkout is supported — no account required to place an order.
     permission_classes = [permissions.AllowAny]
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "checkout"
@@ -209,8 +210,12 @@ class CheckoutCreateView(APIView):
 
 
 class LiqPayCallbackView(APIView):
+    # AllowAny + no auth: LiqPay POSTs here without auth headers.
+    # Security is enforced by HMAC signature verification on every request.
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "liqpay_callback"
 
     @extend_schema(
         request=inline_serializer(

@@ -361,8 +361,12 @@ class SubscriptionPaymentStatusView(APIView):
 
 
 class LiqPaySubscriptionCallbackView(APIView):
+    # AllowAny + no auth: LiqPay POSTs here without auth headers.
+    # Security is enforced by HMAC signature verification on every request.
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "liqpay_callback"
 
     def post(self, request: Request) -> Response:
         data = request.data.get("data")
