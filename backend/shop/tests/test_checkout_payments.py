@@ -353,7 +353,9 @@ class CheckoutPaymentsTest(TestCase):
 
     def test_payment_status_rejects_token_from_different_order(self):
         order_a = create_liqpay_order()
-        order_b = create_liqpay_order()
+        order_b = create_liqpay_order(
+            liqpay_order_id="bloomify-2", provider_order_id="bloomify-2"
+        )
         token_a = authorize_payment_status(order_a)
         authorize_payment_status(order_b)
 
