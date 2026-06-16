@@ -26,6 +26,8 @@ class EnvironmentSettings(BaseSettings):
     DJANGO_SECRET_KEY: str
     DJANGO_ALLOWED_HOSTS: str
     DJANGO_CORS_ALLOWED_ORIGINS: str
+    DJANGO_CORS_ALLOW_ALL_ORIGINS: bool = False
+    DJANGO_JWT_SECRET_KEY: str = ""
     DJANGO_CSRF_TRUSTED_ORIGINS: str = ""
     DJANGO_FORCE_SCRIPT_NAME: str = ""
     DJANGO_MEDIA_URL: str = ""
@@ -35,7 +37,7 @@ class EnvironmentSettings(BaseSettings):
     DJANGO_SECURE_HSTS_SECONDS: int = 0
     DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: bool = False
     DJANGO_SECURE_HSTS_PRELOAD: bool = False
-    DJANGO_ENABLE_API_DOCS: bool = True
+    DJANGO_ENABLE_API_DOCS: bool = False
     ADMIN_SITE_URL: str = "http://localhost:3000"
 
     DATABASE_URL: str = ""
@@ -129,7 +131,7 @@ def build_database_config() -> DatabaseConfig:
 
 
 SECRET_KEY = env.DJANGO_SECRET_KEY
-JWT_SECRET_KEY = SECRET_KEY
+JWT_SECRET_KEY = env.DJANGO_JWT_SECRET_KEY or SECRET_KEY
 JWT_ALGORITHM = "HS256"
 
 DEBUG = env.DJANGO_DEBUG
@@ -167,7 +169,7 @@ SCHEMA_PATH: str | None = "schema/" if env.DJANGO_ENABLE_API_DOCS else None
 CORS_ALLOWED_ORIGINS = [
     item.strip() for item in env.DJANGO_CORS_ALLOWED_ORIGINS.split(",") if item.strip()
 ]
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOW_ALL_ORIGINS = env.DJANGO_CORS_ALLOW_ALL_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     item.strip() for item in env.DJANGO_CSRF_TRUSTED_ORIGINS.split(",") if item.strip()
@@ -175,7 +177,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 SECURE_SSL_REDIRECT = env.DJANGO_SECURE_SSL_REDIRECT
 SESSION_COOKIE_SECURE = env.DJANGO_SESSION_COOKIE_SECURE
+SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = env.DJANGO_CSRF_COOKIE_SECURE
+CSRF_COOKIE_SAMESITE = "Lax"
 SECURE_HSTS_SECONDS = env.DJANGO_SECURE_HSTS_SECONDS
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env.DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
 SECURE_HSTS_PRELOAD = env.DJANGO_SECURE_HSTS_PRELOAD
@@ -210,6 +214,7 @@ INSTALLED_APPS = [
     "shop.apps.ShopConfig",
     # "notifications",
     "notifications.apps.NotificationsConfig",
+    "rest_framework_simplejwt.token_blacklist",
     "django.contrib.staticfiles",
 ]
 
@@ -399,7 +404,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": _timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": _timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": JWT_ALGORITHM,
     "SIGNING_KEY": JWT_SECRET_KEY,
 }
@@ -419,6 +424,7 @@ REST_FRAMEWORK = {
         "auth_refresh": "60/hour",
         "checkout": "20/hour",
         "payment_status": "60/hour",
+        "subscription": "10/hour",
     },
 }
 

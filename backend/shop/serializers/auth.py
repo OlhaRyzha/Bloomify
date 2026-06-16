@@ -34,7 +34,7 @@ class RegisterSerializer(serializers.Serializer):
         validate_password(value)
         return value
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, str]) -> AbstractBaseUser:
         email = validated_data["email"]
         name = validated_data["name"].strip()
         user = User.objects.create_user(
@@ -51,7 +51,7 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, trim_whitespace=False)
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict[str, str]) -> dict[str, str | AbstractBaseUser]:
         email = attrs["email"].strip().lower()
         password = attrs["password"]
         user = authenticate(
@@ -66,5 +66,4 @@ class LoginSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError("This account is inactive.")
 
-        attrs["user"] = user
-        return attrs
+        return {**attrs, "user": user}

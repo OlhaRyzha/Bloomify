@@ -13,6 +13,6 @@ class SiteLanguagesView(APIView):
     @extend_schema(
         operation_id="site_languages", responses=SiteLanguageSettingsSerializer
     )
-    def get(self, request):
+    def get(self, request: object) -> Response:
         serializer = SiteLanguageSettingsSerializer(get_site_languages_settings())
         return Response(serializer.data)

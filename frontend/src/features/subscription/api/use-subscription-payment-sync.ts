@@ -66,7 +66,7 @@ export function useSubscriptionPaymentSync() {
           return;
         }
 
-        if (result.paymentStatus === 'failed') {
+        if (result.paymentStatus === 'failed' || result.paymentStatus === 'canceled') {
           await finish('failed');
           return;
         }

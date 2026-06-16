@@ -5,7 +5,7 @@ from django.contrib.staticfiles.management.commands.runserver import (
 
 
 class Command(StaticfilesRunserverCommand):
-    def inner_run(self, *args, **options):
+    def inner_run(self, *args: object, **options: object) -> None:
         self._print_shortcuts()
         return super().inner_run(*args, **options)
 

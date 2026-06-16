@@ -1,5 +1,6 @@
 import logging
 from datetime import date
+from decimal import Decimal, InvalidOperation
 from urllib.parse import urlencode, urlsplit, urlunsplit
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from shop.models.subscription import Subscription, SubscriptionPayment, SubscriptionPlan
@@ -151,6 +153,8 @@ class MySubscriptionView(APIView):
 
 class SubscribeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "subscription"
 
     @extend_schema(request=SubscribeRequestSerializer, responses={201: dict})
     def post(self, request: Request) -> Response:
@@ -161,24 +165,27 @@ class SubscribeView(APIView):
         serializer = SubscribeRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        plan = SubscriptionPlan.objects.get(
-            id=serializer.validated_data["plan_id"], is_active=True
-        )
-
-        existing = (
-            Subscription.objects.filter(user=user).exclude(status="canceled").first()
-        )
-        if existing is not None:
-            return Response(
-                {"detail": "You already have an active subscription."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        plan: SubscriptionPlan = serializer.validated_data["plan_id"]
 
         locale = request.data.get("locale") or request.query_params.get("locale")
         if isinstance(locale, str) and locale not in SUPPORTED_LANGUAGE_CODES:
             locale = None
 
+        payment_status_token = create_order_access_token()
+
         with transaction.atomic():
+            existing = (
+                Subscription.objects.select_for_update()
+                .filter(user=user)
+                .exclude(status="canceled")
+                .first()
+            )
+            if existing is not None:
+                return Response(
+                    {"detail": "You already have an active subscription."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             subscription = Subscription.objects.create(
                 user=user,
                 plan=plan,
@@ -189,13 +196,8 @@ class SubscribeView(APIView):
                 subscription=subscription,
                 amount=plan.price,
                 status="pending",
+                payment_status_token_hash=hash_order_access_token(payment_status_token),
             )
-
-        payment_status_token = create_order_access_token()
-        payment.payment_status_token_hash = hash_order_access_token(
-            payment_status_token
-        )
-        payment.save(update_fields=["payment_status_token_hash"])
 
         try:
             checkout_payload = _create_subscription_checkout_payload(
@@ -226,6 +228,8 @@ class SubscribeView(APIView):
 
 class UnsubscribeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "subscription"
 
     def post(self, request: Request) -> Response:
         user = request.user
@@ -247,6 +251,8 @@ class UnsubscribeView(APIView):
 
 class UpgradeSubscriptionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "subscription"
 
     @extend_schema(request=UpgradeRequestSerializer, responses={201: dict})
     def post(self, request: Request) -> Response:
@@ -257,9 +263,7 @@ class UpgradeSubscriptionView(APIView):
         serializer = UpgradeRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        target_plan = SubscriptionPlan.objects.get(
-            id=serializer.validated_data["plan_id"], is_active=True
-        )
+        target_plan: SubscriptionPlan = serializer.validated_data["plan_id"]
 
         subscription = (
             Subscription.objects.filter(user=user, status="active")
@@ -290,18 +294,16 @@ class UpgradeSubscriptionView(APIView):
         if isinstance(locale, str) and locale not in SUPPORTED_LANGUAGE_CODES:
             locale = None
 
-        payment = SubscriptionPayment.objects.create(
-            subscription=subscription,
-            target_plan=target_plan,
-            amount=diff_amount,
-            status="pending",
-        )
-
         payment_status_token = create_order_access_token()
-        payment.payment_status_token_hash = hash_order_access_token(
-            payment_status_token
-        )
-        payment.save(update_fields=["payment_status_token_hash"])
+
+        with transaction.atomic():
+            payment = SubscriptionPayment.objects.create(
+                subscription=subscription,
+                target_plan=target_plan,
+                amount=diff_amount,
+                status="pending",
+                payment_status_token_hash=hash_order_access_token(payment_status_token),
+            )
 
         try:
             checkout_payload = _create_subscription_checkout_payload(
@@ -310,8 +312,9 @@ class UpgradeSubscriptionView(APIView):
                 payment_status_token=payment_status_token,
             )
         except PaymentProviderConfigurationError as exc:
-            payment.status = "failed"
-            payment.save(update_fields=["status"])
+            with transaction.atomic():
+                payment.status = "failed"
+                payment.save(update_fields=["status"])
             return Response(
                 {"detail": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
@@ -412,6 +415,26 @@ class LiqPaySubscriptionCallbackView(APIView):
                 {"detail": "Payment not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
+        try:
+            callback_amount = Decimal(str(payload.get("amount", "0")))
+        except InvalidOperation:
+            callback_amount = Decimal("0")
+
+        callback_currency = str(payload.get("currency", "")).upper()
+        if callback_amount != payment.amount or callback_currency != "UAH":
+            logger.warning(
+                "Subscription callback amount/currency mismatch for payment %s: "
+                "expected %s UAH, got %s %s",
+                payment.pk,
+                payment.amount,
+                callback_amount,
+                callback_currency,
+            )
+            return Response(
+                {"detail": "Amount or currency mismatch."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         payment_status = str(payload.get("status", "")).lower()
         paid_statuses = {"success", "sandbox"}
 
@@ -431,7 +454,7 @@ class LiqPaySubscriptionCallbackView(APIView):
                     sub_update_fields.append("plan")
                 sub.save(update_fields=sub_update_fields)
             elif payment_status in {"failure", "error", "reversed"}:
-                payment.status = "failed"
+                payment.status = "canceled"
                 sub = payment.subscription
                 if sub.status == "pending":
                     sub.status = "canceled"

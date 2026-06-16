@@ -28,5 +28,5 @@ class SiteLanguageSettingsAdmin(admin.ModelAdmin):
         )
         return HttpResponseRedirect(change_url)
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request) -> bool:
         return not SiteLanguageSettings.objects.exists()

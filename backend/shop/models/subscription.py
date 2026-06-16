@@ -75,6 +75,7 @@ class SubscriptionPayment(models.Model):
         ("pending", _("Pending")),
         ("paid", _("Paid")),
         ("failed", _("Failed")),
+        ("canceled", _("Canceled")),
     ]
 
     subscription = models.ForeignKey(
@@ -98,7 +99,12 @@ class SubscriptionPayment(models.Model):
         _("Status"), max_length=20, choices=STATUS_CHOICES, default="pending"
     )
     provider_order_id = models.CharField(
-        _("Provider order ID"), max_length=100, blank=True, default=""
+        _("Provider order ID"),
+        max_length=100,
+        blank=True,
+        null=True,
+        default=None,
+        unique=True,
     )
     provider_payment_id = models.CharField(
         _("Provider payment ID"), max_length=100, blank=True, default=""

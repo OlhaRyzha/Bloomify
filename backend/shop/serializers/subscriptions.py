@@ -61,18 +61,14 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 
 class SubscribeRequestSerializer(serializers.Serializer):
-    plan_id = serializers.IntegerField()
-
-    def validate_plan_id(self, value: int) -> int:
-        if not SubscriptionPlan.objects.filter(id=value, is_active=True).exists():
-            raise serializers.ValidationError("Subscription plan not found.")
-        return value
+    plan_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubscriptionPlan.objects.filter(is_active=True),
+        error_messages={"does_not_exist": "Subscription plan not found."},
+    )
 
 
 class UpgradeRequestSerializer(serializers.Serializer):
-    plan_id = serializers.IntegerField()
-
-    def validate_plan_id(self, value: int) -> int:
-        if not SubscriptionPlan.objects.filter(id=value, is_active=True).exists():
-            raise serializers.ValidationError("Subscription plan not found.")
-        return value
+    plan_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubscriptionPlan.objects.filter(is_active=True),
+        error_messages={"does_not_exist": "Subscription plan not found."},
+    )

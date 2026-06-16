@@ -2,6 +2,7 @@ from decimal import Decimal
 from typing import NotRequired, TypedDict
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
 
@@ -81,7 +82,7 @@ class PaymentStatusRequestSerializer(serializers.Serializer):
 def create_checkout_order(
     payload: CheckoutOrderPayload,
     *,
-    user=None,
+    user: User | None = None,
 ) -> CheckoutOrderResult:
     product_ids = [item["id"] for item in payload["items"]]
     products = Product.objects.in_bulk(product_ids)

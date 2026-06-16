@@ -20,12 +20,6 @@ type PlanCardProps = {
   perPeriodLabel: string;
 };
 
-const INTERVAL_LABEL: Record<string, string> = {
-  monthly: 'мiс',
-  weekly: 'тиж',
-  quarterly: 'квартал',
-};
-
 export default function PlanCard({
   plan,
   isCurrentPlan = false,
@@ -39,7 +33,6 @@ export default function PlanCard({
   currentPlanLabel,
   perPeriodLabel,
 }: PlanCardProps) {
-  const periodLabel = INTERVAL_LABEL[plan.interval] ?? plan.interval;
   const popular = plan.badge !== '';
   const isSubscribed = currentPlanPrice !== undefined;
   const canUpgrade = isSubscribed && !isCurrentPlan && plan.price > currentPlanPrice;
@@ -151,7 +144,7 @@ export default function PlanCard({
                 'block text-sm',
                 popular ? 'text-primary-foreground/80' : 'text-muted-foreground'
               )}>
-              /{perPeriodLabel || periodLabel}
+              /{perPeriodLabel}
             </span>
           </div>
         </div>

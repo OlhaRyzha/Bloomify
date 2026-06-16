@@ -4,6 +4,11 @@ from django.contrib.auth.models import User
 
 from shop.models.order import Order
 from shop.models.product import Product
+from shop.models.subscription import Subscription, SubscriptionPayment, SubscriptionPlan
+from shop.security.order_access import (
+    create_order_access_token,
+    hash_order_access_token,
+)
 from shop.types import ModelFactoryAttrs, PaymentProviderPayload, StringKeyedObjectDict
 
 TEST_USER_EMAIL = "olha@example.com"
@@ -31,7 +36,7 @@ TEST_LIQPAY_DOCUMENTATION_DATA = (
     "IjoicGF5IiwiYW1vdW50IjoiMyIsImN1cnJlbmN5IjoiVUFIIiwiZGVzY3Jp"
     "cHRpb24iOiJ0ZXN0Iiwib3JkZXJfaWQiOiIwMDAwMDEifQ=="
 )
-TEST_LIQPAY_DOCUMENTATION_SIGNATURE = "0adgJ8F2Ds5HCVkcz4AlmdLMRoIJf7IxsL3QmeFRz/s="
+TEST_LIQPAY_DOCUMENTATION_SIGNATURE = "CZQ2WPZ4+rJnKdg5BT9lSsJtXZk="
 
 
 def create_product(**overrides: object) -> Product:
@@ -177,3 +182,81 @@ def build_liqpay_callback_request(
 
 def build_payment_status_request(token: str) -> StringKeyedObjectDict:
     return {"token": token}
+
+
+def create_subscription_plan(
+    *,
+    name: str = "Test Plan",
+    description: str = "",
+    **overrides: object,
+) -> SubscriptionPlan:
+    defaults: ModelFactoryAttrs = {
+        "price": Decimal("299.00"),
+        "interval": "monthly",
+        "is_active": True,
+    }
+    defaults.update(overrides)
+    plan = SubscriptionPlan.objects.create(**defaults)
+    for lang in ("uk", "en"):
+        plan.set_current_language(lang)
+        plan.name = name
+        plan.description = description
+        plan.save()
+    assert isinstance(plan, SubscriptionPlan)
+    return plan
+
+
+def create_subscription(
+    user: User,
+    plan: SubscriptionPlan,
+    **overrides: object,
+) -> Subscription:
+    from datetime import date
+
+    defaults: ModelFactoryAttrs = {
+        "user": user,
+        "plan": plan,
+        "status": "active",
+        "start_date": date.today(),
+    }
+    defaults.update(overrides)
+    subscription = Subscription.objects.create(**defaults)
+    assert isinstance(subscription, Subscription)
+    return subscription
+
+
+def create_subscription_payment(
+    subscription: Subscription,
+    *,
+    with_token: bool = False,
+    **overrides: object,
+) -> tuple[SubscriptionPayment, str | None]:
+    defaults: ModelFactoryAttrs = {
+        "subscription": subscription,
+        "amount": subscription.plan.price,
+        "status": "pending",
+    }
+    defaults.update(overrides)
+    payment = SubscriptionPayment.objects.create(**defaults)
+    assert isinstance(payment, SubscriptionPayment)
+    token: str | None = None
+    if with_token:
+        token = create_order_access_token()
+        payment.payment_status_token_hash = hash_order_access_token(token)
+        payment.save(update_fields=["payment_status_token_hash"])
+    return payment, token
+
+
+def build_subscription_callback_payload(
+    payment: SubscriptionPayment,
+    *,
+    status: str = "success",
+    payment_id: int = 111222,
+) -> PaymentProviderPayload:
+    return {
+        "order_id": payment.provider_order_id or "",
+        "status": status,
+        "payment_id": payment_id,
+        "amount": str(payment.amount),
+        "currency": "UAH",
+    }

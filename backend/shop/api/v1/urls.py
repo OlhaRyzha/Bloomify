@@ -8,6 +8,7 @@ from shop.views.auth import (
     RefreshView,
     RegisterView,
 )
+from shop.views.health import HealthCheckView
 from shop.views.orders import (
     CheckoutCreateView,
     LiqPayCallbackView,
@@ -70,6 +71,7 @@ urlpatterns = [
         SubscriptionPaymentStatusView.as_view(),
         name="subscription_payment_status",
     ),
+    path("health", HealthCheckView.as_view(), name="health"),
     path("site/languages", SiteLanguagesView.as_view(), name="site_languages"),
     path("auth/register/", RegisterView.as_view(), name="auth_register"),
     path("auth/token/", LoginView.as_view(), name="token_obtain_pair"),

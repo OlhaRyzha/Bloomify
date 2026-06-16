@@ -34,7 +34,7 @@ export const subscribeResponseSchema = z.object({
 
 export const subscriptionPaymentStatusSchema = z.object({
   paymentId: z.number(),
-  paymentStatus: z.enum(['pending', 'paid', 'failed']),
+  paymentStatus: z.enum(['pending', 'paid', 'failed', 'canceled']),
   subscriptionId: z.number(),
   subscriptionStatus: z.enum(['active', 'pending', 'paused', 'canceled']),
   plan: subscriptionPlanSchema,
