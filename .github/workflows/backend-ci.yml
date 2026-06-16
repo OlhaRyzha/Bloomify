@@ -47,6 +47,8 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       DJANGO_ENABLE_API_DOCS: "true"
+      LIQPAY_PUBLIC_KEY: "sandbox_public_key"
+      LIQPAY_PRIVATE_KEY: "sandbox_private_key"
 
     steps:
       - uses: actions/checkout@v4
