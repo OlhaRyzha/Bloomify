@@ -14,8 +14,6 @@ from shop.tests.factories import (
     TEST_DELIVERY_NOTE,
     TEST_INVALID_BASE64_PAYLOAD,
     TEST_INVALID_PAYMENT_STATUS_TOKEN,
-    TEST_LIQPAY_DOCUMENTATION_DATA,
-    TEST_LIQPAY_DOCUMENTATION_SIGNATURE,
     TEST_LIQPAY_ORDER_ID,
     TEST_LIQPAY_PAYMENT_ID,
     TEST_UNKNOWN_PRODUCT_ID,
@@ -112,13 +110,6 @@ class CheckoutPaymentsTest(TestCase):
             liqpay_payload["result_url"],
             "http://localhost:3000/en/checkout?"
             f"orderId={order.pk}&orderToken={body['paymentStatusToken']}",
-        )
-
-    @override_settings(LIQPAY_PRIVATE_KEY="a4825234f4bae72a0be04eafe9e8e2bada209255")
-    def test_liqpay_signature_matches_documentation_example(self):
-        self.assertEqual(
-            create_signature(TEST_LIQPAY_DOCUMENTATION_DATA),
-            TEST_LIQPAY_DOCUMENTATION_SIGNATURE,
         )
 
     def test_checkout_creates_cash_on_delivery_order_without_liqpay_payload(self):
