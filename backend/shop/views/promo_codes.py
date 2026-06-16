@@ -3,6 +3,7 @@ from decimal import Decimal
 from rest_framework import permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from shop.models.promo_code import PromoCode
@@ -11,6 +12,8 @@ from shop.models.promo_code import PromoCode
 class ValidatePromoCodeView(APIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "promo_code"
 
     def post(self, request: Request) -> Response:
         code = str(request.data.get("code", "")).upper().strip()

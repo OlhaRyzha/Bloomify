@@ -4,6 +4,7 @@ from typing import NotRequired, TypedDict
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.db.models import F
 from rest_framework import serializers
 
 from shop.models.order import Order
@@ -165,9 +166,7 @@ def create_checkout_order(
         )
 
         if promo and discount > Decimal("0.00"):
-            PromoCode.objects.filter(pk=promo.pk).update(
-                used_count=promo.used_count + 1
-            )
+            PromoCode.objects.filter(pk=promo.pk).update(used_count=F("used_count") + 1)
 
     return {
         "order": order,

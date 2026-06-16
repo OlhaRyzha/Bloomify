@@ -14,6 +14,9 @@ on:
       - ".github/workflows/frontend-ci.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -23,10 +26,10 @@ jobs:
       NEXT_PUBLIC_SENTRY_DSN: ""
       SENTRY_AUTH_TOKEN: ""
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -56,10 +59,10 @@ jobs:
       NEXT_PUBLIC_SENTRY_DSN: ""
       SENTRY_AUTH_TOKEN: ""
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -85,10 +88,10 @@ jobs:
       PLAYWRIGHT_API_URL: http://127.0.0.1:8010
       PLAYWRIGHT_BASE_URL: http://127.0.0.1:3100
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -156,7 +159,7 @@ jobs:
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-playwright-report
           path: frontend/playwright-report
@@ -164,7 +167,7 @@ jobs:
 
       - name: Upload Playwright test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-playwright-test-results
           path: frontend/test-results
@@ -172,7 +175,7 @@ jobs:
 
       - name: Upload E2E server logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-e2e-server-logs
           path: frontend/e2e-server-logs

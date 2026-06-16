@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import ConfirmationDialog from '@/components/ui/confirmation-dialog';
 import { getConfirmationCopy } from '@/components/ui/confirmation-copy';
 import { useTranslation } from '@/hooks/use-translation';
+import { useLocale } from '@/components/providers/locale-provider';
 import { cn } from '@/lib/utils';
 import type { MySubscription } from '../api/subscription.schemas';
 
@@ -45,7 +46,19 @@ export default function SubscriptionStatusCard({
   isUnsubscribing = false,
 }: SubscriptionStatusCardProps) {
   const { t } = useTranslation();
+  const { locale } = useLocale();
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const intervalLabel =
+    subscription.plan.interval === 'monthly'
+      ? t('label_month')
+      : subscription.plan.interval === 'weekly'
+        ? t('label_week')
+        : t('label_quarter');
+
+  const formattedStartDate = new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+  }).format(new Date(subscription.start_date));
 
   const config = STATUS_CONFIG[subscription.status] ?? STATUS_CONFIG.active;
   const StatusIcon = config.icon;
@@ -74,9 +87,7 @@ export default function SubscriptionStatusCard({
                 {subscription.plan.price}₴
               </span>
               <span className='block text-sm text-muted-foreground'>
-                /{subscription.plan.interval === 'monthly'
-                  ? t('label_month')
-                  : subscription.plan.interval}
+                /{intervalLabel}
               </span>
             </div>
           </div>
@@ -99,7 +110,7 @@ export default function SubscriptionStatusCard({
               aria-hidden
             />
             <span>
-              {t('subscription_start_date_label')}: {subscription.start_date}
+              {t('subscription_start_date_label')}: {formattedStartDate}
             </span>
           </div>
 

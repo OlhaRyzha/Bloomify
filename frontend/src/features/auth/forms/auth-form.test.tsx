@@ -28,6 +28,11 @@ const {
 
 let searchParams = new URLSearchParams();
 
+vi.mock('@/components/config/env', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/components/config/env')>();
+  return { ...actual, AUTH0_AUDIENCE: 'https://bloomify-api' };
+});
+
 vi.mock('next/navigation', () => ({
   useSearchParams: () => searchParams,
 }));
@@ -246,8 +251,6 @@ describe('AuthForm', () => {
   });
 
   test('starts Google login through Auth0', async () => {
-    vi.stubEnv('NEXT_PUBLIC_AUTH0_AUDIENCE', 'https://bloomify-api');
-
     const { user } = renderWithProviders(<AuthForm mode='login' />, {
       locale: 'en',
     });

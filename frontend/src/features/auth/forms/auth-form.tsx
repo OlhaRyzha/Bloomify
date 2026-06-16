@@ -25,6 +25,7 @@ import {
 } from './auth-form.config';
 import { getFormFieldError } from '@/utils/forms/get-form-field-error';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
+import { AUTH0_AUDIENCE } from '@/components/config/env';
 import { useTranslation } from '@/hooks/use-translation';
 import { getLocalizedPath } from '@/i18n/routing';
 import { ApiError } from '@/services/api/errors/api-error';
@@ -81,7 +82,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
       authorizationParams: {
         connection: 'google-oauth2',
         prompt: 'select_account',
-        audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE,
+        audience: AUTH0_AUDIENCE,
         scope: 'openid profile email',
       },
       appState: {

@@ -183,6 +183,7 @@ CSRF_COOKIE_SAMESITE = "Lax"
 SECURE_HSTS_SECONDS = env.DJANGO_SECURE_HSTS_SECONDS
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env.DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
 SECURE_HSTS_PRELOAD = env.DJANGO_SECURE_HSTS_PRELOAD
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
@@ -417,6 +418,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_RATES": {
         "auth_login": "20/hour",
@@ -425,6 +429,7 @@ REST_FRAMEWORK = {
         "checkout": "20/hour",
         "payment_status": "60/hour",
         "subscription": "10/hour",
+        "promo_code": "30/hour",
     },
 }
 

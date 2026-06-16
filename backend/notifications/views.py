@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import logging
 
 from django.conf import settings
@@ -150,7 +151,7 @@ class SentryAlertWebhookView(APIView):
         provided_secret = (
             request.headers.get("X-Bloomify-Sentry-Secret") or bearer_secret
         )
-        return provided_secret == expected_secret
+        return hmac.compare_digest(provided_secret, expected_secret)
 
 
 class TelegramCustomerWebhookView(APIView):

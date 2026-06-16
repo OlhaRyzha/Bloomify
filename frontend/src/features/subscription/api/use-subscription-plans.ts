@@ -13,6 +13,7 @@ export function useSubscriptionPlans(options?: Options) {
   return useQuery<SubscriptionPlan[], ApiError>({
     queryKey: subscriptionQueryKeys.plans(locale),
     queryFn: () => SubscriptionService.getPlans(locale),
+    staleTime: 60_000,
     ...options,
   });
 }

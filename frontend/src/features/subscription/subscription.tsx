@@ -48,13 +48,18 @@ export default function SubscriptionFeature() {
   return (
     <div className='space-y-10'>
       {isSyncing && (
-        <div className='rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary'>
+        <div
+          role='status'
+          aria-live='polite'
+          className='rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary'>
           {t('subscription_payment_syncing')}
         </div>
       )}
 
       {syncState === 'failed' && (
-        <div className='rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive'>
+        <div
+          role='alert'
+          className='rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive'>
           {t('subscription_payment_failed')}
         </div>
       )}
@@ -101,6 +106,7 @@ export default function SubscriptionFeature() {
                   onUpgrade={upgrade}
                   subscribeLabel={t('sections_subscription_cta')}
                   upgradeLabel={t('action_upgrade_subscription')}
+                  switchPlanLabel={t('action_switch_plan')}
                   currentPlanLabel={t('subscription_current_plan_label')}
                   perPeriodLabel={t('label_month')}
                 />

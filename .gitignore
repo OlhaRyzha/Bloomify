@@ -34,9 +34,10 @@ var/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual environments and package caches
 venv/
 .venv/
+.uv-cache/
 env/
 ENV/
 env.bak/

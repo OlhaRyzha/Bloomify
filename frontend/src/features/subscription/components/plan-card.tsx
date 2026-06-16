@@ -16,6 +16,7 @@ type PlanCardProps = {
   onUpgrade: (planId: number) => void;
   subscribeLabel: string;
   upgradeLabel: string;
+  switchPlanLabel: string;
   currentPlanLabel: string;
   perPeriodLabel: string;
 };
@@ -30,6 +31,7 @@ export default function PlanCard({
   onUpgrade,
   subscribeLabel,
   upgradeLabel,
+  switchPlanLabel,
   currentPlanLabel,
   perPeriodLabel,
 }: PlanCardProps) {
@@ -73,8 +75,9 @@ export default function PlanCard({
         <Button
           className='w-full'
           variant='ghost'
-          disabled>
-          {upgradeLabel}
+          disabled
+          aria-label={switchPlanLabel}>
+          {switchPlanLabel}
         </Button>
       );
     }

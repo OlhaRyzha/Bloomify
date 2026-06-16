@@ -166,6 +166,8 @@ def build_liqpay_provider_payload(
         "order_id": order.provider_order_id or order.liqpay_order_id or "",
         "status": status,
         "payment_id": payment_id,
+        "amount": str(order.total),
+        "currency": "UAH",
     }
 
 

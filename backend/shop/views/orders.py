@@ -1,4 +1,5 @@
 import logging
+from decimal import Decimal, InvalidOperation
 from typing import TypedDict, cast
 
 from common.pagination import (
@@ -268,6 +269,23 @@ class LiqPayCallbackView(APIView):
                     order.pk,
                     payload.get("status"),
                 )
+                try:
+                    callback_amount = Decimal(str(payload.get("amount", "0")))
+                except InvalidOperation:
+                    callback_amount = Decimal("0")
+                callback_currency = str(payload.get("currency", "")).upper()
+                if callback_amount != order.total or callback_currency != "UAH":
+                    logger.warning(
+                        "Order callback amount/currency mismatch for order %s: expected %s UAH, got %s %s",
+                        order.pk,
+                        order.total,
+                        callback_amount,
+                        callback_currency,
+                    )
+                    return Response(
+                        {"detail": "Amount or currency mismatch."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 payment_provider.apply_payment_payload(
                     order,
                     payload,
