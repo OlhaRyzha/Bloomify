@@ -239,6 +239,7 @@
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-fade-up {
@@ -266,6 +267,7 @@
 
 .hero-image-float {
   animation: hero-image-float 6s ease-in-out 1.2s infinite;
+  will-change: transform;
 }
 
 @keyframes featured-catalog-reveal {
@@ -356,5 +358,6 @@
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    will-change: auto !important;
   }
 }
