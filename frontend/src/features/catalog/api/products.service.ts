@@ -24,8 +24,12 @@ type ProductListRequestParams = ProductsRequestParams & CatalogQueryParams;
 type ProductsRequestConfig = Omit<AxiosRequestConfig, 'params'>;
 
 const ProductsService = {
-  getProducts: async (params?: ProductsRequestParams): Promise<Products> => {
+  getProducts: async (
+    params?: ProductsRequestParams,
+    config?: ProductsRequestConfig
+  ): Promise<Products> => {
     const response = await apiClient.get<Products>(API_ROUTES.PRODUCTS, {
+      ...config,
       params,
     });
 
