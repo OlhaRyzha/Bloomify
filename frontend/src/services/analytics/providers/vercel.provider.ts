@@ -5,6 +5,7 @@ import type {
   AnalyticsEventPayload,
   AnalyticsProvider,
 } from '../analytics.types';
+import { isAnalyticsOptedOut } from '../analytics.opt-out';
 
 type VercelAnalyticsValue = string | number | boolean | null;
 
@@ -55,6 +56,10 @@ export const vercelAnalyticsProvider: AnalyticsProvider = {
     name: TName,
     payload: AnalyticsEventPayload<TName>
   ) => {
+    if (isAnalyticsOptedOut()) {
+      return;
+    }
+
     track(name, flattenPayload(payload));
   },
 };
