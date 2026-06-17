@@ -12,6 +12,8 @@ const catalogItems = [
     name: 'Біла гармонія',
     description: 'Класична композиція з білих лілій та троянд',
     price: '1650',
+    discountedPrice: null,
+    isSale: false,
     imageUrl: '/images/white-harmony.jpg',
     tag: 'Класика',
   },
@@ -20,6 +22,8 @@ const catalogItems = [
     name: 'Блакитна гармонія',
     description: 'Витончений букет із білих лілій та гортензії',
     price: '1750',
+    discountedPrice: null,
+    isSale: false,
     imageUrl: '/images/blue-harmony.jpg',
     tag: 'Класика',
   },
@@ -70,7 +74,26 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === 'GET' && pathname === '/products') {
-    json(request, response, 200, catalogItems);
+    const isPaginated = requestUrl.searchParams.has('pageSize');
+    if (isPaginated) {
+      json(request, response, 200, {
+        items: catalogItems,
+        page: 1,
+        pageSize: Number(requestUrl.searchParams.get('pageSize') ?? 12),
+        total: catalogItems.length,
+        totalPages: 1,
+        hasNextPage: false,
+        nextPage: null,
+      });
+    } else {
+      json(request, response, 200, catalogItems);
+    }
+    return;
+  }
+
+  if (request.method === 'GET' && pathname === '/products/filters') {
+    const tags = [...new Set(catalogItems.map((item) => item.tag))];
+    json(request, response, 200, { tags });
     return;
   }
 
