@@ -1,4 +1,6 @@
-export const e2eCatalogItems = [
+import type { ProductItem } from '@/features/catalog/api/products.shemas';
+
+export const e2eCatalogItems: ProductItem[] = [
   {
     id: 'white-harmony',
     name: 'Біла гармонія',
@@ -19,6 +21,6 @@ export const e2eCatalogItems = [
     imageUrl: '/images/blue-harmony.jpg',
     tag: 'Класика',
   },
-] as const;
+];
 
 export const e2ePrimaryCatalogItem = e2eCatalogItems[0];

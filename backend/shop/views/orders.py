@@ -26,11 +26,10 @@ from shop.models.order import Order
 from shop.security.order_access import hash_order_access_token
 from shop.serializers.order import (
     CheckoutCreateSerializer,
-    CheckoutOrderPayload,
     PaymentStatusRequestSerializer,
-    create_checkout_order,
 )
 from shop.serializers.order_list import serialize_order
+from shop.services.order import create_checkout_order
 from shop.services.payment_provider_types import (
     PaymentCheckoutPayload,
     PaymentProviderConfigurationError,
@@ -40,6 +39,7 @@ from shop.services.payment_provider_types import (
     mark_paid_notification_as_sent,
 )
 from shop.services.payment_providers import get_payment_provider
+from shop.types import CheckoutOrderPayload
 
 logger = logging.getLogger(__name__)
 
@@ -123,13 +123,25 @@ def publish_cash_on_delivery_notification_safely(order_id: int) -> None:
     )
 
 
+def notify_customer_order_subscribers_safely(order_id: int) -> None:
+    try:
+        order = Order.objects.get(id=order_id)
+        notify_customer_order_subscribers(order)
+    except Order.DoesNotExist:
+        logger.exception("Failed to load order for customer subscriber notification")
+    except Exception:
+        logger.exception(
+            "Unexpected error notifying customer subscribers for order %s", order_id
+        )
+
+
 def schedule_paid_notification_after_checkout_return(order: Order) -> None:
     if order.payment_status != "paid" or has_paid_notification_been_sent(order):
         return
 
     mark_paid_notification_as_sent(order)
     transaction.on_commit(lambda: publish_order_paid_notification_safely(order.id))
-    transaction.on_commit(lambda: notify_customer_order_subscribers(order))
+    transaction.on_commit(lambda: notify_customer_order_subscribers_safely(order.id))
 
 
 def build_payment_status_response(
@@ -163,7 +175,7 @@ class CheckoutCreateView(APIView):
         payload = cast(CheckoutOrderPayload, serializer.validated_data)
         checkout_result = create_checkout_order(
             payload,
-            user=request.user if request.user.is_authenticated else None,
+            user=request.user if isinstance(request.user, User) else None,
         )
         order = checkout_result["order"]
         payment_status_token = checkout_result["payment_status_token"]
