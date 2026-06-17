@@ -6,6 +6,11 @@ import type {
   AnalyticsProvider,
 } from '../analytics.types';
 import { isAnalyticsOptedOut } from '../analytics.opt-out';
+import { isArray } from '@/utils/guards/is-array';
+import { isBoolean } from '@/utils/guards/is-boolean';
+import { isNumber } from '@/utils/guards/is-number';
+import { isObject } from '@/utils/guards/is-object';
+import { isString } from '@/utils/guards/is-string';
 
 type VercelAnalyticsValue = string | number | boolean | null;
 
@@ -17,15 +22,11 @@ const flattenPayload = (
     return prefix ? { [prefix]: null } : {};
   }
 
-  if (
-    typeof payload === 'string' ||
-    typeof payload === 'number' ||
-    typeof payload === 'boolean'
-  ) {
+  if (isString(payload) || isNumber(payload) || isBoolean(payload)) {
     return prefix ? { [prefix]: payload } : {};
   }
 
-  if (Array.isArray(payload)) {
+  if (isArray(payload)) {
     return payload.reduce<Record<string, VercelAnalyticsValue>>(
       (acc, item, index) => ({
         ...acc,
@@ -35,7 +36,7 @@ const flattenPayload = (
     );
   }
 
-  if (typeof payload === 'object' && payload) {
+  if (isObject(payload)) {
     return Object.entries(payload).reduce<Record<string, VercelAnalyticsValue>>(
       (acc, [key, value]) => {
         const nextPrefix = prefix ? `${prefix}_${key}` : key;
