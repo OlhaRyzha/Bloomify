@@ -351,6 +351,22 @@ class CheckoutPaymentsTest(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
+    def test_payment_status_rejects_token_from_different_order(self):
+        order_a = create_liqpay_order()
+        order_b = create_liqpay_order(
+            liqpay_order_id="bloomify-2", provider_order_id="bloomify-2"
+        )
+        token_a = authorize_payment_status(order_a)
+        authorize_payment_status(order_b)
+
+        response = self.client.post(
+            f"/orders/{order_b.pk}/payment-status",
+            data=build_payment_status_request(token_a),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
     def test_checkout_endpoint_is_rate_limited(self):
         payload = build_checkout_payload(
             product_id=self.product.pk,

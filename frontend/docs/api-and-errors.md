@@ -77,6 +77,51 @@ Rules:
 - Export inferred types from schemas.
 - Keep schema validation at the API boundary, not inside render components.
 
+## API Type Contract
+
+`src/types/api.generated.ts` is auto-generated from the backend OpenAPI schema. Do not edit it manually.
+
+### How it works
+
+```text
+backend serializers
+    ↓  make generate-api-types
+openapi.json  (temp, gitignored)
+    ↓  openapi-typescript
+src/types/api.generated.ts  (commit this)
+```
+
+The Zod schema is the source of truth for **runtime validation**. The generated type is the source of truth for the **API contract**. They are linked via `satisfies`:
+
+```ts
+import type { components } from '@/types/api.generated';
+
+type ApiProduct = components['schemas']['Product'];
+
+export const catalogItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  // ...
+}) satisfies z.ZodType<ApiProduct>;
+```
+
+If the backend serializer adds or removes a field and `make generate-api-types` is re-run, TypeScript will error on the `satisfies` line until the Zod schema is updated to match.
+
+### When to regenerate
+
+Run `make generate-api-types` after any backend serializer change that affects the API response shape. Commit the updated `api.generated.ts` together with the Zod schema update.
+
+### What goes where
+
+| Type | Where | Why |
+| --- | --- | --- |
+| API response types | `api.generated.ts` (auto) | generated, never manual |
+| Response Zod schemas | `features/<domain>/api/*.shemas.ts` | runtime validation + inferred TS type |
+| Form Zod schemas | `features/<domain>/forms/*.schemas.ts` | user input validation, unrelated to API |
+| Shared domain type | `src/types/<domain>.ts` | extend generated/inferred type with frontend-only fields |
+
+Frontend-only fields (e.g. `image?: StaticImageData` for static demo assets) are added by extending the inferred type, never by editing the generated file.
+
 ## Runtime Guards
 
 Before writing a new inline runtime/type check, first look in `src/utils/guards`.

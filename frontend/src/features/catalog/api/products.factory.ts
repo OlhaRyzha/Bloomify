@@ -12,6 +12,8 @@ export const createProductItem = (
   name: 'Rose bouquet',
   description: 'Fresh roses and seasonal greenery.',
   price: '1750',
+  discountedPrice: null,
+  isSale: false,
   imageUrl: '/images/rose-bouquet.jpg',
   tag: 'roses',
   ...overrides,

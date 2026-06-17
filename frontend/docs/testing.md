@@ -87,21 +87,33 @@ Prefer MSW for HTTP requests. Do not mock services directly when the behavior be
 
 Shared MSW setup lives in `src/test/msw`.
 
-- Add global always-on handlers only when they are safe for most tests.
-- Prefer per-test handlers with `server.use(...)` for scenario-specific responses.
-- Keep handlers close to the feature when they become domain-specific.
-- Let unhandled requests fail tests; this catches hidden network coupling.
+The server is configured with `onUnhandledRequest: 'error'` in `src/test/setup.ts`. Any test that triggers a network request without a matching handler will fail. This is intentional — it surfaces hidden network coupling early.
 
-Example:
+### Global baseline handlers
+
+`src/test/msw/handlers.ts` provides always-on handlers for endpoints that most tests implicitly depend on:
+
+| Handler | Returns |
+| --- | --- |
+| `GET /products` | `createProductListResponse()` — one default product |
+| `GET /products/filters` | `createProductFiltersResponse()` — one default tag |
+
+These handlers use the same factory functions as unit tests, so the shape is always valid and type-safe.
+
+Add a handler to this file only when it is safe for **all** tests — no business-specific state. For scenario-specific responses use `server.use(...)` inside the individual test:
 
 ```ts
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 
 server.use(
-  http.get('/api/products', () => HttpResponse.json([{ id: 'rose' }]))
+  http.get(apiUrl('products'), () =>
+    HttpResponse.json(createProductListResponse({ total: 0, items: [] }))
+  )
 );
 ```
+
+Per-test handlers are reset automatically after each test via `server.resetHandlers()` in the setup.
 
 ## React Tests
 

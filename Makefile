@@ -66,6 +66,11 @@ frontend-performance-budget:
 frontend-check-deps:
 	cd $(FRONTEND_DIR) && npx depcheck
 
+generate-api-types:
+	cd $(BACKEND_DIR) && uv run python manage.py spectacular --file ../openapi.json
+	cd $(FRONTEND_DIR) && npx openapi-typescript ../openapi.json -o src/types/api.generated.ts
+	rm -f openapi.json
+
 frontend-check-unimported:
 	cd $(FRONTEND_DIR) && npx unimported
 
@@ -133,6 +138,14 @@ no-any:
 backend-pyright:
 	cd $(FRONTEND_DIR) && npx pyright --project ../pyrightconfig.json
 
+
+# ---------- Load tests ----------
+
+load-test-checkout:
+	k6 run $(BACKEND_DIR)/load_tests/checkout-smoke.js
+
+load-test-callback:
+	k6 run $(BACKEND_DIR)/load_tests/liqpay-callback-smoke.js
 
 # ---------- pre-commit ----------
 

@@ -428,6 +428,7 @@ REST_FRAMEWORK = {
         "auth_refresh": "60/hour",
         "checkout": "20/hour",
         "payment_status": "60/hour",
+        "liqpay_callback": "300/hour",
         "subscription": "10/hour",
         "promo_code": "30/hour",
     },

@@ -1,13 +1,8 @@
 import type { StaticImageData } from 'next/image';
+import type { ProductItem } from '@/features/catalog/api/products.shemas';
 
-export type CatalogItem = {
-  id: string;
-  name: string;
-  description?: string;
-  price: string;
-  discountedPrice?: string | null;
-  isSale?: boolean;
+// API shape is defined by ProductItem (derived from Zod schema + satisfies ApiProduct).
+// CatalogItem extends it with an optional static image field used only in frontend demos.
+export type CatalogItem = ProductItem & {
   image?: StaticImageData | string;
-  imageUrl?: string | null;
-  tag?: string;
 };
