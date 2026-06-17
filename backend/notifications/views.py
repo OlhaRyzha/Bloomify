@@ -169,8 +169,8 @@ class TelegramCustomerWebhookView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
-        if secret != settings.TELEGRAM_CUSTOMER_WEBHOOK_SECRET:
+        secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token") or ""
+        if not hmac.compare_digest(secret, settings.TELEGRAM_CUSTOMER_WEBHOOK_SECRET):
             return Response(
                 {"detail": "Invalid webhook token."},
                 status=status.HTTP_403_FORBIDDEN,

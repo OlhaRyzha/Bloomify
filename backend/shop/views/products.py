@@ -4,6 +4,7 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics, permissions
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from shop.selectors.products import (
@@ -34,6 +35,8 @@ class ProductListView(generics.ListAPIView):
     queryset = get_active_products_queryset()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "product_list"
 
     @extend_schema(
         parameters=[
@@ -76,10 +79,14 @@ class ProductDetailView(generics.RetrieveAPIView):
     queryset = get_active_products_queryset()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "product_list"
 
 
 class ProductFiltersView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "product_list"
 
     @extend_schema(
         parameters=[

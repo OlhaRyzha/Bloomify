@@ -170,7 +170,7 @@ CORS_ALLOWED_ORIGINS = [
     item.strip() for item in env.DJANGO_CORS_ALLOWED_ORIGINS.split(",") if item.strip()
 ]
 CORS_ALLOW_ALL_ORIGINS = env.DJANGO_CORS_ALLOW_ALL_ORIGINS
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = not env.DJANGO_CORS_ALLOW_ALL_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
     item.strip() for item in env.DJANGO_CSRF_TRUSTED_ORIGINS.split(",") if item.strip()
 ]
@@ -432,6 +432,7 @@ REST_FRAMEWORK = {
         "liqpay_callback": "300/hour",
         "subscription": "10/hour",
         "promo_code": "30/hour",
+        "product_list": "300/hour",
     },
 }
 
