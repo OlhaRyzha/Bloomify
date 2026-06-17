@@ -1,0 +1,80 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useRouter } from 'next/navigation';
+
+import FeedbackState from '@/components/ui/feedback-state';
+import AuthSessionService from '@/features/auth/lib/shared/auth-session.service';
+import {
+  getRememberedPostAuthRedirectPath,
+  navigateAfterAuth,
+} from '@/features/auth/lib/client/auth-navigation.client';
+import { getLocalizedPath } from '@/i18n/routing';
+import { useTranslation } from '@/hooks/use-translation';
+import { useDelayedFlag } from '@/hooks/use-delayed-flag';
+
+export default function AuthCallback() {
+  const { error, getAccessTokenSilently, getIdTokenClaims, isLoading } =
+    useAuth0();
+  const router = useRouter();
+  const { locale, t } = useTranslation();
+
+  const showLoader = useDelayedFlag(!error);
+
+  useEffect(() => {
+    if (isLoading || error) {
+      return;
+    }
+
+    const completeAuth0SignIn = async () => {
+      try {
+        const accessToken = await getAccessTokenSilently();
+        const idTokenClaims = await getIdTokenClaims();
+        const idToken = idTokenClaims?.__raw;
+
+        if (!idToken) {
+          throw new Error('Missing Auth0 ID token');
+        }
+
+        await AuthSessionService.signInWithAuth0(accessToken, idToken);
+
+        const fallbackPath = getLocalizedPath('/profile', locale);
+        const returnTo = getRememberedPostAuthRedirectPath(fallbackPath);
+
+        navigateAfterAuth(returnTo);
+      } catch {
+        router.replace(getLocalizedPath('/sign-in', locale));
+      }
+    };
+
+    void completeAuth0SignIn();
+  }, [
+    error,
+    getAccessTokenSilently,
+    getIdTokenClaims,
+    isLoading,
+    locale,
+    router,
+  ]);
+
+  if (error) {
+    return (
+      <FeedbackState
+        title={t('auth_signin_error_title')}
+        description={error.message}
+      />
+    );
+  }
+
+  if (!showLoader) {
+    return null;
+  }
+
+  return (
+    <FeedbackState
+      title={t('auth_completing_title')}
+      description={t('auth_completing_description')}
+    />
+  );
+}
