@@ -2,26 +2,32 @@
 
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
-import { formatTemplate } from '@/utils/i18n';
 
 import { useCurrentUser } from '../hooks/use-current-user';
 
 type UserGreetingProps = {
+  messageKey: string;
   className?: string;
 };
 
 /**
- * Subtle personalised greeting for authenticated users. Renders nothing for
- * guests or while the name is unavailable, so it is safe to drop into any page.
+ * Subtle, page-specific personalised greeting for authenticated users.
+ * Uses the first name only and renders nothing for guests, so it is safe to
+ * drop into any page.
  */
-export default function UserGreeting({ className }: UserGreetingProps) {
+export default function UserGreeting({
+  messageKey,
+  className,
+}: UserGreetingProps) {
   const { t } = useTranslation();
   const { data: user } = useCurrentUser();
 
-  const name = user?.name?.trim();
-  if (!name) {
+  const fullName = user?.name?.trim();
+  if (!fullName) {
     return null;
   }
+
+  const firstName = fullName.split(/\s+/)[0];
 
   return (
     <p
@@ -29,7 +35,7 @@ export default function UserGreeting({ className }: UserGreetingProps) {
         'mb-6 text-center text-sm text-muted-foreground',
         className
       )}>
-      {formatTemplate(t('greeting_welcome'), { name })}
+      {t(messageKey, { name: firstName })}
     </p>
   );
 }

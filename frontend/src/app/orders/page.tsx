@@ -23,7 +23,7 @@ export default async function OrdersPage() {
         title: t('label_orders'),
         description: t('orders_page_description'),
       }}>
-      <UserGreeting />
+      <UserGreeting messageKey='greeting_orders' />
       <OrdersFeature />
     </PageShell>
   );

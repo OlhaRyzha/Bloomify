@@ -22,15 +22,16 @@ export default function CheckoutSuccessState({
   t,
 }: CheckoutSuccessStateProps) {
   const { data: user } = useCurrentUser();
-  const userName = user?.name?.trim();
+  const fullName = user?.name?.trim();
+  const firstName = fullName ? fullName.split(/\s+/)[0] : undefined;
 
   const telegramOrderTrackingUrl =
     TELEGRAM_BOT_URL && completedOrderId
       ? buildTelegramOrderTrackingUrl(TELEGRAM_BOT_URL, completedOrderId)
       : null;
 
-  const successTitle = userName
-    ? formatTemplate(t('checkout_order_success_greeting'), { name: userName })
+  const successTitle = firstName
+    ? formatTemplate(t('checkout_order_success_greeting'), { name: firstName })
     : t('checkout_order_success_title');
 
   return (

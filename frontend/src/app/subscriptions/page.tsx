@@ -23,7 +23,7 @@ export default async function SubscriptionsPage() {
         title: t('subscriptions_page_title'),
         description: t('subscriptions_page_description'),
       }}>
-      <UserGreeting />
+      <UserGreeting messageKey='greeting_subscription' />
       <SubscriptionFeature />
     </PageShell>
   );

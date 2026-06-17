@@ -23,7 +23,7 @@ export default async function CartPage() {
         title: t('label_cart'),
         description: t('cart_page_description'),
       }}>
-      <UserGreeting />
+      <UserGreeting messageKey='greeting_cart' />
       <CartFeature />
     </PageShell>
   );
