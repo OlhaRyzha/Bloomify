@@ -8,7 +8,7 @@ import type {
 export const createCheckoutPayload = (
   overrides: Partial<CheckoutRequest> = {}
 ): CheckoutRequest => ({
-  customerName: 'Olha Ryzha',
+  customerName: 'Olena Kolomiec',
   email: 'olha@example.com',
   phone: '+380671234567',
   city: 'Kyiv',

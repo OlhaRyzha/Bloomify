@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { PageShell } from '@/components/layout/page-layout';
 import CartFeature from '@/features/cart/cart';
+import UserGreeting from '@/features/auth/components/user-greeting';
 import { getServerTranslator } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,6 +23,7 @@ export default async function CartPage() {
         title: t('label_cart'),
         description: t('cart_page_description'),
       }}>
+      <UserGreeting />
       <CartFeature />
     </PageShell>
   );

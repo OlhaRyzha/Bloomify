@@ -68,7 +68,7 @@ describe('AuthService', () => {
         HttpResponse.json({
           id: 7,
           email: 'olha@example.com',
-          name: 'Olha Ryzha',
+          name: 'Olena Kolomiec',
         })
       )
     );
@@ -76,7 +76,7 @@ describe('AuthService', () => {
     await expect(AuthService.getCurrentUser()).resolves.toEqual({
       id: 7,
       email: 'olha@example.com',
-      name: 'Olha Ryzha',
+      name: 'Olena Kolomiec',
     });
   });
 

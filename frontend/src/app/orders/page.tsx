@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { PageShell } from '@/components/layout/page-layout';
 import { getServerTranslator } from '@/i18n/server';
 import OrdersFeature from '@/features/orders/orders';
+import UserGreeting from '@/features/auth/components/user-greeting';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
@@ -22,6 +23,7 @@ export default async function OrdersPage() {
         title: t('label_orders'),
         description: t('orders_page_description'),
       }}>
+      <UserGreeting />
       <OrdersFeature />
     </PageShell>
   );

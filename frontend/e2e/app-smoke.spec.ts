@@ -142,7 +142,7 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
 
   await mockCashOnDeliveryCheckout(page, (payload) => {
     expect(payload).toMatchObject({
-      customerName: 'Olha Ryzha',
+      customerName: 'Olena Kolomiec',
       email: 'olha@example.com',
       phone: '+380671234567',
       city: 'Київ',
@@ -154,7 +154,7 @@ test('checkout cash-on-delivery submits order without LiqPay handoff', async ({
 
   await goToAppPage(page, '/uk/checkout');
 
-  await page.getByLabel("Ім'я та прізвище").fill('Olha Ryzha');
+  await page.getByLabel("Ім'я та прізвище").fill('Olena Kolomiec');
   await page.getByLabel('Телефон').fill('+380671234567');
   await page.getByLabel('Email').fill('olha@example.com');
   await page.getByLabel('Місто').fill('Київ');

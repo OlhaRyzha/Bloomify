@@ -12,7 +12,7 @@ const validationMessages = getValidationMessages(testT);
 const schema = createCheckoutSchema(testT);
 
 const validCheckoutValues = {
-  customerName: 'Olha Ryzha',
+  customerName: 'Olena Kolomiec',
   email: 'olha@example.com',
   phone: '+380671234567',
   city: 'Kyiv',

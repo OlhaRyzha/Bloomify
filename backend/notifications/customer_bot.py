@@ -110,7 +110,11 @@ def subscribe_customer_to_order(chat: TelegramCustomerChat, order_id: int) -> No
 
     send_customer_message(
         chat.chat_id,
-        build_customer_order_status_message(subscription.order, subscribed=True),
+        build_customer_order_status_message(
+            subscription.order,
+            subscribed=True,
+            recipient_name=resolve_customer_display_name(subscription),
+        ),
     )
 
 
@@ -129,7 +133,11 @@ def notify_customer_order_subscribers(order: Order) -> None:
         try:
             send_customer_message(
                 subscription.telegram_chat_id,
-                build_customer_order_status_message(order, subscribed=False),
+                build_customer_order_status_message(
+                    order,
+                    subscribed=False,
+                    recipient_name=resolve_customer_display_name(subscription),
+                ),
             )
         except (CustomerTelegramBotError, TelegramNotificationError):
             logger.exception(
@@ -149,10 +157,28 @@ def notify_customer_order_subscribers(order: Order) -> None:
         )
 
 
+DEFAULT_CUSTOMER_NAME = "шановний клієнте"
+
+
+def resolve_customer_display_name(subscription: TelegramOrderSubscription) -> str:
+    """Pick the best name to address the customer: Telegram chat name first,
+    then @username, then a polite default."""
+    first_name = (subscription.first_name or "").strip()
+    if first_name:
+        return first_name
+
+    username = (subscription.telegram_username or "").strip()
+    if username:
+        return username if username.startswith("@") else f"@{username}"
+
+    return DEFAULT_CUSTOMER_NAME
+
+
 def build_customer_order_status_message(
     order: Order,
     *,
     subscribed: bool,
+    recipient_name: str | None = None,
 ) -> str:
     prefix = (
         "Ви підписалися на оновлення замовлення."
@@ -160,7 +186,11 @@ def build_customer_order_status_message(
         else "Статус замовлення оновлено."
     )
 
-    lines = [
+    lines: list[str] = []
+    if recipient_name:
+        lines.extend([f"Вітаємо, {escape(recipient_name)}!", ""])
+
+    lines += [
         f"🌸 <b>{prefix}</b>",
         "",
         f"<b>Замовлення:</b> #{order.id}",

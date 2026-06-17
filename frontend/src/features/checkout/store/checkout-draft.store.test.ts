@@ -14,7 +14,7 @@ import {
 const storageKey = 'bloomify-checkout-delivery-draft';
 
 const deliveryDraft: CheckoutDeliveryDraft = {
-  customerName: 'Olha Ryzha',
+  customerName: 'Olena Kolomiec',
   email: 'olha@example.com',
   phone: '+380671234567',
   city: 'Kyiv',

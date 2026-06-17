@@ -14,7 +14,7 @@ export const createSignInPayload = (
 export const createSignUpPayload = (
   overrides: Partial<SignUpPayload> = {}
 ): SignUpPayload => ({
-  name: 'Olha Ryzha',
+  name: 'Olena Kolomiec',
   ...createSignInPayload(),
   ...overrides,
 });

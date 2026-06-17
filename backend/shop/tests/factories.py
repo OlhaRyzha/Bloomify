@@ -12,7 +12,7 @@ from shop.security.order_access import (
 from shop.types import ModelFactoryAttrs, PaymentProviderPayload, StringKeyedObjectDict
 
 TEST_USER_EMAIL = "olha@example.com"
-TEST_USER_NAME = "Olha Ryzha"
+TEST_USER_NAME = "Olena Kolomiec"
 TEST_USER_PASSWORD = "BloomifyAuth123!"
 
 TEST_CUSTOMER_NAME = "Tom Smith"

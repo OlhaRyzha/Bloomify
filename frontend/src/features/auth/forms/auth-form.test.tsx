@@ -29,7 +29,8 @@ const {
 let searchParams = new URLSearchParams();
 
 vi.mock('@/components/config/env', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/components/config/env')>();
+  const actual =
+    await importOriginal<typeof import('@/components/config/env')>();
   return { ...actual, AUTH0_AUDIENCE: 'https://bloomify-api' };
 });
 
@@ -145,7 +146,7 @@ describe('AuthForm', () => {
       locale: 'en',
     });
 
-    await user.type(screen.getByLabelText(/name/i), 'Olha Ryzha');
+    await user.type(screen.getByLabelText(/name/i), 'Olena Kolomiec');
     await user.type(screen.getByLabelText(/email/i), 'olha@example.com');
     await user.type(screen.getByLabelText(/^password$/i), 'password123');
     await user.type(screen.getByLabelText(/confirm password/i), 'password123');

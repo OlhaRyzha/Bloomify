@@ -1,6 +1,8 @@
 import FeedbackState from '@/components/ui/feedback-state';
 import { TELEGRAM_BOT_URL } from '@/components/config/env';
 import { getLocalizedPath } from '@/i18n/routing';
+import { useCurrentUser } from '@/features/auth/hooks/use-current-user';
+import { formatTemplate } from '@/utils/i18n';
 
 import { buildTelegramOrderTrackingUrl } from './checkout.helpers';
 
@@ -19,14 +21,21 @@ export default function CheckoutSuccessState({
   locale,
   t,
 }: CheckoutSuccessStateProps) {
+  const { data: user } = useCurrentUser();
+  const userName = user?.name?.trim();
+
   const telegramOrderTrackingUrl =
     TELEGRAM_BOT_URL && completedOrderId
       ? buildTelegramOrderTrackingUrl(TELEGRAM_BOT_URL, completedOrderId)
       : null;
 
+  const successTitle = userName
+    ? formatTemplate(t('checkout_order_success_greeting'), { name: userName })
+    : t('checkout_order_success_title');
+
   return (
     <FeedbackState
-      title={t('checkout_order_success_title')}
+      title={successTitle}
       description={completedOrderMessage}
       actionLabel={
         telegramOrderTrackingUrl
