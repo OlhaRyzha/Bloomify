@@ -12,12 +12,15 @@ import {
 } from '@/features/auth/lib/client/auth-navigation.client';
 import { getLocalizedPath } from '@/i18n/routing';
 import { useTranslation } from '@/hooks/use-translation';
+import { useDelayedFlag } from '@/hooks/use-delayed-flag';
 
 export default function AuthCallbackPage() {
   const { error, getAccessTokenSilently, getIdTokenClaims, isLoading } =
     useAuth0();
   const router = useRouter();
   const { locale, t } = useTranslation();
+
+  const showLoader = useDelayedFlag(!error);
 
   useEffect(() => {
     if (isLoading || error) {
@@ -58,16 +61,20 @@ export default function AuthCallbackPage() {
   if (error) {
     return (
       <FeedbackState
-        title={t('checkout_error_title')}
+        title={t('auth_signin_error_title')}
         description={error.message}
       />
     );
   }
 
+  if (!showLoader) {
+    return null;
+  }
+
   return (
     <FeedbackState
-      title={t('checkout_payment_sync_title')}
-      description={t('checkout_payment_sync_description')}
+      title={t('auth_completing_title')}
+      description={t('auth_completing_description')}
     />
   );
 }

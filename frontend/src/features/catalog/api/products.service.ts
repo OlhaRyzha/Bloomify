@@ -37,9 +37,11 @@ const ProductsService = {
   },
 
   getProductList: async (
-    params: ProductListRequestParams
+    params: ProductListRequestParams,
+    config?: ProductsRequestConfig
   ): Promise<ProductList> => {
     const response = await apiClient.get<ProductList>(API_ROUTES.PRODUCTS, {
+      ...config,
       params: {
         lang: params.lang,
         page: params.page,
@@ -54,11 +56,12 @@ const ProductsService = {
   },
 
   getProductFilters: async (
-    params?: ProductsRequestParams
+    params?: ProductsRequestParams,
+    config?: ProductsRequestConfig
   ): Promise<ProductFilters> => {
     const response = await apiClient.get<ProductFilters>(
       API_ROUTES.PRODUCT_FILTERS,
-      { params }
+      { ...config, params }
     );
 
     return parseResponseWithSchema(response, catalogFiltersSchema);

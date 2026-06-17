@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/translated-feedback-state';
 import { useTranslation } from '@/hooks/use-translation';
 import { useHydrated } from '@/hooks/use-hydrated';
+import { useDelayedFlag } from '@/hooks/use-delayed-flag';
 import { useGetProducts } from '@/features/catalog/api/use-products';
 import { validateWithZod } from '@/utils/forms/validate-with-zod';
 import {
@@ -105,6 +106,10 @@ export default function CheckoutFeature() {
     t,
   });
 
+  const showPaymentSyncScreen = useDelayedFlag(
+    paymentReturnSyncState === 'syncing'
+  );
+
   useEffect(() => {
     if (!isHydrated || !isNonEmptyArray(summary.cartItems)) {
       return;
@@ -151,6 +156,10 @@ export default function CheckoutFeature() {
   }
 
   if (paymentReturnSyncState === 'syncing') {
+    if (!showPaymentSyncScreen) {
+      return <CheckoutLoadingState />;
+    }
+
     return (
       <FeedbackState
         title={t('checkout_payment_sync_title')}
