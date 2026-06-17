@@ -5,7 +5,7 @@ import type {
   AnalyticsEventPayload,
   AnalyticsProvider,
 } from '../analytics.types';
-import { isAnalyticsOptedOut } from '../analytics.opt-out';
+import { isAnalyticsExcludedVisitor } from '../analytics.exclude';
 import { isArray } from '@/utils/guards/is-array';
 import { isBoolean } from '@/utils/guards/is-boolean';
 import { isNumber } from '@/utils/guards/is-number';
@@ -57,7 +57,7 @@ export const vercelAnalyticsProvider: AnalyticsProvider = {
     name: TName,
     payload: AnalyticsEventPayload<TName>
   ) => {
-    if (isAnalyticsOptedOut()) {
+    if (isAnalyticsExcludedVisitor()) {
       return;
     }
 
