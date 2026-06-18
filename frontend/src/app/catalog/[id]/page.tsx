@@ -126,11 +126,40 @@ export default async function CatalogItemPage({
     },
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('breadcrumb_home'),
+        item: getAbsoluteLocalizedUrl('/', locale),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: t('label_bouquet_catalog'),
+        item: getAbsoluteLocalizedUrl('/catalog', locale),
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.name,
+        item: getAbsoluteLocalizedUrl(`/catalog/${product.id}`, locale),
+      },
+    ],
+  };
+
   return (
     <PageSection aria-labelledby='product-details-title'>
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
+      />
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <Container>
         <header className='mb-10 flex flex-wrap items-center justify-between gap-4'>

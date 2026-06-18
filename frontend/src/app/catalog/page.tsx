@@ -8,6 +8,8 @@ import { DEFAULT_CATALOG_PARAMS } from '@/features/catalog/list/catalog.config';
 import { getServerTranslator } from '@/i18n/server';
 import { createQueryClient } from '@/services/api/query/query-client';
 import { getServerApiBaseUrl } from '@/services/api/server/server-api-url';
+import { getAbsoluteLocalizedUrl } from '@/config/site';
+import { serializeJsonLd } from '@/utils/json-ld';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerTranslator();
@@ -43,6 +45,25 @@ export default async function CatalogPage() {
     }),
   ]);
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('breadcrumb_home'),
+        item: getAbsoluteLocalizedUrl('/', locale),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: t('label_bouquet_catalog'),
+        item: getAbsoluteLocalizedUrl('/catalog', locale),
+      },
+    ],
+  };
+
   return (
     <PageShell
       header={{
@@ -50,6 +71,10 @@ export default async function CatalogPage() {
         title: t('label_bouquet_catalog'),
         description: t('sections_catalog_description'),
       }}>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <CatalogGrid />
       </HydrationBoundary>
