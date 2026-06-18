@@ -88,6 +88,8 @@ export default async function RootLayout({
   const siteUrl = getSiteUrl();
   const brandName = t('brand_name');
 
+  const siteHostname = new URL(siteUrl).hostname;
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -95,6 +97,7 @@ export default async function RootLayout({
         '@type': 'Organization',
         '@id': `${siteUrl}/#organization`,
         name: brandName,
+        alternateName: siteHostname,
         url: siteUrl,
         logo: `${siteUrl}/favicon.png`,
         description: t('metadata_default_description'),
@@ -103,6 +106,7 @@ export default async function RootLayout({
         '@type': 'WebSite',
         '@id': `${siteUrl}/#website`,
         name: brandName,
+        alternateName: siteHostname,
         url: siteUrl,
         inLanguage: locale,
         publisher: { '@id': `${siteUrl}/#organization` },
