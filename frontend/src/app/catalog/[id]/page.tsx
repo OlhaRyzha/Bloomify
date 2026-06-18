@@ -22,6 +22,7 @@ import {
 } from '@/config/site';
 import type { Locale } from '@/locales/translations';
 import { serializeJsonLd } from '@/utils/json-ld';
+import { buildBreadcrumbJsonLd } from '@/utils/structured-data';
 
 type CatalogItemPageProps = {
   params: Promise<{ id: string }>;
@@ -126,30 +127,14 @@ export default async function CatalogItemPage({
     },
   };
 
-  const breadcrumbJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: t('breadcrumb_home'),
-        item: getAbsoluteLocalizedUrl('/', locale),
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: t('label_bouquet_catalog'),
-        item: getAbsoluteLocalizedUrl('/catalog', locale),
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: product.name,
-        item: getAbsoluteLocalizedUrl(`/catalog/${product.id}`, locale),
-      },
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd(
+    [
+      { name: t('breadcrumb_home'), path: '/' },
+      { name: t('label_bouquet_catalog'), path: '/catalog' },
+      { name: product.name, path: `/catalog/${product.id}` },
     ],
-  };
+    locale
+  );
 
   return (
     <PageSection aria-labelledby='product-details-title'>
