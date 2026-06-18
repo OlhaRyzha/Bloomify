@@ -35,7 +35,7 @@ def authorize_payment_status(order: Order) -> str:
 
 class CheckoutPaymentsTest(TestCase):
     def setUp(self):
-        self.product = create_product(price=Decimal("1750.00"))
+        self.product = create_product(price=Decimal("2000.00"))
 
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
@@ -68,15 +68,15 @@ class CheckoutPaymentsTest(TestCase):
 
         order = Order.objects.get(pk=body["orderId"])
         self.assertEqual(order.items.count(), 1)
-        self.assertEqual(order.subtotal, Decimal("3500.00"))
+        self.assertEqual(order.subtotal, Decimal("4000.00"))
         self.assertEqual(order.delivery_cost, Decimal("0.00"))
-        self.assertEqual(order.total, Decimal("3500.00"))
+        self.assertEqual(order.total, Decimal("4000.00"))
 
         liqpay_payload = decode_data(body["liqpay"]["data"])
         self.assertEqual(liqpay_payload["public_key"], "sandbox_public_key")
         self.assertEqual(liqpay_payload["version"], 7)
         self.assertEqual(liqpay_payload["sandbox"], 1)
-        self.assertEqual(liqpay_payload["amount"], "3500.00")
+        self.assertEqual(liqpay_payload["amount"], "4000.00")
         self.assertEqual(liqpay_payload["order_id"], order.liqpay_order_id)
         self.assertEqual(
             liqpay_payload["result_url"],

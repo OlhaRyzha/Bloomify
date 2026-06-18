@@ -1,7 +1,10 @@
+from typing import cast
+
 from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.db import models
+from django.http import HttpRequest
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import format_html
@@ -53,7 +56,7 @@ class ProductAdmin(TranslatableAdmin):
     )
     list_filter = ("is_active", "translations__tag")
     search_fields = ("translations__name", "translations__description")
-    ordering = ("translations__name",)
+    ordering = ("id",)
     readonly_fields = ("image_preview",)
     fieldsets = (
         (
@@ -72,6 +75,10 @@ class ProductAdmin(TranslatableAdmin):
             },
         ),
     )
+
+    def get_queryset(self, request: HttpRequest) -> models.QuerySet[Product]:
+        queryset = super().get_queryset(request).distinct()
+        return cast(models.QuerySet[Product], queryset)
 
     @admin.display(description=_("Image"))
     def image_thumb(self, obj: Product) -> str:

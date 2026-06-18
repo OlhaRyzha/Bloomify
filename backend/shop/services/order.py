@@ -20,7 +20,7 @@ from shop.services.payment_providers import (
 from shop.types import CheckoutOrderPayload, CheckoutOrderResult
 
 STANDARD_DELIVERY_FEE = Decimal("150.00")
-FREE_DELIVERY_THRESHOLD = Decimal("1500.00")
+FREE_DELIVERY_THRESHOLD = Decimal("4000.00")
 
 
 def create_checkout_order(

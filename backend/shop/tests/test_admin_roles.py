@@ -1,8 +1,36 @@
+from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Group, Permission
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
+from shop.admin.products import ProductAdmin
 from shop.admin.roles import RoleAdminForm
 from shop.admin.users import UserAdminForm
+from shop.models.product import Product
+from shop.tests.factories import create_product
+
+
+class ProductAdminTest(TestCase):
+    def test_queryset_does_not_duplicate_translated_products(self):
+        product = create_product()
+        product.set_current_language("uk")
+        product.name = "Біла гармонія"
+        product.description = "Весільний букет"
+        product.tag = "Класика"
+        product.save()
+        product.set_current_language("en")
+        product.name = "White harmony"
+        product.description = "Wedding bouquet"
+        product.tag = "Classic"
+        product.save()
+
+        request = RequestFactory().get("/admin/shop/product/")
+        product_admin = ProductAdmin(Product, AdminSite())
+
+        product_ids = list(
+            product_admin.get_queryset(request).values_list("pk", flat=True)
+        )
+
+        self.assertEqual(product_ids, [product.pk])
 
 
 class RoleAdminFormTest(TestCase):

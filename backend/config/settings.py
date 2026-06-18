@@ -49,6 +49,7 @@ class EnvironmentSettings(BaseSettings):
     POSTGRES_USER: str = ""
     POSTGRES_PASSWORD: str = ""
     POSTGRES_SSLMODE: str = ""
+    POSTGRES_CONNECT_TIMEOUT: int = 10
 
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_ADMIN_CHAT_ID: str = ""
@@ -96,14 +97,34 @@ def parse_postgres_port(port: str) -> int:
         return 5432
 
 
+def parse_postgres_connect_timeout(timeout: str | int) -> int:
+    try:
+        parsed_timeout = int(timeout)
+    except ValueError:
+        return 10
+    return max(parsed_timeout, 1)
+
+
 def build_database_config() -> DatabaseConfig:
     database_url = env.DATABASE_URL or env.POSTGRES_URL
     postgres_port = parse_postgres_port(env.POSTGRES_PORT)
+    postgres_connect_timeout = parse_postgres_connect_timeout(
+        env.POSTGRES_CONNECT_TIMEOUT
+    )
     if database_url:
         parsed_url = urlparse(database_url)
         query_params = parse_qs(parsed_url.query)
         sslmode = query_params.get("sslmode", [env.POSTGRES_SSLMODE])[0]
-        database_options = {"sslmode": sslmode} if sslmode else {}
+        connect_timeout = query_params.get(
+            "connect_timeout", [str(postgres_connect_timeout)]
+        )[0]
+        url_database_options: DatabaseConfig = {}
+        if sslmode:
+            url_database_options["sslmode"] = sslmode
+        if connect_timeout:
+            url_database_options["connect_timeout"] = parse_postgres_connect_timeout(
+                connect_timeout
+            )
 
         config: DatabaseConfig = {
             "ENGINE": "django.db.backends.postgresql",
@@ -113,8 +134,8 @@ def build_database_config() -> DatabaseConfig:
             "HOST": parsed_url.hostname or "",
             "PORT": parsed_url.port or postgres_port,
         }
-        if database_options:
-            config["OPTIONS"] = database_options
+        if url_database_options:
+            config["OPTIONS"] = url_database_options
         return config
 
     config = {
@@ -125,8 +146,12 @@ def build_database_config() -> DatabaseConfig:
         "HOST": env.POSTGRES_HOST,
         "PORT": postgres_port,
     }
+    direct_database_options: DatabaseConfig = {}
     if env.POSTGRES_SSLMODE:
-        config["OPTIONS"] = {"sslmode": env.POSTGRES_SSLMODE}
+        direct_database_options["sslmode"] = env.POSTGRES_SSLMODE
+    direct_database_options["connect_timeout"] = postgres_connect_timeout
+    if direct_database_options:
+        config["OPTIONS"] = direct_database_options
     return config
 
 
