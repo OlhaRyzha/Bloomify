@@ -62,11 +62,11 @@ export default function SubscriptionPlanCards({ planEntries }: Props) {
             )}
 
             <CardHeader className='pb-2'>
-              <div className='flex items-center justify-between gap-4'>
-                <div className='flex items-center gap-3'>
+              <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+                <div className='flex min-w-0 items-center gap-3'>
                   <div
                     className={cn(
-                      'flex h-12 w-12 items-center justify-center rounded-xl',
+                      'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
                       popular ? 'bg-primary-foreground/20' : 'bg-primary/10'
                     )}>
                     <Icon
@@ -78,7 +78,7 @@ export default function SubscriptionPlanCards({ planEntries }: Props) {
                     />
                   </div>
 
-                  <div>
+                  <div className='min-w-0'>
                     <h3
                       className={cn(
                         'font-display text-xl font-bold',
@@ -98,10 +98,10 @@ export default function SubscriptionPlanCards({ planEntries }: Props) {
                   </div>
                 </div>
 
-                <div className='text-right'>
+                <div className='shrink-0 text-left sm:text-right'>
                   <span
                     className={cn(
-                      'font-display text-3xl font-bold',
+                      'font-display text-2xl font-bold sm:text-3xl',
                       popular ? 'text-primary-foreground' : 'text-primary'
                     )}>
                     {plan.price}₴

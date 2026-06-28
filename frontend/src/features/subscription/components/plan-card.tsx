@@ -116,8 +116,8 @@ export default function PlanCard({
       )}
 
       <CardHeader className='pb-2'>
-        <div className='flex items-start justify-between gap-4'>
-          <div>
+        <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
+          <div className='min-w-0'>
             <h3
               className={cn(
                 'font-display text-xl font-bold',
@@ -134,10 +134,10 @@ export default function PlanCard({
             </p>
           </div>
 
-          <div className='text-right shrink-0'>
+          <div className='shrink-0 text-left sm:text-right'>
             <span
               className={cn(
-                'font-display text-3xl font-bold',
+                'font-display text-2xl font-bold sm:text-3xl',
                 popular ? 'text-primary-foreground' : 'text-primary'
               )}>
               {plan.price}₴
