@@ -20,45 +20,23 @@ This runs:
 
 **Output:** JSON suitable for alerting systems.
 
-### Example: GitHub Actions Daily Check
+### GitHub Actions Daily Check
 
-```yaml
-# .github/workflows/subscription-audit.yml
-name: Subscription Health Check
+The scheduled workflow lives in `.github/workflows/subscription-audit.yml`.
+It runs every day at 06:00 UTC (09:00 Kyiv), executes
+`audit_subscriptions --full --format json` against the production database,
+and fails the job (GitHub emails you) when any check reports `FAIL`.
 
-on:
-  schedule:
-    - cron: '0 6 * * *'  # Every day at 6 AM UTC
+Required repository secrets (Settings → Secrets and variables → Actions):
 
-jobs:
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: cd backend && pip install -r requirements.txt
-      
-      - name: Run audit
-        run: cd backend && python manage.py audit_subscriptions --format json > audit.json
-      
-      - name: Parse results
-        run: |
-          PASSED=$(jq '.passed' audit.json)
-          if [ "$PASSED" != "true" ]; then
-            echo "Audit failed! Check dashboard."
-            exit 1
-          fi
-      
-      - name: Post to Slack (optional)
-        if: always()
-        run: |
-          # Send audit.json to Slack via webhook
-          curl -X POST ${{ secrets.SLACK_WEBHOOK }} -d "@audit.json"
-```
+| Secret | Value |
+| --- | --- |
+| `AUDIT_DATABASE_URL` | Production `postgresql://...` connection string (read access is enough) |
+| `LIQPAY_PUBLIC_KEY` / `LIQPAY_PRIVATE_KEY` | Needed only for Django settings to load; audit itself does not call LiqPay |
+
+If `AUDIT_DATABASE_URL` is not configured, the workflow skips with a warning
+instead of failing. Trigger a manual run anytime via **Actions → Subscription
+Audit → Run workflow**.
 
 ## Weekly Full Audit (Manual)
 
