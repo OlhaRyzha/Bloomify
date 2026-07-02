@@ -3,10 +3,11 @@ import { describe, expect, test } from 'vitest';
 import type { StaticImageData } from 'next/image';
 
 import { FALLBACK_IMAGE_SRC } from '@/constants/image.constants';
+import { isString } from '@/utils/guards/is-string';
 import FallbackImage from './fallback-image';
 
 const fallbackImagePath =
-  typeof FALLBACK_IMAGE_SRC === 'string'
+  isString(FALLBACK_IMAGE_SRC)
     ? FALLBACK_IMAGE_SRC
     : (FALLBACK_IMAGE_SRC as StaticImageData).src;
 

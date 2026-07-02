@@ -1,11 +1,12 @@
 import { describe, expect, test } from 'vitest';
 
 import { translations } from '@/locales/translations';
+import { isString } from '@/utils/guards/is-string';
 import { getConfirmationCopy } from './confirmation-copy';
 
 const t = (key: string, vars?: Record<string, unknown>) => {
   const value = translations.en[key as keyof typeof translations.en];
-  const template = typeof value === 'string' ? value : key;
+  const template = isString(value) ? value : key;
 
   return Object.entries(vars ?? {}).reduce(
     (acc, [name, replacement]) =>

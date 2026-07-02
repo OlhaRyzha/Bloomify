@@ -23,6 +23,7 @@ import {
 import type { Locale } from '@/locales/translations';
 import { serializeJsonLd } from '@/utils/json-ld';
 import { buildBreadcrumbJsonLd } from '@/utils/structured-data';
+import { isString } from '@/utils/guards/is-string';
 
 type CatalogItemPageProps = {
   params: Promise<{ id: string }>;
@@ -48,7 +49,7 @@ const getOfferPrice = (product: ProductItem): string =>
 
 const getProductImageUrl = (product: ProductItem): string => {
   const image = getCatalogItemImage(product);
-  return toAbsoluteUrl(typeof image === 'string' ? image : image.src);
+  return toAbsoluteUrl(isString(image) ? image : image.src);
 };
 
 export async function generateMetadata({

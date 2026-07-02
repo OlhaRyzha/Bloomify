@@ -52,8 +52,7 @@ const silentRequestOptions: SafeRequestOptions = {
 const SERVER_LOCAL_BASE_URL = 'http://127.0.0.1:8000';
 const ABSOLUTE_API_BASE_URL_PATTERN = /^https?:\/\//i;
 
-const hasBrowserWindow = () =>
-  typeof globalThis === 'object' && 'window' in globalThis;
+const hasBrowserWindow = () => isObject(globalThis) && 'window' in globalThis;
 
 const getApiBaseUrl = () => {
   const baseUrl: string = BASE_URL;

@@ -13,6 +13,7 @@ import { generatePageNumbers } from '@/utils/pagination/generate-page-numbers';
 import { useState, type ReactNode } from 'react';
 import { isFunction } from '@/utils/guards/is-function';
 import { isValueGreaterThanZero } from '@/utils/guards/is-number';
+import { isString } from '@/utils/guards/is-string';
 import { isWindowUndefined } from '@/utils/guards/is-window-undefined';
 import { cn } from '@/lib/utils';
 import {
@@ -135,7 +136,7 @@ export function PaginationContainer<T>({
                 </PaginationItem>
 
                 {pages.map((p, idx) =>
-                  typeof p === 'string' ? (
+                  isString(p) ? (
                     <PaginationItem key={`ellipsis-${idx}`}>
                       <PaginationEllipsis />
                     </PaginationItem>

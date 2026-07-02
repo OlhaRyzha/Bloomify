@@ -7,6 +7,8 @@ import { useCartStore } from '@/features/cart/store/cart.store';
 import { apiUrl } from '@/test/api-url';
 import { server } from '@/test/msw/server';
 import { createTestQueryClient, renderWithProviders } from '@/test/render';
+import { isObject } from '@/utils/guards/is-object';
+import { isString } from '@/utils/guards/is-string';
 
 import { buildTelegramOrderTrackingUrl } from './components/checkout.helpers';
 import {
@@ -457,12 +459,7 @@ describe('CheckoutFeature', () => {
 
           syncedOrderIds.push(orderId);
           syncedTokens.push(
-            typeof payload === 'object' &&
-              payload !== null &&
-              'token' in payload &&
-              typeof payload.token === 'string'
-              ? payload.token
-              : ''
+            isObject(payload) && isString(payload.token) ? payload.token : ''
           );
 
           return HttpResponse.json(

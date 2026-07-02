@@ -8,13 +8,12 @@ type Primitive = string | number | boolean | null | undefined;
 type Vars = Record<string, Primitive> & { returnObjects?: boolean };
 
 function getByPath(source: unknown, path: string): unknown {
-  if (!source || !isObject(source)) return undefined;
-  const record = source as Record<string, unknown>;
-  if (path in record) return record[path];
+  if (!isObject(source)) return undefined;
+  if (path in source) return source[path];
 
   return path.split('_').reduce<unknown>((acc, key) => {
-    if (acc && isObject(acc) && key in (acc as Record<string, unknown>)) {
-      return (acc as Record<string, unknown>)[key];
+    if (isObject(acc) && key in acc) {
+      return acc[key];
     }
     return undefined;
   }, source);
