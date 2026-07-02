@@ -129,7 +129,7 @@ for p in payments:
 
 - Issue refund in LiqPay dashboard (manual refund)
 - Notify customer
-- Review idempotency logic in `shop/services/payments.py`
+- Review idempotency logic in `shop/services/subscriptions.py` (`apply_subscription_payment_payload`)
 
 ### Scenario: "Payments stuck in pending"
 
@@ -211,17 +211,19 @@ SubscriptionStatusLog.objects.create(
 
 ```python
 from shop.models import SubscriptionPayment
-from shop.services.subscriptions import calculate_upgrade_charge
 
-payment = SubscriptionPayment.objects.get(pk=123)
+payment = SubscriptionPayment.objects.select_related(
+    "subscription__plan", "target_plan"
+).get(pk=123)
 sub = payment.subscription
 
 print(f"Payment amount: {payment.amount}")
 print(f"Old plan: {sub.plan.name} @ {sub.plan.price}")
 print(f"New plan: {payment.target_plan.name} @ {payment.target_plan.price}")
 
-# Recalculate what it should be
-expected = calculate_upgrade_charge(sub, payment.target_plan)
+# Upgrade charge is the plan price difference
+# (see UpgradeSubscriptionView in shop/views/subscriptions.py)
+expected = payment.target_plan.price - sub.plan.price
 print(f"Expected: {expected}")
 
 if payment.amount != expected:
@@ -231,7 +233,7 @@ if payment.amount != expected:
 **2. If wrong:**
 
 - Issue refund/credit manually
-- Review `calculate_upgrade_charge()` logic
+- Review the upgrade logic in `UpgradeSubscriptionView` (`shop/views/subscriptions.py`)
 - Add test case to prevent regression
 
 ## Monitoring Dashboard Queries

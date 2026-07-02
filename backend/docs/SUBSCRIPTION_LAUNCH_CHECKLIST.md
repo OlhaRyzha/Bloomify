@@ -109,7 +109,7 @@ for p in stuck:
 
 **Action:**
 - Check LiqPay logs for failed delivery
-- Run manual sync: `python manage.py sync_liqpay_pending_payments`
+- Run manual sync: `python manage.py sync_liqpay_payments --days 1`
 - Contact LiqPay support if signature/URL mismatch
 
 ### Symptom: Refunds not stopping subscriptions

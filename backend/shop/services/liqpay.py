@@ -45,7 +45,11 @@ def create_signature(data: str) -> str:
     if not private_key:
         raise LiqPayConfigurationError("LIQPAY_PRIVATE_KEY is not configured")
 
-    digest = hashlib.sha3_256(f"{private_key}{data}{private_key}".encode()).digest()
+    # LiqPay contract: signature = base64(sha1(private_key + data + private_key)).
+    # SHA-1 is the only algorithm LiqPay accepts — any other digest breaks checkout
+    # (LiqPay silently falls back to a bare "pay by requisites" page).
+    # See backend/docs/PAYMENTS_LIQPAY.md before changing.
+    digest = hashlib.sha1(f"{private_key}{data}{private_key}".encode()).digest()
     return base64.b64encode(digest).decode()
 
 
@@ -136,12 +140,16 @@ def _localize_result_path(path: str, locale: str) -> str:
 
 
 def fetch_payment_status(order: Order) -> JsonObject:
-    public_key = settings.LIQPAY_PUBLIC_KEY
-    if not public_key:
-        raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
     provider_order_id = _get_provider_order_id(order)
     if not provider_order_id:
         raise LiqPayStatusError("Order does not have a LiqPay order id")
+    return fetch_status_by_provider_order_id(provider_order_id)
+
+
+def fetch_status_by_provider_order_id(provider_order_id: str) -> JsonObject:
+    public_key = settings.LIQPAY_PUBLIC_KEY
+    if not public_key:
+        raise LiqPayConfigurationError("LIQPAY_PUBLIC_KEY is not configured")
 
     data = encode_data(
         {

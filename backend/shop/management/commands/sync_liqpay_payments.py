@@ -23,7 +23,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from shop.models import SubscriptionPayment
-from shop.services.payments import liqpay_sync_payment_status
+from shop.services.subscriptions import sync_subscription_payment_status
 
 
 class Command(BaseCommand):
@@ -75,7 +75,7 @@ class Command(BaseCommand):
 
         # Actually sync
         try:
-            liqpay_sync_payment_status(payment)
+            sync_subscription_payment_status(payment)
             payment.refresh_from_db()
 
             if payment.status != old_status:
@@ -114,7 +114,7 @@ class Command(BaseCommand):
             old_status = payment.status
 
             try:
-                liqpay_sync_payment_status(payment)
+                sync_subscription_payment_status(payment)
                 payment.refresh_from_db()
 
                 if payment.status != old_status:
