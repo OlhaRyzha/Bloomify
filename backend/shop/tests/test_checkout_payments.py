@@ -37,6 +37,16 @@ class CheckoutPaymentsTest(TestCase):
     def setUp(self):
         self.product = create_product(price=Decimal("2000.00"))
 
+    @override_settings(LIQPAY_PRIVATE_KEY="test_private_key")
+    def test_create_signature_uses_liqpay_sha1_contract(self):
+        # Pinned reference value: base64(sha1(private_key + data + private_key)).
+        # SHA-1 is mandated by the LiqPay API; switching the digest silently
+        # breaks checkout. See backend/docs/PAYMENTS_LIQPAY.md.
+        self.assertEqual(
+            create_signature("eyJhY3Rpb24iOiAicGF5In0="),
+            "0GYiADN4Lau4QfdGzl5WkCogZXQ=",
+        )
+
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",

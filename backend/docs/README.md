@@ -6,6 +6,7 @@ This folder describes target backend standards for Bloomify. Treat these documen
 
 - [Testing](./testing.md) - Django tests, factories, fixtures, API tests, payment callbacks, load testing, and verification commands.
 - [Validation Strategy](./VALIDATION_STRATEGY.md) - 4-layer validation approach: frontend Zod, DRF serializers, service business logic, and payment verification.
+- [LiqPay Payments](./PAYMENTS_LIQPAY.md) - LiqPay integration contract: SHA-1 signature (do not change), paytypes mapping, sandbox limitations.
 - [Admin](./ADMIN_PANEL_README.md) - Unfold admin structure, registration rules, styling boundaries, and maintenance conventions.
 - [Subscription Launch Checklist](./SUBSCRIPTION_LAUNCH_CHECKLIST.md) - Pre-launch testing, daily monitoring queries, and post-launch investigation procedures.
 - [Subscription Post-Launch Audit](./SUBSCRIPTION_POST_LAUNCH_AUDIT.md) - Daily/weekly audit tools, investigation scenarios, escalation procedures, and runbook commands.
