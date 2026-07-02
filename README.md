@@ -165,15 +165,29 @@ Details: [frontend analytics docs](frontend/docs/analytics.md).
 
 ## Documentation
 
+**Backend:**
+
 - [Backend README](backend/README.md)
 - [Backend docs](backend/docs/README.md)
-- [Frontend README](frontend/README.md)
-- [Frontend docs](frontend/docs/README.md)
-- [Frontend design system](frontend/docs/design-system.md)
-- [Frontend testing guide](frontend/docs/testing.md)
-- [Frontend performance guide](frontend/docs/performance.md)
-- [Frontend analytics guide](frontend/docs/analytics.md)
+- [Testing guide](backend/docs/testing.md)
+- [Validation strategy](backend/docs/VALIDATION_STRATEGY.md)
 - [Admin panel documentation](backend/docs/ADMIN_PANEL_README.md)
+- [Subscription launch checklist](backend/docs/SUBSCRIPTION_LAUNCH_CHECKLIST.md)
+- [Subscription post-launch audit](backend/docs/SUBSCRIPTION_POST_LAUNCH_AUDIT.md)
+
+**Frontend:**
+
+- [Frontend README](frontend/README.md)
+- [Frontend architecture](frontend/docs/frontend-architecture.md)
+- [Design system](frontend/docs/design-system.md)
+- [Testing guide](frontend/docs/testing.md)
+- [Performance monitoring](frontend/docs/performance.md)
+- [Analytics](frontend/docs/analytics.md)
+- [Auth flows](frontend/docs/auth.md)
+- [Data fetching](frontend/docs/data-fetching.md)
+- [State management](frontend/docs/state-management.md)
+- [Forms & validation](frontend/docs/forms.md)
+- [Domain ownership](frontend/docs/domains.md)
 
 ## Notes
 
