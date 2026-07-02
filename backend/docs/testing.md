@@ -101,27 +101,51 @@ When adding new endpoint authorization logic, add a matching rejection test. The
 
 ## Load Tests
 
-Smoke load tests live in `backend/load_tests/` and use [k6](https://k6.io).
+Load tests live in `backend/load_tests/` and use [k6](https://k6.io). Install k6: `brew install k6` (macOS) or see [k6 docs](https://k6.io/docs/get-started/installation/).
 
-`liqpay-callback-smoke.js` runs in CI automatically — it starts a Django server, sends 20 requests with invalid signatures, and checks that all are rejected in under 200 ms.
+### Smoke Tests (CI)
 
-`checkout-smoke.js` is not in CI — it requires a running backend with real product data. Run it manually before production deploys.
+Smoke tests run in CI to catch regressions early.
 
-Install k6: `brew install k6` (macOS) or see [k6 docs](https://k6.io/docs/get-started/installation/).
+**`liqpay-callback-smoke.js`** — sends 20 requests with invalid signatures. Endpoint must reject all in < 200 ms before touching DB.
 
 ```bash
-# LiqPay callback HMAC rejection speed (no DB or running server required)
 make load-test-callback
-
-# Checkout endpoint (requires a running backend and a valid product ID)
-PRODUCT_ID=<id> make load-test-checkout
 ```
 
-`liqpay-callback-smoke.js` — sends requests with an invalid signature. The endpoint must reject them under 200 ms. No DB writes happen; this only tests HMAC check speed under load.
+### Manual Load Tests (Pre-Deployment)
 
-`checkout-smoke.js` — sends a full checkout payload. Requires `BASE_URL` pointing to a running backend and `PRODUCT_ID` of an existing product. Goal: p(95) < 500 ms, no 500 responses.
+Run these manually against a running backend before production deploys.
 
-Both scripts use 1 VU and 20 iterations as a smoke baseline. Increase `vus` and `iterations` for actual stress testing.
+**`checkout-smoke.js`** — baseline checkout flow. Goal: p(95) < 500 ms.
+
+```bash
+PRODUCT_ID=1 make load-test-checkout
+```
+
+**`catalog-load.js`** — moderate concurrent browsing load: 20 VU for 1 minute. Tests pagination, sorting, filtering.
+
+```bash
+k6 run backend/load_tests/catalog-load.js --env BASE_URL=http://localhost:8000
+```
+
+Goals:
+
+- p(95) < 300 ms (most requests fast)
+- p(99) < 500 ms (tail acceptable)
+- < 0.1% errors
+
+**`checkout-stress.js`** — ramps from 5 to 50 concurrent users. Tests endpoint stability under peak load, rate limiting behavior.
+
+```bash
+PRODUCT_ID=1 k6 run backend/load_tests/checkout-stress.js --env BASE_URL=http://localhost:8000
+```
+
+Goals:
+
+- Endpoint remains available (no 500 errors)
+- Rate limiting (429) is graceful, not an outage
+- p(95) < 1000 ms under peak load
 
 ## Payments
 

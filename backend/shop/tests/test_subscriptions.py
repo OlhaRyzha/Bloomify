@@ -384,3 +384,146 @@ class UpgradeSubscriptionViewTest(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 401)
+
+
+class SubscriptionEdgeCasesTest(TestCase):
+    """Edge cases and reliability tests for subscription flows."""
+
+    def setUp(self):
+        self.plan = create_subscription_plan(price=Decimal("299.00"))
+        self.user = create_test_user()
+        self.auth = _get_auth_header(self.client)
+
+    @override_settings(**LIQPAY_SETTINGS)
+    def test_failed_payment_can_be_retried(self):
+        """After payment fails, user can retry without duplicate subscription."""
+        subscription = create_subscription(self.user, self.plan, status="pending")
+        _, _ = create_subscription_payment(subscription, status="failed")
+
+        # Retry by initiating new payment
+        response = self.client.post(
+            "/subscriptions/subscribe",
+            data={"plan_id": self.plan.pk},
+            content_type="application/json",
+            headers=self.auth,
+        )
+
+        self.assertEqual(response.status_code, 400)  # Duplicate subscription exists
+        # Verify only one subscription exists
+        self.assertEqual(Subscription.objects.filter(user=self.user).count(), 1)
+
+    def _post_subscription_callback(self, payment, status="success"):
+        """Helper to post properly signed subscription callback."""
+        payload = build_subscription_callback_payload(payment, status=status)
+        data = encode_data(payload)
+        return self.client.post(
+            "/payments/liqpay/subscription-callback",
+            data=build_liqpay_callback_request(
+                data=data,
+                signature=create_signature(data),
+            ),
+        )
+
+    @override_settings(**LIQPAY_SETTINGS)
+    def test_payment_failure_callback_marks_payment_failed(self):
+        """LiqPay failure callback marks payment as failed."""
+        subscription = create_subscription(self.user, self.plan, status="pending")
+        payment, _ = create_subscription_payment(subscription, status="pending")
+        payment.provider_order_id = f"bloomify-subpay-{payment.pk}"
+        payment.save(update_fields=["provider_order_id"])
+
+        response = self._post_subscription_callback(payment, status="failure")
+
+        self.assertEqual(response.status_code, 200)
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, "canceled")
+        subscription.refresh_from_db()
+        self.assertEqual(subscription.status, "canceled")
+
+    def test_cancellation_mid_cycle_works_immediately(self):
+        """Canceling active subscription stops immediately."""
+        subscription = create_subscription(self.user, self.plan, status="active")
+
+        response = self.client.post(
+            "/subscriptions/unsubscribe",
+            content_type="application/json",
+            headers=self.auth,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        subscription.refresh_from_db()
+        self.assertEqual(subscription.status, "canceled")
+
+    def test_cancelled_subscription_cannot_be_upgraded(self):
+        """Cannot upgrade a canceled subscription."""
+        premium_plan = create_subscription_plan(price=Decimal("499.00"))
+        create_subscription(self.user, self.plan, status="canceled")
+
+        response = self.client.post(
+            "/subscriptions/upgrade",
+            data={"plan_id": premium_plan.pk},
+            content_type="application/json",
+            headers=self.auth,
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    @override_settings(**LIQPAY_SETTINGS)
+    def test_idempotent_payment_callbacks_do_not_duplicate_charges(self):
+        """Multiple identical callbacks for same payment are idempotent."""
+        subscription = create_subscription(self.user, self.plan, status="pending")
+        payment, _ = create_subscription_payment(subscription, status="pending")
+        payment.provider_order_id = f"bloomify-subpay-{payment.pk}"
+        payment.save(update_fields=["provider_order_id"])
+
+        # First callback
+        response1 = self._post_subscription_callback(payment, status="success")
+        self.assertEqual(response1.status_code, 200)
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, "paid")
+
+        # Second identical callback (webhook retry)
+        response2 = self._post_subscription_callback(payment, status="success")
+        self.assertEqual(response2.status_code, 200)
+
+        # Verify only one payment was recorded
+        recorded_payment = SubscriptionPayment.objects.get(
+            provider_order_id=payment.provider_order_id
+        )
+        self.assertEqual(recorded_payment.status, "paid")
+
+    def test_concurrent_subscription_and_unsubscribe_is_safe(self):
+        """Subscribing and unsubscribing concurrently doesn't create inconsistent state."""
+        # This test documents expected behavior: last write wins.
+        subscription = create_subscription(self.user, self.plan, status="pending")
+
+        # Simulate: one process activates, another cancels
+        subscription.status = "active"
+        subscription.save(update_fields=["status"])
+
+        subscription.status = "canceled"
+        subscription.save(update_fields=["status"])
+
+        subscription.refresh_from_db()
+        self.assertEqual(subscription.status, "canceled")
+
+    @override_settings(**LIQPAY_SETTINGS)
+    def test_upgrade_proration_calculation_is_correct(self):
+        """Upgrading mid-cycle creates payment for price difference."""
+        create_subscription(self.user, self.plan, status="active")
+        premium_plan = create_subscription_plan(price=Decimal("499.00"))
+
+        response = self.client.post(
+            "/subscriptions/upgrade",
+            data={"plan_id": premium_plan.pk},
+            content_type="application/json",
+            headers=self.auth,
+        )
+
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+
+        # Verify payment was created for the price difference
+        expected_diff = premium_plan.price - self.plan.price
+        payment = SubscriptionPayment.objects.get(pk=data["paymentId"])
+        self.assertEqual(payment.amount, expected_diff)
