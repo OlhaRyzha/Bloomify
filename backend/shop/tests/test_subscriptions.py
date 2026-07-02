@@ -16,6 +16,12 @@ from shop.tests.factories import (
     create_test_user,
 )
 
+# Disable throttling for all subscription tests to avoid rate limit errors
+TEST_THROTTLE_RATES = {
+    "auth": "1000/day",  # Disable rate limiting for auth during tests
+    "subscription": "1000/day",
+}
+
 LIQPAY_SETTINGS = {
     "LIQPAY_PUBLIC_KEY": "sandbox_public_key",
     "LIQPAY_PRIVATE_KEY": "sandbox_private_key",
@@ -25,17 +31,38 @@ LIQPAY_SETTINGS = {
 
 
 def _get_auth_header(client, user_password: str = "BloomifyAuth123!") -> dict[str, str]:
+    from django.contrib.auth.models import User
+
     from shop.tests.factories import TEST_USER_EMAIL
+
+    # Ensure user exists; get_or_create to avoid dupes across test runs
+    User.objects.get_or_create(
+        username=TEST_USER_EMAIL,
+        defaults={"email": TEST_USER_EMAIL, "password": user_password},
+    )
+    # Set password properly after creation
+    user = User.objects.get(username=TEST_USER_EMAIL)
+    user.set_password(user_password)
+    user.save()
 
     response = client.post(
         "/auth/token/",
         data=build_login_payload(email=TEST_USER_EMAIL, password=user_password),
         content_type="application/json",
     )
-    token = response.json()["access_token"]
+    if response.status_code != 200:
+        raise AssertionError(
+            f"Auth failed with {response.status_code}: {response.json()}"
+        )
+
+    token = response.json().get("access_token")
+    if not token:
+        raise AssertionError(f"No access_token in response: {response.json()}")
+
     return {"Authorization": f"Bearer {token}"}
 
 
+@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class SubscribeViewTest(TestCase):
     def setUp(self):
         self.plan = create_subscription_plan(price=Decimal("299.00"))
@@ -128,6 +155,7 @@ class SubscribeViewTest(TestCase):
         self.assertEqual(response.status_code, 429)
 
 
+@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class UnsubscribeViewTest(TestCase):
     def setUp(self):
         self.plan = create_subscription_plan()
@@ -155,6 +183,7 @@ class UnsubscribeViewTest(TestCase):
 @override_settings(
     LIQPAY_PUBLIC_KEY="sandbox_public_key",
     LIQPAY_PRIVATE_KEY="sandbox_private_key",
+    REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES},
 )
 class LiqPaySubscriptionCallbackTest(TestCase):
     def setUp(self):
@@ -318,6 +347,7 @@ class SubscriptionPaymentStatusViewTest(TestCase):
 
 
 @override_settings(**LIQPAY_SETTINGS)
+@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class UpgradeSubscriptionViewTest(TestCase):
     def setUp(self):
         self.base_plan = create_subscription_plan(price=Decimal("199.00"))
@@ -386,6 +416,7 @@ class UpgradeSubscriptionViewTest(TestCase):
         self.assertEqual(response.status_code, 401)
 
 
+@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class SubscriptionEdgeCasesTest(TestCase):
     """Edge cases and reliability tests for subscription flows."""
 
