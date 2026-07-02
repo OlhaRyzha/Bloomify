@@ -18,7 +18,6 @@ Examples:
 """
 
 from datetime import timedelta
-from typing import Any
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -30,7 +29,7 @@ from shop.services.payments import liqpay_sync_payment_status
 class Command(BaseCommand):
     help = "Synchronize subscription payment statuses with LiqPay"
 
-    def add_arguments(self, parser: Any) -> None:
+    def add_arguments(self, parser) -> None:
         parser.add_argument(
             "--days",
             type=int,
@@ -48,7 +47,7 @@ class Command(BaseCommand):
             help="Preview changes without applying",
         )
 
-    def handle(self, *args: Any, **options: Any) -> None:
+    def handle(self, *args, **options) -> None:
         days = options.get("days", 7)
         order_id = options.get("order_id", None)
         dry_run = options.get("dry_run", False)

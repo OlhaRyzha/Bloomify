@@ -19,7 +19,6 @@ Examples:
 
 from datetime import timedelta
 from decimal import Decimal
-from typing import Any
 
 from django.core.management.base import BaseCommand
 from django.db.models import Count, Q
@@ -31,7 +30,7 @@ from shop.models import Subscription, SubscriptionPayment
 class Command(BaseCommand):
     help = "Audit subscription health and revenue integrity"
 
-    def add_arguments(self, parser: Any) -> None:
+    def add_arguments(self, parser) -> None:
         parser.add_argument(
             "--full",
             action="store_true",
@@ -44,7 +43,7 @@ class Command(BaseCommand):
             help="Output format",
         )
 
-    def handle(self, *args: Any, **options: Any) -> None:
+    def handle(self, *args, **options) -> None:
         full = options.get("full", False)
         output_format = options.get("format", "text")
 
@@ -57,10 +56,10 @@ class Command(BaseCommand):
         else:
             self._print_text_report(results)
 
-    def _run_audit(self, full: bool = False) -> dict[str, Any]:
+    def _run_audit(self, full: bool = False) -> dict:
         """Run all audit checks."""
         now = timezone.now()
-        results: dict[str, Any] = {
+        results: dict = {
             "timestamp": now.isoformat(),
             "checks": {},
             "passed": True,
@@ -102,7 +101,7 @@ class Command(BaseCommand):
 
         return results
 
-    def _check_active_subscriptions(self) -> dict[str, Any]:
+    def _check_active_subscriptions(self) -> dict:
         """Count active subscriptions."""
         count = Subscription.objects.filter(status="active").count()
         return {
@@ -111,7 +110,7 @@ class Command(BaseCommand):
             "threshold": "expecting > 0",
         }
 
-    def _check_stuck_pending_payments(self) -> dict[str, Any]:
+    def _check_stuck_pending_payments(self) -> dict:
         """Find payments pending for > 1 hour."""
         one_hour_ago = timezone.now() - timedelta(hours=1)
         stuck = SubscriptionPayment.objects.filter(
@@ -129,7 +128,7 @@ class Command(BaseCommand):
             ),
         }
 
-    def _check_failed_payments(self) -> dict[str, Any]:
+    def _check_failed_payments(self) -> dict:
         """Count failed payments in last 24 hours."""
         last_24h = timezone.now() - timedelta(hours=24)
         failed = SubscriptionPayment.objects.filter(
@@ -143,7 +142,7 @@ class Command(BaseCommand):
             "note": "High count may indicate payment provider issues",
         }
 
-    def _check_duplicate_provider_ids(self) -> dict[str, Any]:
+    def _check_duplicate_provider_ids(self) -> dict:
         """Detect duplicate provider_order_ids (idempotency bug indicator)."""
         dupes = (
             SubscriptionPayment.objects.values("provider_order_id")
@@ -154,7 +153,7 @@ class Command(BaseCommand):
         dupe_count = dupes.count()
         status = "FAIL" if dupe_count > 0 else "OK"
 
-        result: dict[str, Any] = {
+        result: dict = {
             "status": status,
             "duplicate_provider_ids_count": dupe_count,
         }
@@ -170,7 +169,7 @@ class Command(BaseCommand):
 
         return result
 
-    def _calculate_mrr(self) -> dict[str, Any]:
+    def _calculate_mrr(self) -> dict:
         """Calculate Monthly Recurring Revenue."""
         active_subs = Subscription.objects.filter(status="active").select_related(
             "plan"
@@ -187,7 +186,7 @@ class Command(BaseCommand):
             "note": "Based on active subscription count × plan price",
         }
 
-    def _check_payment_success_rate(self) -> dict[str, Any]:
+    def _check_payment_success_rate(self) -> dict:
         """Calculate % of payments that reached 'paid' status."""
         total = SubscriptionPayment.objects.count()
 
@@ -207,7 +206,7 @@ class Command(BaseCommand):
             "threshold": ">= 95% is healthy",
         }
 
-    def _check_recent_cancellations(self) -> dict[str, Any]:
+    def _check_recent_cancellations(self) -> dict:
         """Check cancellations in last 7 days."""
         last_7d = timezone.now() - timedelta(days=7)
         canceled = Subscription.objects.filter(
@@ -221,7 +220,7 @@ class Command(BaseCommand):
             "note": "Normal churn; investigate if spike > 10%",
         }
 
-    def _check_refund_anomalies(self) -> dict[str, Any]:
+    def _check_refund_anomalies(self) -> dict:
         """Find refund-related anomalies."""
         anomaly_subs = (
             Subscription.objects.filter(
@@ -234,7 +233,7 @@ class Command(BaseCommand):
         anomaly_count = len(list(anomaly_subs))
         status = "FAIL" if anomaly_count > 0 else "OK"
 
-        result: dict[str, Any] = {
+        result: dict = {
             "status": status,
             "active_subs_with_refund_count": anomaly_count,
         }
@@ -247,7 +246,7 @@ class Command(BaseCommand):
 
         return result
 
-    def _print_text_report(self, results: dict[str, Any]) -> dict[str, Any]:
+    def _print_text_report(self, results: dict) -> dict:
         """Format results as human-readable text."""
         self.stdout.write(self.style.SUCCESS("Subscription Audit Report"))
         self.stdout.write(f"Timestamp: {results['timestamp']}\n")
