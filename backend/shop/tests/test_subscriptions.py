@@ -16,12 +16,6 @@ from shop.tests.factories import (
     create_test_user,
 )
 
-# Disable throttling for all subscription tests to avoid rate limit errors
-TEST_THROTTLE_RATES = {
-    "auth": "1000/day",  # Disable rate limiting for auth during tests
-    "subscription": "1000/day",
-}
-
 LIQPAY_SETTINGS = {
     "LIQPAY_PUBLIC_KEY": "sandbox_public_key",
     "LIQPAY_PRIVATE_KEY": "sandbox_private_key",
@@ -62,7 +56,6 @@ def _get_auth_header(client, user_password: str = "BloomifyAuth123!") -> dict[st
     return {"Authorization": f"Bearer {token}"}
 
 
-@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class SubscribeViewTest(TestCase):
     def setUp(self):
         self.plan = create_subscription_plan(price=Decimal("299.00"))
@@ -155,7 +148,6 @@ class SubscribeViewTest(TestCase):
         self.assertEqual(response.status_code, 429)
 
 
-@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class UnsubscribeViewTest(TestCase):
     def setUp(self):
         self.plan = create_subscription_plan()
@@ -183,7 +175,6 @@ class UnsubscribeViewTest(TestCase):
 @override_settings(
     LIQPAY_PUBLIC_KEY="sandbox_public_key",
     LIQPAY_PRIVATE_KEY="sandbox_private_key",
-    REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES},
 )
 class LiqPaySubscriptionCallbackTest(TestCase):
     def setUp(self):
@@ -347,7 +338,6 @@ class SubscriptionPaymentStatusViewTest(TestCase):
 
 
 @override_settings(**LIQPAY_SETTINGS)
-@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class UpgradeSubscriptionViewTest(TestCase):
     def setUp(self):
         self.base_plan = create_subscription_plan(price=Decimal("199.00"))
@@ -416,7 +406,6 @@ class UpgradeSubscriptionViewTest(TestCase):
         self.assertEqual(response.status_code, 401)
 
 
-@override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": TEST_THROTTLE_RATES})
 class SubscriptionEdgeCasesTest(TestCase):
     """Edge cases and reliability tests for subscription flows."""
 
