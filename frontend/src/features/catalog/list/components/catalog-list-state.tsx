@@ -32,7 +32,7 @@ export function CatalogListState({
     );
   }
 
-  if (isLoading && isEmpty) {
+  if (isLoading) {
     return (
       <div className={CATALOG_GRID_CLASSNAME}>
         {Array.from({ length: skeletonCount }, (_, index) => (
@@ -42,7 +42,7 @@ export function CatalogListState({
     );
   }
 
-  if (!isLoading && isEmpty) {
+  if (isEmpty) {
     return (
       <TranslatedFeedbackState
         kind='empty'
