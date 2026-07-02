@@ -74,13 +74,13 @@ class SubscriptionAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at",)
 
     def has_add_permission(self, request: HttpRequest) -> bool:
-        return request.user.is_superuser
+        return bool(request.user.is_superuser)
 
     def has_change_permission(self, request: HttpRequest, obj: object = None) -> bool:
-        return request.user.is_staff
+        return bool(request.user.is_staff)
 
     def has_delete_permission(self, request: HttpRequest, obj: object = None) -> bool:
-        return request.user.is_superuser
+        return bool(request.user.is_superuser)
 
 
 @admin.register(SubscriptionPayment)
@@ -130,7 +130,7 @@ class SubscriptionPaymentAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request: HttpRequest, obj: object = None) -> bool:
-        return request.user.is_superuser
+        return bool(request.user.is_superuser)
 
     def has_delete_permission(self, request: HttpRequest, obj: object = None) -> bool:
-        return request.user.is_superuser
+        return bool(request.user.is_superuser)

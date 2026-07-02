@@ -187,6 +187,7 @@ class OrderItem(models.Model):
 class OrderStatusLog(models.Model):
     if TYPE_CHECKING:
         id: int
+        order_id: int
 
     order = models.ForeignKey(
         Order,

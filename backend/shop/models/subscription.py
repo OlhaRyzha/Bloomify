@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import models
@@ -31,7 +32,7 @@ class SubscriptionPlan(TranslatableModel):
         verbose_name_plural = _("Subscription plans")
 
     def __str__(self) -> str:
-        return self.safe_translation_getter("name", any_language=True) or ""
+        return str(self.safe_translation_getter("name", any_language=True) or "")
 
 
 class Subscription(models.Model):
@@ -71,6 +72,9 @@ class Subscription(models.Model):
 
 
 class SubscriptionPayment(models.Model):
+    if TYPE_CHECKING:
+        subscription_id: int
+
     STATUS_CHOICES = [
         ("pending", _("Pending")),
         ("paid", _("Paid")),
