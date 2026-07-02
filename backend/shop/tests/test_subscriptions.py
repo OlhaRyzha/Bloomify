@@ -24,10 +24,17 @@ LIQPAY_SETTINGS = {
 }
 
 
+_auth_token_cache: dict[str, str] = {}
+
+
 def _get_auth_header(client, user_password: str = "BloomifyAuth123!") -> dict[str, str]:
     from django.contrib.auth.models import User
 
     from shop.tests.factories import TEST_USER_EMAIL
+
+    cache_key = f"{TEST_USER_EMAIL}:{user_password}"
+    if cache_key in _auth_token_cache:
+        return {"Authorization": f"Bearer {_auth_token_cache[cache_key]}"}
 
     # Ensure user exists; get_or_create to avoid dupes across test runs
     User.objects.get_or_create(
@@ -39,13 +46,14 @@ def _get_auth_header(client, user_password: str = "BloomifyAuth123!") -> dict[st
     user.set_password(user_password)
     user.save()
 
-    # Disable rate limiting for test auth to avoid 429 errors
-    with override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": {}}):
-        response = client.post(
-            "/auth/token/",
-            data=build_login_payload(email=TEST_USER_EMAIL, password=user_password),
-            content_type="application/json",
-        )
+    response = client.post(
+        "/auth/token/",
+        data=build_login_payload(email=TEST_USER_EMAIL, password=user_password),
+        content_type="application/json",
+    )
+
+    if response.status_code == 429:
+        raise AssertionError(f"Auth rate limited: {response.json()}")
 
     if response.status_code != 200:
         raise AssertionError(
@@ -56,6 +64,7 @@ def _get_auth_header(client, user_password: str = "BloomifyAuth123!") -> dict[st
     if not token:
         raise AssertionError(f"No access_token in response: {response.json()}")
 
+    _auth_token_cache[cache_key] = token
     return {"Authorization": f"Bearer {token}"}
 
 
