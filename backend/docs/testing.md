@@ -380,6 +380,13 @@ class PaymentCallbackTest(TestCase):
 For critical operations (payments, subscriptions):
 
 ```python
+from decimal import Decimal
+from threading import Thread
+from django.test import TestCase
+from shop.models import SubscriptionPayment
+from shop.services.subscriptions import handle_liqpay_webhook
+from shop.tests.factories import create_subscription
+
 class SubscriptionIdempotencyTest(TestCase):
     def test_webhook_processed_twice_returns_same_state(self):
         """Same webhook twice = subscription active once, not duplicated."""
@@ -391,7 +398,6 @@ class SubscriptionIdempotencyTest(TestCase):
         }
         
         # Process twice
-        from shop.services.subscriptions import handle_liqpay_webhook
         handle_liqpay_webhook(webhook_payload)
         handle_liqpay_webhook(webhook_payload)  # Idempotent
         
@@ -405,15 +411,14 @@ class SubscriptionIdempotencyTest(TestCase):
 
     def test_concurrent_checkout_creates_single_order(self):
         """Two simultaneous checkouts with same cart = only one order persists."""
-        import threading
         results = []
         
         def checkout():
             response = self.client.post('/orders/checkout', data=checkout_payload)
             results.append(response.json()['order_id'])
         
-        t1 = threading.Thread(target=checkout)
-        t2 = threading.Thread(target=checkout)
+        t1 = Thread(target=checkout)
+        t2 = Thread(target=checkout)
         
         t1.start()
         t2.start()
@@ -483,11 +488,13 @@ class OrderConstraintTest(TestCase):
 ### Order Status Logging via Signals
 
 ```python
+from django.test import TestCase
+from shop.models import OrderStatusLog
+from shop.tests.factories import create_order
+
 class OrderStatusSignalTest(TestCase):
     def test_order_status_change_creates_log_entry(self):
         """When order.status changes, OrderStatusLog created via signal."""
-        from shop.models import OrderStatusLog
-        
         order = create_order(status="pending")
         self.assertEqual(OrderStatusLog.objects.count(), 0)
         
@@ -515,13 +522,17 @@ class OrderStatusSignalTest(TestCase):
 ### Payment Webhook Side Effects
 
 ```python
+from unittest.mock import patch
+from django.test import TestCase
+from shop.services.payments import handle_liqpay_callback
+from shop.tests.factories import create_liqpay_order
+
 class PaymentWebhookSideEffectTest(TestCase):
     @patch('shop.services.notifications.send_order_confirmation')
     def test_payment_success_triggers_notification(self, mock_notify):
         """When payment succeeds, customer gets email."""
         order = create_liqpay_order()
         
-        from shop.services.payments import handle_liqpay_callback
         handle_liqpay_callback(order_id=order.liqpay_order_id, status="success")
         
         mock_notify.assert_called_once()
@@ -533,7 +544,6 @@ class PaymentWebhookSideEffectTest(TestCase):
         """Side effect uses task queue, not blocking."""
         order = create_liqpay_order()
         
-        from shop.services.payments import handle_liqpay_callback
         handle_liqpay_callback(order_id=order.liqpay_order_id, status="success")
         
         mock_celery.assert_called_once()
@@ -543,7 +553,10 @@ class PaymentWebhookSideEffectTest(TestCase):
 
 ```python
 from django.contrib.admin.sites import AdminSite
-from shop.admin.orders import OrderAdmin
+from django.test import TestCase
+from shop.models import Order
+from shop.admin.orders import OrderAdmin, OrderStatusLogInline
+from shop.tests.factories import create_order
 
 class OrderAdminTest(TestCase):
     def setUp(self):
@@ -564,7 +577,6 @@ class OrderAdminTest(TestCase):
         self.order.save()
         
         # Admin should display logs
-        from shop.admin.orders import OrderStatusLogInline
         inline = OrderStatusLogInline(Order, self.admin_site)
         qs = inline.get_queryset(None)
         self.assertGreater(qs.count(), 0)
