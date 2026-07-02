@@ -21,8 +21,6 @@ jobs:
       DJANGO_ALLOWED_HOSTS: "localhost"
       DATABASE_URL: ${{ secrets.AUDIT_DATABASE_URL }}
       POSTGRES_SSLMODE: "require"
-      LIQPAY_PUBLIC_KEY: ${{ secrets.LIQPAY_PUBLIC_KEY }}
-      LIQPAY_PRIVATE_KEY: ${{ secrets.LIQPAY_PRIVATE_KEY }}
 
     steps:
       - uses: actions/checkout@v4

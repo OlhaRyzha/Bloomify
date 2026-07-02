@@ -27,12 +27,14 @@ It runs every day at 06:00 UTC (09:00 Kyiv), executes
 `audit_subscriptions --full --format json` against the production database,
 and fails the job (GitHub emails you) when any check reports `FAIL`.
 
-Required repository secrets (Settings → Secrets and variables → Actions):
+Required repository secret (Settings → Secrets and variables → Actions):
 
 | Secret | Value |
 | --- | --- |
-| `AUDIT_DATABASE_URL` | Production `postgresql://...` connection string (read access is enough) |
-| `LIQPAY_PUBLIC_KEY` / `LIQPAY_PRIVATE_KEY` | Needed only for Django settings to load; audit itself does not call LiqPay |
+| `AUDIT_DATABASE_URL` | Production `postgresql://...` connection string (read access is enough). For Neon: copy from console.neon.tech → project → Connection Details (pooled). |
+
+LiqPay keys are not needed: settings default to empty strings and the audit
+never calls LiqPay.
 
 If `AUDIT_DATABASE_URL` is not configured, the workflow skips with a warning
 instead of failing. Trigger a manual run anytime via **Actions → Subscription
