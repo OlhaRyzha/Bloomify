@@ -372,3 +372,300 @@ class PaymentCallbackTest(TestCase):
         order.refresh_from_db()
         self.assertEqual(order.payment_status, "pending")
 ```
+
+## Edge Case & Concurrent Tests
+
+### Idempotency Testing
+
+For critical operations (payments, subscriptions):
+
+```python
+class SubscriptionIdempotencyTest(TestCase):
+    def test_webhook_processed_twice_returns_same_state(self):
+        """Same webhook twice = subscription active once, not duplicated."""
+        sub = create_subscription(status="pending")
+        webhook_payload = {
+            "order_id": sub.liqpay_order_id,
+            "status": "success",
+            "amount": str(sub.plan.price)
+        }
+        
+        # Process twice
+        from shop.services.subscriptions import handle_liqpay_webhook
+        handle_liqpay_webhook(webhook_payload)
+        handle_liqpay_webhook(webhook_payload)  # Idempotent
+        
+        # Verify single activation
+        sub.refresh_from_db()
+        self.assertEqual(sub.status, "active")
+        self.assertEqual(
+            SubscriptionPayment.objects.filter(provider_order_id=sub.liqpay_order_id).count(),
+            1
+        )
+
+    def test_concurrent_checkout_creates_single_order(self):
+        """Two simultaneous checkouts with same cart = only one order persists."""
+        import threading
+        results = []
+        
+        def checkout():
+            response = self.client.post('/orders/checkout', data=checkout_payload)
+            results.append(response.json()['order_id'])
+        
+        t1 = threading.Thread(target=checkout)
+        t2 = threading.Thread(target=checkout)
+        
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+        
+        # Expect only one order created with deduplication
+        self.assertEqual(len(set(results)), 1, "Should create one order, not two")
+```
+
+### State Machine Tests
+
+```python
+class SubscriptionLifecycleTest(TestCase):
+    def test_subscription_cannot_upgrade_from_canceled(self):
+        sub = create_subscription(status="canceled")
+        
+        with self.assertRaises(InvalidStateTransition):
+            sub.upgrade_plan(new_plan=self.plan_pro)
+
+    def test_subscription_cancel_after_upgrade_prorates_correctly(self):
+        sub = create_subscription(plan=self.plan_basic, status="active", billing_cycle_start=today - timedelta(days=15))
+        # 15 days into 30-day cycle = 50% through
+        
+        sub.upgrade_plan(self.plan_pro)  # $50 + $50 upgrade charge
+        sub.refresh_from_db()
+        self.assertEqual(sub.next_billing_date, today + timedelta(days=15))
+        
+        # Now cancel mid-cycle
+        sub.cancel()
+        # Should issue pro-rata credit
+        refund = sub.get_pending_refund()
+        self.assertGreater(refund, Decimal("0.00"))
+```
+
+### Boundary & Constraint Tests
+
+```python
+class OrderConstraintTest(TestCase):
+    def test_order_item_quantity_minimum_one(self):
+        """Database constraint: quantity >= 1."""
+        with self.assertRaises(ValueError):
+            OrderItem.objects.create(order=self.order, product=self.product, quantity=0)
+
+    def test_order_total_price_cannot_be_negative(self):
+        """Business logic: total must be >= 0."""
+        order = create_order(discount=Decimal("10000.00"))  # More than items
+        
+        with self.assertRaises(ValueError):
+            order.recalculate_total()
+
+    def test_promo_code_usage_limit_enforced(self):
+        """Per-user limit: can't use same promo twice."""
+        promo = create_promo_code(max_uses_per_user=1)
+        user = create_user()
+        
+        # First use — OK
+        create_order(user=user, promo_code=promo)
+        
+        # Second use — rejected
+        with self.assertRaises(PromoCodeLimitExceededError):
+            create_order(user=user, promo_code=promo)
+```
+
+## Signal & Side-Effect Tests
+
+### Order Status Logging via Signals
+
+```python
+class OrderStatusSignalTest(TestCase):
+    def test_order_status_change_creates_log_entry(self):
+        """When order.status changes, OrderStatusLog created via signal."""
+        from shop.models import OrderStatusLog
+        
+        order = create_order(status="pending")
+        self.assertEqual(OrderStatusLog.objects.count(), 0)
+        
+        order.status = "processing"
+        order.save()
+        
+        # Signal should fire
+        logs = OrderStatusLog.objects.filter(order=order)
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(logs[0].old_status, "pending")
+        self.assertEqual(logs[0].new_status, "processing")
+
+    def test_signal_includes_timestamp_and_reason(self):
+        """Audit trail captures when and why status changed."""
+        order = create_order(status="pending")
+        order.status = "shipped"
+        order.reason_for_change = "Customer paid"
+        order.save()
+        
+        log = OrderStatusLog.objects.get(order=order)
+        self.assertIsNotNone(log.created_at)
+        self.assertEqual(log.reason, "Customer paid")
+```
+
+### Payment Webhook Side Effects
+
+```python
+class PaymentWebhookSideEffectTest(TestCase):
+    @patch('shop.services.notifications.send_order_confirmation')
+    def test_payment_success_triggers_notification(self, mock_notify):
+        """When payment succeeds, customer gets email."""
+        order = create_liqpay_order()
+        
+        from shop.services.payments import handle_liqpay_callback
+        handle_liqpay_callback(order_id=order.liqpay_order_id, status="success")
+        
+        mock_notify.assert_called_once()
+        call_args = mock_notify.call_args[0]
+        self.assertEqual(call_args[0].pk, order.pk)
+
+    @patch('shop.tasks.send_email_async.delay')
+    def test_notification_queued_via_celery(self, mock_celery):
+        """Side effect uses task queue, not blocking."""
+        order = create_liqpay_order()
+        
+        from shop.services.payments import handle_liqpay_callback
+        handle_liqpay_callback(order_id=order.liqpay_order_id, status="success")
+        
+        mock_celery.assert_called_once()
+```
+
+## Admin Interface Tests
+
+```python
+from django.contrib.admin.sites import AdminSite
+from shop.admin.orders import OrderAdmin
+
+class OrderAdminTest(TestCase):
+    def setUp(self):
+        self.admin_site = AdminSite()
+        self.admin = OrderAdmin(Order, self.admin_site)
+        self.order = create_order()
+
+    def test_admin_readonly_fields_not_editable(self):
+        """payment_status, total cannot be edited via admin."""
+        readonly = self.admin.readonly_fields
+        self.assertIn('payment_status', readonly)
+        self.assertIn('total', readonly)
+
+    def test_admin_status_log_inline_visible(self):
+        """Admin shows OrderStatusLog inline."""
+        # Create a status change
+        self.order.status = "shipped"
+        self.order.save()
+        
+        # Admin should display logs
+        from shop.admin.orders import OrderStatusLogInline
+        inline = OrderStatusLogInline(Order, self.admin_site)
+        qs = inline.get_queryset(None)
+        self.assertGreater(qs.count(), 0)
+```
+
+## Query Performance & N+1 Tests
+
+```python
+from django.test.utils import override_settings
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+
+class OrderQueryPerformanceTest(TestCase):
+    def test_order_list_no_n_plus_one(self):
+        """Listing 100 orders queries products once, not 100+ times."""
+        # Create 100 orders with items
+        for i in range(100):
+            order = create_order()
+            OrderItem.objects.create(
+                order=order,
+                product=create_product(),
+                quantity=1,
+                unit_price=Decimal("1000.00")
+            )
+        
+        with CaptureQueriesContext(connection) as context:
+            orders = Order.objects.select_related('user').prefetch_related('items__product')
+            list(orders)
+            
+            # Should query Order table once, items once per order, products once total
+            query_count = len(context.captured_queries)
+            # Expect ~3 queries: orders, order items, products (not 102)
+            self.assertLess(query_count, 10, f"Too many queries: {query_count}")
+
+    def test_order_filter_uses_index(self):
+        """Filtering by status on large table is fast."""
+        for status in ['pending', 'shipped', 'delivered']:
+            for i in range(100):
+                create_order(status=status)
+        
+        with CaptureQueriesContext(connection) as context:
+            orders = Order.objects.filter(status='pending').values_list('id')
+            list(orders)
+            
+            # Index on status ensures < 2ms for 10k rows
+            # (In-memory test set is small but verifies query shape)
+            self.assertEqual(len(context.captured_queries), 1)
+```
+
+## Test Utilities & Helpers
+
+### Factories with Required Fields
+
+```python
+# shop/tests/factories.py
+from factory import DjangoModelFactory, Faker, SubFactory
+from shop.models import Order, OrderItem
+
+class OrderFactory(DjangoModelFactory):
+    class Meta:
+        model = Order
+    
+    status = "pending"
+    customer_name = Faker('name')
+    email = Faker('email')
+    delivery_address = Faker('address')
+    total = Decimal("1000.00")
+    payment_status = "pending"
+
+class OrderItemFactory(DjangoModelFactory):
+    class Meta:
+        model = OrderItem
+    
+    order = SubFactory(OrderFactory)
+    product = SubFactory(ProductFactory)
+    quantity = 1
+    unit_price = Decimal("1000.00")
+    total = Decimal("1000.00")
+
+# Usage in tests:
+order = OrderFactory.create(status="shipped", total=Decimal("500.00"))
+items = OrderItemFactory.create_batch(5, order=order)
+```
+
+### Custom Assertions
+
+```python
+# shop/tests/assertions.py
+from django.test import TestCase
+
+class APIAssertions(TestCase):
+    def assertOrderStatusCode(self, response, expected_status):
+        """Helper: Check status, log response if wrong."""
+        if response.status_code != expected_status:
+            print(f"Response body: {response.json()}")
+        self.assertEqual(response.status_code, expected_status)
+
+    def assertOrderHasValidShape(self, order_data):
+        """Validate response matches API contract."""
+        required_fields = ['id', 'status', 'total', 'created_at']
+        for field in required_fields:
+            self.assertIn(field, order_data, f"Missing {field}")
+        self.assertIsNotNone(order_data['created_at'])
+```
