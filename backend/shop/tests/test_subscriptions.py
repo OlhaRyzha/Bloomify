@@ -39,11 +39,14 @@ def _get_auth_header(client, user_password: str = "BloomifyAuth123!") -> dict[st
     user.set_password(user_password)
     user.save()
 
-    response = client.post(
-        "/auth/token/",
-        data=build_login_payload(email=TEST_USER_EMAIL, password=user_password),
-        content_type="application/json",
-    )
+    # Disable rate limiting for test auth to avoid 429 errors
+    with override_settings(REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": {}}):
+        response = client.post(
+            "/auth/token/",
+            data=build_login_payload(email=TEST_USER_EMAIL, password=user_password),
+            content_type="application/json",
+        )
+
     if response.status_code != 200:
         raise AssertionError(
             f"Auth failed with {response.status_code}: {response.json()}"
