@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
@@ -9,7 +7,7 @@ _order_status_cache: dict[int, str | None] = {}
 
 
 @receiver(pre_save, sender=Order)
-def cache_order_status(sender: type[Order], instance: Order, **kwargs: Any) -> None:
+def cache_order_status(sender: type[Order], instance: Order, **kwargs) -> None:  # type: ignore[no-untyped-def]
     """Cache the old status before update."""
     if instance.pk:
         try:
@@ -20,8 +18,8 @@ def cache_order_status(sender: type[Order], instance: Order, **kwargs: Any) -> N
 
 
 @receiver(post_save, sender=Order)
-def log_order_status_change(
-    sender: type[Order], instance: Order, created: bool, **kwargs: Any
+def log_order_status_change(  # type: ignore[no-untyped-def]
+    sender: type[Order], instance: Order, created: bool, **kwargs
 ) -> None:
     """Log order status changes to OrderStatusLog for audit trail."""
     if created:
