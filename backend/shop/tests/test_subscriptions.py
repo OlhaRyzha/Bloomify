@@ -3,12 +3,12 @@ from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 from rest_framework.throttling import ScopedRateThrottle
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from shop.models.subscription import Subscription, SubscriptionPayment
 from shop.services.liqpay import create_signature, encode_data
 from shop.tests.factories import (
     build_liqpay_callback_request,
-    build_login_payload,
     build_subscription_callback_payload,
     create_subscription,
     create_subscription_payment,
@@ -24,47 +24,14 @@ LIQPAY_SETTINGS = {
 }
 
 
-_auth_token_cache: dict[str, str] = {}
+def _get_auth_header(user) -> dict[str, str]:
+    """Mint a JWT access token for the user directly via simplejwt.
 
-
-def _get_auth_header(client, user_password: str = "BloomifyAuth123!") -> dict[str, str]:
-    from django.contrib.auth.models import User
-
-    from shop.tests.factories import TEST_USER_EMAIL
-
-    cache_key = f"{TEST_USER_EMAIL}:{user_password}"
-    if cache_key in _auth_token_cache:
-        return {"Authorization": f"Bearer {_auth_token_cache[cache_key]}"}
-
-    # Ensure user exists; get_or_create to avoid dupes across test runs
-    User.objects.get_or_create(
-        username=TEST_USER_EMAIL,
-        defaults={"email": TEST_USER_EMAIL, "password": user_password},
-    )
-    # Set password properly after creation
-    user = User.objects.get(username=TEST_USER_EMAIL)
-    user.set_password(user_password)
-    user.save()
-
-    response = client.post(
-        "/auth/token/",
-        data=build_login_payload(email=TEST_USER_EMAIL, password=user_password),
-        content_type="application/json",
-    )
-
-    if response.status_code == 429:
-        raise AssertionError(f"Auth rate limited: {response.json()}")
-
-    if response.status_code != 200:
-        raise AssertionError(
-            f"Auth failed with {response.status_code}: {response.json()}"
-        )
-
-    token = response.json().get("access_token")
-    if not token:
-        raise AssertionError(f"No access_token in response: {response.json()}")
-
-    _auth_token_cache[cache_key] = token
+    Bypasses the /auth/token/ endpoint: no rate limiting (429) when many
+    test classes authenticate in setUp, and the token always matches the
+    user created inside the current test transaction.
+    """
+    token = RefreshToken.for_user(user).access_token
     return {"Authorization": f"Bearer {token}"}
 
 
@@ -72,7 +39,7 @@ class SubscribeViewTest(TestCase):
     def setUp(self):
         self.plan = create_subscription_plan(price=Decimal("299.00"))
         self.user = create_test_user()
-        self.auth = _get_auth_header(self.client)
+        self.auth = _get_auth_header(self.user)
 
     @override_settings(**LIQPAY_SETTINGS)
     def test_subscribe_creates_subscription_and_liqpay_payload(self):
@@ -164,7 +131,7 @@ class UnsubscribeViewTest(TestCase):
     def setUp(self):
         self.plan = create_subscription_plan()
         self.user = create_test_user()
-        self.auth = _get_auth_header(self.client)
+        self.auth = _get_auth_header(self.user)
 
     def test_unsubscribe_cancels_active_subscription(self):
         subscription = create_subscription(self.user, self.plan, status="active")
@@ -358,7 +325,7 @@ class UpgradeSubscriptionViewTest(TestCase):
         self.subscription = create_subscription(
             self.user, self.base_plan, status="active"
         )
-        self.auth = _get_auth_header(self.client)
+        self.auth = _get_auth_header(self.user)
 
     def test_upgrade_creates_payment_for_price_diff(self):
         response = self.client.post(
@@ -424,7 +391,7 @@ class SubscriptionEdgeCasesTest(TestCase):
     def setUp(self):
         self.plan = create_subscription_plan(price=Decimal("299.00"))
         self.user = create_test_user()
-        self.auth = _get_auth_header(self.client)
+        self.auth = _get_auth_header(self.user)
 
     @override_settings(**LIQPAY_SETTINGS)
     def test_failed_payment_can_be_retried(self):
