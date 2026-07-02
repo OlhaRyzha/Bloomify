@@ -78,6 +78,14 @@ jobs:
         working-directory: backend
         run: uv run python manage.py makemigrations --check --dry-run
 
+      - name: Check API contract drift
+        run: |
+          make generate-api-types
+          if ! git diff --exit-code frontend/src/types/api.generated.ts; then
+            echo "❌ API types are out of sync. Run 'make generate-api-types' locally and commit changes."
+            exit 1
+          fi
+
       - name: Run tests with coverage
         working-directory: backend
         run: uv run coverage run manage.py test --verbosity=2

@@ -137,3 +137,214 @@ Payment tests must not call external providers. For LiqPay:
 Shared encoding helpers live under `shop.security`. Payment integrations and future auth flows should reuse those helpers instead of copying base64 or JSON parsing logic into service modules.
 
 When adding token or callback decoding tests, include invalid payload cases where the boundary can receive external input.
+
+---
+
+## Examples
+
+### Model Tests (`test_models.py`)
+
+Test model methods, properties, and constraints:
+
+```python
+from decimal import Decimal
+from django.test import TestCase
+from shop.models import Order, OrderItem
+from shop.tests.factories import create_product, create_order
+
+class OrderModelTest(TestCase):
+    def test_total_price_returns_sum_of_items(self):
+        order = create_order()
+        product1 = create_product(price=Decimal("100.00"))
+        product2 = create_product(price=Decimal("200.00"))
+        OrderItem.objects.create(order=order, product=product1, quantity=2, unit_price=Decimal("100.00"), total=Decimal("200.00"))
+        OrderItem.objects.create(order=order, product=product2, quantity=1, unit_price=Decimal("200.00"), total=Decimal("200.00"))
+        
+        self.assertEqual(order.total_price, Decimal("400.00"))
+
+    def test_str_returns_order_number(self):
+        order = create_order()
+        self.assertEqual(str(order), f"Order №{order.pk}")
+```
+
+### Serializer Tests (`test_serializers.py`)
+
+Test validation and normalized output:
+
+```python
+from decimal import Decimal
+from django.test import TestCase
+from rest_framework.exceptions import ValidationError
+from shop.serializers import CheckoutSerializer
+from shop.tests.factories import create_product
+
+class CheckoutSerializerTest(TestCase):
+    def test_serializer_validates_required_fields(self):
+        serializer = CheckoutSerializer(data={})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('customer_name', serializer.errors)
+        self.assertIn('delivery_city', serializer.errors)
+
+    def test_serializer_rejects_negative_quantity(self):
+        data = {
+            'customer_name': 'John Doe',
+            'delivery_city': 'Kyiv',
+            'delivery_address': 'St. 1',
+            'items': [{'product_id': 1, 'quantity': -1}]
+        }
+        serializer = CheckoutSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('items', serializer.errors)
+
+    def test_serializer_preserves_price_precision(self):
+        product = create_product(price=Decimal("1234.56"))
+        data = {
+            'customer_name': 'John',
+            'delivery_city': 'Kyiv',
+            'delivery_address': 'St. 1',
+            'items': [{'product_id': product.id, 'quantity': 1}]
+        }
+        serializer = CheckoutSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        # Verify that float doesn't creep in
+        self.assertIsInstance(serializer.validated_data['items'][0]['unit_price'], Decimal)
+```
+
+### Service Tests (`test_services.py`)
+
+Test business logic in isolation:
+
+```python
+from decimal import Decimal
+from django.test import TestCase
+from shop.models import Order
+from shop.services.orders import calculate_order_total, apply_promo_code
+from shop.tests.factories import create_product, create_promo_code
+
+class OrderServiceTest(TestCase):
+    def test_calculate_order_total_includes_delivery(self):
+        items_subtotal = Decimal("1000.00")
+        delivery_cost = Decimal("150.00")
+        
+        total = calculate_order_total(
+            subtotal=items_subtotal,
+            delivery_cost=delivery_cost,
+            discount=Decimal("0.00")
+        )
+        
+        self.assertEqual(total, Decimal("1150.00"))
+
+    def test_apply_promo_code_calculates_correct_discount(self):
+        promo = create_promo_code(discount_percent=10)
+        subtotal = Decimal("1000.00")
+        
+        discount = apply_promo_code(promo, subtotal)
+        
+        self.assertEqual(discount, Decimal("100.00"))
+
+    def test_promo_code_with_min_amount_validates(self):
+        promo = create_promo_code(discount_percent=10, min_order_amount=Decimal("500.00"))
+        
+        # Below minimum
+        with self.assertRaises(ValueError):
+            apply_promo_code(promo, Decimal("300.00"))
+        
+        # Above minimum — OK
+        discount = apply_promo_code(promo, Decimal("600.00"))
+        self.assertEqual(discount, Decimal("60.00"))
+```
+
+### API/View Tests (`test_views.py`)
+
+Test endpoint behavior and contracts:
+
+```python
+from decimal import Decimal
+from django.test import TestCase
+from shop.tests.factories import create_product, build_checkout_payload
+
+class CheckoutAPITest(TestCase):
+    def setUp(self):
+        self.product = create_product(price=Decimal("1000.00"))
+
+    def test_checkout_creates_order_and_returns_liqpay_link(self):
+        payload = build_checkout_payload(product_id=self.product.id, quantity=1)
+        
+        response = self.client.post(
+            "/orders/checkout",
+            data=payload,
+            content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('checkout_url', response.json())
+        self.assertIn('order_id', response.json())
+
+    def test_checkout_validates_product_exists(self):
+        payload = build_checkout_payload(product_id=99999, quantity=1)
+        
+        response = self.client.post(
+            "/orders/checkout",
+            data=payload,
+            content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('items', response.json())
+
+    def test_checkout_rejects_zero_quantity(self):
+        payload = build_checkout_payload(product_id=self.product.id, quantity=0)
+        
+        response = self.client.post(
+            "/orders/checkout",
+            data=payload,
+            content_type="application/json"
+        )
+        
+        self.assertEqual(response.status_code, 400)
+```
+
+### Transactional Service Tests
+
+For services that use `transaction.atomic()`:
+
+```python
+from decimal import Decimal
+from django.test import TestCase
+from shop.services.payments import process_payment_callback
+from shop.tests.factories import create_liqpay_order
+
+class PaymentCallbackTest(TestCase):
+    def test_payment_callback_marks_order_paid_atomically(self):
+        order = create_liqpay_order()
+        self.assertEqual(order.payment_status, "pending")
+        
+        # Process callback
+        process_payment_callback(
+            order_id=order.liqpay_order_id,
+            status="success",
+            payment_id="liq_123"
+        )
+        
+        # Refresh and verify
+        order.refresh_from_db()
+        self.assertEqual(order.payment_status, "paid")
+        
+        # Verify side effects (notification sent, etc)
+        # This test ensures all-or-nothing behavior
+
+    def test_payment_callback_rolls_back_on_error(self):
+        order = create_liqpay_order()
+        
+        with self.assertRaises(ValueError):
+            # Intentionally invalid data
+            process_payment_callback(
+                order_id=order.liqpay_order_id,
+                status="invalid_status",
+                payment_id="liq_123"
+            )
+        
+        # Order should still be pending
+        order.refresh_from_db()
+        self.assertEqual(order.payment_status, "pending")
+```

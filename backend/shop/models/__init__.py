@@ -1,4 +1,4 @@
-from shop.models.order import Order, OrderItem
+from shop.models.order import Order, OrderItem, OrderStatusLog
 from shop.models.product import Product
 from shop.models.promo_code import PromoCode
 from shop.models.site_language_settings import SiteLanguageSettings
@@ -13,4 +13,5 @@ __all__ = [
     "SiteLanguageSettings",
     "Order",
     "OrderItem",
+    "OrderStatusLog",
 ]

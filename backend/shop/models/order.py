@@ -182,3 +182,43 @@ class OrderItem(models.Model):
 
     def __str__(self) -> str:
         return f"{self.product} x {self.quantity}"
+
+
+class OrderStatusLog(models.Model):
+    if TYPE_CHECKING:
+        id: int
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="status_logs",
+        verbose_name=_("Order"),
+    )
+    old_status: "models.CharField[str, str]" = models.CharField(
+        _("Previous status"), max_length=20, blank=True
+    )
+    new_status: "models.CharField[str, str]" = models.CharField(
+        _("New status"), max_length=20, choices=Order.STATUS_CHOICES
+    )
+    reason: "models.CharField[str, str]" = models.CharField(
+        _("Reason"),
+        max_length=100,
+        blank=True,
+        help_text=_("e.g., 'webhook', 'admin change', 'payment confirmation'"),
+    )
+    changed_at = models.DateTimeField(_("Changed at"), auto_now_add=True)
+
+    class Meta:
+        ordering = ["-changed_at"]
+        verbose_name = _("Order status log")
+        verbose_name_plural = _("Order status logs")
+        indexes = [
+            models.Index(fields=["order", "-changed_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return _("%(order)s: %(old)s → %(new)s") % {
+            "order": self.order_id,
+            "old": self.old_status or "—",
+            "new": self.new_status,
+        }

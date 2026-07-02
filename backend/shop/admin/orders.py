@@ -5,7 +5,16 @@ from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 from notifications.customer_bot import notify_customer_order_subscribers
 
-from shop.models.order import Order, OrderItem
+from shop.models.order import Order, OrderItem, OrderStatusLog
+
+
+class OrderStatusLogInline(admin.TabularInline):
+    model = OrderStatusLog
+    extra = 0
+    fields = ("old_status", "new_status", "reason", "changed_at")
+    readonly_fields = ("old_status", "new_status", "reason", "changed_at")
+    can_delete = False
+    ordering = ("-changed_at",)
 
 
 class OrderItemInline(admin.TabularInline):
@@ -18,7 +27,7 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    inlines = (OrderItemInline,)
+    inlines = (OrderItemInline, OrderStatusLogInline)
     list_per_page = 10
     list_display = (
         "id",
