@@ -38,13 +38,13 @@ class CheckoutPaymentsTest(TestCase):
         self.product = create_product(price=Decimal("2000.00"))
 
     @override_settings(LIQPAY_PRIVATE_KEY="test_private_key")
-    def test_create_signature_uses_liqpay_sha1_contract(self):
-        # Pinned reference value: base64(sha1(private_key + data + private_key)).
-        # SHA-1 is mandated by the LiqPay API; switching the digest silently
-        # breaks checkout. See backend/docs/PAYMENTS_LIQPAY.md.
+    def test_create_signature_uses_liqpay_sha3_256_contract(self):
+        # Pinned reference value: base64(sha3_256(private_key + data + private_key)).
+        # LiqPay API v7 mandates SHA3-256; the legacy sha1 is rejected with
+        # err_code=invalid_signature. See backend/docs/PAYMENTS_LIQPAY.md.
         self.assertEqual(
             create_signature("eyJhY3Rpb24iOiAicGF5In0="),
-            "0GYiADN4Lau4QfdGzl5WkCogZXQ=",
+            "ikb47S3kNIabXGI0yiA+m/FLO6E65eblLr/872TZYxM=",
         )
 
     @override_settings(
@@ -94,6 +94,34 @@ class CheckoutPaymentsTest(TestCase):
             f"orderId={order.pk}&orderToken={body['paymentStatusToken']}",
         )
         self.assertEqual(liqpay_payload["paytypes"], "card")
+
+    @override_settings(
+        LIQPAY_PUBLIC_KEY="sandbox_public_key",
+        LIQPAY_PRIVATE_KEY="sandbox_private_key",
+        LIQPAY_RESULT_URL="http://localhost:3000/checkout",
+        LIQPAY_SERVER_URL="http://localhost:8000/payments/liqpay/callback",
+    )
+    def test_checkout_wallet_paytypes_include_qr_fallback(self):
+        # Bare "apay"/"gpay" render nothing on browsers without the wallet;
+        # "qr" keeps the wallet button + QR flow. See docs/PAYMENTS_LIQPAY.md.
+        for payment_method, expected_paytypes in [
+            ("apple_pay", "apay,qr"),
+            ("google_pay", "gpay,qr"),
+        ]:
+            with self.subTest(payment_method=payment_method):
+                response = self.client.post(
+                    "/orders/checkout",
+                    data=build_checkout_payload(
+                        product_id=self.product.pk,
+                        payment_method=payment_method,
+                        locale="uk",
+                    ),
+                    content_type="application/json",
+                )
+
+                self.assertEqual(response.status_code, 201)
+                liqpay_payload = decode_data(response.json()["liqpay"]["data"])
+                self.assertEqual(liqpay_payload["paytypes"], expected_paytypes)
 
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",

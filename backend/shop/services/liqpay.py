@@ -20,9 +20,13 @@ from shop.services.payment_provider_types import (
 )
 from shop.types import JsonMapping, JsonObject, PaymentProviderPayload, is_json_object
 
+# Wallet paytypes must include "qr": with a bare "apay"/"gpay" LiqPay renders
+# nothing on browsers without that wallet (no button, no QR — only the card
+# form), while "apay,qr" keeps the wallet button + QR "continue on phone" flow.
+# See backend/docs/PAYMENTS_LIQPAY.md.
 PAYTYPE_BY_PAYMENT_METHOD = {
-    "apple_pay": "apay",
-    "google_pay": "gpay",
+    "apple_pay": "apay,qr",
+    "google_pay": "gpay,qr",
     "card": "card",
 }
 SUPPORTED_LANGUAGE_CODES = {language_code for language_code, _ in settings.LANGUAGES}
@@ -45,11 +49,11 @@ def create_signature(data: str) -> str:
     if not private_key:
         raise LiqPayConfigurationError("LIQPAY_PRIVATE_KEY is not configured")
 
-    # LiqPay contract: signature = base64(sha1(private_key + data + private_key)).
-    # SHA-1 is the only algorithm LiqPay accepts — any other digest breaks checkout
-    # (LiqPay silently falls back to a bare "pay by requisites" page).
-    # See backend/docs/PAYMENTS_LIQPAY.md before changing.
-    digest = hashlib.sha1(f"{private_key}{data}{private_key}".encode()).digest()
+    # LiqPay contract (API version 7): signature =
+    # base64(sha3_256(private_key + data + private_key)).
+    # Verified against LiqPay sandbox: sha1 (the legacy v3 algorithm) is rejected
+    # with err_code=invalid_signature. See backend/docs/PAYMENTS_LIQPAY.md.
+    digest = hashlib.sha3_256(f"{private_key}{data}{private_key}".encode()).digest()
     return base64.b64encode(digest).decode()
 
 

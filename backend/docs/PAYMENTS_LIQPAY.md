@@ -4,21 +4,37 @@ Integration lives in `backend/shop/services/liqpay.py` (provider `LiqPayProvider
 
 ## Signature algorithm — DO NOT CHANGE
 
+```text
+signature = base64(sha3_256(private_key + data + private_key))
 ```
-signature = base64(sha1(private_key + data + private_key))
-```
 
-- **SHA-1 is the only algorithm LiqPay accepts.** This is fixed by the LiqPay API contract, not our choice.
-- With any other digest (e.g. `sha3_256`) LiqPay treats `data` as untrusted and **silently degrades**: the checkout page opens as a bare "pay by requisites" card form — no QR code, no amount, no `paytypes` (Apple Pay / Google Pay), no `result_url` redirect. Callbacks also fail signature verification.
-- This already broke production behavior twice (commits `e5b8cb2` and `04e53c1` switched to `sha3_256`; `d0db032` and the follow-up fix restored `sha1`).
-- Guarded by a regression test with a pinned reference value: `shop.tests.test_checkout_payments` (`test_create_signature_uses_liqpay_sha1_contract`). If you "fix" the algorithm, that test fails — that is intentional.
-- SHA-1 weakness is irrelevant here: the secret key wraps the payload on both sides, and the scheme is dictated by the provider. Do not let linters/security scanners talk you into "upgrading" it.
+- **SHA3-256 is what LiqPay API v7 accepts.** Verified empirically against the LiqPay sandbox (2026-07-02): the legacy v3 algorithm `sha1` is rejected with a redirect to `checkout/throw_error/?err_code=invalid_signature`.
+- With an invalid signature the checkout never opens — LiqPay shows its error page instead.
+- This already flip-flopped several times in git history (`e5b8cb2`, `d0db032`, `04e53c1`). Before "fixing" the algorithm in either direction, re-verify against the sandbox: build a payload, POST both signature variants to `LIQPAY_CHECKOUT_URL`, and check which one redirects to a real `checkout_...` page vs `throw_error`.
+- Guarded by a regression test with a pinned reference value: `shop.tests.test_checkout_payments` (`test_create_signature_uses_liqpay_sha3_256_contract`).
 
-## Checkout payload notes
+## paytypes — wallets must include `qr`
 
-- `paytypes` is set from `Order.payment_method` via `PAYTYPE_BY_PAYMENT_METHOD` (`apple_pay → apay`, `google_pay → gpay`, `card → card`).
-- Sandbox keys (`sandbox_...` public key) set `"sandbox": 1`. **Apple Pay / Google Pay buttons never render in sandbox** — LiqPay falls back to the card form. This is a sandbox limitation, not a bug.
-- Apple Pay additionally requires: production merchant with Apple Pay enabled in the LiqPay dashboard, plus Safari on an Apple device with a configured Wallet. Otherwise LiqPay shows the card fallback.
+`paytypes` is set from `Order.payment_method` via `PAYTYPE_BY_PAYMENT_METHOD`:
+
+| payment_method | paytypes  |
+| -------------- | --------- |
+| `apple_pay`    | `apay,qr` |
+| `google_pay`   | `gpay,qr` |
+| `card`         | `card`    |
+
+Verified by rendering the sandbox checkout page headless (2026-07-02):
+
+- `paytypes=apay` alone → on a browser without Apple Pay, LiqPay renders **nothing** above the card form: no wallet button, no QR — the page degrades to a bare card/requisites form. This was a real regression users hit.
+- `paytypes=apay,qr` → the wallet button renders even on unsupported browsers, with the QR "continue on phone" flow behind it.
+- No `paytypes` at all → LiqPay shows its full method list (Privat24 Pay, Google Pay, card, …).
+
+Guarded by `test_checkout_wallet_paytypes_include_qr_fallback`.
+
+## Sandbox limitations
+
+- Sandbox keys (`sandbox_...` public key) set `"sandbox": 1`; the page shows the purple "Тестовий режим" banner.
+- Completing a real Apple Pay / Google Pay payment still requires a supported browser/device (Safari + Wallet for Apple Pay) and, in production, the wallet enabled for the merchant in the LiqPay dashboard.
 
 ## Verifying changes
 
