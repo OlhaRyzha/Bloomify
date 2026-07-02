@@ -3,6 +3,7 @@ import { formatTemplate } from '@/utils/i18n';
 import {
   FOOTER_CONTACT_ITEMS,
   NAVIGATION_LINKS,
+  POPULAR_LINKS,
   SERVICE_LINKS,
   footerSocialLinks,
 } from '@/constants/navigation.constants';
@@ -23,6 +24,11 @@ export default async function Footer() {
     ...link,
     href: getLocalizedPath(link.href, locale),
     label: t(`navigation_services_${link.key}`),
+  }));
+  const popularLinks = POPULAR_LINKS.map((link) => ({
+    ...link,
+    href: getLocalizedPath(link.href, locale),
+    label: t(`footer_popular_${link.key}`),
   }));
   const rightsMessage = formatTemplate(t('footer_rights'), {
     year: new Date().getFullYear(),
@@ -169,6 +175,27 @@ export default async function Footer() {
             </ul>
           </div>
         </div>
+
+        <nav
+          aria-labelledby='footer-popular-title'
+          className='mt-12 border-t border-primary-foreground/10 pt-8'>
+          <h4
+            id='footer-popular-title'
+            className='text-sm font-semibold uppercase tracking-wide text-primary-foreground/80'>
+            {t('footer_popular_title')}
+          </h4>
+          <ul className='mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+            {popularLinks.map((item) => (
+              <li key={item.key}>
+                <Link
+                  href={item.href}
+                  className='text-primary-foreground/90 transition-colors hover:text-primary-foreground'>
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
         <div className='mt-12 flex flex-col items-center justify-between gap-4 border-t border-primary-foreground/10 pt-8 md:flex-row'>
           <p className='text-sm text-primary-foreground/85'>{rightsMessage}</p>

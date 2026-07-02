@@ -80,6 +80,23 @@ export const SERVICE_LINKS: { key: ServiceKey; href: string }[] = [
   { key: 'delivery', href: '/#services' },
 ];
 
+export type PopularLinkKey =
+  | 'buy_bouquet'
+  | 'delivery'
+  | 'birthday'
+  | 'roses'
+  | 'subscription';
+
+// SEO footer links: keyword-rich anchors targeting the semantic core
+// (see frontend/docs/seo-semantic-core.md).
+export const POPULAR_LINKS: { key: PopularLinkKey; href: string }[] = [
+  { key: 'buy_bouquet', href: '/catalog' },
+  { key: 'delivery', href: '/#services' },
+  { key: 'birthday', href: '/catalog' },
+  { key: 'roses', href: '/catalog' },
+  { key: 'subscription', href: '/subscriptions' },
+];
+
 export type FooterContactItem = {
   id: 'phone' | 'email' | 'address';
   icon: LucideIcon;
