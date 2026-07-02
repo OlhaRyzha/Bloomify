@@ -38,12 +38,79 @@ Current enforced limits:
 `.next/build-manifest.json` after `next build`. If a budget is exceeded, the
 script exits with a non-zero status and CI fails.
 
-When a budget fails:
+### When a Budget Fails
 
-1. Inspect whether a Client Component pulled in a large dependency globally.
-2. Check imports in `Header`, `Footer`, providers, route shells, and shared UI.
-3. Move heavy dependencies behind route-level Client Components when possible.
-4. Raise the budget only after a deliberate product decision.
+Do not blindly raise the budget. Instead:
+
+1. **Identify the culprit:**
+
+   ```bash
+   npm run build
+   ```
+
+   Look at `.next/static/chunks/` and find the largest new files.
+   Example: `packages-XXX.js` grew from 150KB to 180KB
+
+2. **Find what added to the dependency:**
+
+   Use `npm ls` or `npm explain` to trace the import:
+
+   ```bash
+   npm ls chart-library  # Show who depends on this
+   npm explain framer-motion  # Show why it was installed
+   ```
+
+3. **Check the root cause:**
+
+   - Did you add a dependency to `package.json`?
+   - Did you add a `"use client"` directive near the app root?
+   - Did you import a heavy library into a shared component?
+
+4. **Fix strategy (in order of preference):**
+
+   a. **Remove the dependency** (best)
+      - Was this feature essential? Can you ship without it?
+
+   b. **Move import to route-level Client Component** (good)
+      - Instead of importing in `Header` (used everywhere), import in the route that needs it
+      - Wrap only that page's form in a Client Component
+
+   c. **Lazy-load with dynamic()** (ok)
+      ```tsx
+      const HeavyChart = dynamic(() => import('@/features/charts/heavy'), {
+        ssr: false,  // Don't include in server bundle
+      });
+      ```
+
+   d. **Replace with lighter alternative** (consider)
+      - Use `date-fns` instead of `moment`
+      - Use `clsx` instead of `classnames`
+
+   e. **Only then: Raise the budget**
+      - Document WHY in the `performance-budget.json` comment
+      - New budget should have a ticket tied to future reduction
+
+### Monitoring
+
+Performance budget is checked in CI on every build:
+
+```yaml
+# .github/workflows/frontend-ci.yml
+- name: Performance budget
+  run: cd frontend && npm run performance:budget
+```
+
+**On PR:**
+
+- CI shows ✅ or ❌ against the current budget
+- If ❌, the build fails and PR cannot merge
+- Diff is shown in the `frontend build` step
+
+**On Main:**
+
+- Budget acts as a guard rail
+- Protects against gradual bundle creep
+- If you need to raise budget, do it deliberately with team discussion
 
 ## Visual Regression Baseline
 

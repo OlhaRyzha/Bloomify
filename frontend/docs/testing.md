@@ -213,3 +213,114 @@ enabled; fix tokens/components instead of suppressing contrast failures.
 Use `make frontend-test-e2e-visual` after changing responsive layout, shared
 spacing, page shells, header/footer composition, catalog cards, checkout
 layout, or global visual tokens.
+
+## Visual Regression Snapshot Approval
+
+Visual snapshots live in `e2e/visual-responsive.spec.ts-snapshots/`.
+
+### When to Update Snapshots
+
+**Update snapshots when:**
+
+- You intentionally changed colors, spacing, fonts, or layout
+- You updated Tailwind tokens
+- You refactored a page shell or component layout
+- Snapshot diff shows exactly what you expect
+
+**Do NOT update when:**
+
+- Snapshot shows unintended diff (e.g., truncated text, misaligned elements)
+- Image quality or rendering changed due to dependency upgrade
+- Page layout broke due to a bug (fix the bug first)
+
+### Approval Workflow
+
+1. **Run visual tests locally to see diffs:**
+
+   ```bash
+   npm run test:e2e:visual
+   ```
+
+   Playwright will show `Expected` (baseline) vs `Actual` (current).
+
+2. **Review the diff:**
+
+   - Open `test-results/` or `playwright-report/` in browser
+   - Compare side-by-side
+   - Is this change intentional and correct?
+
+3. **If diff is correct, update snapshot:**
+
+   ```bash
+   npm run test:e2e:visual -- --update-snapshots
+   ```
+
+   Or let CI auto-update on PR (see below).
+
+4. **Commit updated snapshots:**
+
+   ```bash
+   git add e2e/visual-responsive.spec.ts-snapshots/
+   git commit -m "chore: update visual snapshots for [reason]"
+   ```
+
+### CI Visual Regression Workflow
+
+In `.github/workflows/frontend-ci.yml`, the `e2e` job:
+
+1. Runs visual tests (`--update-snapshots` disabled)
+2. If tests fail due to diff (not crash):
+   - Auto-updates snapshots
+   - Commits and pushes to branch
+   - Posts warning: "Visual snapshots were updated — re-run to verify"
+3. You re-run the job to verify new baseline
+
+**Why this process?**
+
+- Catches unintended visual regressions early
+- Prevents shipping broken layouts
+- Requires human review of all visual changes
+- Snapshots are kept in git for code review
+
+### Snapshot Review Checklist
+
+When reviewing a PR with updated snapshots:
+
+- [ ] Diffs are intentional (color change, spacing update, etc.)
+- [ ] No truncated text or overflow
+- [ ] No misaligned elements
+- [ ] Font sizes and weights correct
+- [ ] Responsive layout still works
+- [ ] Dark mode (if applicable) looks consistent
+
+### Common Issues
+
+#### Image looks slightly different (fuzzy, aliased)
+
+Cause: Font rendering, sub-pixel anti-aliasing, or Playwright version change.
+
+Fix: If diff is minor and unrelated to your change, update snapshot. Otherwise, investigate why rendering changed.
+
+#### Snapshot baseline was wrong
+
+You can rebuild the baseline:
+
+```bash
+# Delete old snapshots (careful!)
+rm e2e/visual-responsive.spec.ts-snapshots/*.png
+
+# Regenerate from current code
+npm run test:e2e:visual -- --update-snapshots
+
+# Review, then commit
+```
+
+#### CI auto-updated but you don't like the diff
+
+Revert the snapshot commit and fix the code instead:
+
+```bash
+git revert <snapshot-commit>
+# Then fix the bug/layout issue
+npm run test:e2e:visual  # Should pass now
+```
