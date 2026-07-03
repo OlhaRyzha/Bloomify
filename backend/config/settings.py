@@ -62,6 +62,8 @@ class EnvironmentSettings(BaseSettings):
     NOTIFICATION_QUEUE_SECRET: str = ""
     NOTIFICATION_QUEUE_TIMEOUT_SECONDS: int = 10
 
+    BLOB_READ_WRITE_TOKEN: str = ""
+
     SENTRY_DSN: str = ""
     SENTRY_ENVIRONMENT: str = ""
     SENTRY_TRACES_SAMPLE_RATE: float = 0.0
@@ -513,6 +515,21 @@ MEDIA_URL = env.DJANGO_MEDIA_URL or (
 )
 
 MEDIA_ROOT = BASE_DIR / "media"
+
+BLOB_READ_WRITE_TOKEN = env.BLOB_READ_WRITE_TOKEN
+
+# Vercel serverless has a read-only filesystem: media uploads must go to
+# Vercel Blob. Locally the token is absent and filesystem storage is kept.
+# staticfiles stays on the Django 6 default (the legacy STATICFILES_STORAGE
+# setting above is ignored by Django 6, so mirroring it here would change
+# behavior).
+if BLOB_READ_WRITE_TOKEN:
+    STORAGES = {
+        "default": {"BACKEND": "shop.storage.VercelBlobStorage"},
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },
+    }
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("unfold",)
 CRISPY_TEMPLATE_PACK = "unfold"
