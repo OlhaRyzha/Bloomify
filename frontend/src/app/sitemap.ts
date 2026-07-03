@@ -4,6 +4,7 @@ import {
   getLanguageAlternates,
 } from '@/config/site';
 import { defaultLocale } from '@/locales/translations';
+import CategoriesService from '@/features/categories/api/categories.service';
 import ProductsService from '@/features/catalog/api/products.service';
 import { getServerApiBaseUrl } from '@/services/api/server/server-api-url';
 
@@ -41,6 +42,19 @@ const fetchProductIds = async (): Promise<string[]> => {
   }
 };
 
+const fetchCategorySlugs = async (): Promise<string[]> => {
+  try {
+    const serverApiBaseUrl = await getServerApiBaseUrl();
+    const categories = await CategoriesService.getCategories(
+      { lang: defaultLocale },
+      serverApiBaseUrl ? { baseURL: serverApiBaseUrl } : undefined
+    );
+    return categories.map((category) => category.slug);
+  } catch {
+    return [];
+  }
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = STATIC_PATHS.map((path) => ({
     url: getAbsoluteLocalizedUrl(path, defaultLocale),
@@ -56,6 +70,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: getAbsoluteLocalizedUrl(path, defaultLocale),
       changeFrequency: 'weekly',
       priority: 0.8,
+      alternates: { languages: getLanguageAlternates(path) },
+    });
+  }
+
+  const categorySlugs = await fetchCategorySlugs();
+  for (const slug of categorySlugs) {
+    const path = `/categories/${slug}`;
+    entries.push({
+      url: getAbsoluteLocalizedUrl(path, defaultLocale),
+      changeFrequency: 'weekly',
+      priority: 0.7,
       alternates: { languages: getLanguageAlternates(path) },
     });
   }

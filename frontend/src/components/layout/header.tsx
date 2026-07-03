@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { NAVIGATION_LINKS } from '@/constants/navigation.constants';
 import { hasAuthSessionCookie } from '@/features/auth/lib/server/auth-session.server';
+import { getNavigationCategories } from '@/features/categories/lib/get-navigation-categories.server';
 import { getLocalizedPath } from '@/i18n/routing';
 import { getServerTranslator } from '@/i18n/server';
 
@@ -12,15 +13,24 @@ import { Container } from './page-layout';
 export default async function Header() {
   const mobileNavId = 'mobile-navigation';
   const { locale, t } = await getServerTranslator();
-  const isAuthorized = await hasAuthSessionCookie();
+  const [isAuthorized, categories] = await Promise.all([
+    hasAuthSessionCookie(),
+    getNavigationCategories(locale),
+  ]);
 
-  const navigationLinks = NAVIGATION_LINKS.filter(
+  const staticLinks = NAVIGATION_LINKS.filter(
     (link) => link.visibility === 'all' || isAuthorized
   ).map((link) => ({
     ...link,
     href: getLocalizedPath(link.href, locale),
     label: t(link.labelKey),
   }));
+  const categoryLinks = categories.map((category) => ({
+    key: `category-${category.slug}`,
+    href: getLocalizedPath(`/categories/${category.slug}`, locale),
+    label: category.name,
+  }));
+  const navigationLinks = [...staticLinks, ...categoryLinks];
 
   return (
     <header className='fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md'>

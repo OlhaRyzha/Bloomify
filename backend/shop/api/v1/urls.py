@@ -8,6 +8,7 @@ from shop.views.auth import (
     RefreshView,
     RegisterView,
 )
+from shop.views.categories import CategoryDetailView, CategoryListView
 from shop.views.health import HealthCheckView
 from shop.views.orders import (
     CheckoutCreateView,
@@ -29,6 +30,12 @@ from shop.views.subscriptions import (
 )
 
 urlpatterns = [
+    path("categories", CategoryListView.as_view(), name="categories"),
+    path(
+        "categories/<slug:slug>",
+        CategoryDetailView.as_view(),
+        name="category_detail",
+    ),
     path("products", ProductListView.as_view(), name="products"),
     path("products/filters", ProductFiltersView.as_view(), name="product_filters"),
     path("favorites-products", ProductListView.as_view(), name="favorites_products"),

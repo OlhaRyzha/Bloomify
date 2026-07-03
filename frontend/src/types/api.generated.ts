@@ -100,6 +100,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["categories_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/categories/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["categories_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/favorites-products": {
         parameters: {
             query?: never;
@@ -453,6 +485,26 @@ export interface components {
         AuthTokenResponse: {
             access_token: string;
         };
+        CategoryDetail: {
+            readonly id: string;
+            slug: string;
+            /** Type */
+            kind?: components["schemas"]["KindEnum"];
+            readonly name: string;
+            readonly blocks: {
+                [key: string]: unknown;
+            }[];
+            readonly items: {
+                [key: string]: unknown;
+            }[];
+        };
+        CategoryListItem: {
+            readonly id: string;
+            slug: string;
+            /** Type */
+            kind?: components["schemas"]["KindEnum"];
+            readonly name: string;
+        };
         CheckoutCreate: {
             customerName: string;
             /** Format: email */
@@ -483,6 +535,12 @@ export interface components {
          * @enum {string}
          */
         IntervalEnum: "weekly" | "monthly" | "quarterly";
+        /**
+         * @description * `catalog` - Catalog
+         *     * `info` - Info page
+         * @enum {string}
+         */
+        KindEnum: "catalog" | "info";
         LiqPayCallbackRequest: {
             data: string;
             signature: string;
@@ -770,6 +828,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthTokenResponse"];
+                };
+            };
+        };
+    };
+    categories_list: {
+        parameters: {
+            query?: {
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryListItem"][];
+                };
+            };
+        };
+    };
+    categories_retrieve: {
+        parameters: {
+            query?: {
+                lang?: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDetail"];
                 };
             };
         };

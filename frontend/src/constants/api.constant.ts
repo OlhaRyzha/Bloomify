@@ -1,6 +1,8 @@
 export const API_ROUTES = {
   PRODUCTS: 'products',
   PRODUCT_FILTERS: 'products/filters',
+  CATEGORIES: 'categories',
+  CATEGORY_DETAIL: (slug: string) => `categories/${slug}`,
   ORDERS: 'orders',
   CHECKOUT: 'orders/checkout',
   CHECKOUT_PAYMENT_STATUS: (orderId: number) =>

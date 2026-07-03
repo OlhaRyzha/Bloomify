@@ -1,3 +1,4 @@
+from shop.admin.categories import CategoryAdmin
 from shop.admin.orders import OrderAdmin
 from shop.admin.products import ProductAdmin
 from shop.admin.promo_codes import PromoCodeAdmin
@@ -11,6 +12,7 @@ from shop.admin.subscriptions import (
 from shop.admin.users import UserAdmin
 
 __all__ = [
+    "CategoryAdmin",
     "ProductAdmin",
     "SubscriptionPlanAdmin",
     "SubscriptionAdmin",

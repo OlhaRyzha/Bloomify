@@ -7,6 +7,7 @@ import {
   SERVICE_LINKS,
   footerSocialLinks,
 } from '@/constants/navigation.constants';
+import { getNavigationCategories } from '@/features/categories/lib/get-navigation-categories.server';
 import { getServerTranslator } from '@/i18n/server';
 import FooterNewsletterForm from '@/components/layout/forms/footer-newsletter-form.client';
 import { getLocalizedPath } from '@/i18n/routing';
@@ -14,12 +15,20 @@ import { Container } from './page-layout';
 
 export default async function Footer() {
   const { locale, t } = await getServerTranslator();
+  const categories = await getNavigationCategories(locale);
   const newsletterInputId = 'footer-newsletter-email';
-  const navLinks = NAVIGATION_LINKS.map((link) => ({
-    ...link,
-    href: getLocalizedPath(link.href, locale),
-    label: t(link.labelKey),
-  }));
+  const navLinks = [
+    ...NAVIGATION_LINKS.map((link) => ({
+      key: link.key as string,
+      href: getLocalizedPath(link.href, locale),
+      label: t(link.labelKey),
+    })),
+    ...categories.map((category) => ({
+      key: `category-${category.slug}`,
+      href: getLocalizedPath(`/categories/${category.slug}`, locale),
+      label: category.name,
+    })),
+  ];
   const serviceLinks = SERVICE_LINKS.map((link) => ({
     ...link,
     href: getLocalizedPath(link.href, locale),
