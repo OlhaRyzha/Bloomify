@@ -111,8 +111,9 @@ class CategoryContentBlock(TranslatableModel):
         title=models.CharField(_("Heading"), max_length=200, blank=True),
         body=models.TextField(_("Text"), blank=True),
     )
+    # max_length fits absolute Vercel Blob URLs stored as the file name.
     image = models.ImageField(
-        _("Image"), upload_to="categories/", blank=True, null=True
+        _("Image"), upload_to="categories/", blank=True, null=True, max_length=300
     )
     order: "models.PositiveIntegerField[int, int]" = models.PositiveIntegerField(
         _("Order"), default=0

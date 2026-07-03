@@ -36,14 +36,6 @@ def _get_token() -> str:
     return str(token)
 
 
-def _get_store_id(token: str) -> str:
-    # Token format: vercel_blob_rw_<storeId>_<secret>
-    parts = token.split("_")
-    if len(parts) < 5:
-        raise VercelBlobError("Unexpected BLOB_READ_WRITE_TOKEN format")
-    return parts[3]
-
-
 @deconstructible
 class VercelBlobStorage(Storage):
     def _headers(self, extra: dict[str, str] | None = None) -> dict[str, str]:
@@ -54,10 +46,6 @@ class VercelBlobStorage(Storage):
         if extra:
             headers.update(extra)
         return headers
-
-    def _public_base_url(self) -> str:
-        store_id = _get_store_id(_get_token())
-        return f"https://{store_id}.public.blob.vercel-storage.com"
 
     def _save(self, name: str, content: IO[bytes]) -> str:
         content_type = mimetypes.guess_type(name)[0] or "application/octet-stream"
@@ -81,10 +69,13 @@ class VercelBlobStorage(Storage):
             )
 
         payload = response.json()
-        pathname = payload.get("pathname")
-        if not isinstance(pathname, str) or not pathname:
-            raise VercelBlobError("Vercel Blob response is missing pathname")
-        return pathname
+        # Store the absolute URL returned by the API as the file name: the
+        # public hostname is store-specific and cannot be derived reliably
+        # (token segments do not match the public URL host).
+        url = payload.get("url")
+        if not isinstance(url, str) or not url.startswith("https://"):
+            raise VercelBlobError("Vercel Blob response is missing url")
+        return url
 
     def _open(self, name: str, mode: str = "rb") -> File:
         response = requests.get(self.url(name), timeout=REQUEST_TIMEOUT_SECONDS)
@@ -115,7 +106,10 @@ class VercelBlobStorage(Storage):
             return ""
         if name.startswith("http://") or name.startswith("https://"):
             return name
-        return f"{self._public_base_url()}/{name}"
+        # Legacy records saved before absolute URLs were stored: the public
+        # host cannot be derived, so return a dead relative path instead of
+        # crashing the API. Re-uploading the file fixes the record.
+        return f"/{name}"
 
     def size(self, name: str) -> int:
         response = requests.head(self.url(name), timeout=REQUEST_TIMEOUT_SECONDS)

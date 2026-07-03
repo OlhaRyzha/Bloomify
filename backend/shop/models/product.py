@@ -41,7 +41,10 @@ class Product(TranslatableModel):
     discount: "DecimalField[Decimal | None, Decimal | None]" = models.DecimalField(
         _("Discount"), max_digits=10, decimal_places=2, null=True, blank=True
     )
-    image = models.ImageField(_("Image"), upload_to="products/", blank=True, null=True)
+    # max_length fits absolute Vercel Blob URLs stored as the file name.
+    image = models.ImageField(
+        _("Image"), upload_to="products/", blank=True, null=True, max_length=300
+    )
     is_active: "BooleanField[bool, bool]" = models.BooleanField(
         _("Active"), default=True
     )
