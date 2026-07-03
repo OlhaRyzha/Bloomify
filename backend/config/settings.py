@@ -302,6 +302,11 @@ UNFOLD = {
                         "link": f"{ADMIN_BASE_PATH}/shop/product/",
                     },
                     {
+                        "title": "Categories",
+                        "icon": "category",
+                        "link": f"{ADMIN_BASE_PATH}/shop/category/",
+                    },
+                    {
                         "title": "Orders",
                         "icon": "receipt_long",
                         "link": f"{ADMIN_BASE_PATH}/shop/order/",
