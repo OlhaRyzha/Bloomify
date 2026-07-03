@@ -18,6 +18,10 @@ export const categoryContentBlockSchema = z.object({
   title: z.string(),
   body: z.string(),
   imageUrl: z.string().nullable(),
+  headingLevel: z.number().int().min(1).max(6),
+  align: z.enum(['left', 'center', 'right']),
+  imageSize: z.enum(['small', 'medium', 'full']),
+  imageRadius: z.enum(['none', 'soft', 'large']),
   order: z.number(),
 });
 

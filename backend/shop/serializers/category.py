@@ -35,10 +35,24 @@ class CategoryContentBlockSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     body = serializers.SerializerMethodField()
     imageUrl = serializers.SerializerMethodField()
+    headingLevel = serializers.IntegerField(source="heading_level", read_only=True)
+    imageSize = serializers.CharField(source="image_size", read_only=True)
+    imageRadius = serializers.CharField(source="image_radius", read_only=True)
 
     class Meta:
         model = CategoryContentBlock
-        fields = ("id", "blockType", "title", "body", "imageUrl", "order")
+        fields = (
+            "id",
+            "blockType",
+            "title",
+            "body",
+            "imageUrl",
+            "headingLevel",
+            "align",
+            "imageSize",
+            "imageRadius",
+            "order",
+        )
 
     def _language(self) -> str | None:
         request = self.context.get("request")

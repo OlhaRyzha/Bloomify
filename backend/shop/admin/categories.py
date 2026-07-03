@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from parler.admin import TranslatableAdmin, TranslatableTabularInline
+from parler.admin import TranslatableAdmin, TranslatableStackedInline
 
 from shop.models.category import (
     Category,
@@ -11,15 +11,46 @@ from shop.models.category import (
 )
 
 
-class CategoryContentBlockInline(TranslatableTabularInline):
+class CategoryContentBlockInline(TranslatableStackedInline):
     model = CategoryContentBlock
-    extra = 1
-    fields = ("block_type", "title", "body", "image", "order")
+    extra = 0
     formfield_overrides = {
         models.TextField: {"widget": forms.Textarea(attrs={"rows": 3})},
     }
     verbose_name = _("Content block (info pages)")
     verbose_name_plural = _("Content blocks (info pages)")
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (("block_type", "order", "align"),),
+                "description": _(
+                    "Pick what this block is, its position on the page "
+                    "(1, 2, 3…), and how its content is aligned."
+                ),
+            },
+        ),
+        (
+            _("Heading & text"),
+            {
+                "fields": ("title", "heading_level", "body"),
+                "description": _(
+                    "Fill the heading for Heading blocks, the text for "
+                    "Text blocks. Heading size: H1 largest → H6 smallest."
+                ),
+            },
+        ),
+        (
+            _("Image"),
+            {
+                "fields": (("image",), ("image_size", "image_radius")),
+                "description": _(
+                    "Optional for any block type: the photo is shown after "
+                    "the heading or text."
+                ),
+            },
+        ),
+    )
 
 
 @admin.register(Category)
