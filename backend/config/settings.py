@@ -113,10 +113,11 @@ def build_database_config() -> DatabaseConfig:
     postgres_connect_timeout = parse_postgres_connect_timeout(
         env.POSTGRES_CONNECT_TIMEOUT
     )
+    postgres_sslmode = env.POSTGRES_SSLMODE or ("" if env.DJANGO_DEBUG else "require")
     if database_url:
         parsed_url = urlparse(database_url)
         query_params = parse_qs(parsed_url.query)
-        sslmode = query_params.get("sslmode", [env.POSTGRES_SSLMODE])[0]
+        sslmode = query_params.get("sslmode", [postgres_sslmode])[0]
         connect_timeout = query_params.get(
             "connect_timeout", [str(postgres_connect_timeout)]
         )[0]
@@ -149,8 +150,8 @@ def build_database_config() -> DatabaseConfig:
         "PORT": postgres_port,
     }
     direct_database_options: DatabaseConfig = {}
-    if env.POSTGRES_SSLMODE:
-        direct_database_options["sslmode"] = env.POSTGRES_SSLMODE
+    if postgres_sslmode:
+        direct_database_options["sslmode"] = postgres_sslmode
     direct_database_options["connect_timeout"] = postgres_connect_timeout
     if direct_database_options:
         config["OPTIONS"] = direct_database_options

@@ -5,6 +5,21 @@ from django.test import TestCase
 from shop.models.category import Category, CategoryContentBlock
 from shop.tests.factories import create_product
 
+EXPECTED_CDN_CACHE_CONTROL = (
+    "public, s-maxage=300, stale-while-revalidate=600, stale-if-error=86400"
+)
+
+
+def assert_cdn_cacheable(test_case: TestCase, response) -> None:
+    test_case.assertEqual(
+        response["Cache-Control"],
+        "public, max-age=0, must-revalidate",
+    )
+    test_case.assertEqual(
+        response["Vercel-CDN-Cache-Control"],
+        EXPECTED_CDN_CACHE_CONTROL,
+    )
+
 
 def create_category(
     *,
@@ -36,6 +51,7 @@ class CategoryListViewTest(TestCase):
         self.assertEqual([item["slug"] for item in body], ["first", "second"])
         self.assertEqual(body[0]["name"], "Перша")
         self.assertEqual(body[0]["kind"], "catalog")
+        assert_cdn_cacheable(self, response)
 
     def test_list_returns_localized_name(self):
         category = create_category(slug="wedding", name="Весільна флористика")
@@ -47,6 +63,7 @@ class CategoryListViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()[0]["name"], "Wedding floristry")
+        assert_cdn_cacheable(self, response)
 
 
 class CategoryDetailViewTest(TestCase):
@@ -66,6 +83,7 @@ class CategoryDetailViewTest(TestCase):
         self.assertEqual(len(body["items"]), 1)
         self.assertEqual(body["items"][0]["id"], str(active.pk))
         self.assertEqual(body["blocks"], [])
+        assert_cdn_cacheable(self, response)
 
     def test_info_category_returns_ordered_blocks(self):
         category = create_category(slug="delivery", kind=Category.KIND_INFO)
@@ -105,3 +123,4 @@ class CategoryDetailViewTest(TestCase):
         response = self.client.get("/categories/hidden")
 
         self.assertEqual(response.status_code, 404)
+        self.assertNotIn("Vercel-CDN-Cache-Control", response)

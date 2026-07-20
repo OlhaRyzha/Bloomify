@@ -1,4 +1,6 @@
+from common.cache import cache_public_catalog_response
 from common.pagination import build_paginated_response, paginate_items
+from django.utils.decorators import method_decorator
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics, permissions
@@ -31,6 +33,7 @@ def get_product_sort_param(request: Request) -> str:
     return sort if sort in PRODUCT_SORT_OPTIONS else "default"
 
 
+@method_decorator(cache_public_catalog_response, name="dispatch")
 class ProductListView(generics.ListAPIView):
     queryset = get_active_products_queryset()
     serializer_class = ProductSerializer
@@ -75,6 +78,7 @@ class ProductListView(generics.ListAPIView):
         )
 
 
+@method_decorator(cache_public_catalog_response, name="dispatch")
 class ProductDetailView(generics.RetrieveAPIView):
     queryset = get_active_products_queryset()
     serializer_class = ProductSerializer
@@ -83,6 +87,7 @@ class ProductDetailView(generics.RetrieveAPIView):
     throttle_scope = "product_list"
 
 
+@method_decorator(cache_public_catalog_response, name="dispatch")
 class ProductFiltersView(APIView):
     permission_classes = [permissions.AllowAny]
     throttle_classes = [ScopedRateThrottle]

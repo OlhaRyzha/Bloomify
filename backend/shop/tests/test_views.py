@@ -89,6 +89,16 @@ class ProductApiPermissionsTest(TestCase):
 
 
 class ProductListApiTest(TestCase):
+    def assert_catalog_response_is_cdn_cacheable(self, response):
+        self.assertEqual(
+            response["Cache-Control"],
+            "public, max-age=0, must-revalidate",
+        )
+        self.assertEqual(
+            response["Vercel-CDN-Cache-Control"],
+            "public, s-maxage=300, stale-while-revalidate=600, " "stale-if-error=86400",
+        )
+
     def test_products_without_list_params_returns_legacy_array(self):
         create_translated_product(name="Білі троянди", tag="Класика")
 
@@ -98,6 +108,7 @@ class ProductListApiTest(TestCase):
         body = response.json()
         self.assertIsInstance(body, list)
         self.assertEqual(body[0]["name"], "Білі троянди")
+        self.assert_catalog_response_is_cdn_cacheable(response)
 
     def test_products_without_list_params_does_not_duplicate_translated_products(self):
         product = create_translated_product(name="Білі троянди", tag="Класика")
@@ -154,6 +165,7 @@ class ProductListApiTest(TestCase):
         self.assertEqual(body["nextPage"], 2)
         self.assertEqual(len(body["items"]), 1)
         self.assertEqual(body["items"][0]["name"], "Червоні троянди")
+        self.assert_catalog_response_is_cdn_cacheable(response)
 
     def test_product_filters_returns_active_tags(self):
         create_translated_product(name="Білі троянди", tag="Класика")
@@ -167,3 +179,12 @@ class ProductListApiTest(TestCase):
             response.json(),
             {"tags": ["Класика"]},
         )
+        self.assert_catalog_response_is_cdn_cacheable(response)
+
+    def test_product_detail_is_cdn_cacheable(self):
+        product = create_translated_product(name="Білі троянди")
+
+        response = self.client.get(f"/products/{product.pk}", {"lang": "uk"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assert_catalog_response_is_cdn_cacheable(response)
