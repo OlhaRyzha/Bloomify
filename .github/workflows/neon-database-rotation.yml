@@ -1,0 +1,52 @@
+name: Neon Database Rotation
+
+on:
+  schedule:
+    # 02:00 UTC on the 18th (04:00 Kyiv in winter, 05:00 in summer).
+    - cron: "0 2 18 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: neon-production-database-rotation
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  rotate:
+    if: github.repository_owner == 'OlhaRyzha'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_ORG_ID: ${{ vars.NEON_ORG_ID }}
+      NEON_INITIAL_PROJECT_ID: ${{ vars.NEON_INITIAL_PROJECT_ID }}
+      NEON_DATABASE_NAME: ${{ vars.NEON_DATABASE_NAME }}
+      NEON_ROLE_NAME: ${{ vars.NEON_ROLE_NAME }}
+      ROTATION_PROJECT_PREFIX: ${{ vars.ROTATION_PROJECT_PREFIX }}
+      ROTATION_HEALTHCHECK_URL: ${{ vars.ROTATION_HEALTHCHECK_URL }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate rotation configuration
+        run: |
+          missing=0
+          for variable in NEON_API_KEY NEON_ORG_ID NEON_INITIAL_PROJECT_ID VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!variable:-}" ]; then
+              echo "::error::Missing required GitHub secret or variable: ${variable}"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Rotate production database
+        run: bash scripts/rotate_neon_database.sh

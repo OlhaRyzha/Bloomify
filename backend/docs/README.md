@@ -10,6 +10,7 @@ This folder describes target backend standards for Bloomify. Treat these documen
 - [Admin](./ADMIN_PANEL_README.md) - Unfold admin structure, registration rules, styling boundaries, and maintenance conventions.
 - [Subscription Launch Checklist](./SUBSCRIPTION_LAUNCH_CHECKLIST.md) - Pre-launch testing, daily monitoring queries, and post-launch investigation procedures.
 - [Subscription Post-Launch Audit](./SUBSCRIPTION_POST_LAUNCH_AUDIT.md) - Daily/weekly audit tools, investigation scenarios, escalation procedures, and runbook commands.
+- [Neon Database Rotation](./NEON_DATABASE_ROTATION.md) - Scheduled production database copy, Vercel cutover, rollback, and required secrets.
 
 ## Default Workflow
 
