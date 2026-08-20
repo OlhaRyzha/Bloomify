@@ -6,12 +6,13 @@ NEON_API_BASE="https://console.neon.tech/api/v2"
 VERCEL_API_BASE="https://api.vercel.com"
 VERCEL_CLI_VERSION="${VERCEL_CLI_VERSION:-58.4.4}"
 ROTATION_PROJECT_PREFIX="${ROTATION_PROJECT_PREFIX:-bloomify-prod-rotation-}"
+VERCEL_NEON_REGION="${VERCEL_NEON_REGION:-iad1}"
 NEON_DATABASE_NAME="${NEON_DATABASE_NAME:-neondb}"
 NEON_ROLE_NAME="${NEON_ROLE_NAME:-neondb_owner}"
 ROTATION_HEALTHCHECK_URL="${ROTATION_HEALTHCHECK_URL:-https://bloomify-pi.vercel.app/api/products/filters?lang=en}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TARGET_PROJECT_NAME="${ROTATION_PROJECT_PREFIX}$(date -u +%Y-%m)"
-PENDING_PROJECT_NAME="${ROTATION_PROJECT_PREFIX}pending-$(date -u +%Y-%m)"
+TARGET_ENV_PREFIX="ROTATION_$(date -u +%Y_%m)_"
 
 TEMP_DIR="$(mktemp -d)"
 SOURCE_DIRECT_URL=""
@@ -129,6 +130,121 @@ deploy_production() {
     --cwd "$REPO_ROOT"
 }
 
+create_marketplace_neon_project() {
+  npx --yes "vercel@${VERCEL_CLI_VERSION}" integration add neon \
+    --name "$TARGET_PROJECT_NAME" \
+    --plan free_v3 \
+    --metadata "region=${VERCEL_NEON_REGION}" \
+    --metadata auth=false \
+    --installation-id "$VERCEL_NEON_INSTALLATION_ID" \
+    --prefix "$TARGET_ENV_PREFIX" \
+    --environment production \
+    --no-claim \
+    --no-env-pull \
+    --token "$VERCEL_TOKEN" \
+    --scope "$VERCEL_ORG_ID" \
+    --cwd "$REPO_ROOT" >/dev/null
+}
+
+find_neon_project_id() {
+  local project_name="$1"
+  local projects_json
+
+  projects_json="$(neon_get "${NEON_API_BASE}/projects?limit=100&org_id=${NEON_ORG_ID}")"
+  jq -r --arg project_name "$project_name" \
+    '[.projects[] | select(.name == $project_name)] | first | .id // empty' \
+    <<<"$projects_json"
+}
+
+wait_for_neon_project_id() {
+  local project_name="$1"
+  local attempt
+  local project_id
+
+  for attempt in $(seq 1 30); do
+    project_id="$(find_neon_project_id "$project_name")"
+    if [[ -n "$project_id" ]]; then
+      printf '%s' "$project_id"
+      return
+    fi
+    sleep 10
+  done
+
+  die "Marketplace Neon project did not appear within five minutes"
+}
+
+project_has_completion_marker() {
+  local project_id="$1"
+  local postgres_version="$2"
+  local database_url
+
+  database_url="$(neon_connection_uri "$project_id" false)"
+  DATABASE_URL="$database_url" docker run --rm \
+    --env DATABASE_URL \
+    "postgres:${postgres_version}" \
+    sh -c '
+      if [ "$(psql "$DATABASE_URL" --tuples-only --no-align --command "SELECT to_regclass('\''public.bloomify_rotation_state'\'') IS NOT NULL;")" != "t" ]; then
+        exit 1
+      fi
+      [ "$(psql "$DATABASE_URL" --tuples-only --no-align --command "SELECT EXISTS (SELECT 1 FROM public.bloomify_rotation_state WHERE completed_at IS NOT NULL);")" = "t" ]
+    ' >/dev/null 2>&1
+}
+
+find_completed_source_project_id() {
+  local current_target_id="$1"
+  local project_id
+  local postgres_version
+
+  while IFS=$'\t' read -r project_id postgres_version; do
+    [[ -n "$project_id" ]] || continue
+    [[ "$project_id" != "$current_target_id" ]] || continue
+    if project_has_completion_marker "$project_id" "$postgres_version"; then
+      printf '%s' "$project_id"
+      return
+    fi
+  done < <(
+    neon_get "${NEON_API_BASE}/projects?limit=100&org_id=${NEON_ORG_ID}" \
+      | jq -r --arg prefix "$ROTATION_PROJECT_PREFIX" \
+        '[.projects[] | select(.name | startswith($prefix))] | sort_by(.created_at) | reverse[] | [.id, .pg_version] | @tsv'
+  )
+
+  printf '%s' "$NEON_ACTIVE_PROJECT_ID"
+}
+
+prepare_completion_marker() {
+  local database_url="$1"
+  local postgres_version="$2"
+
+  DATABASE_URL="$database_url" docker run --rm \
+    --env DATABASE_URL \
+    "postgres:${postgres_version}" \
+    sh -c 'psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --command "
+      CREATE TABLE IF NOT EXISTS public.bloomify_rotation_state (
+        singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
+        project_id text NOT NULL,
+        completed_at timestamptz NOT NULL
+      );
+      DELETE FROM public.bloomify_rotation_state;
+    "' >/dev/null
+}
+
+mark_rotation_complete() {
+  local database_url="$1"
+  local postgres_version="$2"
+  local project_id="$3"
+
+  DATABASE_URL="$database_url" TARGET_PROJECT_ID="$project_id" docker run --rm \
+    --env DATABASE_URL \
+    --env TARGET_PROJECT_ID \
+    "postgres:${postgres_version}" \
+    sh -c 'psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --command "
+      INSERT INTO public.bloomify_rotation_state (singleton, project_id, completed_at)
+      VALUES (true, '\''$TARGET_PROJECT_ID'\'', now())
+      ON CONFLICT (singleton) DO UPDATE
+      SET project_id = EXCLUDED.project_id, completed_at = EXCLUDED.completed_at;
+    "' >/dev/null
+}
+
 rollback() {
   local exit_code="$1"
 
@@ -198,10 +314,11 @@ table_count() {
 for variable in \
   NEON_API_KEY \
   NEON_ORG_ID \
-  NEON_INITIAL_PROJECT_ID \
+  NEON_ACTIVE_PROJECT_ID \
   VERCEL_TOKEN \
   VERCEL_ORG_ID \
-  VERCEL_PROJECT_ID; do
+  VERCEL_PROJECT_ID \
+  VERCEL_NEON_INSTALLATION_ID; do
   require_variable "$variable"
 done
 
@@ -212,38 +329,14 @@ done
 ensure_vercel_link
 
 log "Resolving the source Neon project"
-projects_json="$(neon_get "${NEON_API_BASE}/projects?limit=100")"
-
-completed_target_project_id="$(
-  jq -r --arg target_name "$TARGET_PROJECT_NAME" \
-    '[.projects[] | select(.name == $target_name)] | first | .id // empty' \
-    <<<"$projects_json"
-)"
-if [[ -n "$completed_target_project_id" ]]; then
-  log "Rotation for this month is already complete: ${TARGET_PROJECT_NAME}"
-  exit 0
-fi
-
-TARGET_PROJECT_ID="$(
-  jq -r --arg pending_name "$PENDING_PROJECT_NAME" \
-    '[.projects[] | select(.name == $pending_name)] | first | .id // empty' \
-    <<<"$projects_json"
-)"
-
-source_project_id="$(
-  jq -r \
-    --arg prefix "$ROTATION_PROJECT_PREFIX" \
-    '[.projects[] | select(.name | startswith($prefix)) | select(.name | contains("pending-") | not)] | sort_by(.created_at) | last | .id // empty' \
-    <<<"$projects_json"
-)"
-source_project_id="${source_project_id:-$NEON_INITIAL_PROJECT_ID}"
+TARGET_PROJECT_ID="$(find_neon_project_id "$TARGET_PROJECT_NAME")"
+source_project_id="$(find_completed_source_project_id "$TARGET_PROJECT_ID")"
 
 [[ "$source_project_id" != "$TARGET_PROJECT_ID" ]] || \
   die "Source and target Neon project IDs must differ"
 
 source_project_json="$(neon_get "${NEON_API_BASE}/projects/${source_project_id}")"
 source_pg_version="$(jq -er '.project.pg_version' <<<"$source_project_json")"
-source_region_id="$(jq -er '.project.region_id' <<<"$source_project_json")"
 SOURCE_DIRECT_URL="$(neon_connection_uri "$source_project_id" false)"
 SOURCE_POOLED_URL="$(neon_connection_uri "$source_project_id" true)"
 
@@ -251,33 +344,17 @@ log "Checking that the source database is available"
 wait_for_database "$SOURCE_DIRECT_URL" "$source_pg_version"
 
 if [[ -z "$TARGET_PROJECT_ID" ]]; then
-  log "Creating Neon project ${PENDING_PROJECT_NAME}"
-  create_payload="$(
-    jq -n \
-      --arg name "$PENDING_PROJECT_NAME" \
-      --arg region_id "$source_region_id" \
-      --argjson pg_version "$source_pg_version" \
-      '{project: {name: $name, region_id: $region_id, pg_version: $pg_version}}'
-  )"
-  create_url="${NEON_API_BASE}/projects?org_id=${NEON_ORG_ID}"
-  create_response="$(
-    curl --silent --show-error --fail-with-body \
-      --request POST \
-      --header "Accept: application/json" \
-      --header "Authorization: Bearer ${NEON_API_KEY}" \
-      --header "Content-Type: application/json" \
-      --data "$create_payload" \
-      "$create_url"
-  )"
-  TARGET_PROJECT_ID="$(jq -er '.project.id' <<<"$create_response")"
+  log "Creating Vercel Marketplace Neon project ${TARGET_PROJECT_NAME}"
+  create_marketplace_neon_project
+  TARGET_PROJECT_ID="$(wait_for_neon_project_id "$TARGET_PROJECT_NAME")"
 else
-  log "Reusing pending Neon project ${PENDING_PROJECT_NAME} after a previous partial run"
+  log "Reusing Neon project ${TARGET_PROJECT_NAME} after a previous partial run"
 fi
 
 target_project_json="$(neon_get "${NEON_API_BASE}/projects/${TARGET_PROJECT_ID}")"
 target_pg_version="$(jq -er '.project.pg_version' <<<"$target_project_json")"
-[[ "$target_pg_version" == "$source_pg_version" ]] || \
-  die "Source and target PostgreSQL major versions differ"
+(( target_pg_version >= source_pg_version )) || \
+  die "Target PostgreSQL version must not be older than the source"
 
 target_direct_url="$(neon_connection_uri "$TARGET_PROJECT_ID" false)"
 target_pooled_url="$(neon_connection_uri "$TARGET_PROJECT_ID" true)"
@@ -292,17 +369,19 @@ SOURCE_DATABASE_URL="$SOURCE_DIRECT_URL" docker run --rm \
   "postgres:${source_pg_version}" \
   sh -c 'pg_dump --format=custom --no-owner --no-acl --file=/backup/bloomify.dump "$SOURCE_DATABASE_URL"'
 
-log "Restoring the dump into ${PENDING_PROJECT_NAME}"
+log "Restoring the dump into ${TARGET_PROJECT_NAME}"
 TARGET_DATABASE_URL="$target_direct_url" docker run --rm \
   --env TARGET_DATABASE_URL \
   --volume "${TEMP_DIR}:/backup" \
   "postgres:${target_pg_version}" \
-  sh -c 'pg_restore --dbname "$TARGET_DATABASE_URL" --no-owner --no-acl --clean --if-exists /backup/bloomify.dump'
+  sh -c 'pg_restore --dbname "$TARGET_DATABASE_URL" --no-owner --no-acl --clean --if-exists --exit-on-error /backup/bloomify.dump'
 
 source_table_count="$(table_count "$SOURCE_DIRECT_URL" "$source_pg_version")"
 target_table_count="$(table_count "$target_direct_url" "$target_pg_version")"
 [[ "$source_table_count" == "$target_table_count" ]] || \
   die "Schema verification failed: source has ${source_table_count} tables, target has ${target_table_count}"
+
+prepare_completion_marker "$target_direct_url" "$target_pg_version"
 
 log "Switching Vercel DATABASE_URL to the new pooled connection"
 update_vercel_database_url "$target_pooled_url"
@@ -328,15 +407,8 @@ for attempt in $(seq 1 40); do
 done
 [[ "$health_ok" -eq 1 ]] || die "Production health check failed after the database switch"
 
-log "Marking the Neon project as the completed rotation for this month"
-rename_payload="$(jq -n --arg name "$TARGET_PROJECT_NAME" '{project: {name: $name}}')"
-curl --silent --show-error --fail-with-body \
-  --request PATCH \
-  --header "Accept: application/json" \
-  --header "Authorization: Bearer ${NEON_API_KEY}" \
-  --header "Content-Type: application/json" \
-  --data "$rename_payload" \
-  "${NEON_API_BASE}/projects/${TARGET_PROJECT_ID}" >/dev/null
+log "Recording the completed rotation in the target database"
+mark_rotation_complete "$target_direct_url" "$target_pg_version" "$TARGET_PROJECT_ID"
 
 DATABASE_URL_SWITCHED=0
 TARGET_DEPLOYED=0

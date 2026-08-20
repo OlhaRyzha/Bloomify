@@ -109,7 +109,10 @@ openapi.json
 AGENTS.md
 CLAUDE.md
 .codex/
+.agents/
 .claude/
+.playwright-cli/
+skills-lock.json
 *.lock.bak
 *.local
 *.secret

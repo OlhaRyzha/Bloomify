@@ -2,8 +2,8 @@ name: Neon Database Rotation
 
 on:
   schedule:
-    # 02:00 UTC on the 18th (04:00 Kyiv in winter, 05:00 in summer).
-    - cron: "0 2 18 * *"
+    # 02:00 UTC on the 17th (04:00 Kyiv in winter, 05:00 in summer).
+    - cron: "0 2 17 * *"
   workflow_dispatch:
 
 concurrency:
@@ -21,7 +21,7 @@ jobs:
     env:
       NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
       NEON_ORG_ID: ${{ vars.NEON_ORG_ID }}
-      NEON_INITIAL_PROJECT_ID: ${{ vars.NEON_INITIAL_PROJECT_ID }}
+      NEON_ACTIVE_PROJECT_ID: ${{ vars.NEON_ACTIVE_PROJECT_ID }}
       NEON_DATABASE_NAME: ${{ vars.NEON_DATABASE_NAME }}
       NEON_ROLE_NAME: ${{ vars.NEON_ROLE_NAME }}
       ROTATION_PROJECT_PREFIX: ${{ vars.ROTATION_PROJECT_PREFIX }}
@@ -29,6 +29,8 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      VERCEL_NEON_INSTALLATION_ID: ${{ vars.VERCEL_NEON_INSTALLATION_ID }}
+      VERCEL_NEON_REGION: ${{ vars.VERCEL_NEON_REGION }}
 
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +42,7 @@ jobs:
       - name: Validate rotation configuration
         run: |
           missing=0
-          for variable in NEON_API_KEY NEON_ORG_ID NEON_INITIAL_PROJECT_ID VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+          for variable in NEON_API_KEY NEON_ORG_ID NEON_ACTIVE_PROJECT_ID VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_NEON_INSTALLATION_ID; do
             if [ -z "${!variable:-}" ]; then
               echo "::error::Missing required GitHub secret or variable: ${variable}"
               missing=1
