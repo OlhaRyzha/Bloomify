@@ -98,6 +98,32 @@ class CheckoutPaymentsTest(TestCase):
     @override_settings(
         LIQPAY_PUBLIC_KEY="sandbox_public_key",
         LIQPAY_PRIVATE_KEY="sandbox_private_key",
+    )
+    def test_checkout_assigns_unique_liqpay_order_ids(self):
+        order_ids = []
+        for _ in range(2):
+            response = self.client.post(
+                "/orders/checkout",
+                data=build_checkout_payload(
+                    product_id=self.product.pk,
+                    payment_method="card",
+                ),
+                content_type="application/json",
+            )
+
+            self.assertEqual(response.status_code, 201)
+            order_id = decode_data(response.json()["liqpay"]["data"])["order_id"]
+            if not isinstance(order_id, str):
+                self.fail("LiqPay order_id must be a string")
+            order_ids.append(order_id)
+
+        self.assertEqual(len(set(order_ids)), 2)
+        for order_id in order_ids:
+            self.assertTrue(order_id.startswith("bloomify-"))
+
+    @override_settings(
+        LIQPAY_PUBLIC_KEY="sandbox_public_key",
+        LIQPAY_PRIVATE_KEY="sandbox_private_key",
         LIQPAY_RESULT_URL="http://localhost:3000/checkout",
         LIQPAY_SERVER_URL="http://localhost:8000/payments/liqpay/callback",
     )

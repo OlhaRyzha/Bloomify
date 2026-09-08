@@ -1,6 +1,7 @@
 import logging
 from datetime import date
 from decimal import Decimal, InvalidOperation
+from typing import cast
 from urllib.parse import urlencode, urlsplit, urlunsplit
 
 from django.conf import settings
@@ -172,7 +173,9 @@ class SubscribeView(APIView):
 
         plan: SubscriptionPlan = serializer.validated_data["plan_id"]
 
-        locale = request.data.get("locale") or request.query_params.get("locale")
+        request_data = cast(dict[str, object], request.data)
+        locale_value = request_data.get("locale") or request.query_params.get("locale")
+        locale = locale_value if isinstance(locale_value, str) else None
         if isinstance(locale, str) and locale not in SUPPORTED_LANGUAGE_CODES:
             locale = None
 
@@ -266,7 +269,9 @@ class UpgradeSubscriptionView(APIView):
 
         target_plan: SubscriptionPlan = serializer.validated_data["plan_id"]
 
-        locale = request.data.get("locale") or request.query_params.get("locale")
+        request_data = cast(dict[str, object], request.data)
+        locale_value = request_data.get("locale") or request.query_params.get("locale")
+        locale = locale_value if isinstance(locale_value, str) else None
         if isinstance(locale, str) and locale not in SUPPORTED_LANGUAGE_CODES:
             locale = None
 
@@ -370,8 +375,9 @@ class LiqPaySubscriptionCallbackView(APIView):
     throttle_scope = "liqpay_callback"
 
     def post(self, request: Request) -> Response:
-        data = request.data.get("data")
-        signature = request.data.get("signature")
+        request_data = cast(dict[str, object], request.data)
+        data = request_data.get("data")
+        signature = request_data.get("signature")
 
         if not isinstance(data, str) or not isinstance(signature, str):
             return Response(

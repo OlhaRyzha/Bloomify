@@ -240,8 +240,9 @@ class LiqPayCallbackView(APIView):
         responses={200: OpenApiTypes.OBJECT},
     )
     def post(self, request: Request) -> Response:
-        data = request.data.get("data")
-        signature = request.data.get("signature")
+        request_data = cast(dict[str, object], request.data)
+        data = request_data.get("data")
+        signature = request_data.get("signature")
 
         if not isinstance(data, str) or not isinstance(signature, str):
             return Response(

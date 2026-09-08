@@ -2,6 +2,7 @@ import base64
 import binascii
 import hashlib
 import hmac
+import uuid
 from decimal import Decimal
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
@@ -218,7 +219,7 @@ class LiqPayProvider:
     checkout_response_key = "liqpay"
 
     def assign_order_reference(self, order: Order) -> None:
-        provider_order_id = f"bloomify-{order.pk}"
+        provider_order_id = f"bloomify-{order.pk}-{uuid.uuid4().hex[:12]}"
         order.provider_order_id = provider_order_id
         order.liqpay_order_id = provider_order_id
         order.save(update_fields=["provider_order_id", "liqpay_order_id"])

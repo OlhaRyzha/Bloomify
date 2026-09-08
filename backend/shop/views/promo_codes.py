@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import cast
 
 from rest_framework import permissions, status
 from rest_framework.request import Request
@@ -16,8 +17,9 @@ class ValidatePromoCodeView(APIView):
     throttle_scope = "promo_code"
 
     def post(self, request: Request) -> Response:
-        code = str(request.data.get("code", "")).upper().strip()
-        raw_subtotal = request.data.get("subtotal")
+        request_data = cast(dict[str, object], request.data)
+        code = str(request_data.get("code", "")).upper().strip()
+        raw_subtotal = request_data.get("subtotal")
 
         if not code:
             return Response(
