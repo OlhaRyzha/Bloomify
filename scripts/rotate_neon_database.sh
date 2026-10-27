@@ -192,9 +192,15 @@ project_has_completion_marker() {
 
 find_completed_source_project_id() {
   local current_target_id="$1"
+  local active_project_created_at
   local project_id
   local postgres_version
   local marker_status
+
+  active_project_created_at="$(
+    neon_get "${NEON_API_BASE}/projects/${NEON_ACTIVE_PROJECT_ID}" \
+      | jq -er '.project.created_at'
+  )"
 
   while IFS=$'\t' read -r project_id postgres_version; do
     [[ -n "$project_id" ]] || continue
@@ -208,8 +214,10 @@ find_completed_source_project_id() {
     fi
   done < <(
     neon_get "${NEON_API_BASE}/projects?limit=100&org_id=${NEON_ORG_ID}" \
-      | jq -r --arg prefix "$ROTATION_PROJECT_PREFIX" \
-        '[.projects[] | select(.name | startswith($prefix))] | sort_by(.created_at) | reverse[] | [.id, .pg_version] | @tsv'
+      | jq -r \
+        --arg prefix "$ROTATION_PROJECT_PREFIX" \
+        --arg active_created_at "$active_project_created_at" \
+        '[.projects[] | select((.name | startswith($prefix)) and .created_at > $active_created_at)] | sort_by(.created_at) | reverse[] | [.id, .pg_version] | @tsv'
   )
 
   printf '%s' "$NEON_ACTIVE_PROJECT_ID"

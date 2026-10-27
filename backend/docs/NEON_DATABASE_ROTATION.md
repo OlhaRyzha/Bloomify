@@ -25,7 +25,8 @@ If a step fails after the switch, the script restores the previous
 resumes the project. It deliberately keeps old Neon projects as recoverable
 rollback points.
 
-The database marker is the source-of-truth pointer. A repeated run in the same
+`NEON_ACTIVE_PROJECT_ID` establishes the oldest eligible source. Completed
+rotation projects created after it take precedence. A repeated run in the same
 month reuses and safely overwrites that month's target from the previous
 completed source. A target becomes eligible as next month's source only after
 deployment and the production health check succeed.
