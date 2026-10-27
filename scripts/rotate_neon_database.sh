@@ -183,10 +183,10 @@ project_has_completion_marker() {
     --env DATABASE_URL \
     "postgres:${postgres_version}" \
     sh -c '
-      if [ "$(psql "$DATABASE_URL" --tuples-only --no-align --command "SELECT to_regclass('\''public.bloomify_rotation_state'\'') IS NOT NULL;")" != "t" ]; then
-        exit 1
-      fi
-      [ "$(psql "$DATABASE_URL" --tuples-only --no-align --command "SELECT EXISTS (SELECT 1 FROM public.bloomify_rotation_state WHERE completed_at IS NOT NULL);")" = "t" ]
+      marker_exists="$(psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --tuples-only --no-align --command "SELECT to_regclass('\''public.bloomify_rotation_state'\'') IS NOT NULL;")" || exit 2
+      [ "$marker_exists" = "t" ] || exit 1
+      completed="$(psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --tuples-only --no-align --command "SELECT EXISTS (SELECT 1 FROM public.bloomify_rotation_state WHERE completed_at IS NOT NULL);")" || exit 2
+      [ "$completed" = "t" ]
     ' >/dev/null 2>&1
 }
 
@@ -194,6 +194,7 @@ find_completed_source_project_id() {
   local current_target_id="$1"
   local project_id
   local postgres_version
+  local marker_status
 
   while IFS=$'\t' read -r project_id postgres_version; do
     [[ -n "$project_id" ]] || continue
@@ -201,6 +202,9 @@ find_completed_source_project_id() {
     if project_has_completion_marker "$project_id" "$postgres_version"; then
       printf '%s' "$project_id"
       return
+    else
+      marker_status=$?
+      [[ "$marker_status" -eq 1 ]] || die "Cannot inspect rotation project ${project_id}; refusing to use an older database as the source"
     fi
   done < <(
     neon_get "${NEON_API_BASE}/projects?limit=100&org_id=${NEON_ORG_ID}" \
@@ -291,13 +295,13 @@ wait_for_database() {
     if DATABASE_URL="$database_url" docker run --rm \
       --env DATABASE_URL \
       "postgres:${postgres_version}" \
-      sh -c 'pg_isready --dbname "$DATABASE_URL" --timeout=10' >/dev/null 2>&1; then
+      sh -c 'psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --tuples-only --command "SELECT 1"' >/dev/null 2>&1; then
       return
     fi
     sleep 10
   done
 
-  die "Database did not become ready within five minutes"
+  die "Database could not execute a query within five minutes; check connectivity and Neon quota before rotating"
 }
 
 table_count() {

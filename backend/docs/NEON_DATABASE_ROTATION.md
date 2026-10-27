@@ -1,7 +1,7 @@
 # Neon Database Rotation
 
-Bloomify rotates its production Neon project on the 17th of each month before
-the current Free-plan compute allowance is typically exhausted. The workflow is
+Bloomify rotates its production Neon project on the 1st of each month, while
+the source database should still be accessible. The workflow is
 implemented in `.github/workflows/neon-database-rotation.yml` and runs at
 02:00 UTC.
 
@@ -11,7 +11,7 @@ implemented in `.github/workflows/neon-database-rotation.yml` and runs at
    back to `NEON_ACTIVE_PROJECT_ID` for the initial migration.
 2. Creates or reuses a target project for the current UTC month through the
    Vercel Marketplace Neon integration.
-3. Confirms that both databases are reachable.
+3. Confirms that both databases can execute a SQL query.
 4. Pauses the Vercel project so orders cannot be written during the copy.
 5. Copies PostgreSQL schema and data with version-compatible `pg_dump` and
    `pg_restore` containers.
@@ -29,6 +29,8 @@ The database marker is the source-of-truth pointer. A repeated run in the same
 month reuses and safely overwrites that month's target from the previous
 completed source. A target becomes eligible as next month's source only after
 deployment and the production health check succeed.
+If a newer rotation project cannot be queried, the script stops instead of
+copying from an older project that may lack recent data.
 
 ## Required GitHub configuration
 
@@ -64,9 +66,10 @@ Run **Neon Database Rotation** manually from GitHub Actions after configuring
 the secrets and variables. Watch the job through the production health check.
 The scheduled job will then run on the 17th of each month.
 
-The source database must still be reachable. If Neon has already suspended it
-for exhausted compute quota, wait for the allowance reset or temporarily move
-the project to a paid plan before the first data-preserving rotation.
+The source database must still accept queries. If Neon has already blocked it
+for exhausted quota, the script stops before changing production. Restore
+database access through Neon, then rerun the workflow manually. The script
+cannot copy data from a database that rejects queries.
 
 ## Rollback and retention
 

@@ -2,8 +2,8 @@ name: Neon Database Rotation
 
 on:
   schedule:
-    # 02:00 UTC on the 17th (04:00 Kyiv in winter, 05:00 in summer).
-    - cron: "0 2 17 * *"
+    # 02:00 UTC on the 1st, before the month's compute allowance is consumed.
+    - cron: "0 2 1 * *"
   workflow_dispatch:
 
 concurrency:

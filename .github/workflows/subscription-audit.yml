@@ -19,6 +19,7 @@ jobs:
       DJANGO_DEBUG: "0"
       DJANGO_SECRET_KEY: "audit-read-only-run"
       DJANGO_ALLOWED_HOSTS: "localhost"
+      DJANGO_CORS_ALLOWED_ORIGINS: "http://localhost:3000"
       DATABASE_URL: ${{ secrets.AUDIT_DATABASE_URL }}
       POSTGRES_SSLMODE: "require"
 
@@ -46,7 +47,9 @@ jobs:
       - name: Run subscription audit
         if: env.SKIP_AUDIT != '1'
         working-directory: backend
+        shell: bash
         run: |
+          set -euo pipefail
           uv run python manage.py audit_subscriptions --full --format json | tee audit.json
 
       - name: Fail if audit found problems
